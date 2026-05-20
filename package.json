@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "watch": "node watch_and_push.js"
+    "watch": "node watch_and_push.cjs"
   },
   "dependencies": {
     "react": "^19.2.6",
