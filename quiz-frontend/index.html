@@ -123,6 +123,35 @@
 
             <h3 class="section-title">💾 Database</h3>
             <p class="small-text" style="margin-bottom:10px; color: var(--color-text-muted);">Save, export, or import your questions.</p>
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+              <label for="premade-db-select" style="font-size:0.8rem; margin-bottom:4px; color:var(--color-text-muted);">Load Pre-made DB</label>
+              <div style="display:flex; gap:8px;">
+                <select id="premade-db-select" style="flex:1; padding: 6px 10px; font-size:0.9rem; background: var(--color-bg-alt); border: 1px solid var(--color-border); color: #fff; border-radius: 6px;">
+                  <option value="">-- Select DB --</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_all.json">All Chapters (Book of Daniel)</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch1.json">Daniel Ch 1</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch2.json">Daniel Ch 2</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch3.json">Daniel Ch 3</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch4.json">Daniel Ch 4</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch5.json">Daniel Ch 5</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch6.json">Daniel Ch 6</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch7.json">Daniel Ch 7</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch8.json">Daniel Ch 8</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch9.json">Daniel Ch 9</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch10.json">Daniel Ch 10</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch11.json">Daniel Ch 11</option>
+                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch12.json">Daniel Ch 12</option>
+                </select>
+              </div>
+              <div style="display:flex; gap:8px; margin-top: 8px; align-items: center;">
+                <label for="premade-db-count" style="font-size:0.8rem; color:var(--color-text-muted); white-space: nowrap;">Questions:</label>
+                <input type="number" id="premade-db-count" placeholder="All" min="1" max="100" style="width: 70px; padding: 4px 8px; font-size:0.9rem; background: var(--color-bg-alt); border: 1px solid var(--color-border); color: #fff; border-radius: 6px;">
+                <button id="btn-load-premade" class="btn btn-secondary" style="padding: 6px 12px; flex: 1;">Load</button>
+              </div>
+              <div id="loaded-db-display" style="margin-top: 8px; font-size: 0.85rem; color: var(--color-gold); font-weight: 600;">Currently Loaded: Custom</div>
+            </div>
+
             <div class="admin-db-actions">
               <button id="btn-export-json" class="btn btn-secondary btn-block">📤 Export JSON</button>
               <div class="file-upload-wrapper">

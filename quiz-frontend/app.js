@@ -189,21 +189,31 @@ function showScreen(id) {
 // DATABASE (localStorage)
 // ============================================================
 function saveDB() {
-  localStorage.setItem('daniel_quiz_db', JSON.stringify(db));
+  const dbToSave = { ...db };
+  delete dbToSave.teams;
+  localStorage.setItem('daniel_quiz_db', JSON.stringify(dbToSave));
+  localStorage.setItem('daniel_quiz_teams', JSON.stringify(db.teams));
   updateDashboardStatus();
 }
 
 function loadDB() {
+  const storedTeams = localStorage.getItem('daniel_quiz_teams');
+  if (storedTeams) {
+    try { db.teams = JSON.parse(storedTeams); } catch(e) {}
+  }
+  if (!db.teams || db.teams.length === 0) db.teams = ['Boys', 'Girls'];
+
   const stored = localStorage.getItem('daniel_quiz_db');
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
       if (parsed && typeof parsed === 'object') {
+        const currentTeams = db.teams;
         db = parsed;
+        db.teams = currentTeams;
         if (!db.grid) db.grid = { columns: [100,200,300,400,500], rowsCount: 2 };
         if (!db.settings) db.settings = { subtractOnWrong: false };
         if (!db.questions) db.questions = [];
-        if (!db.teams) db.teams = ['Boys', 'Girls'];
       }
     } catch(e) { console.warn('DB load error, using defaults', e); }
   }
@@ -909,11 +919,71 @@ document.getElementById('settings-subtract').addEventListener('change', e => {
 document.getElementById('btn-export-json').addEventListener('click', () => {
   playSound('click');
   const a = document.createElement('a');
-  a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(db, null, 2));
+  const dbToExport = { ...db };
+  delete dbToExport.teams;
+  a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dbToExport, null, 2));
   a.download = `daniel_quiz_${Date.now()}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
+});
+
+document.getElementById('btn-load-premade').addEventListener('click', async () => {
+  playSound('click');
+  const select = document.getElementById('premade-db-select');
+  const filename = select.value;
+  if (!filename) {
+    alert('Please select a database to load.');
+    return;
+  }
+  
+  const countInput = document.getElementById('premade-db-count').value;
+  const count = parseInt(countInput, 10);
+  
+  try {
+    const res = await fetch(filename);
+    if (!res.ok) throw new Error('Network response was not ok');
+    const parsed = await res.json();
+    
+    if (parsed && typeof parsed === 'object') {
+      const currentTeams = db.teams;
+      db = parsed;
+      db.teams = currentTeams;
+      if (!db.questions) db.questions = [];
+      
+      // If user specified a limit
+      if (!isNaN(count) && count > 0 && count < db.questions.length) {
+        db.questions = db.questions.sort(() => 0.5 - Math.random()).slice(0, count);
+        
+        let colsCount = 5;
+        if (count < 5) colsCount = count;
+        const rowsCount = Math.ceil(count / colsCount) || 1;
+        const colVals = [];
+        for (let i = 1; i <= colsCount; i++) colVals.push(i * 100);
+        db.grid = { columns: colVals, rowsCount: rowsCount };
+        
+        db.questions = db.questions.map((q, idx) => {
+          const col = (idx % colsCount) + 1;
+          const row = Math.floor(idx / colsCount) + 1;
+          return { ...q, points: col * 100, cell: `${col * 100}-${row}` };
+        });
+      } else {
+        if (!db.grid) db.grid = { columns: [100,200,300,400,500], rowsCount: 2 };
+      }
+      
+      if (!db.settings) db.settings = { subtractOnWrong: false };
+      saveDB();
+      syncGridInputs();
+      renderTeamInputs();
+      document.getElementById('settings-subtract').checked = !!db.settings.subtractOnWrong;
+      renderAdminGrid();
+      document.getElementById('loaded-db-display').textContent = `Currently Loaded: ${select.options[select.selectedIndex].text}`;
+      alert(`✅ Database '${filename}' loaded successfully!`);
+    }
+  } catch(err) {
+    console.error(err);
+    alert('❌ Failed to load pre-made database! Make sure you are running via a local server (e.g. npm run dev).');
+  }
 });
 
 document.getElementById('import-json-file').addEventListener('change', e => {
@@ -924,16 +994,18 @@ document.getElementById('import-json-file').addEventListener('change', e => {
     try {
       const parsed = JSON.parse(reader.result);
       if (parsed && typeof parsed === 'object') {
+        const currentTeams = db.teams;
         db = parsed;
+        db.teams = currentTeams;
         if (!db.grid) db.grid = { columns: [100,200,300,400,500], rowsCount: 2 };
         if (!db.settings) db.settings = { subtractOnWrong: false };
         if (!db.questions) db.questions = [];
-        if (!db.teams) db.teams = ['Boys', 'Girls'];
         saveDB();
         syncGridInputs();
         renderTeamInputs();
         document.getElementById('settings-subtract').checked = !!db.settings.subtractOnWrong;
         renderAdminGrid();
+        document.getElementById('loaded-db-display').textContent = `Currently Loaded: Imported File (${file.name})`;
         alert('✅ Database imported successfully!');
       }
     } catch(err) { alert('❌ Invalid JSON file!'); }
