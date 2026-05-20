@@ -1,30 +1,47 @@
 /* ==========================================================================
-   DANIEL QUIZ — COMPLETE GAME LOGIC
+   VBS GROUP C QUIZ — COMPLETE GAME LOGIC
+   Refined & production-ready
    ========================================================================== */
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+const TOTAL_QUESTIONS = 20;
+const GRID_COLS = 4; // 4 columns × 5 rows = 20 cells
+const GRID_ROWS = 5;
+const DEFAULT_TEAMS = ['Boy', 'Girl'];
+
+// Team colour palette (cycling)
+const TEAM_COLORS = [
+  { bg: 'rgba(56,217,245,0.14)', border: 'rgba(56,217,245,0.45)', text: 'var(--color-team1)' },
+  { bg: 'rgba(255,107,157,0.14)', border: 'rgba(255,107,157,0.45)', text: 'var(--color-team2)' },
+  { bg: 'rgba(126,232,162,0.14)', border: 'rgba(126,232,162,0.45)', text: 'var(--color-team3)' },
+  { bg: 'rgba(167,139,250,0.14)', border: 'rgba(167,139,250,0.45)', text: 'var(--color-team4)' },
+  { bg: 'rgba(251,165,116,0.14)', border: 'rgba(251,165,116,0.45)', text: 'var(--color-team5)' },
+  { bg: 'rgba(244,114,182,0.14)', border: 'rgba(244,114,182,0.45)', text: 'var(--color-team6)' },
+];
+
+const TEAM_ICONS = ['⚔️', '🌸', '🦁', '👑', '🔥', '💎'];
 
 // ============================================================
 // STATE
 // ============================================================
 let db = {
-  grid: { columns: [100, 200, 300, 400, 500], rowsCount: 2 },
   settings: { subtractOnWrong: false },
-  questions: [],
-  teams: ['Boys', 'Girls']
+  questions: [], // each: { id, qnIndex (1-20), type, question, options, answer, points }
+  teams: [...DEFAULT_TEAMS],
 };
 
 let playState = {
   activeScreen: 'dashboard',
-  teams: [
-    { name: 'Boys', score: 0 },
-    { name: 'Girls', score: 0 }
-  ],
+  teams: [],           // [{ name, score }]
   currentTeamIndex: 0,
   originalTeamIndex: 0,
   isStealState: false,
-  answeredCells: {},
+  answeredCells: {},   // { "qn1": { teamIndex, pointsWon, cancelled } }
   currentCellId: null,
   currentQuestion: null,
-  stats: {} // Maps teamIndex to { correct: 0, attempts: 0 }
+  stats: {},           // { teamIndex: { correct, attempts } }
 };
 
 // ============================================================
@@ -67,6 +84,10 @@ function playSound(name) {
       playTone(220, 'sawtooth', 0.18, 0.3, 0);
       playTone(180, 'sawtooth', 0.18, 0.3, 0.2);
       break;
+    case 'cancel':
+      playTone(300, 'sawtooth', 0.12, 0.25, 0);
+      playTone(220, 'sawtooth', 0.18, 0.2, 0.14);
+      break;
     case 'pass':
       playTone(700, 'sine', 0.1, 0.25, 0);
       playTone(500, 'sine', 0.15, 0.2, 0.12);
@@ -100,7 +121,7 @@ class ConfettiParticle {
   constructor(x, y, burst = false) {
     this.x = x; this.y = y;
     this.size = Math.random() * 9 + 5;
-    this.color = ['#F3C623','#38BDF8','#FB7185','#10B981','#ffffff','#A78BFA'][Math.floor(Math.random() * 6)];
+    this.color = ['#F4C430','#38D9F5','#FF6B9D','#7EE8A2','#ffffff','#A78BFA'][Math.floor(Math.random() * 6)];
     if (burst) {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 10 + 5;
@@ -168,13 +189,24 @@ function stopConfetti() {
 }
 
 // ============================================================
+// CELL ID HELPERS
+// ============================================================
+function cellId(qnIndex) {
+  return `qn${qnIndex}`;
+}
+
+function qnLabel(qnIndex) {
+  return `Qn${qnIndex}`;
+}
+
+// ============================================================
 // SCREEN MANAGER
 // ============================================================
 const screens = {
   dashboard: document.getElementById('screen-dashboard'),
   admin:     document.getElementById('screen-admin'),
   game:      document.getElementById('screen-game'),
-  winner:    document.getElementById('screen-winner')
+  winner:    document.getElementById('screen-winner'),
 };
 
 function showScreen(id) {
@@ -186,37 +218,33 @@ function showScreen(id) {
 }
 
 // ============================================================
-// DATABASE (localStorage)
+// PERSISTENCE (localStorage)
 // ============================================================
 function saveDB() {
-  const dbToSave = { ...db };
-  delete dbToSave.teams;
-  localStorage.setItem('daniel_quiz_db', JSON.stringify(dbToSave));
-  localStorage.setItem('daniel_quiz_teams', JSON.stringify(db.teams));
+  localStorage.setItem('vbs_quiz_db', JSON.stringify(db));
   updateDashboardStatus();
 }
 
 function loadDB() {
-  const storedTeams = localStorage.getItem('daniel_quiz_teams');
-  if (storedTeams) {
-    try { db.teams = JSON.parse(storedTeams); } catch(e) {}
-  }
-  if (!db.teams || db.teams.length === 0) db.teams = ['Boys', 'Girls'];
-
-  const stored = localStorage.getItem('daniel_quiz_db');
+  const stored = localStorage.getItem('vbs_quiz_db');
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
       if (parsed && typeof parsed === 'object') {
-        const currentTeams = db.teams;
-        db = parsed;
-        db.teams = currentTeams;
-        if (!db.grid) db.grid = { columns: [100,200,300,400,500], rowsCount: 2 };
-        if (!db.settings) db.settings = { subtractOnWrong: false };
-        if (!db.questions) db.questions = [];
+        db = {
+          settings: parsed.settings || { subtractOnWrong: false },
+          questions: parsed.questions || [],
+          teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
+            ? parsed.teams
+            : [...DEFAULT_TEAMS],
+        };
       }
-    } catch(e) { console.warn('DB load error, using defaults', e); }
+    } catch (e) {
+      console.warn('VBS Quiz: DB load error, using defaults', e);
+    }
   }
+
+  // Sync UI
   const subEl = document.getElementById('settings-subtract');
   if (subEl) subEl.checked = !!db.settings.subtractOnWrong;
   updateDashboardStatus();
@@ -226,28 +254,28 @@ function updateDashboardStatus() {
   const statusDiv = document.getElementById('dashboard-status');
   const startBtn  = document.getElementById('btn-start-game');
   const count = db.questions.length;
-  const cols  = db.grid.columns.length;
-  const rows  = db.grid.rowsCount;
+
   if (count === 0) {
-    statusDiv.innerHTML = `<div class="bold-text">⚠️ No questions configured yet!</div>
-      <p style="margin-top:6px;font-size:0.9rem;color:var(--color-text-muted);">Open Admin Panel to set up your grid and add questions.</p>`;
+    statusDiv.innerHTML = `
+      <div class="bold-text">⚠️ No questions configured yet!</div>
+      <p style="margin-top:6px;font-size:0.9rem;color:var(--color-text-muted);">Open the Admin Panel (⚙️) to add questions.</p>`;
     startBtn.disabled = true;
   } else {
-    statusDiv.innerHTML = `<div class="bold-text cyan-text">✅ Ready to Play!</div>
+    statusDiv.innerHTML = `
+      <div class="bold-text" style="color:var(--color-success);">✅ Quiz ready!</div>
       <p style="margin-top:6px;font-size:0.9rem;color:var(--color-text-muted);">
-        Grid: <strong style="color:#fff">${cols}×${rows}</strong> &nbsp;|&nbsp;
-        Questions loaded: <strong style="color:#fff">${count}</strong>
+        <strong style="color:var(--color-text-light);">${count}</strong> question${count !== 1 ? 's' : ''} added. Good to go!
       </p>`;
     startBtn.disabled = false;
   }
 }
 
 // ============================================================
-// THEME TOGGLE
+// THEME
 // ============================================================
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('daniel_quiz_theme', theme);
+  localStorage.setItem('vbs_quiz_theme', theme);
   const icon = document.getElementById('theme-icon');
   if (icon) icon.textContent = theme === 'light' ? '☀️' : '🌙';
 }
@@ -258,88 +286,51 @@ function toggleTheme() {
 }
 
 // ============================================================
-// ADMIN PANEL — GRID
+// ADMIN — GRID
 // ============================================================
 let selectedAdminCellId = null;
-
-function syncGridInputs() {
-  document.getElementById('grid-columns').value = db.grid.columns.join(',');
-  document.getElementById('grid-rows').value = db.grid.rowsCount;
-  updateGridHint();
-}
-
-function updateGridHint() {
-  const colsVal = document.getElementById('grid-columns').value;
-  const rowsVal = parseInt(document.getElementById('grid-rows').value, 10);
-  const parsedCols = colsVal.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n > 0);
-  const hint = document.getElementById('grid-calc-hint');
-  if (parsedCols.length > 0 && !isNaN(rowsVal) && rowsVal > 0) {
-    hint.textContent = `Creates a ${parsedCols.length}×${rowsVal} grid (${parsedCols.length * rowsVal} total slots)`;
-  } else {
-    hint.textContent = 'Invalid columns or rows configuration.';
-  }
-}
-
-function autoCalcGridFromTotal() {
-  const total = parseInt(document.getElementById('grid-total-questions').value, 10);
-  if (isNaN(total) || total < 2) return;
-  
-  let colsCount = 5;
-  let rowsCount = Math.ceil(total / colsCount);
-  
-  const colVals = [];
-  for (let i = 1; i <= colsCount; i++) {
-    colVals.push(i * 100);
-  }
-  
-  document.getElementById('grid-columns').value = colVals.join(',');
-  document.getElementById('grid-rows').value = rowsCount;
-  updateGridHint();
-}
 
 function renderAdminGrid() {
   const container = document.getElementById('admin-interactive-grid');
   container.innerHTML = '';
-  const cols = db.grid.columns;
-  const rows = db.grid.rowsCount;
-  container.style.gridTemplateColumns = `repeat(${cols.length}, 1fr)`;
+  container.style.gridTemplateColumns = `repeat(${GRID_COLS}, 1fr)`;
 
-  // Stats
-  document.getElementById('admin-grid-stats').textContent = `Grid: ${cols.length}×${rows} (${cols.length * rows} slots)`;
-  document.getElementById('admin-q-count').textContent = `Questions: ${db.questions.length}`;
+  // Update question count badge
+  document.getElementById('admin-q-count').textContent = `Questions added: ${db.questions.length}`;
 
-  // Data rows (no header row as requested)
-  for (let r = 1; r <= rows; r++) {
-    cols.forEach(pts => {
-      const cellId = `${pts}-${r}`;
-      const q = db.questions.find(x => x.cell === cellId);
-      const cell = document.createElement('div');
-      cell.className = `board-cell ${q ? 'has-q' : ''} ${selectedAdminCellId === cellId ? 'selected-edit' : ''}`;
-      cell.dataset.cellId = cellId;
+  for (let qn = 1; qn <= TOTAL_QUESTIONS; qn++) {
+    const cId = cellId(qn);
+    const q = db.questions.find(x => x.qnIndex === qn);
+    const cell = document.createElement('div');
+    cell.className = `board-cell ${q ? 'has-q' : ''} ${selectedAdminCellId === cId ? 'selected-edit' : ''}`;
+    cell.dataset.cellId = cId;
+    cell.setAttribute('role', 'button');
+    cell.setAttribute('aria-label', `${qnLabel(qn)}: ${q ? 'Edit question' : 'Add question'}`);
 
-      const ptsSpan = document.createElement('span');
-      ptsSpan.className = 'cell-pts';
-      ptsSpan.textContent = q ? q.points : pts;
-      cell.appendChild(ptsSpan);
+    const labelEl = document.createElement('span');
+    labelEl.className = 'cell-qn-label';
+    labelEl.textContent = qnLabel(qn);
+    cell.appendChild(labelEl);
 
-      const tag = document.createElement('span');
-      tag.className = 'cell-info-tag';
-      tag.textContent = q ? (q.type === 'mcq' ? '🔘 MCQ' : '✏️ Fill') : '+ Add';
-      cell.appendChild(tag);
+    const tagEl = document.createElement('span');
+    tagEl.className = 'cell-info-tag';
+    tagEl.textContent = q ? (q.type === 'mcq' ? '🔘 MCQ' : '✏️ Fill') : '+ Add';
+    cell.appendChild(tagEl);
 
-      cell.addEventListener('click', () => {
-        playSound('click');
-        selectedAdminCellId = cellId;
-        openQuestionEditor(cellId, pts);
-      });
-      container.appendChild(cell);
+    cell.addEventListener('click', () => {
+      playSound('click');
+      selectedAdminCellId = cId;
+      openQuestionEditor(qn);
+      renderAdminGrid();
     });
+    container.appendChild(cell);
   }
 }
 
-function openQuestionEditor(cellId, defaultPoints) {
-  const q = db.questions.find(x => x.cell === cellId);
-  document.getElementById('editor-cell-title').textContent = `Editing Cell [Column: ${cellId.split('-')[0]}, Row: ${cellId.split('-')[1]}]`;
+function openQuestionEditor(qnIndex) {
+  const cId = cellId(qnIndex);
+  const q = db.questions.find(x => x.qnIndex === qnIndex);
+  document.getElementById('editor-cell-title').textContent = `📝 Editing ${qnLabel(qnIndex)}`;
   document.getElementById('admin-question-editor').classList.remove('hidden');
 
   const form = document.getElementById('question-form');
@@ -349,44 +340,46 @@ function openQuestionEditor(cellId, defaultPoints) {
     document.getElementById('q-type').value = q.type;
     document.getElementById('q-text').value = q.question;
     document.getElementById('q-points').value = q.points;
-    
+
     const isMCQ = q.type === 'mcq';
     document.getElementById('mcq-options-container').classList.toggle('hidden', !isMCQ);
     document.getElementById('fill-answer-container').classList.toggle('hidden', isMCQ);
     setMCQRequired(isMCQ);
 
-    if (isMCQ) {
+    if (isMCQ && q.options) {
       q.options.forEach((opt, idx) => {
-        document.getElementById(`opt-${idx}`).value = opt;
+        const el = document.getElementById(`opt-${idx}`);
+        if (el) el.value = opt;
       });
       const correctIdx = q.options.indexOf(q.answer);
       if (correctIdx !== -1) {
-        document.querySelector(`input[name="mcq-correct"][value="${correctIdx}"]`).checked = true;
+        const radio = document.querySelector(`input[name="mcq-correct"][value="${correctIdx}"]`);
+        if (radio) radio.checked = true;
       }
     } else {
-      document.getElementById('q-fill-answer').value = q.answer;
+      document.getElementById('q-fill-answer').value = q.answer || '';
     }
-    document.getElementById('btn-delete-question').classList.remove('hidden');
+    document.getElementById('btn-delete-question').style.display = 'inline-flex';
   } else {
-    document.getElementById('q-type').value = 'mcq';
+    document.getElementById('q-type').value = 'fill';
     document.getElementById('q-text').value = '';
-    document.getElementById('q-points').value = defaultPoints;
-    
-    document.getElementById('mcq-options-container').classList.remove('hidden');
-    document.getElementById('fill-answer-container').classList.add('hidden');
-    setMCQRequired(true);
-    
-    document.getElementById('btn-delete-question').classList.add('hidden');
+    document.getElementById('q-points').value = 100;
+    document.getElementById('mcq-options-container').classList.add('hidden');
+    document.getElementById('fill-answer-container').classList.remove('hidden');
+    setMCQRequired(false);
+    document.getElementById('btn-delete-question').style.display = 'none';
   }
-  
-  document.getElementById('admin-question-editor').scrollIntoView({ behavior: 'smooth' });
+
+  document.getElementById('admin-question-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function setMCQRequired(req) {
   for (let i = 0; i < 4; i++) {
-    document.getElementById(`opt-${i}`).required = req;
+    const el = document.getElementById(`opt-${i}`);
+    if (el) el.required = req;
   }
-  document.getElementById('q-fill-answer').required = !req;
+  const fillEl = document.getElementById('q-fill-answer');
+  if (fillEl) fillEl.required = !req;
 }
 
 // ============================================================
@@ -395,64 +388,58 @@ function setMCQRequired(req) {
 function renderGameBoard() {
   const container = document.getElementById('game-board-grid');
   container.innerHTML = '';
-  const cols = db.grid.columns;
-  const rows = db.grid.rowsCount;
-  container.style.gridTemplateColumns = `repeat(${cols.length}, 1fr)`;
+  container.style.gridTemplateColumns = `repeat(${GRID_COLS}, 1fr)`;
 
-  // Cells (no header row as requested)
-  for (let r = 1; r <= rows; r++) {
-    cols.forEach(pts => {
-      const cellId = `${pts}-${r}`;
-      const q = db.questions.find(x => x.cell === cellId);
-      const btn = document.createElement('button');
+  for (let qn = 1; qn <= TOTAL_QUESTIONS; qn++) {
+    const cId = cellId(qn);
+    const q = db.questions.find(x => x.qnIndex === qn);
+    const btn = document.createElement('button');
+    btn.dataset.cellId = cId;
+    btn.setAttribute('aria-label', qnLabel(qn));
+
+    const answered = playState.answeredCells[cId];
+
+    if (!q) {
+      // No question — empty slot
       btn.className = 'game-cell-btn';
-      btn.dataset.cellId = cellId;
-
-      const isAnswered = playState.answeredCells[cellId];
-      const displayPts = q ? q.points : pts;
-
-      if (!q) {
-        btn.innerHTML = `<span class="cell-val" style="opacity:0.25;">—</span>`;
-        btn.disabled = true;
-      } else if (isAnswered) {
-        const teamIndex = isAnswered.teamIndex;
-        btn.disabled = true;
-        
-        const colors = [
-          { bg: 'rgba(56,189,248,0.15)', border: 'rgba(56,189,248,0.45)', text: 'var(--color-boys)' },
-          { bg: 'rgba(251,113,133,0.15)', border: 'rgba(251,113,133,0.45)', text: 'var(--color-girls)' },
-          { bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.45)', text: '#10B981' },
-          { bg: 'rgba(243,198,35,0.15)', border: 'rgba(243,198,35,0.45)', text: '#F3C623' },
-          { bg: 'rgba(167,139,250,0.15)', border: 'rgba(167,139,250,0.45)', text: '#A78BFA' },
-          { bg: 'rgba(252,165,165,0.15)', border: 'rgba(252,165,165,0.45)', text: '#FCA5A5' }
-        ];
-        
-        const tColor = colors[teamIndex % colors.length] || { bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.08)', text: 'var(--color-text-muted)' };
-        
-        if (teamIndex === -1) {
-          btn.style.background = 'rgba(255,255,255,0.04)';
-          btn.style.borderColor = 'rgba(255,255,255,0.08)';
-          btn.style.opacity = '0.5';
-          btn.innerHTML = `<span class="cell-val" style="font-size:1.2rem; color:var(--color-text-muted);">–</span>
-            <span class="cell-answered-tag" style="color:var(--color-text-muted);">Locked</span>`;
-        } else {
-          btn.style.background = tColor.bg;
-          btn.style.borderColor = tColor.border;
-          btn.style.opacity = '0.9';
-          const team = playState.teams[teamIndex];
-          const tName = team ? team.name : `Team ${teamIndex + 1}`;
-          btn.innerHTML = `<span class="cell-val" style="font-size:1.2rem; color:${tColor.text};">${displayPts}</span>
-            <span class="cell-answered-tag" style="color:${tColor.text}; font-weight:700;">✓ +${isAnswered.pointsWon} (${tName})</span>`;
-        }
+      btn.disabled = true;
+      btn.innerHTML = `<span class="cell-qn" style="opacity:0.2; font-size:1rem;">—</span>`;
+    } else if (answered && answered.cancelled) {
+      // Cancelled
+      btn.className = 'game-cell-btn cell-cancelled';
+      btn.disabled = true;
+      btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel);">${qnLabel(qn)}</span>`;
+    } else if (answered) {
+      // Answered
+      btn.className = 'game-cell-btn cell-answered';
+      btn.disabled = true;
+      const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
+      if (answered.teamIndex === -1) {
+        // Wrong / no winner
+        btn.style.background = 'rgba(255,255,255,0.04)';
+        btn.style.borderColor = 'rgba(255,255,255,0.1)';
+        btn.style.opacity = '0.5';
+        btn.innerHTML = `<span class="cell-qn" style="font-size:1rem; opacity:0.5;">✗</span><span class="cell-answered-tag" style="color:var(--color-text-muted);">${qnLabel(qn)}</span>`;
       } else {
-        btn.innerHTML = `<span class="cell-val">${displayPts}</span>`;
-        btn.addEventListener('click', () => {
-          playSound('open');
-          openQuestionModal(cellId, q);
-        });
+        const team = playState.teams[answered.teamIndex];
+        const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
+        btn.style.background = tColor.bg;
+        btn.style.borderColor = tColor.border;
+        btn.innerHTML = `
+          <span class="cell-qn" style="color:${tColor.text}; font-size:1.4rem;">✓</span>
+          <span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
       }
-      container.appendChild(btn);
-    });
+    } else {
+      // Available
+      btn.className = 'game-cell-btn';
+      btn.innerHTML = `<span class="cell-qn">${qnLabel(qn)}</span>`;
+      btn.addEventListener('click', () => {
+        playSound('open');
+        openQuestionModal(cId, q);
+      });
+    }
+
+    container.appendChild(btn);
   }
 }
 
@@ -462,16 +449,13 @@ function renderGameBoard() {
 function updateTurnUI() {
   const turnDisplay = document.getElementById('turn-display');
   const stealBanner = document.getElementById('steal-banner');
-  
   const activeTeam = playState.teams[playState.currentTeamIndex];
   if (!activeTeam) return;
-  
+
   turnDisplay.textContent = activeTeam.name.toUpperCase();
-  turnDisplay.className = `turn-team`;
   turnDisplay.style.color = 'var(--color-gold)';
-  
   stealBanner.classList.toggle('hidden', !playState.isStealState);
-  
+
   const panels = document.querySelectorAll('.dynamic-team-panel');
   panels.forEach((panel, i) => {
     panel.classList.toggle('active-turn', i === playState.currentTeamIndex);
@@ -485,29 +469,30 @@ function switchTurn() {
 }
 
 // ============================================================
-// SCORE UPDATE
+// SCORE UI
 // ============================================================
 function updateScoreUI() {
   const container = document.getElementById('game-team-panels');
   if (!container) return;
   container.innerHTML = '';
-  
-  const icons = ['⚔️', '🌸', '🦁', '👑', '🔥', '💎'];
-  
+
   playState.teams.forEach((team, i) => {
-    const activeClass = (playState.currentTeamIndex === i) ? 'active-turn' : '';
+    const color = TEAM_COLORS[i % TEAM_COLORS.length];
+    const isActive = playState.currentTeamIndex === i;
     const panel = document.createElement('div');
-    panel.className = `dynamic-team-panel glass-panel ${activeClass}`;
+    panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''}`;
+    panel.style.borderColor = isActive ? 'var(--color-gold)' : color.border;
+
     panel.innerHTML = `
-      <span class="team-icon">${icons[i % icons.length]}</span>
+      <span class="team-icon">${TEAM_ICONS[i % TEAM_ICONS.length]}</span>
       <div class="team-details">
-        <span class="team-label" style="text-transform:uppercase;">${team.name}</span>
-        <span id="score-team-${i}" class="team-score">${team.score}</span>
+        <span class="team-label">${team.name}</span>
+        <span id="score-team-${i}" class="team-score" style="color:${color.text};">${team.score}</span>
       </div>
     `;
     container.appendChild(panel);
   });
-  
+
   renderSidebarLeaderboard();
 }
 
@@ -515,21 +500,21 @@ function renderSidebarLeaderboard() {
   const list = document.getElementById('sidebar-leaderboard-list');
   if (!list) return;
   list.innerHTML = '';
-  
+
   const sorted = playState.teams
     .map((t, idx) => ({ ...t, index: idx }))
     .sort((a, b) => b.score - a.score);
-    
+
   sorted.forEach((team, rank) => {
-    const activeClass = (playState.currentTeamIndex === team.index) ? 'active-item' : '';
+    const isActive = playState.currentTeamIndex === team.index;
     const div = document.createElement('div');
-    div.className = `leaderboard-item ${activeClass}`;
-    
+    div.className = `leaderboard-item ${isActive ? 'active-item' : ''}`;
+
     let medal = `${rank + 1}`;
     if (rank === 0) medal = '🥇';
     else if (rank === 1) medal = '🥈';
     else if (rank === 2) medal = '🥉';
-    
+
     div.innerHTML = `
       <span class="leaderboard-rank">${medal}</span>
       <span class="leaderboard-name">${team.name}</span>
@@ -542,42 +527,40 @@ function renderSidebarLeaderboard() {
 // ============================================================
 // QUESTION MODAL
 // ============================================================
-function openQuestionModal(cellId, q) {
-  playState.currentCellId = cellId;
+function openQuestionModal(cId, q) {
+  playState.currentCellId = cId;
   playState.currentQuestion = q;
 
   const overlay = document.getElementById('modal-overlay');
 
-  document.getElementById('btn-modal-pass').style.display = playState.isStealState ? 'none' : 'inline-block';
+  document.getElementById('btn-modal-pass').style.display = playState.isStealState ? 'none' : 'inline-flex';
   document.getElementById('modal-steal-label').classList.toggle('hidden', !playState.isStealState);
 
-  // Header info
-  document.getElementById('modal-cell-id').textContent = `${q.points} PTS`;
+  // Header
+  const qnIndex = q.qnIndex || parseInt(cId.replace('qn', ''), 10);
+  document.getElementById('modal-cell-id').textContent = qnLabel(qnIndex);
   const turnStatus = document.getElementById('modal-turn-status');
   const activeTeam = playState.teams[playState.currentTeamIndex];
   turnStatus.textContent = `${activeTeam.name.toUpperCase()}'S TURN`;
-  turnStatus.className = `modal-turn-status`;
-  turnStatus.style.color = 'var(--color-gold)';
 
   // Question text
   document.getElementById('modal-question-text').textContent = q.question;
 
-  // MCQ vs Fill
+  // Answer containers
   const mcqContainer  = document.getElementById('modal-mcq-container');
   const fillContainer = document.getElementById('modal-fill-container');
   const revealPanel   = document.getElementById('modal-reveal-panel');
-
   revealPanel.classList.add('hidden');
 
   if (q.type === 'mcq') {
     mcqContainer.classList.remove('hidden');
     fillContainer.classList.add('hidden');
     const optBtns = document.querySelectorAll('.option-btn');
-    const letters = ['A','B','C','D'];
+    const letters = ['A', 'B', 'C', 'D'];
     optBtns.forEach((btn, i) => {
       btn.className = 'option-btn';
       btn.querySelector('.option-letter').textContent = letters[i];
-      btn.querySelector('.option-val').textContent = q.options[i];
+      btn.querySelector('.option-val').textContent = q.options ? q.options[i] : '';
       btn.onclick = () => {
         document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
@@ -591,7 +574,7 @@ function openQuestionModal(cellId, q) {
     fillInput.value = '';
     fillInput.disabled = false;
     fillInput.style.borderColor = '';
-    fillInput.focus();
+    setTimeout(() => fillInput.focus(), 100);
   }
 
   document.getElementById('modal-correct-answer-text').textContent = q.answer;
@@ -604,11 +587,29 @@ function closeModal() {
   playState.currentQuestion = null;
 }
 
+// ============================================================
+// CANCEL QUESTION
+// ============================================================
+function cancelQuestion() {
+  const cId = playState.currentCellId;
+  const q = playState.currentQuestion;
+  if (!cId) return;
+
+  playSound('cancel');
+  playState.answeredCells[cId] = { teamIndex: -2, pointsWon: 0, cancelled: true };
+  closeModal();
+  renderGameBoard();
+  checkGameOver();
+}
+
+// ============================================================
+// SUBMIT / PASS
+// ============================================================
 function submitAnswer(isCorrect) {
   const q = playState.currentQuestion;
   if (!q) return;
 
-  const cellId = playState.currentCellId;
+  const cId = playState.currentCellId;
   const teamIndex = playState.currentTeamIndex;
   const pts = q.points;
 
@@ -618,19 +619,17 @@ function submitAnswer(isCorrect) {
   if (isCorrect) {
     playSound('correct');
     triggerBurst();
-    
+
     let won = pts;
-    if (playState.isStealState) {
-      won = Math.round(pts / 2);
-    }
-    
+    if (playState.isStealState) won = Math.round(pts / 2);
+
     playState.teams[teamIndex].score += won;
-    playState.answeredCells[cellId] = { teamIndex: teamIndex, pointsWon: won };
-    playState.stats[teamIndex].correct++;
-    playState.stats[teamIndex].attempts++;
-    
+    playState.answeredCells[cId] = { teamIndex, pointsWon: won, cancelled: false };
+    if (playState.stats[teamIndex]) playState.stats[teamIndex].correct++;
+    if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
+
     updateScoreUI();
-    
+
     setTimeout(() => {
       closeModal();
       if (playState.isStealState) {
@@ -642,16 +641,15 @@ function submitAnswer(isCorrect) {
       renderGameBoard();
       checkGameOver();
     }, 1800);
-    
+
   } else {
     playSound('wrong');
-    playState.stats[teamIndex].attempts++;
-    
+    if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
+
     if (playState.isStealState) {
-      playState.answeredCells[cellId] = { teamIndex: -1, pointsWon: 0 };
+      playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
       playState.isStealState = false;
       playState.currentTeamIndex = (playState.originalTeamIndex + 1) % playState.teams.length;
-      
       updateScoreUI();
       setTimeout(() => {
         closeModal();
@@ -663,8 +661,7 @@ function submitAnswer(isCorrect) {
       if (db.settings.subtractOnWrong) {
         playState.teams[teamIndex].score = Math.max(0, playState.teams[teamIndex].score - pts);
       }
-      playState.answeredCells[cellId] = { teamIndex: -1, pointsWon: 0 };
-      
+      playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
       updateScoreUI();
       setTimeout(() => {
         closeModal();
@@ -679,7 +676,6 @@ function submitAnswer(isCorrect) {
 function handlePass() {
   const q = playState.currentQuestion;
   if (!q) return;
-
   playSound('pass');
 
   playState.originalTeamIndex = playState.currentTeamIndex;
@@ -690,15 +686,10 @@ function handlePass() {
 
   document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
   const fillInput = document.getElementById('modal-fill-input');
-  if (fillInput) {
-    fillInput.value = '';
-    fillInput.focus();
-  }
+  if (fillInput) { fillInput.value = ''; fillInput.focus(); }
 
   const activeTeam = playState.teams[playState.currentTeamIndex];
-  const turnStatus = document.getElementById('modal-turn-status');
-  turnStatus.textContent = `${activeTeam.name.toUpperCase()}'S TURN`;
-
+  document.getElementById('modal-turn-status').textContent = `${activeTeam.name.toUpperCase()}'S TURN`;
   document.getElementById('modal-steal-label').classList.remove('hidden');
   document.getElementById('btn-modal-pass').style.display = 'none';
 }
@@ -707,12 +698,11 @@ function handlePass() {
 // GAME OVER CHECK
 // ============================================================
 function checkGameOver() {
-  const totalCells = db.grid.columns.length * db.grid.rowsCount;
-  const answeredCount = Object.keys(playState.answeredCells).length;
-  const questionCells = db.questions.map(q => q.cell);
-  const allQuestionsDone = questionCells.every(c => playState.answeredCells[c]);
-
-  if (answeredCount >= totalCells || allQuestionsDone) {
+  const allAnsweredOrCancelled = db.questions.every(q => {
+    const cId = cellId(q.qnIndex);
+    return !!playState.answeredCells[cId];
+  });
+  if (allAnsweredOrCancelled && db.questions.length > 0) {
     endGame();
   }
 }
@@ -727,28 +717,26 @@ function endGame() {
 
   if (tie) {
     document.getElementById('winner-badge').textContent = "IT'S A TIE! 🤝";
-    document.getElementById('winner-team-name').textContent = "Perfectly Matched!";
-    document.getElementById('winner-team-name').style.color = 'var(--color-gold)';
-    document.getElementById('winner-subtitle').textContent = "Top teams finished with equal scores! Great job everyone!";
+    document.getElementById('winner-team-name').textContent = 'Perfectly Matched!';
+    document.getElementById('winner-subtitle').textContent = 'Top teams finished with equal scores! Great job everyone!';
   } else {
     document.getElementById('winner-badge').textContent = 'CHAMPION! 🏆';
     document.getElementById('winner-team-name').textContent = `${winner.name.toUpperCase()} WINS!`;
-    document.getElementById('winner-team-name').style.color = 'var(--color-gold)';
     document.getElementById('winner-subtitle').textContent = `Congratulations to ${winner.name} on their incredible victory!`;
   }
 
   const standingsContainer = document.getElementById('winner-standings-container');
   if (standingsContainer) {
     standingsContainer.innerHTML = '';
+    const placeMedals = ['🥇 1st Place', '🥈 2nd Place', '🥉 3rd Place', '4th Place', '5th Place', '6th Place'];
     sorted.forEach((team, rank) => {
-      const placeMedals = ['🥇 1st Place', '🥈 2nd Place', '🥉 3rd Place', '4th Place', '5th Place', '6th Place'];
       const medal = placeMedals[rank] || `${rank + 1}th Place`;
       const row = document.createElement('div');
       row.className = `standing-row ${rank === 0 ? 'first-place' : ''}`;
       row.innerHTML = `
         <span class="standing-place">${medal}</span>
-        <span class="standing-name" style="font-weight:700;">${team.name}</span>
-        <span class="standing-score" style="font-family:var(--font-display); font-weight:900;">${team.score} PTS</span>
+        <span style="font-weight:800;">${team.name}</span>
+        <span style="font-family:var(--font-display); font-size:1.2rem;">${team.score} pts</span>
       `;
       standingsContainer.appendChild(row);
     });
@@ -756,49 +744,50 @@ function endGame() {
 
   const statsDiv = document.getElementById('winner-stats');
   if (statsDiv) {
-    let statsHtml = '';
+    let html = '';
     playState.teams.forEach((team, i) => {
       const stat = playState.stats[i] || { correct: 0, attempts: 0 };
-      statsHtml += `<p>• <strong>${team.name}</strong>: ${stat.correct} correct out of ${stat.attempts} attempts</p>`;
+      html += `<p>• <strong>${team.name}</strong>: ${stat.correct} correct out of ${stat.attempts} attempts</p>`;
     });
-    statsDiv.innerHTML = statsHtml;
+    statsDiv.innerHTML = html;
   }
 
   showScreen('winner');
 }
 
 // ============================================================
-// RESET GAME STATE & TEAMS INPUTS
+// TEAMS SETUP
 // ============================================================
 function renderTeamInputs() {
   const container = document.getElementById('dynamic-team-inputs');
   if (!container) return;
-  
-  if (!db.teams || !Array.isArray(db.teams) || db.teams.length === 0) {
-    db.teams = ['Boys', 'Girls'];
-  }
-  
-  const countInput = document.getElementById('setup-team-count');
-  if (countInput) {
-    countInput.value = db.teams.length;
+
+  // Ensure teams array is valid
+  if (!db.teams || !Array.isArray(db.teams) || db.teams.length < 2) {
+    db.teams = [...DEFAULT_TEAMS];
   }
 
+  // Sync count input
+  const countInput = document.getElementById('setup-team-count');
+  if (countInput) countInput.value = db.teams.length;
+
   container.innerHTML = '';
-  
   db.teams.forEach((name, i) => {
-    const div = document.createElement('div');
-    div.className = 'form-group';
-    div.style.marginBottom = '6px';
-    div.innerHTML = `
-      <label for="setup-team-name-${i}" style="font-size:0.8rem; margin-bottom:4px; color:var(--color-text-muted);">Team ${i + 1} Name</label>
-      <input type="text" id="setup-team-name-${i}" value="${name}" required style="padding: 6px 10px; font-size:0.9rem; background: var(--color-bg-alt); border: 1px solid var(--color-border); color: #fff; width: 100%;">
+    const row = document.createElement('div');
+    row.className = 'team-input-row';
+    row.innerHTML = `
+      <label for="setup-team-name-${i}">Team ${i + 1}</label>
+      <input type="text" id="setup-team-name-${i}" 
+        value="${name}" 
+        placeholder="${DEFAULT_TEAMS[i] || `Team ${i + 1}`}"
+        autocomplete="off">
     `;
-    const input = div.querySelector('input');
+    const input = row.querySelector('input');
     input.addEventListener('input', (e) => {
-      db.teams[i] = e.target.value.trim() || `Team ${i + 1}`;
+      db.teams[i] = e.target.value; // Store raw value (may be empty)
       saveDB();
     });
-    container.appendChild(div);
+    container.appendChild(row);
   });
 }
 
@@ -812,23 +801,26 @@ function handleTeamCountChange() {
 
   const currentLength = db.teams.length;
   if (count > currentLength) {
-    const defaultNames = ['Boys', 'Girls', 'Daniel Lions', 'Furnace Men', 'Belshazzars', 'Darius Army'];
+    const extraDefaults = ['Boy', 'Girl', 'Team 3', 'Team 4', 'Team 5', 'Team 6'];
     for (let i = currentLength; i < count; i++) {
-      db.teams.push(defaultNames[i] || `Team ${i + 1}`);
+      db.teams.push(extraDefaults[i] || `Team ${i + 1}`);
     }
   } else if (count < currentLength) {
     db.teams = db.teams.slice(0, count);
   }
-  
+
   saveDB();
   renderTeamInputs();
 }
 
 function setupTeamsFromInputs() {
-  if (!db.teams || !Array.isArray(db.teams) || db.teams.length === 0) {
-    db.teams = ['Boys', 'Girls'];
-  }
-  playState.teams = db.teams.map(name => ({ name: name, score: 0 }));
+  // Read all team name inputs; fallback to defaults if empty
+  const resolvedNames = db.teams.map((rawName, i) => {
+    const trimmed = (rawName || '').trim();
+    return trimmed.length > 0 ? trimmed : (DEFAULT_TEAMS[i] || `Team ${i + 1}`);
+  });
+
+  playState.teams = resolvedNames.map(name => ({ name, score: 0 }));
   playState.stats = {};
   playState.teams.forEach((t, i) => {
     playState.stats[i] = { correct: 0, attempts: 0 };
@@ -836,7 +828,7 @@ function setupTeamsFromInputs() {
 }
 
 function resetPlayState() {
-  playState.teams.forEach(t => t.score = 0);
+  playState.teams.forEach(t => { t.score = 0; });
   playState.currentTeamIndex = 0;
   playState.originalTeamIndex = 0;
   playState.isStealState = false;
@@ -849,24 +841,29 @@ function resetPlayState() {
 }
 
 // ============================================================
-// EVENT LISTENERS
+// EVENT LISTENERS — Header Controls
 // ============================================================
+document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+  playSound('click');
+  toggleTheme();
+});
 
-// --- Sound Toggle ---
 document.getElementById('btn-sound-toggle').addEventListener('click', () => {
   soundEnabled = !soundEnabled;
   document.getElementById('sound-icon').textContent = soundEnabled ? '🔊' : '🔇';
   if (soundEnabled) playSound('click');
 });
 
-// --- Dashboard buttons ---
-document.getElementById('btn-go-admin').addEventListener('click', () => {
+// Floating admin button (in header)
+document.getElementById('btn-go-admin-float').addEventListener('click', () => {
   playSound('click');
-  syncGridInputs();
   renderAdminGrid();
   showScreen('admin');
 });
 
+// ============================================================
+// EVENT LISTENERS — Dashboard
+// ============================================================
 document.getElementById('btn-start-game').addEventListener('click', () => {
   playSound('open');
   setupTeamsFromInputs();
@@ -877,38 +874,12 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
   showScreen('game');
 });
 
-// --- Admin Panel ---
+// ============================================================
+// EVENT LISTENERS — Admin Panel
+// ============================================================
 document.getElementById('btn-admin-back').addEventListener('click', () => {
   playSound('click');
   showScreen('dashboard');
-});
-
-document.getElementById('btn-update-grid').addEventListener('click', () => {
-  playSound('click');
-  const colsVal = document.getElementById('grid-columns').value;
-  const rowsVal = parseInt(document.getElementById('grid-rows').value, 10);
-
-  if (!colsVal.trim()) { alert('Please enter point columns!'); return; }
-  const parsedCols = colsVal.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n > 0);
-  if (parsedCols.length === 0) { alert('Invalid columns!'); return; }
-  if (isNaN(rowsVal) || rowsVal < 1 || rowsVal > 15) { alert('Rows must be 1–15'); return; }
-
-  const toRemove = db.questions.filter(q => {
-    const parts = q.cell.split('-');
-    return !parsedCols.includes(parseInt(parts[0])) || parseInt(parts[1]) > rowsVal;
-  });
-
-  if (toRemove.length > 0) {
-    if (!confirm(`Updating the grid will remove ${toRemove.length} question(s) that no longer fit. Continue?`)) return;
-  }
-
-  db.grid.columns = parsedCols;
-  db.grid.rowsCount = rowsVal;
-  db.questions = db.questions.filter(q => !toRemove.includes(q));
-  saveDB();
-  document.getElementById('admin-question-editor').classList.add('hidden');
-  selectedAdminCellId = null;
-  renderAdminGrid();
 });
 
 document.getElementById('settings-subtract').addEventListener('change', e => {
@@ -916,76 +887,22 @@ document.getElementById('settings-subtract').addEventListener('change', e => {
   saveDB();
 });
 
+document.getElementById('setup-team-count').addEventListener('input', handleTeamCountChange);
+document.getElementById('setup-team-count').addEventListener('change', handleTeamCountChange);
+
+// Export JSON
 document.getElementById('btn-export-json').addEventListener('click', () => {
   playSound('click');
   const a = document.createElement('a');
-  const dbToExport = { ...db };
-  delete dbToExport.teams;
-  a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(dbToExport, null, 2));
-  a.download = `daniel_quiz_${Date.now()}.json`;
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(db, null, 2));
+  a.download = `vbs_quiz_${ts}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
 });
 
-document.getElementById('btn-load-premade').addEventListener('click', async () => {
-  playSound('click');
-  const select = document.getElementById('premade-db-select');
-  const filename = select.value;
-  if (!filename) {
-    alert('Please select a database to load.');
-    return;
-  }
-  
-  const countInput = document.getElementById('premade-db-count').value;
-  const count = parseInt(countInput, 10);
-  
-  try {
-    const res = await fetch(filename);
-    if (!res.ok) throw new Error('Network response was not ok');
-    const parsed = await res.json();
-    
-    if (parsed && typeof parsed === 'object') {
-      const currentTeams = db.teams;
-      db = parsed;
-      db.teams = currentTeams;
-      if (!db.questions) db.questions = [];
-      
-      // If user specified a limit
-      if (!isNaN(count) && count > 0 && count < db.questions.length) {
-        db.questions = db.questions.sort(() => 0.5 - Math.random()).slice(0, count);
-        
-        let colsCount = 5;
-        if (count < 5) colsCount = count;
-        const rowsCount = Math.ceil(count / colsCount) || 1;
-        const colVals = [];
-        for (let i = 1; i <= colsCount; i++) colVals.push(i * 100);
-        db.grid = { columns: colVals, rowsCount: rowsCount };
-        
-        db.questions = db.questions.map((q, idx) => {
-          const col = (idx % colsCount) + 1;
-          const row = Math.floor(idx / colsCount) + 1;
-          return { ...q, points: col * 100, cell: `${col * 100}-${row}` };
-        });
-      } else {
-        if (!db.grid) db.grid = { columns: [100,200,300,400,500], rowsCount: 2 };
-      }
-      
-      if (!db.settings) db.settings = { subtractOnWrong: false };
-      saveDB();
-      syncGridInputs();
-      renderTeamInputs();
-      document.getElementById('settings-subtract').checked = !!db.settings.subtractOnWrong;
-      renderAdminGrid();
-      document.getElementById('loaded-db-display').textContent = `Currently Loaded: ${select.options[select.selectedIndex].text}`;
-      alert(`✅ Database '${filename}' loaded successfully!`);
-    }
-  } catch(err) {
-    console.error(err);
-    alert('❌ Failed to load pre-made database! Make sure you are running via a local server (e.g. npm run dev).');
-  }
-});
-
+// Import JSON
 document.getElementById('import-json-file').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -994,28 +911,42 @@ document.getElementById('import-json-file').addEventListener('change', e => {
     try {
       const parsed = JSON.parse(reader.result);
       if (parsed && typeof parsed === 'object') {
-        const currentTeams = db.teams;
-        db = parsed;
-        db.teams = currentTeams;
-        if (!db.grid) db.grid = { columns: [100,200,300,400,500], rowsCount: 2 };
-        if (!db.settings) db.settings = { subtractOnWrong: false };
-        if (!db.questions) db.questions = [];
+        db = {
+          settings: parsed.settings || { subtractOnWrong: false },
+          questions: parsed.questions || [],
+          teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
+            ? parsed.teams
+            : [...DEFAULT_TEAMS],
+        };
         saveDB();
-        syncGridInputs();
         renderTeamInputs();
         document.getElementById('settings-subtract').checked = !!db.settings.subtractOnWrong;
         renderAdminGrid();
-        document.getElementById('loaded-db-display').textContent = `Currently Loaded: Imported File (${file.name})`;
-        alert('✅ Database imported successfully!');
+        alert('✅ Quiz imported successfully!');
       }
-    } catch(err) { alert('❌ Invalid JSON file!'); }
+    } catch (err) {
+      alert('❌ Invalid JSON file. Please check the file and try again.');
+    }
   };
   reader.readAsText(file);
   e.target.value = '';
 });
 
+// Reset game scores (not questions)
+document.getElementById('btn-reset-game').addEventListener('click', () => {
+  if (confirm('Reset all team scores and question states? Questions will be kept.')) {
+    playSound('click');
+    setupTeamsFromInputs();
+    resetPlayState();
+    updateDashboardStatus();
+    renderGameBoard();
+    alert('✅ Game reset! Scores and progress cleared.');
+  }
+});
+
+// Clear all questions
 document.getElementById('btn-clear-db').addEventListener('click', () => {
-  if (confirm('Are you sure you want to delete ALL questions?')) {
+  if (confirm('Delete ALL questions? This cannot be undone.')) {
     db.questions = [];
     saveDB();
     selectedAdminCellId = null;
@@ -1025,7 +956,9 @@ document.getElementById('btn-clear-db').addEventListener('click', () => {
   }
 });
 
-// --- Question Editor ---
+// ============================================================
+// EVENT LISTENERS — Question Editor
+// ============================================================
 document.getElementById('btn-close-editor').addEventListener('click', () => {
   playSound('click');
   document.getElementById('admin-question-editor').classList.add('hidden');
@@ -1045,21 +978,33 @@ document.getElementById('question-form').addEventListener('submit', e => {
   if (!selectedAdminCellId) return;
   playSound('correct');
 
+  const qnIndex = parseInt(selectedAdminCellId.replace('qn', ''), 10);
   const type = document.getElementById('q-type').value;
   const text = document.getElementById('q-text').value.trim();
-  const pts  = parseInt(document.getElementById('q-points').value, 10);
+  const pts  = parseInt(document.getElementById('q-points').value, 10) || 100;
   let answer = '', options = [];
 
   if (type === 'mcq') {
-    for (let i = 0; i < 4; i++) options.push(document.getElementById(`opt-${i}`).value.trim());
+    for (let i = 0; i < 4; i++) {
+      const el = document.getElementById(`opt-${i}`);
+      options.push(el ? el.value.trim() : '');
+    }
     const sel = document.querySelector('input[name="mcq-correct"]:checked');
-    answer = options[parseInt(sel.value, 10)];
+    answer = sel ? options[parseInt(sel.value, 10)] : options[0];
   } else {
     answer = document.getElementById('q-fill-answer').value.trim();
   }
 
-  const existIdx = db.questions.findIndex(q => q.cell === selectedAdminCellId);
-  const qObj = { id: existIdx !== -1 ? db.questions[existIdx].id : Date.now(), type, question: text, options, answer, points: pts, cell: selectedAdminCellId };
+  const existIdx = db.questions.findIndex(q => q.qnIndex === qnIndex);
+  const qObj = {
+    id: existIdx !== -1 ? db.questions[existIdx].id : Date.now(),
+    qnIndex,
+    type,
+    question: text,
+    options,
+    answer,
+    points: pts,
+  };
 
   if (existIdx !== -1) db.questions[existIdx] = qObj;
   else db.questions.push(qObj);
@@ -1074,14 +1019,23 @@ document.getElementById('btn-delete-question').addEventListener('click', () => {
   if (!selectedAdminCellId) return;
   if (!confirm('Delete this question?')) return;
   playSound('wrong');
-  db.questions = db.questions.filter(q => q.cell !== selectedAdminCellId);
+  const qnIndex = parseInt(selectedAdminCellId.replace('qn', ''), 10);
+  db.questions = db.questions.filter(q => q.qnIndex !== qnIndex);
   saveDB();
   document.getElementById('admin-question-editor').classList.add('hidden');
   selectedAdminCellId = null;
   renderAdminGrid();
 });
 
-// --- Modal Unified Buttons ---
+// ============================================================
+// EVENT LISTENERS — Question Modal
+// ============================================================
+document.getElementById('btn-modal-cancel').addEventListener('click', () => {
+  if (confirm('Cancel this question? The tile will be marked as cancelled.')) {
+    cancelQuestion();
+  }
+});
+
 document.getElementById('btn-modal-pass').addEventListener('click', handlePass);
 
 document.getElementById('btn-modal-submit').addEventListener('click', () => {
@@ -1090,21 +1044,13 @@ document.getElementById('btn-modal-submit').addEventListener('click', () => {
 
   if (q.type === 'mcq') {
     const selBtn = document.querySelector('.option-btn.selected');
-    if (!selBtn) {
-      alert('Please select an option first!');
-      return;
-    }
+    if (!selBtn) { alert('Please select an option first!'); return; }
     const val = selBtn.querySelector('.option-val').textContent;
-    const isCorrect = (val === q.answer);
-    submitAnswer(isCorrect);
+    submitAnswer(val === q.answer);
   } else {
     const val = document.getElementById('modal-fill-input').value.trim();
-    if (!val) {
-      alert('Please type an answer first!');
-      return;
-    }
-    const isCorrect = (val.toLowerCase() === q.answer.toLowerCase());
-    submitAnswer(isCorrect);
+    if (!val) { alert('Please type an answer first!'); return; }
+    submitAnswer(val.toLowerCase() === q.answer.toLowerCase());
   }
 });
 
@@ -1116,24 +1062,27 @@ document.getElementById('modal-fill-input').addEventListener('keydown', e => {
   }
 });
 
-// --- Game screen buttons ---
+// ============================================================
+// EVENT LISTENERS — Game Screen
+// ============================================================
 document.getElementById('btn-end-game').addEventListener('click', () => {
-  if (confirm('End the game now?')) {
+  if (confirm('End the game now and see the results?')) {
     closeModal();
     endGame();
   }
 });
 
 document.getElementById('btn-game-back-admin').addEventListener('click', () => {
-  if (confirm('Go back to Admin? Current game progress will be lost.')) {
+  if (confirm('Go back to Admin? Current game progress will be preserved.')) {
     closeModal();
-    syncGridInputs();
     renderAdminGrid();
     showScreen('admin');
   }
 });
 
-// --- Winner screen ---
+// ============================================================
+// EVENT LISTENERS — Winner Screen
+// ============================================================
 document.getElementById('btn-play-again').addEventListener('click', () => {
   playSound('open');
   resetPlayState();
@@ -1153,26 +1102,11 @@ document.getElementById('btn-winner-home').addEventListener('click', () => {
 // ============================================================
 
 // Apply saved theme
-const savedTheme = localStorage.getItem('daniel_quiz_theme') || 'dark';
+const savedTheme = localStorage.getItem('vbs_quiz_theme') || 'dark';
 applyTheme(savedTheme);
 
-// Theme toggle button
-document.getElementById('btn-theme-toggle').addEventListener('click', () => {
-  playSound('click');
-  toggleTheme();
-});
-
-// Dynamic team inputs live calculation and resizing
-document.getElementById('setup-team-count').addEventListener('input', handleTeamCountChange);
-document.getElementById('setup-team-count').addEventListener('change', handleTeamCountChange);
-
-// Grid calculator live updates
-document.getElementById('grid-total-questions').addEventListener('input', autoCalcGridFromTotal);
-document.getElementById('grid-columns').addEventListener('input', updateGridHint);
-document.getElementById('grid-rows').addEventListener('input', updateGridHint);
-
+// Load saved data
 loadDB();
-syncGridInputs();
 renderAdminGrid();
 renderTeamInputs();
 updateScoreUI();

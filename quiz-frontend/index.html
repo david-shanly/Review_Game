@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="An interactive Bible quiz game for church kids based on the Book of Daniel. Admin configuration, live scores, Boys vs Girls team gameplay, and fun visual elements.">
-  <title>Daniel Quiz - Interactive Bible Game</title>
+  <meta name="description" content="VBS Group C Quiz — An interactive Bible quiz game for church kids. Fun, competitive, and child-friendly!">
+  <title>VBS Group C Quiz</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,15 +20,18 @@
     <!-- ===== HEADER ===== -->
     <header class="app-header">
       <div class="logo-container">
-        <span class="logo-crown">👑</span>
-        <h1 class="logo-text">DANIEL <span class="gold-text">QUIZ</span></h1>
+        <span class="logo-icon">✝️</span>
+        <h1 class="logo-text">VBS <span class="logo-accent">Group C</span></h1>
       </div>
       <div class="header-actions">
         <button id="btn-theme-toggle" class="btn btn-icon" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
           <span id="theme-icon">🌙</span>
         </button>
-        <button id="btn-sound-toggle" class="btn btn-icon" title="Toggle Sound">
+        <button id="btn-sound-toggle" class="btn btn-icon" title="Toggle Sound" aria-label="Toggle Sound">
           <span id="sound-icon">🔊</span>
+        </button>
+        <button id="btn-go-admin-float" class="btn btn-icon btn-admin-float" title="Admin Panel" aria-label="Admin Panel">
+          ⚙️
         </button>
       </div>
     </header>
@@ -41,24 +44,25 @@
            ======================================== -->
       <section id="screen-dashboard" class="screen active">
         <div class="hero-card glass-panel">
-          <div class="hero-badge">SUNDAY SCHOOL SPECIAL</div>
-          <h2 class="hero-title">The Book of Daniel <span class="gold-text">Quiz Challenge</span></h2>
-          <p class="hero-subtitle">An epic showdown for church kids! Who knows the Book of Daniel best?</p>
+          <div class="hero-stars">⭐ ⭐ ⭐</div>
+          <h2 class="hero-title">VBS Group C <span class="gold-text">Quiz Challenge</span></h2>
 
           <div class="dashboard-status-card" id="dashboard-status">
             <div class="bold-text">⚠️ No questions configured yet!</div>
-            <p style="margin-top:5px; font-size:0.9rem; color:var(--color-text-muted);">Open the Admin Panel to set up your grid and add questions.</p>
+            <p style="margin-top:5px; font-size:0.9rem; color:var(--color-text-muted);">Open the Admin Panel to add questions.</p>
           </div>
 
-
-
           <div class="dashboard-actions">
-            <button id="btn-go-admin" class="btn btn-secondary btn-large">
-              ⚙️ Admin Panel
+            <button id="btn-start-game" class="btn btn-primary btn-start-big" disabled>
+              🎮 Start Quiz!
             </button>
-            <button id="btn-start-game" class="btn btn-primary btn-large" disabled>
-              🎮 Start Game
-            </button>
+          </div>
+
+          <div class="hero-decor">
+            <span class="decor-item">📖</span>
+            <span class="decor-item">🙏</span>
+            <span class="decor-item">🏆</span>
+            <span class="decor-item">🎉</span>
           </div>
         </div>
       </section>
@@ -70,7 +74,7 @@
         <div class="admin-header-row">
           <div>
             <h2 class="section-title" style="border:none; margin:0; font-size:1.6rem;">⚙️ Admin Panel</h2>
-            <p style="color: var(--color-text-muted); font-size:0.9rem; margin-top:4px;">Build your quiz board and add questions.</p>
+            <p style="color: var(--color-text-muted); font-size:0.9rem; margin-top:4px;">Set up your quiz and manage teams.</p>
           </div>
           <button id="btn-admin-back" class="btn btn-secondary">← Back to Home</button>
         </div>
@@ -79,28 +83,6 @@
 
           <!-- LEFT SIDEBAR: SETTINGS -->
           <aside class="glass-panel admin-sidebar">
-
-            <h3 class="section-title">📐 Grid Configuration</h3>
-
-            <div class="form-group">
-              <label for="grid-total-questions">Total Questions to Create</label>
-              <input type="number" id="grid-total-questions" value="10" min="1" max="100" placeholder="e.g. 25">
-            </div>
-
-            <div class="form-group">
-              <label for="grid-columns">Point Values per Column (comma-separated)</label>
-              <input type="text" id="grid-columns" value="100,200,300,400,500" placeholder="e.g. 100,200,300,400,500">
-            </div>
-            <div class="form-group">
-              <label for="grid-rows">Number of Rows</label>
-              <input type="number" id="grid-rows" value="2" min="1" max="15">
-            </div>
-            <p class="small-text" id="grid-calc-hint" style="color:var(--color-text-muted); margin-bottom:8px;">Grid: 5 cols × 2 rows = 10 slots</p>
-            <button id="btn-update-grid" class="btn btn-secondary btn-block">
-              🔄 Apply Grid Settings
-            </button>
-
-            <hr class="divider">
 
             <h3 class="section-title">⚖️ Game Rules</h3>
             <div class="form-group-checkbox">
@@ -111,53 +93,26 @@
             <hr class="divider">
 
             <h3 class="section-title">👥 Teams Setup</h3>
-            <div class="form-group" style="margin-bottom: 12px; display: flex; flex-direction: row; align-items: center; gap: 12px;">
-              <label for="setup-team-count" style="margin: 0; font-size: 0.9rem; white-space: nowrap;">Number of Teams:</label>
-              <input type="number" id="setup-team-count" value="2" min="2" max="6" style="width: 80px; padding: 6px 10px; margin: 0; background: var(--color-bg-alt); border: 1px solid var(--color-border); color: #fff;">
+            <div class="form-group" id="team-count-row">
+              <label for="setup-team-count">Number of Teams</label>
+              <input type="number" id="setup-team-count" value="2" min="2" max="6">
             </div>
-            <div id="dynamic-team-inputs" class="team-inputs-grid" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
+            <div id="dynamic-team-inputs" class="team-inputs-grid">
               <!-- Dynamically populated team name inputs -->
             </div>
 
             <hr class="divider">
 
-            <h3 class="section-title">💾 Database</h3>
-            <p class="small-text" style="margin-bottom:10px; color: var(--color-text-muted);">Save, export, or import your questions.</p>
-            
-            <div class="form-group" style="margin-bottom: 15px;">
-              <label for="premade-db-select" style="font-size:0.8rem; margin-bottom:4px; color:var(--color-text-muted);">Load Pre-made DB</label>
-              <div style="display:flex; gap:8px;">
-                <select id="premade-db-select" style="flex:1; padding: 6px 10px; font-size:0.9rem; background: var(--color-bg-alt); border: 1px solid var(--color-border); color: #fff; border-radius: 6px;">
-                  <option value="">-- Select DB --</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_all.json">All Chapters (Book of Daniel)</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch1.json">Daniel Ch 1</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch2.json">Daniel Ch 2</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch3.json">Daniel Ch 3</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch4.json">Daniel Ch 4</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch5.json">Daniel Ch 5</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch6.json">Daniel Ch 6</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch7.json">Daniel Ch 7</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch8.json">Daniel Ch 8</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch9.json">Daniel Ch 9</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch10.json">Daniel Ch 10</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch11.json">Daniel Ch 11</option>
-                  <option value="/Daniel-s_Quiz_VBS_2026/databases/db_daniel_ch12.json">Daniel Ch 12</option>
-                </select>
-              </div>
-              <div style="display:flex; gap:8px; margin-top: 8px; align-items: center;">
-                <label for="premade-db-count" style="font-size:0.8rem; color:var(--color-text-muted); white-space: nowrap;">Questions:</label>
-                <input type="number" id="premade-db-count" placeholder="All" min="1" max="100" style="width: 70px; padding: 4px 8px; font-size:0.9rem; background: var(--color-bg-alt); border: 1px solid var(--color-border); color: #fff; border-radius: 6px;">
-                <button id="btn-load-premade" class="btn btn-secondary" style="padding: 6px 12px; flex: 1;">Load</button>
-              </div>
-              <div id="loaded-db-display" style="margin-top: 8px; font-size: 0.85rem; color: var(--color-gold); font-weight: 600;">Currently Loaded: Custom</div>
-            </div>
+            <h3 class="section-title">💾 Quiz Data</h3>
+            <p class="small-text" style="margin-bottom:12px; color: var(--color-text-muted);">Save or load your questions as a file.</p>
 
             <div class="admin-db-actions">
-              <button id="btn-export-json" class="btn btn-secondary btn-block">📤 Export JSON</button>
+              <button id="btn-export-json" class="btn btn-secondary btn-block">📤 Export Quiz (JSON)</button>
               <div class="file-upload-wrapper">
-                <button class="btn btn-secondary btn-block">📥 Import JSON</button>
+                <button class="btn btn-secondary btn-block">📥 Import Quiz (JSON)</button>
                 <input type="file" id="import-json-file" accept=".json">
               </div>
+              <button id="btn-reset-game" class="btn btn-secondary btn-block">🔄 Reset Game Scores</button>
               <button id="btn-clear-db" class="btn btn-danger btn-block admin-footer-btn">🗑️ Clear All Questions</button>
             </div>
           </aside>
@@ -165,10 +120,9 @@
           <!-- RIGHT: GRID + EDITOR -->
           <div class="admin-main">
 
-            <!-- Grid Stats Bar -->
-            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-              <span id="admin-grid-stats" class="badge badge-gold">Grid: 5×5 (25 slots)</span>
-              <span id="admin-q-count" class="badge">Questions: 0</span>
+            <div class="admin-grid-info-bar">
+              <span class="badge badge-gold">📋 20 Question Slots (Qn1 – Qn20)</span>
+              <span id="admin-q-count" class="badge">Questions added: 0</span>
             </div>
 
             <!-- Interactive Grid -->
@@ -179,7 +133,7 @@
             <!-- Question Editor (hidden until cell selected) -->
             <div id="admin-question-editor" class="glass-panel question-editor-card hidden">
               <div class="editor-header">
-                <h3 id="editor-cell-title" class="gold-text">📝 Edit Question: 100-1</h3>
+                <h3 id="editor-cell-title" class="gold-text">📝 Edit Question: Qn1</h3>
                 <button id="btn-close-editor" class="btn-close" title="Close">✕</button>
               </div>
 
@@ -187,8 +141,8 @@
                 <div class="form-group">
                   <label for="q-type">Question Type</label>
                   <select id="q-type">
+                    <option value="fill">Short Answer / Fill in the Blank</option>
                     <option value="mcq">Multiple Choice (MCQ)</option>
-                    <option value="fill">Fill in the Blank</option>
                   </select>
                 </div>
 
@@ -198,30 +152,30 @@
                 </div>
 
                 <!-- MCQ Options -->
-                <div id="mcq-options-container">
-                  <label style="font-weight:600; font-size:0.9rem; margin-bottom:8px; display:block;">Answer Options (select correct one)</label>
+                <div id="mcq-options-container" class="hidden">
+                  <label style="font-weight:700; font-size:0.9rem; margin-bottom:8px; display:block;">Answer Options (select correct one)</label>
                   <div id="mcq-options-list">
                     <div class="mcq-option-input">
                       <input type="radio" name="mcq-correct" value="0" id="radio-opt-0" checked>
-                      <input type="text" id="opt-0" placeholder="Option A" class="opt-text" required>
+                      <input type="text" id="opt-0" placeholder="Option A" class="opt-text">
                     </div>
                     <div class="mcq-option-input">
                       <input type="radio" name="mcq-correct" value="1" id="radio-opt-1">
-                      <input type="text" id="opt-1" placeholder="Option B" class="opt-text" required>
+                      <input type="text" id="opt-1" placeholder="Option B" class="opt-text">
                     </div>
                     <div class="mcq-option-input">
                       <input type="radio" name="mcq-correct" value="2" id="radio-opt-2">
-                      <input type="text" id="opt-2" placeholder="Option C" class="opt-text" required>
+                      <input type="text" id="opt-2" placeholder="Option C" class="opt-text">
                     </div>
                     <div class="mcq-option-input">
                       <input type="radio" name="mcq-correct" value="3" id="radio-opt-3">
-                      <input type="text" id="opt-3" placeholder="Option D" class="opt-text" required>
+                      <input type="text" id="opt-3" placeholder="Option D" class="opt-text">
                     </div>
                   </div>
                 </div>
 
                 <!-- Fill Answer -->
-                <div id="fill-answer-container" class="form-group hidden">
+                <div id="fill-answer-container" class="form-group">
                   <label for="q-fill-answer">Correct Answer</label>
                   <input type="text" id="q-fill-answer" placeholder="Type the correct answer...">
                 </div>
@@ -318,51 +272,54 @@
 
         <div class="modal-header">
           <div class="modal-cell-info">
-            <span id="modal-cell-id" class="badge badge-gold">100 PTS</span>
-            <span id="modal-turn-status" class="modal-turn-status boys-turn">BOYS' TURN</span>
+            <span id="modal-cell-id" class="badge badge-gold">Qn1</span>
+            <span id="modal-turn-status" class="modal-turn-status">TEAM'S TURN</span>
           </div>
           <div id="modal-steal-label" class="steal-chip hidden">🔥 STEAL!</div>
         </div>
 
         <div id="modal-question-text" class="question-text">
-          Who was thrown into the lions' den?
+          Question goes here...
         </div>
 
         <!-- MCQ Options -->
-        <div id="modal-mcq-container" class="mcq-options-grid">
+        <div id="modal-mcq-container" class="mcq-options-grid hidden">
           <button class="option-btn" data-index="0">
             <span class="option-letter">A</span>
-            <span class="option-val">Daniel</span>
+            <span class="option-val">Option A</span>
           </button>
           <button class="option-btn" data-index="1">
             <span class="option-letter">B</span>
-            <span class="option-val">Moses</span>
+            <span class="option-val">Option B</span>
           </button>
           <button class="option-btn" data-index="2">
             <span class="option-letter">C</span>
-            <span class="option-val">Meshach</span>
+            <span class="option-val">Option C</span>
           </button>
           <button class="option-btn" data-index="3">
             <span class="option-letter">D</span>
-            <span class="option-val">Abednego</span>
+            <span class="option-val">Option D</span>
           </button>
         </div>
 
         <!-- Fill-in-the-blank -->
-        <div id="modal-fill-container" class="fill-container hidden">
+        <div id="modal-fill-container" class="fill-container">
           <input type="text" id="modal-fill-input" placeholder="Type answer here..." autocomplete="off">
         </div>
 
         <!-- Correct Answer Reveal -->
         <div id="modal-reveal-panel" class="reveal-panel hidden">
           <div class="reveal-title">CORRECT ANSWER</div>
-          <div id="modal-correct-answer-text" class="reveal-value gold-text">Daniel</div>
+          <div id="modal-correct-answer-text" class="reveal-value gold-text">Answer</div>
         </div>
 
-        <!-- Submit or Pass Buttons -->
+        <!-- Submit / Pass / Cancel Buttons -->
         <div class="modal-footer">
-          <button id="btn-modal-pass" class="btn btn-secondary">⏭️ PASS</button>
-          <button id="btn-modal-submit" class="btn btn-primary">💾 SUBMIT</button>
+          <button id="btn-modal-cancel" class="btn btn-cancel">❌ Cancel Question</button>
+          <div class="modal-footer-right">
+            <button id="btn-modal-pass" class="btn btn-secondary">⏭️ PASS</button>
+            <button id="btn-modal-submit" class="btn btn-primary">✅ SUBMIT</button>
+          </div>
         </div>
 
       </div>
@@ -371,7 +328,7 @@
   </div>
 
   <footer class="app-footer-text">
-    &copy; 2026 Daniel Quiz &mdash; Perfect for ages 9–11
+    &copy; 2026 VBS Group C Quiz &mdash; Built for church kids!
   </footer>
 
   <script type="module" src="app.js"></script>

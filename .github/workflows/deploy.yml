@@ -1,8 +1,8 @@
-name: Deploy static content to Pages
+name: Deploy VBS Quiz
 
 on:
   push:
-    branches: ["main"]
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -15,32 +15,33 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-      - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 24
-      - name: Install dependencies
-        run: npm ci
-        working-directory: ./quiz-frontend
-      - name: Build project
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        working-directory: quiz-frontend
+        run: npm install
+
+      - name: Build frontend
+        working-directory: quiz-frontend
         run: npm run build
-        working-directory: ./quiz-frontend
+
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v4
+
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: './quiz-frontend/dist'
+          path: quiz-frontend/dist
+
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v4

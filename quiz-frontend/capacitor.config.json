@@ -1,0 +1,9 @@
+{
+  "appId": "com.vbsquiz.groupc",
+  "appName": "VBS Quiz",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {}
+}
