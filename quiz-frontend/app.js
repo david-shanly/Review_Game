@@ -317,7 +317,6 @@ function updateDashboardStatus() {
 
 
 function loadDefaultQuiz() {
-  if (!confirm('This will replace your current questions. Are you sure?')) return;
   const data = {
   "settings": {
     "subtractOnWrong": true,
@@ -591,7 +590,13 @@ function loadDefaultQuiz() {
   saveDB();
   loadDB();
   renderAdminGrid();
-  alert('Default Book of Daniel questions loaded!');
+  
+  // Flash a quick success message on the status board instead of a blocking alert
+  const statusDiv = document.getElementById('dashboard-status');
+  if (statusDiv) {
+    statusDiv.innerHTML = '<div class="bold-text" style="color:var(--color-success);">✅ Default Database Loaded!</div>';
+    setTimeout(updateDashboardStatus, 3000);
+  }
 }
 
 // ============================================================
