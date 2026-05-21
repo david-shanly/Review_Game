@@ -1,6 +1,6 @@
 {
   "productName": "Review Game Group C - 2026",
-  "appId": "com.vbsquiz.groupc",
+  "appId": "com.reviewgame.groupc",
   "directories": {
     "output": "dist-electron",
     "buildResources": "public"
@@ -33,6 +33,6 @@
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
-    "shortcutName": "VBS Quiz"
+    "shortcutName": "Review Game"
   }
 }

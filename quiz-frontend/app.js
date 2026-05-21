@@ -1,5 +1,5 @@
 /* ==========================================================================
-   VBS GROUP C QUIZ — COMPLETE GAME LOGIC
+   REVIEW GAME GROUP C - 2026 — COMPLETE GAME LOGIC
    Refined & production-ready
    ========================================================================== */
 
@@ -251,12 +251,12 @@ function showScreen(id) {
 // PERSISTENCE (localStorage)
 // ============================================================
 function saveDB() {
-  localStorage.setItem('vbs_quiz_db', JSON.stringify(db));
+  localStorage.setItem('review_game_db', JSON.stringify(db));
   updateDashboardStatus();
 }
 
 function loadDB() {
-  const stored = localStorage.getItem('vbs_quiz_db');
+  const stored = localStorage.getItem('review_game_db');
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
@@ -274,7 +274,7 @@ function loadDB() {
         };
       }
     } catch (e) {
-      console.warn('VBS Quiz: DB load error, using defaults', e);
+      console.warn('Review Game: DB load error, using defaults', e);
     }
   }
 
@@ -599,7 +599,7 @@ function loadDefaultQuiz() {
 // ============================================================
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('vbs_quiz_theme', theme);
+  localStorage.setItem('review_game_theme', theme);
   const icon = document.getElementById('theme-icon');
   if (icon) {
     icon.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
@@ -1343,7 +1343,7 @@ document.getElementById('btn-export-json').addEventListener('click', () => {
   const a = document.createElement('a');
   const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
   a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(db, null, 2));
-  a.download = `vbs_quiz_${ts}.json`;
+  a.download = `review_game_${ts}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -1536,7 +1536,7 @@ document.getElementById('btn-winner-home').addEventListener('click', () => {
 // ============================================================
 
 // Apply saved theme or system preference
-const savedTheme = localStorage.getItem('vbs_quiz_theme');
+const savedTheme = localStorage.getItem('review_game_theme');
 if (savedTheme) {
   applyTheme(savedTheme);
 } else {

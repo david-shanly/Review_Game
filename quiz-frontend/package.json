@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "main": "electron-main.cjs",
-  "description": "VBS Group C Quiz — Interactive Bible quiz game for church kids",
-  "author": "VBS Group C",
+  "description": "Review Game Group C - 2026 — Interactive Bible quiz game for church kids",
+  "author": "Review Game Group C",
   "scripts": {
     "start": "vite",
     "dev": "vite",
