@@ -7,14 +7,15 @@ function createWindow() {
     height: 800,
     minWidth: 800,
     minHeight: 600,
-    title: 'VBS Group C Quiz',
-    icon: path.join(__dirname, 'public', 'icon.png'),
+    title: 'Review Game Group C - 2026',
+    icon: path.join(__dirname, 'public', 'logo.png'),
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
     },
     backgroundColor: '#07112B',
     show: false,
+    fullscreen: true,
   });
 
   // Load the built Vite app

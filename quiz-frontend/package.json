@@ -1,5 +1,5 @@
 {
-  "name": "vbs-group-c-quiz",
+  "name": "review-game-group-c-2026",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -7,54 +7,21 @@
   "description": "VBS Group C Quiz — Interactive Bible quiz game for church kids",
   "author": "VBS Group C",
   "scripts": {
-    "start": "vite --port 3000",
-    "dev": "vite --port 3000",
+    "start": "vite",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "electron": "electron .",
+    "dist": "electron-builder",
     "electron:dev": "vite build && electron electron-main.cjs",
     "electron:build:win": "vite build && electron-builder --win --config electron-builder.json",
     "cap:sync": "vite build && npx cap sync",
     "cap:android": "vite build && npx cap sync && npx cap open android"
   },
-  "build": {
-    "appId": "com.vbsquiz.groupc",
-    "productName": "VBS Group C Quiz",
-    "main": "electron-main.cjs",
-    "directories": {
-      "output": "dist-electron"
-    },
-    "files": [
-      "dist/**/*",
-      "electron-main.cjs"
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64", "ia32"]
-        },
-        {
-          "target": "portable",
-          "arch": ["x64"]
-        }
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": true,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "VBS Quiz"
-    },
-    "android": {
-      "package": "com.vbsquiz.groupc"
-    }
-  },
   "devDependencies": {
-    "vite": "^8.0.12",
-    "electron": "^36.0.0",
-    "electron-builder": "^26.0.12"
+    "electron": "^36.9.5",
+    "electron-builder": "^26.8.1",
+    "vite": "^8.0.12"
   },
   "optionalDependencies": {
     "@capacitor/android": "^6.0.0",

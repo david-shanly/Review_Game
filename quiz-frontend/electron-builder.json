@@ -1,5 +1,5 @@
 {
-  "productName": "VBS Group C Quiz",
+  "productName": "Review Game Group C - 2026",
   "appId": "com.vbsquiz.groupc",
   "directories": {
     "output": "dist-electron",
@@ -13,13 +13,19 @@
     "target": [
       {
         "target": "nsis",
-        "arch": ["x64", "ia32"]
+        "arch": [
+          "x64",
+          "ia32"
+        ]
       },
       {
         "target": "portable",
-        "arch": ["x64"]
+        "arch": [
+          "x64"
+        ]
       }
-    ]
+    ],
+    "icon": "logo.png"
   },
   "nsis": {
     "oneClick": false,

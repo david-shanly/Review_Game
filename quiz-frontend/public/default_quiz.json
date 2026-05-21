@@ -1,0 +1,269 @@
+{
+  "settings": {
+    "subtractOnWrong": true,
+    "totalQuestions": 20,
+    "displayMode": "QUESTION_NUMBER"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "qnIndex": 1,
+      "type": "mcq",
+      "question": "What new name was given to Daniel in Babylon?",
+      "options": [
+        "Belteshazzar",
+        "Shadrach",
+        "Meshach",
+        "Abednego"
+      ],
+      "answer": "Belteshazzar",
+      "points": 100
+    },
+    {
+      "id": "q2",
+      "qnIndex": 2,
+      "type": "fill",
+      "question": "What did Daniel and his friends refuse to consume?",
+      "options": [],
+      "answer": "The king's food and wine",
+      "points": 100
+    },
+    {
+      "id": "q3",
+      "qnIndex": 3,
+      "type": "mcq",
+      "question": "How many days did Daniel ask to be tested on a diet of vegetables and water?",
+      "options": [
+        "7 days",
+        "10 days",
+        "12 days",
+        "40 days"
+      ],
+      "answer": "10 days",
+      "points": 100
+    },
+    {
+      "id": "q4",
+      "qnIndex": 4,
+      "type": "mcq",
+      "question": "What was the statue's head made of in Nebuchadnezzar's dream?",
+      "options": [
+        "Silver",
+        "Bronze",
+        "Iron",
+        "Gold"
+      ],
+      "answer": "Gold",
+      "points": 200
+    },
+    {
+      "id": "q5",
+      "qnIndex": 5,
+      "type": "fill",
+      "question": "What hit the statue and smashed it to pieces in the dream?",
+      "options": [],
+      "answer": "A stone cut out without hands",
+      "points": 200
+    },
+    {
+      "id": "q6",
+      "qnIndex": 6,
+      "type": "mcq",
+      "question": "Who were thrown into the fiery furnace for refusing to bow to the golden image?",
+      "options": [
+        "Daniel and his friends",
+        "Shadrach, Meshach, Abednego",
+        "The wise men of Babylon",
+        "The king's guards"
+      ],
+      "answer": "Shadrach, Meshach, Abednego",
+      "points": 100
+    },
+    {
+      "id": "q7",
+      "qnIndex": 7,
+      "type": "mcq",
+      "question": "How many men did the king see walking in the fiery furnace?",
+      "options": [
+        "Two",
+        "Three",
+        "Four",
+        "Five"
+      ],
+      "answer": "Four",
+      "points": 100
+    },
+    {
+      "id": "q8",
+      "qnIndex": 8,
+      "type": "fill",
+      "question": "What happened to Nebuchadnezzar when he became too proud?",
+      "options": [],
+      "answer": "He lived like a wild animal",
+      "points": 300
+    },
+    {
+      "id": "q9",
+      "qnIndex": 9,
+      "type": "mcq",
+      "question": "Which king saw the handwriting on the wall during a great feast?",
+      "options": [
+        "Nebuchadnezzar",
+        "Belshazzar",
+        "Darius",
+        "Cyrus"
+      ],
+      "answer": "Belshazzar",
+      "points": 200
+    },
+    {
+      "id": "q10",
+      "qnIndex": 10,
+      "type": "mcq",
+      "question": "What were the words written on the wall?",
+      "options": [
+        "Mene, Mene, Tekel, Upharsin",
+        "Holy, Holy, Holy",
+        "Babylon is Fallen",
+        "Repent and Believe"
+      ],
+      "answer": "Mene, Mene, Tekel, Upharsin",
+      "points": 200
+    },
+    {
+      "id": "q11",
+      "qnIndex": 11,
+      "type": "mcq",
+      "question": "Which king threw Daniel into the lions' den?",
+      "options": [
+        "Nebuchadnezzar",
+        "Belshazzar",
+        "Darius",
+        "Cyrus"
+      ],
+      "answer": "Darius",
+      "points": 100
+    },
+    {
+      "id": "q12",
+      "qnIndex": 12,
+      "type": "fill",
+      "question": "Why was Daniel thrown into the lions' den?",
+      "options": [],
+      "answer": "For praying to God",
+      "points": 100
+    },
+    {
+      "id": "q13",
+      "qnIndex": 13,
+      "type": "mcq",
+      "question": "How did God protect Daniel in the lions' den?",
+      "options": [
+        "He made the lions sleep",
+        "He sent an angel to shut their mouths",
+        "He gave Daniel a sword",
+        "He blinded the lions"
+      ],
+      "answer": "He sent an angel to shut their mouths",
+      "points": 100
+    },
+    {
+      "id": "q14",
+      "qnIndex": 14,
+      "type": "mcq",
+      "question": "What was the first beast Daniel saw in his vision of the four beasts?",
+      "options": [
+        "A bear",
+        "A leopard",
+        "A lion with eagle's wings",
+        "A terrifying beast with iron teeth"
+      ],
+      "answer": "A lion with eagle's wings",
+      "points": 300
+    },
+    {
+      "id": "q15",
+      "qnIndex": 15,
+      "type": "mcq",
+      "question": "Which angel came to explain Daniel's visions to him?",
+      "options": [
+        "Michael",
+        "Gabriel",
+        "Raphael",
+        "Lucifer"
+      ],
+      "answer": "Gabriel",
+      "points": 200
+    },
+    {
+      "id": "q16",
+      "qnIndex": 16,
+      "type": "fill",
+      "question": "How many weeks were decreed in Daniel's vision of the future?",
+      "options": [],
+      "answer": "70 weeks",
+      "points": 400
+    },
+    {
+      "id": "q17",
+      "qnIndex": 17,
+      "type": "mcq",
+      "question": "Who is the 'Prince' that stands watch over Daniel's people?",
+      "options": [
+        "Gabriel",
+        "Michael",
+        "The King of Persia",
+        "The King of Greece"
+      ],
+      "answer": "Michael",
+      "points": 300
+    },
+    {
+      "id": "q18",
+      "qnIndex": 18,
+      "type": "mcq",
+      "question": "What did King Nebuchadnezzar do when Shadrach, Meshach, and Abednego survived the fire?",
+      "options": [
+        "He executed his guards",
+        "He praised their God and promoted them",
+        "He banished them from Babylon",
+        "He ignored the miracle"
+      ],
+      "answer": "He praised their God and promoted them",
+      "points": 200
+    },
+    {
+      "id": "q19",
+      "qnIndex": 19,
+      "type": "fill",
+      "question": "In what city did Daniel serve under multiple kings?",
+      "options": [],
+      "answer": "Babylon",
+      "points": 100
+    },
+    {
+      "id": "q20",
+      "qnIndex": 20,
+      "type": "mcq",
+      "question": "What did Daniel do three times a day, facing Jerusalem?",
+      "options": [
+        "Ate vegetables",
+        "Sang hymns",
+        "Prayed and gave thanks to God",
+        "Offered a sacrifice"
+      ],
+      "answer": "Prayed and gave thanks to God",
+      "points": 100
+    }
+  ],
+  "teams": [
+    {
+      "name": "Lion",
+      "logo": "lion.png"
+    },
+    {
+      "name": "Lioness",
+      "logo": "lioness.png"
+    }
+  ]
+}

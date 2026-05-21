@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="VBS Group C Quiz — An interactive Bible quiz game for church kids. Fun, competitive, and child-friendly!">
-  <title>Quiz Review Group C - 2026</title>
+  <title>Review Game Group C - 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
@@ -20,8 +20,8 @@
     <!-- ===== HEADER ===== -->
     <header class="app-header">
       <div class="logo-container">
-        <span class="logo-icon">✝️</span>
-        <h1 class="logo-text">Quiz Review <span class="logo-accent">Group C - 2026</span></h1>
+        <img src="logo.png" alt="Logo" class="logo-icon" />
+        <h1 class="logo-text">Review Game <span class="logo-accent">Group C - 2026</span></h1>
       </div>
       <div class="header-actions">
         <button id="btn-theme-toggle" class="btn btn-icon" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
@@ -44,9 +44,9 @@
            ======================================== -->
       <section id="screen-dashboard" class="screen active">
         <div class="hero-card glass-panel">
-          <div class="hero-stars">⭐ ⭐ ⭐</div>
-          <h2 class="hero-title">Quiz Review <span class="gold-text">Group C - 2026</span></h2>
-          <p style="text-align:center; font-size:1.2rem; color:var(--color-gold); margin:10px 0; font-weight:600;">26/05/2026</p>
+          <div class="hero-stars"><img src="logo.png" alt="Quiz Logo" style="width: 6rem; height: 6rem; object-fit: contain;" /></div>
+          <h2 class="hero-title">Review Game <span class="gold-text">Group C - 2026</span></h2>
+          <p style="text-align:center; font-size:1.2rem; color:var(--color-gold); margin:10px 0; font-weight:600;">26-05-2026</p>
 
           <div class="dashboard-status-card" id="dashboard-status">
             <div class="bold-text">⚠️ No questions configured yet!</div>
@@ -90,16 +90,49 @@
               <input type="checkbox" id="settings-subtract">
               <label for="settings-subtract">Deduct half points on wrong answer (score can go negative)</label>
             </div>
+            
+            <div class="form-group" style="margin-top: 16px;">
+              <label for="settings-display-mode">Grid Display Mode</label>
+              <select id="settings-display-mode">
+                <option value="QUESTION_NUMBER">Question Number (Q1, Q2, etc.)</option>
+                <option value="POINTS">Point Value (100, 200, etc.)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="settings-total-questions">Total Questions</label>
+              <input type="number" id="settings-total-questions" value="20" min="1" max="100">
+            </div>
 
             <hr class="divider">
 
+            <!-- Teams Setup for 2-team fixed system -->
             <h3 class="section-title">👥 Teams Setup</h3>
-            <div class="form-group" id="team-count-row">
-              <label for="setup-team-count">Number of Teams</label>
-              <input type="number" id="setup-team-count" value="2" min="2" max="6">
-            </div>
-            <div id="dynamic-team-inputs" class="team-inputs-grid">
-              <!-- Dynamically populated team name inputs -->
+            
+            <div class="team-setup-grid">
+              <!-- Team 1 Card -->
+              <div class="team-setup-card">
+                <div class="team-setup-header">
+                  <span class="team-setup-badge team1-badge">TEAM 1</span>
+                </div>
+                <label for="admin-team1-name" class="team-setup-label">Name</label>
+                <input type="text" id="admin-team1-name" value="Lion" class="team-setup-input" autocomplete="off">
+                
+                <label for="admin-team1-logo" class="team-setup-label">Custom Logo</label>
+                <input type="file" id="admin-team1-logo" accept="image/*" class="team-setup-file">
+              </div>
+
+              <!-- Team 2 Card -->
+              <div class="team-setup-card">
+                <div class="team-setup-header">
+                  <span class="team-setup-badge team2-badge">TEAM 2</span>
+                </div>
+                <label for="admin-team2-name" class="team-setup-label">Name</label>
+                <input type="text" id="admin-team2-name" value="Lioness" class="team-setup-input" autocomplete="off">
+                
+                <label for="admin-team2-logo" class="team-setup-label">Custom Logo</label>
+                <input type="file" id="admin-team2-logo" accept="image/*" class="team-setup-file">
+              </div>
             </div>
 
             <hr class="divider">
@@ -108,6 +141,7 @@
             <p class="small-text" style="margin-bottom:12px; color: var(--color-text-muted);">Save or load your questions as a file.</p>
 
             <div class="admin-db-actions">
+              <button id="btn-load-default" class="btn btn-primary btn-block" style="background-color: var(--color-gold); color: #000; font-weight: 800;">📖 Load Default Questions</button>
               <button id="btn-export-json" class="btn btn-secondary btn-block">📤 Export Quiz (JSON)</button>
               <div class="file-upload-wrapper">
                 <button class="btn btn-secondary btn-block">📥 Import Quiz (JSON)</button>
@@ -274,6 +308,7 @@
         <div class="modal-header">
           <div class="modal-cell-info">
             <span id="modal-cell-id" class="badge badge-gold">Qn1</span>
+            <span id="modal-points-display" class="badge" style="background: rgba(244,196,48,0.2); color: var(--color-gold); border: 1px solid var(--color-gold);">Points</span>
             <span id="modal-turn-status" class="modal-turn-status">TEAM'S TURN</span>
           </div>
           <div id="modal-steal-label" class="steal-chip hidden">🔥 STEAL!</div>
@@ -320,6 +355,7 @@
           <div class="modal-footer-right">
             <button id="btn-modal-pass" class="btn btn-secondary">⏭️ PASS</button>
             <button id="btn-modal-submit" class="btn btn-primary">✅ SUBMIT</button>
+            <button id="btn-modal-next" class="btn btn-primary" disabled style="display:none;">➡️ NEXT</button>
           </div>
         </div>
 
@@ -329,7 +365,7 @@
   </div>
 
   <footer class="app-footer-text">
-    &copy; 2026 VBS Group C Quiz &mdash; Built for church kids!
+    &copy; 2026 Review Game Group C &mdash; Built for church kids!
   </footer>
 
   <script type="module" src="app.js"></script>

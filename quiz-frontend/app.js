@@ -6,10 +6,11 @@
 // ============================================================
 // CONSTANTS
 // ============================================================
-const TOTAL_QUESTIONS = 20;
-const GRID_COLS = 4; // 4 columns × 5 rows = 20 cells
-const GRID_ROWS = 5;
-const DEFAULT_TEAMS = ['Boy', 'Girl'];
+const GRID_COLS = 5; // 5 columns fixed
+const DEFAULT_TEAMS = [
+  { name: 'Lion', logo: 'lion.png' },
+  { name: 'Lioness', logo: 'lioness.png' }
+];
 
 // Team colour palette (cycling)
 const TEAM_COLORS = [
@@ -27,22 +28,51 @@ const TEAM_ICONS = ['⚔️', '🌸', '🦁', '👑', '🔥', '💎'];
 // STATE
 // ============================================================
 let db = {
-  settings: { subtractOnWrong: true },
-  questions: [], // each: { id, qnIndex (1-20), type, question, options, answer, points }
+  settings: { subtractOnWrong: true, totalQuestions: 20, displayMode: 'QUESTION_NUMBER' },
+  questions: [], // each: { id, qnIndex, type, question, options, answer, points }
   teams: [...DEFAULT_TEAMS],
 };
 
 let playState = {
   activeScreen: 'dashboard',
+  gameState: 'IDLE', // IDLE | QUESTION_LOADING | AWAITING_FIRST_ANSWER | AWAITING_STEAL | RESOLVED | LOCKED
   teams: [],           // [{ name, score }]
   currentTeamIndex: 0,
-  originalTeamIndex: 0,
-  isStealState: false,
+  hasPassed: false,
   answeredCells: {},   // { "qn1": { teamIndex, pointsWon, cancelled } }
   currentCellId: null,
   currentQuestion: null,
   stats: {},           // { teamIndex: { correct, attempts } }
 };
+
+let lastClickTime = 0;
+function canInteract() {
+  const now = Date.now();
+  if (now - lastClickTime < 300) return false;
+  lastClickTime = now;
+  return true;
+}
+
+function transitionState(newState) {
+  const validTransitions = {
+    'IDLE': ['QUESTION_LOADING', 'LOCKED'],
+    'QUESTION_LOADING': ['AWAITING_FIRST_ANSWER', 'IDLE'],
+    'AWAITING_FIRST_ANSWER': ['RESOLVED', 'AWAITING_STEAL', 'IDLE'],
+    'AWAITING_STEAL': ['RESOLVED', 'IDLE'],
+    'RESOLVED': ['IDLE'],
+    'LOCKED': []
+  };
+  if (validTransitions[playState.gameState] && validTransitions[playState.gameState].includes(newState)) {
+    playState.gameState = newState;
+    return true;
+  }
+  console.warn(`Invalid state transition from ${playState.gameState} to ${newState}`);
+  return false;
+}
+
+function canOpenCell() { return playState.gameState === 'IDLE'; }
+function canAnswer() { return playState.gameState === 'AWAITING_FIRST_ANSWER' || playState.gameState === 'AWAITING_STEAL'; }
+
 
 // ============================================================
 // AUDIO (Web Audio API)
@@ -232,10 +262,14 @@ function loadDB() {
       const parsed = JSON.parse(stored);
       if (parsed && typeof parsed === 'object') {
         db = {
-          settings: parsed.settings || { subtractOnWrong: false },
+          settings: {
+            subtractOnWrong: parsed.settings?.subtractOnWrong ?? true,
+            totalQuestions: parsed.settings?.totalQuestions ?? 20,
+            displayMode: parsed.settings?.displayMode ?? 'QUESTION_NUMBER'
+          },
           questions: parsed.questions || [],
           teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
-            ? parsed.teams
+            ? parsed.teams.map((t, i) => typeof t === 'string' ? { name: t, logo: DEFAULT_TEAMS[i].logo } : t)
             : [...DEFAULT_TEAMS],
         };
       }
@@ -244,9 +278,19 @@ function loadDB() {
     }
   }
 
+  // Populate Admin Inputs
+  const t1Name = document.getElementById('admin-team1-name');
+  if (t1Name) t1Name.value = db.teams[0].name;
+  const t2Name = document.getElementById('admin-team2-name');
+  if (t2Name) t2Name.value = db.teams[1].name;
+
   // Sync UI
   const subEl = document.getElementById('settings-subtract');
   if (subEl) subEl.checked = !!db.settings.subtractOnWrong;
+  const totEl = document.getElementById('settings-total-questions');
+  if (totEl) totEl.value = db.settings.totalQuestions;
+  const modeEl = document.getElementById('settings-display-mode');
+  if (modeEl) modeEl.value = db.settings.displayMode;
   updateDashboardStatus();
 }
 
@@ -270,6 +314,280 @@ function updateDashboardStatus() {
   }
 }
 
+
+
+function loadDefaultQuiz() {
+  if (!confirm('This will replace your current questions. Are you sure?')) return;
+  const data = {
+  "settings": {
+    "subtractOnWrong": true,
+    "totalQuestions": 20,
+    "displayMode": "QUESTION_NUMBER"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "qnIndex": 1,
+      "type": "mcq",
+      "question": "What new name was given to Daniel in Babylon?",
+      "options": [
+        "Belteshazzar",
+        "Shadrach",
+        "Meshach",
+        "Abednego"
+      ],
+      "answer": "Belteshazzar",
+      "points": 100
+    },
+    {
+      "id": "q2",
+      "qnIndex": 2,
+      "type": "fill",
+      "question": "What did Daniel and his friends refuse to consume?",
+      "options": [],
+      "answer": "The king's food and wine",
+      "points": 100
+    },
+    {
+      "id": "q3",
+      "qnIndex": 3,
+      "type": "mcq",
+      "question": "How many days did Daniel ask to be tested on a diet of vegetables and water?",
+      "options": [
+        "7 days",
+        "10 days",
+        "12 days",
+        "40 days"
+      ],
+      "answer": "10 days",
+      "points": 100
+    },
+    {
+      "id": "q4",
+      "qnIndex": 4,
+      "type": "mcq",
+      "question": "What was the statue's head made of in Nebuchadnezzar's dream?",
+      "options": [
+        "Silver",
+        "Bronze",
+        "Iron",
+        "Gold"
+      ],
+      "answer": "Gold",
+      "points": 200
+    },
+    {
+      "id": "q5",
+      "qnIndex": 5,
+      "type": "fill",
+      "question": "What hit the statue and smashed it to pieces in the dream?",
+      "options": [],
+      "answer": "A stone cut out without hands",
+      "points": 200
+    },
+    {
+      "id": "q6",
+      "qnIndex": 6,
+      "type": "mcq",
+      "question": "Who were thrown into the fiery furnace for refusing to bow to the golden image?",
+      "options": [
+        "Daniel and his friends",
+        "Shadrach, Meshach, Abednego",
+        "The wise men of Babylon",
+        "The king's guards"
+      ],
+      "answer": "Shadrach, Meshach, Abednego",
+      "points": 100
+    },
+    {
+      "id": "q7",
+      "qnIndex": 7,
+      "type": "mcq",
+      "question": "How many men did the king see walking in the fiery furnace?",
+      "options": [
+        "Two",
+        "Three",
+        "Four",
+        "Five"
+      ],
+      "answer": "Four",
+      "points": 100
+    },
+    {
+      "id": "q8",
+      "qnIndex": 8,
+      "type": "fill",
+      "question": "What happened to Nebuchadnezzar when he became too proud?",
+      "options": [],
+      "answer": "He lived like a wild animal",
+      "points": 300
+    },
+    {
+      "id": "q9",
+      "qnIndex": 9,
+      "type": "mcq",
+      "question": "Which king saw the handwriting on the wall during a great feast?",
+      "options": [
+        "Nebuchadnezzar",
+        "Belshazzar",
+        "Darius",
+        "Cyrus"
+      ],
+      "answer": "Belshazzar",
+      "points": 200
+    },
+    {
+      "id": "q10",
+      "qnIndex": 10,
+      "type": "mcq",
+      "question": "What were the words written on the wall?",
+      "options": [
+        "Mene, Mene, Tekel, Upharsin",
+        "Holy, Holy, Holy",
+        "Babylon is Fallen",
+        "Repent and Believe"
+      ],
+      "answer": "Mene, Mene, Tekel, Upharsin",
+      "points": 200
+    },
+    {
+      "id": "q11",
+      "qnIndex": 11,
+      "type": "mcq",
+      "question": "Which king threw Daniel into the lions' den?",
+      "options": [
+        "Nebuchadnezzar",
+        "Belshazzar",
+        "Darius",
+        "Cyrus"
+      ],
+      "answer": "Darius",
+      "points": 100
+    },
+    {
+      "id": "q12",
+      "qnIndex": 12,
+      "type": "fill",
+      "question": "Why was Daniel thrown into the lions' den?",
+      "options": [],
+      "answer": "For praying to God",
+      "points": 100
+    },
+    {
+      "id": "q13",
+      "qnIndex": 13,
+      "type": "mcq",
+      "question": "How did God protect Daniel in the lions' den?",
+      "options": [
+        "He made the lions sleep",
+        "He sent an angel to shut their mouths",
+        "He gave Daniel a sword",
+        "He blinded the lions"
+      ],
+      "answer": "He sent an angel to shut their mouths",
+      "points": 100
+    },
+    {
+      "id": "q14",
+      "qnIndex": 14,
+      "type": "mcq",
+      "question": "What was the first beast Daniel saw in his vision of the four beasts?",
+      "options": [
+        "A bear",
+        "A leopard",
+        "A lion with eagle's wings",
+        "A terrifying beast with iron teeth"
+      ],
+      "answer": "A lion with eagle's wings",
+      "points": 300
+    },
+    {
+      "id": "q15",
+      "qnIndex": 15,
+      "type": "mcq",
+      "question": "Which angel came to explain Daniel's visions to him?",
+      "options": [
+        "Michael",
+        "Gabriel",
+        "Raphael",
+        "Lucifer"
+      ],
+      "answer": "Gabriel",
+      "points": 200
+    },
+    {
+      "id": "q16",
+      "qnIndex": 16,
+      "type": "fill",
+      "question": "How many weeks were decreed in Daniel's vision of the future?",
+      "options": [],
+      "answer": "70 weeks",
+      "points": 400
+    },
+    {
+      "id": "q17",
+      "qnIndex": 17,
+      "type": "mcq",
+      "question": "Who is the 'Prince' that stands watch over Daniel's people?",
+      "options": [
+        "Gabriel",
+        "Michael",
+        "The King of Persia",
+        "The King of Greece"
+      ],
+      "answer": "Michael",
+      "points": 300
+    },
+    {
+      "id": "q18",
+      "qnIndex": 18,
+      "type": "mcq",
+      "question": "What did King Nebuchadnezzar do when Shadrach, Meshach, and Abednego survived the fire?",
+      "options": [
+        "He executed his guards",
+        "He praised their God and promoted them",
+        "He banished them from Babylon",
+        "He ignored the miracle"
+      ],
+      "answer": "He praised their God and promoted them",
+      "points": 200
+    },
+    {
+      "id": "q19",
+      "qnIndex": 19,
+      "type": "fill",
+      "question": "In what city did Daniel serve under multiple kings?",
+      "options": [],
+      "answer": "Babylon",
+      "points": 100
+    },
+    {
+      "id": "q20",
+      "qnIndex": 20,
+      "type": "mcq",
+      "question": "What did Daniel do three times a day, facing Jerusalem?",
+      "options": [
+        "Ate vegetables",
+        "Sang hymns",
+        "Prayed and gave thanks to God",
+        "Offered a sacrifice"
+      ],
+      "answer": "Prayed and gave thanks to God",
+      "points": 100
+    }
+  ],
+  "teams": [
+    {
+      "name": "Lion",
+      "logo": "lion.png"
+    },
+    {
+      "name": "Lioness",
+      "logo": "lioness.png"
+    }
+  ]
+};
+
 // ============================================================
 // THEME
 // ============================================================
@@ -277,11 +595,20 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('vbs_quiz_theme', theme);
   const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = theme === 'light' ? '☀️' : '🌙';
+  if (icon) {
+    icon.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
+    icon.style.transform = 'rotate(90deg) scale(0.5)';
+    icon.style.opacity = '0';
+    setTimeout(() => {
+      icon.textContent = theme === 'light' ? '☀️' : '🌙';
+      icon.style.transform = 'rotate(0deg) scale(1)';
+      icon.style.opacity = '1';
+    }, 200);
+  }
 }
 
 function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 
@@ -295,13 +622,25 @@ function renderAdminGrid() {
   container.innerHTML = '';
   container.style.gridTemplateColumns = `repeat(${GRID_COLS}, 1fr)`;
 
-  // Update question count badge
   document.getElementById('admin-q-count').textContent = `Questions added: ${db.questions.length}`;
 
-  for (let qn = 1; qn <= TOTAL_QUESTIONS; qn++) {
+  const total = db.settings.totalQuestions;
+  const rows = Math.ceil(total / GRID_COLS);
+  const totalCells = rows * GRID_COLS;
+
+  for (let qn = 1; qn <= totalCells; qn++) {
     const cId = cellId(qn);
     const q = db.questions.find(x => x.qnIndex === qn);
     const cell = document.createElement('div');
+    
+    if (qn > total) {
+      cell.className = 'board-cell cell-disabled';
+      cell.style.opacity = '0.2';
+      cell.innerHTML = '<span class="cell-qn-label">—</span>';
+      container.appendChild(cell);
+      continue;
+    }
+
     cell.className = `board-cell ${q ? 'has-q' : ''} ${selectedAdminCellId === cId ? 'selected-edit' : ''}`;
     cell.dataset.cellId = cId;
     cell.setAttribute('role', 'button');
@@ -309,7 +648,7 @@ function renderAdminGrid() {
 
     const labelEl = document.createElement('span');
     labelEl.className = 'cell-qn-label';
-    labelEl.textContent = qnLabel(qn);
+    labelEl.textContent = db.settings.displayMode === 'POINTS' ? (q ? q.points : qnLabel(qn)) : qnLabel(qn);
     cell.appendChild(labelEl);
 
     const tagEl = document.createElement('span');
@@ -318,6 +657,7 @@ function renderAdminGrid() {
     cell.appendChild(tagEl);
 
     cell.addEventListener('click', () => {
+      if(!canInteract()) return;
       playSound('click');
       selectedAdminCellId = cId;
       openQuestionEditor(qn);
@@ -390,55 +730,63 @@ function renderGameBoard() {
   container.innerHTML = '';
   container.style.gridTemplateColumns = `repeat(${GRID_COLS}, 1fr)`;
 
-  for (let qn = 1; qn <= TOTAL_QUESTIONS; qn++) {
+  const total = db.settings.totalQuestions;
+  const rows = Math.ceil(total / GRID_COLS);
+  const totalCells = rows * GRID_COLS;
+
+  for (let qn = 1; qn <= totalCells; qn++) {
     const cId = cellId(qn);
     const q = db.questions.find(x => x.qnIndex === qn);
     const btn = document.createElement('button');
     btn.dataset.cellId = cId;
-    btn.setAttribute('aria-label', qnLabel(qn));
+    
+    if (qn > total) {
+      btn.className = 'game-cell-btn cell-disabled';
+      btn.disabled = true;
+      btn.style.opacity = '0.2';
+      btn.innerHTML = `<span class="cell-qn">—</span>`;
+      container.appendChild(btn);
+      continue;
+    }
 
+    btn.setAttribute('aria-label', qnLabel(qn));
     const answered = playState.answeredCells[cId];
+    
+    let displayLabel = db.settings.displayMode === 'POINTS' ? (q ? q.points : qnLabel(qn)) : qnLabel(qn);
 
     if (!q) {
-      // No question — empty slot
       btn.className = 'game-cell-btn';
       btn.disabled = true;
       btn.innerHTML = `<span class="cell-qn" style="opacity:0.2; font-size:1rem;">—</span>`;
     } else if (answered && answered.cancelled) {
-      // Cancelled
       btn.className = 'game-cell-btn cell-cancelled';
       btn.disabled = true;
-      btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel);">${qnLabel(qn)}</span>`;
+      btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel);">${displayLabel}</span>`;
     } else if (answered) {
-      // Answered
       btn.className = 'game-cell-btn cell-answered';
       btn.disabled = true;
       const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
       if (answered.teamIndex === -1) {
-        // Wrong / no winner
         btn.style.background = 'rgba(255,255,255,0.04)';
         btn.style.borderColor = 'rgba(255,255,255,0.1)';
         btn.style.opacity = '0.5';
-        btn.innerHTML = `<span class="cell-qn" style="font-size:1rem; opacity:0.5;">✗</span><span class="cell-answered-tag" style="color:var(--color-text-muted);">${qnLabel(qn)}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="font-size:1rem; opacity:0.5;">✗</span><span class="cell-answered-tag" style="color:var(--color-text-muted);">${displayLabel}</span>`;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
         btn.style.background = tColor.bg;
         btn.style.borderColor = tColor.border;
-        btn.innerHTML = `
-          <span class="cell-qn" style="color:${tColor.text}; font-size:1.4rem;">✓</span>
-          <span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="color:${tColor.text}; font-size:1.4rem;">✓</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
       }
     } else {
-      // Available
       btn.className = 'game-cell-btn';
-      btn.innerHTML = `<span class="cell-qn">${qnLabel(qn)}</span>`;
+      btn.innerHTML = `<span class="cell-qn">${displayLabel}</span>`;
       btn.addEventListener('click', () => {
+        if (!canInteract() || !canOpenCell()) return;
         playSound('open');
         openQuestionModal(cId, q);
       });
     }
-
     container.appendChild(btn);
   }
 }
@@ -454,7 +802,7 @@ function updateTurnUI() {
 
   turnDisplay.textContent = activeTeam.name.toUpperCase();
   turnDisplay.style.color = 'var(--color-gold)';
-  stealBanner.classList.toggle('hidden', !playState.isStealState);
+  stealBanner.classList.toggle('hidden', true); // removed steal state banner
 
   const panels = document.querySelectorAll('.dynamic-team-panel');
   panels.forEach((panel, i) => {
@@ -464,7 +812,7 @@ function updateTurnUI() {
 
 function switchTurn() {
   playState.currentTeamIndex = (playState.currentTeamIndex + 1) % playState.teams.length;
-  playState.isStealState = false;
+  playState.hasPassed = false;
   updateTurnUI();
 }
 
@@ -474,44 +822,6 @@ function switchTurn() {
 // ============================================================
 // SCORE DROP VISUAL FEEDBACK
 // ============================================================
-function flashScoreDrop(teamIndex, penaltyAmount) {
-  // Brief delay so the wrong-answer sound plays first, then show the visual
-  setTimeout(() => {
-    const scoreEl = document.getElementById(`score-team-${teamIndex}`);
-    if (!scoreEl) return;
-
-    // Flash the score red
-    scoreEl.style.transition = 'color 0.15s ease';
-    scoreEl.style.color = 'var(--color-cancel)';
-    setTimeout(() => {
-      scoreEl.style.color = '';
-      scoreEl.style.transition = '';
-    }, 900);
-
-    // Floating "−X pts" bubble
-    const bubble = document.createElement('div');
-    bubble.textContent = `−${penaltyAmount} pts`;
-    bubble.style.cssText = `
-      position: fixed;
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      font-weight: 400;
-      color: #FF3D3D;
-      text-shadow: 0 2px 8px rgba(255,61,61,0.6);
-      pointer-events: none;
-      z-index: 1000;
-      animation: scoreDrop 1.4s ease-out forwards;
-    `;
-
-    // Position near the score element
-    const rect = scoreEl.getBoundingClientRect();
-    bubble.style.left = `${rect.left + rect.width / 2 - 40}px`;
-    bubble.style.top = `${rect.top - 10}px`;
-    document.body.appendChild(bubble);
-    setTimeout(() => bubble.remove(), 1500);
-  }, 200);
-}
-
 function updateScoreUI() {
   const container = document.getElementById('game-team-panels');
   if (!container) return;
@@ -524,8 +834,9 @@ function updateScoreUI() {
     panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''}`;
     panel.style.borderColor = isActive ? 'var(--color-gold)' : color.border;
 
+    const logoSrc = team.logo || (team.name === 'Lion' ? 'lion.png' : 'lioness.png');
     panel.innerHTML = `
-      <span class="team-icon">${TEAM_ICONS[i % TEAM_ICONS.length]}</span>
+      <img src="${logoSrc}" class="team-logo-circular" alt="${team.name}" />
       <div class="team-details">
         <span class="team-label">${team.name}</span>
         <span id="score-team-${i}" class="team-score" style="color:${color.text};">${team.score}</span>
@@ -569,25 +880,28 @@ function renderSidebarLeaderboard() {
 // QUESTION MODAL
 // ============================================================
 function openQuestionModal(cId, q) {
+  if (!transitionState('QUESTION_LOADING')) return;
   playState.currentCellId = cId;
   playState.currentQuestion = q;
+  playState.hasPassed = false;
 
   const overlay = document.getElementById('modal-overlay');
+  const passBtn = document.getElementById('btn-modal-pass');
+  if (passBtn) passBtn.style.display = 'inline-flex';
+  document.getElementById('modal-steal-label').classList.toggle('hidden', true);
 
-  document.getElementById('btn-modal-pass').style.display = playState.isStealState ? 'none' : 'inline-flex';
-  document.getElementById('modal-steal-label').classList.toggle('hidden', !playState.isStealState);
-
-  // Header
   const qnIndex = q.qnIndex || parseInt(cId.replace('qn', ''), 10);
   document.getElementById('modal-cell-id').textContent = qnLabel(qnIndex);
+  document.getElementById('modal-points-display').textContent = `This Question: ${q.points} Points`;
+  
   const turnStatus = document.getElementById('modal-turn-status');
+  turnStatus.style.color = 'var(--color-gold)';
+  turnStatus.style.borderColor = 'rgba(244,196,48,0.3)';
   const activeTeam = playState.teams[playState.currentTeamIndex];
   turnStatus.textContent = `${activeTeam.name.toUpperCase()}'S TURN`;
 
-  // Question text
   document.getElementById('modal-question-text').textContent = q.question;
 
-  // Answer containers
   const mcqContainer  = document.getElementById('modal-mcq-container');
   const fillContainer = document.getElementById('modal-fill-container');
   const revealPanel   = document.getElementById('modal-reveal-panel');
@@ -600,9 +914,11 @@ function openQuestionModal(cId, q) {
     const letters = ['A', 'B', 'C', 'D'];
     optBtns.forEach((btn, i) => {
       btn.className = 'option-btn';
+      btn.disabled = false;
       btn.querySelector('.option-letter').textContent = letters[i];
       btn.querySelector('.option-val').textContent = q.options ? q.options[i] : '';
       btn.onclick = () => {
+        if (!canInteract() || !canAnswer()) return;
         document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         playSound('click');
@@ -619,129 +935,244 @@ function openQuestionModal(cId, q) {
   }
 
   document.getElementById('modal-correct-answer-text').textContent = q.answer;
+  const contentNode = document.querySelector('.modal-content');
+  contentNode.classList.remove('feedback-correct', 'feedback-wrong');
+  const btnNext = document.getElementById('btn-modal-next');
+  if(btnNext) {
+    btnNext.style.display = 'none';
+    btnNext.disabled = true;
+  }
+  const btnSubmit = document.getElementById('btn-modal-submit');
+  if(btnSubmit) btnSubmit.style.display = 'inline-flex';
+  
   overlay.classList.add('open');
+  
+  transitionState('AWAITING_FIRST_ANSWER');
 }
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   playState.currentCellId = null;
   playState.currentQuestion = null;
+  transitionState('IDLE');
 }
 
 // ============================================================
 // CANCEL QUESTION
 // ============================================================
 function cancelQuestion() {
+  if (!canInteract()) return;
   const cId = playState.currentCellId;
-  const q = playState.currentQuestion;
   if (!cId) return;
 
   playSound('cancel');
+  transitionState('RESOLVED');
   playState.answeredCells[cId] = { teamIndex: -2, pointsWon: 0, cancelled: true };
-  closeModal();
-  renderGameBoard();
-  checkGameOver();
+  document.getElementById('modal-turn-status').textContent = "Question Cancelled";
+  enableNextButton();
 }
+
+// ============================================================
+// SCORING ENGINE
+// ============================================================
+
+function applyScore(teamIndex, points, isPenalty = false) {
+  if (playState.gameState !== 'AWAITING_FIRST_ANSWER' && playState.gameState !== 'AWAITING_STEAL') {
+    console.warn('Blocked invalid score attempt: not in scoring state');
+    return;
+  }
+
+  if (isPenalty && !db.settings.subtractOnWrong) return;
+
+  const teamName = playState.teams[teamIndex].name;
+
+  if (isPenalty) {
+    playState.teams[teamIndex].score -= points;
+    // Show red danger alert
+    triggerAlert(teamName, `-${points} Points`, 'lose');
+  } else {
+    playState.teams[teamIndex].score += points;
+    // Show green success alert
+    triggerAlert(teamName, `+${points} Points`, 'gain');
+  }
+}
+
+
+
+function enableNextButton() {
+  const btnNext = document.getElementById('btn-modal-next');
+  const btnSubmit = document.getElementById('btn-modal-submit');
+  const btnPass = document.getElementById('btn-modal-pass');
+  if (btnPass) btnPass.style.display = 'none';
+  if (btnSubmit) btnSubmit.style.display = 'none';
+  if (btnNext) {
+    btnNext.style.display = 'inline-flex';
+    btnNext.disabled = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btnLoadDef = document.getElementById('btn-load-default');
+  if (btnLoadDef) btnLoadDef.addEventListener('click', loadDefaultQuiz);
+
+  const btnNext = document.getElementById('btn-modal-next');
+  if (btnNext) {
+    btnNext.addEventListener('click', () => {
+      if (!canInteract()) return;
+      closeModal();
+      renderGameBoard();
+      checkGameOver();
+    });
+  }
+});
 
 // ============================================================
 // SUBMIT / PASS
 // ============================================================
-function submitAnswer(isCorrect) {
+function triggerAlert(teamName, text, type) {
+  const alertEl = document.createElement('div');
+  alertEl.className = `score-alert ${type === 'gain' ? 'alert-gain' : 'alert-lose'}`;
+  
+  const teamSpan = document.createElement('span');
+  teamSpan.className = 'alert-team';
+  teamSpan.textContent = teamName;
+  
+  const textSpan = document.createElement('span');
+  textSpan.textContent = text;
+  
+  alertEl.appendChild(teamSpan);
+  alertEl.appendChild(textSpan);
+  
+  document.body.appendChild(alertEl);
+  
+  // Auto-dismiss
+  setTimeout(() => alertEl.remove(), 2600);
+}
+
+function resolveAnswer(isCorrect) {
   const q = playState.currentQuestion;
-  if (!q) return;
+  if (!q || !canAnswer()) return;
 
   const cId = playState.currentCellId;
   const teamIndex = playState.currentTeamIndex;
-  const pts = q.points;
-
-  document.getElementById('modal-correct-answer-text').textContent = q.answer;
-  document.getElementById('modal-reveal-panel').classList.remove('hidden');
+  const pts = playState.hasPassed ? Math.floor(q.points / 2) : q.points;
 
   if (isCorrect) {
+    applyScore(teamIndex, pts, false); // Safe scoring via controlled engine
+    transitionState('RESOLVED');
     playSound('correct');
     triggerBurst();
 
-    let won = pts;
-    if (playState.isStealState) won = Math.round(pts / 2);
+    playState.answeredCells[cId] = { teamIndex, pointsWon: pts, cancelled: false };
+    if (playState.stats[teamIndex]) {
+      playState.stats[teamIndex].correct++;
+      playState.stats[teamIndex].attempts++;
+    }
 
-    playState.teams[teamIndex].score += won;
-    playState.answeredCells[cId] = { teamIndex, pointsWon: won, cancelled: false };
-    if (playState.stats[teamIndex]) playState.stats[teamIndex].correct++;
-    if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
+    const contentNode = document.querySelector('.modal-content');
+    contentNode.classList.remove('feedback-wrong');
+    contentNode.classList.add('feedback-correct');
+
+    document.getElementById('modal-correct-answer-text').textContent = q.answer;
+    document.getElementById('modal-reveal-panel').classList.remove('hidden');
+    
+    const turnStatus = document.getElementById('modal-turn-status');
+    turnStatus.textContent = "Correct Answer!";
+    turnStatus.style.color = "var(--color-success)";
+    turnStatus.style.borderColor = "var(--color-success)";
 
     updateScoreUI();
 
-    setTimeout(() => {
-      closeModal();
-      if (playState.isStealState) {
-        playState.isStealState = false;
-        playState.currentTeamIndex = (playState.originalTeamIndex + 1) % playState.teams.length;
-      } else {
-        switchTurn();
-      }
-      renderGameBoard();
-      checkGameOver();
-    }, 1800);
+    switchTurn();
+  enableNextButton();
 
   } else {
     playSound('wrong');
     if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
 
-    // Penalty = half the question's point value (rounded down)
-    const penalty = Math.floor(pts / 2);
+    if (!playState.hasPassed) {
+      // First wrong -> Penalize and Steal
+      const penalty = Math.floor(q.points / 2);
+      applyScore(teamIndex, penalty, true); // Safe scoring via controlled engine
+      transitionState('AWAITING_STEAL');
 
-    if (playState.isStealState) {
-      // Steal attempt wrong — apply penalty to the stealing team if subtractOnWrong enabled
-      if (db.settings.subtractOnWrong) {
-        playState.teams[teamIndex].score -= penalty;
-        flashScoreDrop(teamIndex, penalty);
-      }
-      playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
-      playState.isStealState = false;
-      playState.currentTeamIndex = (playState.originalTeamIndex + 1) % playState.teams.length;
-      updateScoreUI();
-      setTimeout(() => {
-        closeModal();
-        updateTurnUI();
-        renderGameBoard();
-        checkGameOver();
-      }, 1800);
+      startStealPhase();
     } else {
-      if (db.settings.subtractOnWrong) {
-        // Subtract half the question value — score CAN go negative
-        playState.teams[teamIndex].score -= penalty;
-        flashScoreDrop(teamIndex, penalty);
-      }
+      // Second wrong -> Penalize and Resolve
+      applyScore(teamIndex, pts, true); // Safe scoring via controlled engine
+      transitionState('RESOLVED');
+
       playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
+
+      const turnStatus = document.getElementById('modal-turn-status');
+      turnStatus.textContent = "Incorrect Answer";
+      turnStatus.style.color = "var(--color-error)";
+      turnStatus.style.borderColor = "var(--color-error)";
+
+      const contentNode = document.querySelector('.modal-content');
+      contentNode.classList.remove('feedback-correct');
+      contentNode.classList.add('feedback-wrong');
+
+      document.getElementById('modal-correct-answer-text').textContent = q.answer;
+      document.getElementById('modal-reveal-panel').classList.remove('hidden');
+
       updateScoreUI();
-      setTimeout(() => {
-        closeModal();
-        switchTurn();
-        renderGameBoard();
-        checkGameOver();
-      }, 1800);
+
+      switchTurn();
+  enableNextButton();
     }
   }
 }
 
-function handlePass() {
+function startStealPhase() {
+  playState.hasPassed = true;
+  const nextTeamIndex = (playState.currentTeamIndex + 1) % playState.teams.length;
+  playState.currentTeamIndex = nextTeamIndex;
+
   const q = playState.currentQuestion;
-  if (!q) return;
-  playSound('pass');
+  const stealPts = Math.floor(q.points / 2);
+  document.getElementById('modal-points-display').textContent = `Now worth ${stealPts} Points (Steal Phase)`;
+  
+  // Disable previously selected option if any
+  document.querySelectorAll('.option-btn.selected').forEach(btn => btn.disabled = true);
 
-  playState.originalTeamIndex = playState.currentTeamIndex;
-  playState.isStealState = true;
-  playState.currentTeamIndex = (playState.currentTeamIndex + 1) % playState.teams.length;
+  const turnStatus = document.getElementById('modal-turn-status');
+  turnStatus.innerHTML = `❌ Wrong Answer<br><span style="font-size:0.8rem;">Passed to ${playState.teams[nextTeamIndex].name}</span>`;
+  turnStatus.style.color = "var(--color-error)";
+  turnStatus.style.borderColor = "var(--color-error)";
+  turnStatus.style.textAlign = "center";
 
-  updateTurnUI();
+  const contentNode = document.querySelector('.modal-content');
+  contentNode.classList.remove('feedback-correct');
+  contentNode.classList.add('feedback-wrong');
+  setTimeout(() => contentNode.classList.remove('feedback-wrong'), 600);
 
   document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
   const fillInput = document.getElementById('modal-fill-input');
   if (fillInput) { fillInput.value = ''; fillInput.focus(); }
 
-  const activeTeam = playState.teams[playState.currentTeamIndex];
-  document.getElementById('modal-turn-status').textContent = `${activeTeam.name.toUpperCase()}'S TURN`;
-  document.getElementById('modal-steal-label').classList.remove('hidden');
+  updateScoreUI();
+  updateTurnUI();
+}
+
+function submitAnswer(isCorrect) {
+  if (!canInteract()) return;
+  resolveAnswer(isCorrect);
+}
+
+function handlePass() {
+  if (!canInteract() || !canAnswer()) return;
+  const q = playState.currentQuestion;
+  if (!q || playState.hasPassed) return;
+  playSound('pass');
+
+  transitionState('AWAITING_STEAL');
+  startStealPhase();
+  
+  const turnStatus = document.getElementById('modal-turn-status');
+  turnStatus.style.color = "var(--color-gold)";
+  turnStatus.style.borderColor = "var(--color-gold)";
+
   document.getElementById('btn-modal-pass').style.display = 'none';
 }
 
@@ -809,69 +1240,8 @@ function endGame() {
 // ============================================================
 // TEAMS SETUP
 // ============================================================
-function renderTeamInputs() {
-  const container = document.getElementById('dynamic-team-inputs');
-  if (!container) return;
-
-  // Ensure teams array is valid
-  if (!db.teams || !Array.isArray(db.teams) || db.teams.length < 2) {
-    db.teams = [...DEFAULT_TEAMS];
-  }
-
-  // Sync count input
-  const countInput = document.getElementById('setup-team-count');
-  if (countInput) countInput.value = db.teams.length;
-
-  container.innerHTML = '';
-  db.teams.forEach((name, i) => {
-    const row = document.createElement('div');
-    row.className = 'team-input-row';
-    row.innerHTML = `
-      <label for="setup-team-name-${i}">Team ${i + 1}</label>
-      <input type="text" id="setup-team-name-${i}" 
-        value="${name}" 
-        placeholder="${DEFAULT_TEAMS[i] || `Team ${i + 1}`}"
-        autocomplete="off">
-    `;
-    const input = row.querySelector('input');
-    input.addEventListener('input', (e) => {
-      db.teams[i] = e.target.value; // Store raw value (may be empty)
-      saveDB();
-    });
-    container.appendChild(row);
-  });
-}
-
-function handleTeamCountChange() {
-  const countInput = document.getElementById('setup-team-count');
-  if (!countInput) return;
-  let count = parseInt(countInput.value, 10);
-  if (isNaN(count) || count < 2) count = 2;
-  if (count > 6) count = 6;
-  countInput.value = count;
-
-  const currentLength = db.teams.length;
-  if (count > currentLength) {
-    const extraDefaults = ['Boy', 'Girl', 'Team 3', 'Team 4', 'Team 5', 'Team 6'];
-    for (let i = currentLength; i < count; i++) {
-      db.teams.push(extraDefaults[i] || `Team ${i + 1}`);
-    }
-  } else if (count < currentLength) {
-    db.teams = db.teams.slice(0, count);
-  }
-
-  saveDB();
-  renderTeamInputs();
-}
-
 function setupTeamsFromInputs() {
-  // Read all team name inputs; fallback to defaults if empty
-  const resolvedNames = db.teams.map((rawName, i) => {
-    const trimmed = (rawName || '').trim();
-    return trimmed.length > 0 ? trimmed : (DEFAULT_TEAMS[i] || `Team ${i + 1}`);
-  });
-
-  playState.teams = resolvedNames.map(name => ({ name, score: 0 }));
+  playState.teams = db.teams.map(t => ({ name: t.name, logo: t.logo, score: 0 }));
   playState.stats = {};
   playState.teams.forEach((t, i) => {
     playState.stats[i] = { correct: 0, attempts: 0 };
@@ -881,8 +1251,7 @@ function setupTeamsFromInputs() {
 function resetPlayState() {
   playState.teams.forEach(t => { t.score = 0; });
   playState.currentTeamIndex = 0;
-  playState.originalTeamIndex = 0;
-  playState.isStealState = false;
+  playState.hasPassed = false;
   playState.answeredCells = {};
   playState.currentCellId = null;
   playState.currentQuestion = null;
@@ -938,8 +1307,29 @@ document.getElementById('settings-subtract').addEventListener('change', e => {
   saveDB();
 });
 
-document.getElementById('setup-team-count').addEventListener('input', handleTeamCountChange);
-document.getElementById('setup-team-count').addEventListener('change', handleTeamCountChange);
+// Admin Team Setup Event Listeners
+document.getElementById('admin-team1-name')?.addEventListener('input', e => {
+  db.teams[0].name = e.target.value.trim() || 'Team 1';
+  saveDB();
+});
+document.getElementById('admin-team2-name')?.addEventListener('input', e => {
+  db.teams[1].name = e.target.value.trim() || 'Team 2';
+  saveDB();
+});
+
+function handleLogoUpload(e, teamIndex) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    db.teams[teamIndex].logo = ev.target.result;
+    saveDB();
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('admin-team1-logo')?.addEventListener('change', e => handleLogoUpload(e, 0));
+document.getElementById('admin-team2-logo')?.addEventListener('change', e => handleLogoUpload(e, 1));
 
 // Export JSON
 document.getElementById('btn-export-json').addEventListener('click', () => {
@@ -970,13 +1360,12 @@ document.getElementById('import-json-file').addEventListener('change', e => {
             : [...DEFAULT_TEAMS],
         };
         saveDB();
-        renderTeamInputs();
+        saveDB();
         document.getElementById('settings-subtract').checked = !!db.settings.subtractOnWrong;
         renderAdminGrid();
-        alert('✅ Quiz imported successfully!');
       }
     } catch (err) {
-      alert('❌ Invalid JSON file. Please check the file and try again.');
+      console.error('Invalid JSON file.', err);
     }
   };
   reader.readAsText(file);
@@ -985,26 +1374,21 @@ document.getElementById('import-json-file').addEventListener('change', e => {
 
 // Reset game scores (not questions)
 document.getElementById('btn-reset-game').addEventListener('click', () => {
-  if (confirm('Reset all team scores and question states? Questions will be kept.')) {
-    playSound('click');
-    setupTeamsFromInputs();
-    resetPlayState();
-    updateDashboardStatus();
-    renderGameBoard();
-    alert('✅ Game reset! Scores and progress cleared.');
-  }
+  playSound('click');
+  setupTeamsFromInputs();
+  resetPlayState();
+  updateDashboardStatus();
+  renderGameBoard();
 });
 
 // Clear all questions
 document.getElementById('btn-clear-db').addEventListener('click', () => {
-  if (confirm('Delete ALL questions? This cannot be undone.')) {
-    db.questions = [];
-    saveDB();
-    selectedAdminCellId = null;
-    document.getElementById('admin-question-editor').classList.add('hidden');
-    renderAdminGrid();
-    playSound('wrong');
-  }
+  db.questions = [];
+  saveDB();
+  selectedAdminCellId = null;
+  document.getElementById('admin-question-editor').classList.add('hidden');
+  renderAdminGrid();
+  playSound('wrong');
 });
 
 // ============================================================
@@ -1068,7 +1452,6 @@ document.getElementById('question-form').addEventListener('submit', e => {
 
 document.getElementById('btn-delete-question').addEventListener('click', () => {
   if (!selectedAdminCellId) return;
-  if (!confirm('Delete this question?')) return;
   playSound('wrong');
   const qnIndex = parseInt(selectedAdminCellId.replace('qn', ''), 10);
   db.questions = db.questions.filter(q => q.qnIndex !== qnIndex);
@@ -1082,9 +1465,7 @@ document.getElementById('btn-delete-question').addEventListener('click', () => {
 // EVENT LISTENERS — Question Modal
 // ============================================================
 document.getElementById('btn-modal-cancel').addEventListener('click', () => {
-  if (confirm('Cancel this question? The tile will be marked as cancelled.')) {
-    cancelQuestion();
-  }
+  cancelQuestion();
 });
 
 document.getElementById('btn-modal-pass').addEventListener('click', handlePass);
@@ -1095,12 +1476,12 @@ document.getElementById('btn-modal-submit').addEventListener('click', () => {
 
   if (q.type === 'mcq') {
     const selBtn = document.querySelector('.option-btn.selected');
-    if (!selBtn) { alert('Please select an option first!'); return; }
+    if (!selBtn) { return; }
     const val = selBtn.querySelector('.option-val').textContent;
     submitAnswer(val === q.answer);
   } else {
     const val = document.getElementById('modal-fill-input').value.trim();
-    if (!val) { alert('Please type an answer first!'); return; }
+    if (!val) { return; }
     submitAnswer(val.toLowerCase() === q.answer.toLowerCase());
   }
 });
@@ -1117,18 +1498,14 @@ document.getElementById('modal-fill-input').addEventListener('keydown', e => {
 // EVENT LISTENERS — Game Screen
 // ============================================================
 document.getElementById('btn-end-game').addEventListener('click', () => {
-  if (confirm('End the game now and see the results?')) {
-    closeModal();
-    endGame();
-  }
+  closeModal();
+  endGame();
 });
 
 document.getElementById('btn-game-back-admin').addEventListener('click', () => {
-  if (confirm('Go back to Admin? Current game progress will be preserved.')) {
-    closeModal();
-    renderAdminGrid();
-    showScreen('admin');
-  }
+  closeModal();
+  renderAdminGrid();
+  showScreen('admin');
 });
 
 // ============================================================
@@ -1152,13 +1529,40 @@ document.getElementById('btn-winner-home').addEventListener('click', () => {
 // INIT
 // ============================================================
 
-// Apply saved theme
-const savedTheme = localStorage.getItem('vbs_quiz_theme') || 'dark';
-applyTheme(savedTheme);
+// Apply saved theme or system preference
+const savedTheme = localStorage.getItem('vbs_quiz_theme');
+if (savedTheme) {
+  applyTheme(savedTheme);
+} else {
+  applyTheme('light');
+}
 
 // Load saved data
 loadDB();
 renderAdminGrid();
-renderTeamInputs();
+// (Removed renderTeamInputs call)
 updateScoreUI();
 showScreen('dashboard');
+
+// Admin Settings Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  const totEl = document.getElementById('settings-total-questions');
+  if (totEl) {
+    totEl.addEventListener('change', (e) => {
+      let val = parseInt(e.target.value, 10);
+      if (isNaN(val) || val < 1) val = 1;
+      db.settings.totalQuestions = val;
+      saveDB();
+      renderAdminGrid();
+    });
+  }
+  
+  const modeEl = document.getElementById('settings-display-mode');
+  if (modeEl) {
+    modeEl.addEventListener('change', (e) => {
+      db.settings.displayMode = e.target.value;
+      saveDB();
+      renderAdminGrid();
+    });
+  }
+});
