@@ -1284,8 +1284,10 @@ body {
 /* ============================================================
    SCREEN 4: WINNER
    ============================================================ */
+
+
 #screen-winner {
-  transform: scale(0.6);
+  transform: scale(0.90);
   transform-origin: center center;
 }
 
@@ -1295,7 +1297,8 @@ body {
   text-align: center;
   padding: 50px 43px;
   border-radius: var(--radius-lg);
-  transform: scale(1.50);
+  /* Parent is scaled to 0.90. 1.11 * 0.90 = 1.0 absolute scale */
+  transform: scale(1.11);
 }
 
 .winner-trophy {
