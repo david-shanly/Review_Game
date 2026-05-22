@@ -389,7 +389,7 @@ body {
 #screen-container {
   flex: 1;
   padding: 28px 24px;
-  max-width: 1568px;
+  max-width: 1552px;
   margin: 0 auto;
   width: 100%;
 }
@@ -982,7 +982,7 @@ body {
   border: 2.5px solid var(--cell-border);
   border-radius: var(--radius-sm);
   color: var(--color-text-light);
-  min-height: 115px;
+  min-height: 114px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1018,7 +1018,7 @@ body {
 .cell-qn {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 1.91rem;
+  font-size: 1.89rem;
   color: var(--color-gold);
   line-height: 1;
 }
@@ -1228,8 +1228,8 @@ body {
 
 .modal-content {
   width: 100%;
-  max-width: 984px;
-  padding: 46px;
+  max-width: 1082px;
+  padding: 50px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -1262,7 +1262,7 @@ body {
 
 #modal-cell-id {
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   min-height: 74px;
   padding: 18px 20px;
   border: 2px solid rgba(244,196,48,0.42);
@@ -1274,7 +1274,7 @@ body {
   color: #182033 !important;
   border: 2px solid rgba(244,196,48,0.95) !important;
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   min-height: 74px;
   padding: 18px 20px;
   text-shadow: 0 1px 0 rgba(255,255,255,0.3);
@@ -1288,7 +1288,7 @@ body {
 .modal-turn-status {
   font-family: var(--font-body);
   font-weight: 900;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   letter-spacing: 1.8px;
   min-height: 74px;
   padding: 18px 24px;
@@ -1329,7 +1329,7 @@ body {
 
 .question-text {
   font-family: var(--font-body);
-  font-size: 2.54rem;
+  font-size: 2.8rem;
   font-weight: 700;
   line-height: 1.45;
   color: var(--color-text-light);
@@ -1347,14 +1347,14 @@ body {
 .option-btn {
   display: flex;
   align-items: center;
-  gap: 19px;
-  padding: 25px 29px;
+  gap: 21px;
+  padding: 28px 32px;
   background: var(--cell-bg);
   border: 2px solid var(--cell-border);
   border-radius: var(--radius-sm);
   color: var(--color-text-light);
   font-family: var(--font-body);
-  font-size: 1.62rem;
+  font-size: 1.78rem;
   font-weight: 700;
   cursor: pointer;
   transition: all var(--transition-bounce);
@@ -1376,12 +1376,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px; height: 50px;
+  width: 55px; height: 55px;
   border-radius: 50%;
   background: rgba(244,196,48,0.18);
   color: var(--color-gold);
   font-family: var(--font-display);
-  font-size: 1.62rem;
+  font-size: 1.78rem;
   flex-shrink: 0;
 }
 .option-val { flex: 1; }
@@ -1399,8 +1399,8 @@ body {
   background: var(--input-bg);
   border: 2px solid var(--input-border);
   color: var(--input-color);
-  padding: 25px 29px;
-  font-size: 1.62rem;
+  padding: 28px 32px;
+  font-size: 1.78rem;
   font-family: var(--font-body);
   font-weight: 700;
   border-radius: var(--radius-sm);
