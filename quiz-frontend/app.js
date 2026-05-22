@@ -1027,7 +1027,7 @@ function renderGameBoard() {
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
         btn.style.background = tColor.bg;
         btn.style.borderColor = tColor.border;
-        btn.innerHTML = `<span class="cell-qn" style="color:${tColor.text}; font-size: 2.5rem; font-weight: bold;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size: 2.5rem; font-weight: bold;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
       }
     } else {
       btn.className = 'game-cell-btn';
@@ -1894,6 +1894,8 @@ function checkGameOver() {
 
 function endGame() {
   clearGameTimer();
+  playState.phase = 'ended';
+  saveGameState();
   const sorted = playState.teams
     .map((t, idx) => ({ ...t, index: idx }))
     .sort((a, b) => b.score - a.score);
@@ -2378,6 +2380,7 @@ document.getElementById('btn-play-again').addEventListener('click', () => {
   playSound('open');
   resetPlayState();
   playState.phase = 'live';
+  playState.gameState = 'IDLE';
   gameTimerEndTime = Date.now() + 10 * 60 * 1000;
   gameTimerAlertShown = false;
   startGameTimer();
