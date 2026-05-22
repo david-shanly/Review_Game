@@ -24,6 +24,7 @@
         <h1 class="logo-text">Review Game <span class="logo-accent">Group C - 2026</span></h1>
       </div>
       <div class="header-actions">
+        <div id="game-timer-display" class="timer-display" style="display: none; font-weight: bold; margin-right: 15px; color: var(--color-gold); font-size: 1.2rem; align-items: center;">Time Left: 10:00</div>
         <button id="btn-theme-toggle" class="btn btn-icon" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
           <span id="theme-icon">🌙</span>
         </button>
@@ -100,8 +101,9 @@
             <div class="form-group" style="margin-top: 16px;">
               <label for="settings-display-mode">Grid Display Mode</label>
               <select id="settings-display-mode">
-                <option value="QUESTION_NUMBER">Question Number (Q1, Q2, etc.)</option>
-                <option value="POINTS">Point Value (100, 200, etc.)</option>
+                <option value="QUESTION_POINTS">Question + Points (default)</option>
+                <option value="QUESTION_ONLY">Question Only</option>
+                <option value="POINTS_ONLY">Points Only (legacy)</option>
               </select>
             </div>
 
@@ -153,7 +155,7 @@
                 <button class="btn btn-secondary btn-block">📥 Import Quiz (JSON)</button>
                 <input type="file" id="import-json-file" accept=".json">
               </div>
-              <button id="btn-reset-game" class="btn btn-secondary btn-block">🔄 Reset Game Scores</button>
+              <button id="btn-reset-game" class="btn btn-secondary btn-block">🔄 Reset Game</button>
               <button id="btn-clear-db" class="btn btn-danger btn-block admin-footer-btn">🗑️ Clear All Questions</button>
             </div>
           </aside>

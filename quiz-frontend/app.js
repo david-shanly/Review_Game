@@ -35,10 +35,59 @@ const TEAM_ICONS = ['⚔️', '🌸', '🦁', '👑', '🔥', '💎'];
 // STATE
 // ============================================================
 let db = {
-  settings: { subtractOnWrong: true, totalQuestions: 20, displayMode: 'QUESTION_NUMBER' },
+  settings: { subtractOnWrong: true, totalQuestions: 20, displayMode: 'QUESTION_POINTS' },
   questions: [], // each: { id, qnIndex, type, question, options, answer, points }
   teams: [...DEFAULT_TEAMS],
 };
+
+let gameTimerInterval = null;
+let gameTimerEndTime = null;
+let gameTimerAlertShown = false;
+
+function startGameTimer() {
+  clearInterval(gameTimerInterval);
+  const display = document.getElementById('game-timer-display');
+  if (display) display.style.display = 'flex';
+  
+  gameTimerInterval = setInterval(() => {
+    if (!gameTimerEndTime || playState.phase !== 'live') {
+       clearInterval(gameTimerInterval);
+       if (playState.phase !== 'live' && display) display.style.display = 'none';
+       return;
+    }
+    const now = Date.now();
+    let left = Math.max(0, gameTimerEndTime - now);
+    
+    if (left <= 60000 && !gameTimerAlertShown && left > 0) {
+      gameTimerAlertShown = true;
+      triggerAlert('SYSTEM', '1 Minute Remaining!', 'lose');
+      saveGameState();
+    }
+    
+    if (left === 0) {
+      clearInterval(gameTimerInterval);
+      if (display) display.textContent = 'Time Left: 00:00';
+      closeModal();
+      endGame();
+      return;
+    }
+    
+    const totalSecs = Math.floor(left / 1000);
+    const m = Math.floor(totalSecs / 60);
+    const s = totalSecs % 60;
+    if (display) {
+      display.textContent = `Time Left: ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+  }, 1000);
+}
+
+function clearGameTimer() {
+  clearInterval(gameTimerInterval);
+  gameTimerEndTime = null;
+  gameTimerAlertShown = false;
+  const display = document.getElementById('game-timer-display');
+  if (display) display.style.display = 'none';
+}
 
 let playState = {
   activeScreen: 'dashboard',
@@ -281,7 +330,7 @@ function loadDB() {
           settings: {
             subtractOnWrong: parsed.settings?.subtractOnWrong ?? true,
             totalQuestions: parsed.settings?.totalQuestions ?? 20,
-            displayMode: parsed.settings?.displayMode ?? 'QUESTION_NUMBER'
+            displayMode: parsed.settings?.displayMode ?? 'QUESTION_POINTS'
           },
           questions: parsed.questions || [],
           teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
@@ -334,6 +383,10 @@ function updateDashboardStatus() {
 // GAMEPLAY STATE PERSISTENCE (localStorage)
 // ============================================================
 function saveGameState() {
+  if (playState.teams.length === 0) {
+    localStorage.removeItem('review_game_playstate');
+    return;
+  }
   localStorage.setItem('review_game_playstate', JSON.stringify({
     phase: playState.phase,
     gameState: playState.gameState,
@@ -345,7 +398,9 @@ function saveGameState() {
     currentCellId: playState.currentCellId,
     currentQuestion: playState.currentQuestion,
     stats: playState.stats,
-    cancelLocked: playState.cancelLocked
+    cancelLocked: playState.cancelLocked,
+    timerEndTime: gameTimerEndTime,
+    timerAlertShown: gameTimerAlertShown
   }));
 }
 
@@ -367,6 +422,9 @@ function loadGameState() {
         playState.stats = parsed.stats ?? {};
         playState.cancelLocked = parsed.cancelLocked ?? false;
         
+        gameTimerEndTime = parsed.timerEndTime ?? null;
+        gameTimerAlertShown = parsed.timerAlertShown ?? false;
+
         // Sync UIs
         updateGameStatusUI();
         updateScoreUI();
@@ -379,6 +437,9 @@ function loadGameState() {
           endGame();
         } else if (playState.phase === 'live') {
           showScreen('game');
+          if (playState.teams && playState.teams.length > 0) {
+            startGameTimer();
+          }
           // If a question was open, reopen it
           if (playState.currentCellId && playState.currentQuestion && (playState.gameState === 'AWAITING_FIRST_ANSWER' || playState.gameState === 'AWAITING_STEAL')) {
             const cId = playState.currentCellId;
@@ -812,7 +873,13 @@ function renderAdminGrid() {
 
     const labelEl = document.createElement('span');
     labelEl.className = 'cell-qn-label';
-    labelEl.textContent = db.settings.displayMode === 'POINTS' ? (q ? q.points : qnLabel(qn)) : qnLabel(qn);
+    if (db.settings.displayMode === 'POINTS_ONLY') {
+      labelEl.textContent = q ? q.points : qnLabel(qn);
+    } else if (db.settings.displayMode === 'QUESTION_ONLY') {
+      labelEl.textContent = qnLabel(qn);
+    } else {
+      labelEl.innerHTML = q ? `${qnLabel(qn)}<br><span style="font-size:0.8em">${q.points}</span>` : qnLabel(qn);
+    }
     cell.appendChild(labelEl);
 
     const tagEl = document.createElement('span');
@@ -927,7 +994,16 @@ function renderGameBoard() {
     btn.setAttribute('aria-label', qnLabel(qn));
     const answered = playState.answeredCells[cId];
     
-    let displayLabel = db.settings.displayMode === 'POINTS' ? (q ? q.points : qnLabel(qn)) : qnLabel(qn);
+    let displayHtml = qnLabel(qn);
+    if (q) {
+      if (db.settings.displayMode === 'POINTS_ONLY') {
+        displayHtml = q.points;
+      } else if (db.settings.displayMode === 'QUESTION_ONLY') {
+        displayHtml = qnLabel(qn);
+      } else {
+        displayHtml = `${qnLabel(qn)}<br><span style="font-size:0.8em">${q.points}</span>`;
+      }
+    }
 
     if (!q) {
       btn.className = 'game-cell-btn';
@@ -936,7 +1012,7 @@ function renderGameBoard() {
     } else if (answered && answered.cancelled) {
       btn.className = 'game-cell-btn cell-cancelled';
       btn.disabled = true;
-      btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel);">${displayLabel}</span>`;
+      btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
     } else if (answered) {
       btn.className = 'game-cell-btn cell-answered';
       btn.disabled = true;
@@ -945,7 +1021,7 @@ function renderGameBoard() {
         btn.style.background = 'rgba(255,255,255,0.04)';
         btn.style.borderColor = 'rgba(255,255,255,0.1)';
         btn.style.opacity = '0.5';
-        btn.innerHTML = `<span class="cell-qn" style="font-size:1rem; opacity:0.5;">✗</span><span class="cell-answered-tag" style="color:var(--color-text-muted);">${displayLabel}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="font-size:1rem; opacity:0.5;">✗</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
@@ -955,7 +1031,7 @@ function renderGameBoard() {
       }
     } else {
       btn.className = 'game-cell-btn';
-      btn.innerHTML = `<span class="cell-qn">${displayLabel}</span>`;
+      btn.innerHTML = `<span class="cell-qn" style="text-align:center; line-height:1.2;">${displayHtml}</span>`;
       btn.addEventListener('click', () => {
         if (!canInteract() || !canOpenCell()) return;
         playSound('open');
@@ -1817,6 +1893,7 @@ function checkGameOver() {
 }
 
 function endGame() {
+  clearGameTimer();
   const sorted = playState.teams
     .map((t, idx) => ({ ...t, index: idx }))
     .sort((a, b) => b.score - a.score);
@@ -1938,6 +2015,9 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
   resetPlayState();
   playState.phase = 'live';
   playState.gameState = 'IDLE';
+  gameTimerEndTime = Date.now() + 10 * 60 * 1000;
+  gameTimerAlertShown = false;
+  startGameTimer();
   saveGameState();
   updateGameStatusUI();
   renderGameBoard();
@@ -2057,19 +2137,21 @@ document.getElementById('import-json-file').addEventListener('change', e => {
   e.target.value = '';
 });
 
-// Reset game scores (not questions)
+// Reset game (not questions)
 document.getElementById('btn-reset-game').addEventListener('click', () => {
-  if (confirm('Are you sure you want to reset all game scores and board progress?')) {
+  if (confirm('Are you sure you want to reset the game? This will clear all scores, progress, and timer.')) {
     playSound('click');
     playState.phase = 'live';
     playState.gameState = 'IDLE';
     playState.teams = []; // Clear active game teams to prevent resume until clicked Start
     resetPlayState();
-    saveGameState();
+    clearGameTimer();
+    localStorage.removeItem('review_game_playstate');
     updateGameStatusUI();
     updateDashboardStatus();
     renderGameBoard();
     updateScoreUI();
+    showScreen('dashboard');
   }
 });
 
@@ -2262,7 +2344,8 @@ document.getElementById('btn-resign-game').addEventListener('click', () => {
     playState.teams = []; // Clear active game teams
     playState.phase = 'live';
     playState.gameState = 'IDLE';
-    saveGameState();
+    clearGameTimer();
+    localStorage.removeItem('review_game_playstate');
     
     updateGameStatusUI();
     renderGameBoard();
@@ -2280,6 +2363,9 @@ document.getElementById('btn-play-again').addEventListener('click', () => {
   playSound('open');
   resetPlayState();
   playState.phase = 'live';
+  gameTimerEndTime = Date.now() + 10 * 60 * 1000;
+  gameTimerAlertShown = false;
+  startGameTimer();
   saveGameState();
   updateGameStatusUI();
   renderGameBoard();
@@ -2292,7 +2378,8 @@ document.getElementById('btn-winner-home').addEventListener('click', () => {
   if (!canInteract()) return;
   playSound('click');
   playState.teams = []; // Clear active game teams
-  saveGameState();
+  clearGameTimer();
+  localStorage.removeItem('review_game_playstate');
   showScreen('dashboard');
 });
 
