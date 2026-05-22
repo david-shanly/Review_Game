@@ -8,14 +8,14 @@
 // ============================================================
 const GRID_COLS = 5; // 5 columns fixed
 const DEFAULT_TEAMS = [
-  { name: 'Lion', logo: 'public/lion.png' },
-  { name: 'Lioness', logo: 'public/lioness.png' }
+  { name: 'Lion', logo: 'lion.png' },
+  { name: 'Lioness', logo: 'lioness.png' }
 ];
 
 function assetPath(path) {
   if (!path) return '';
-  if (path.startsWith('data:') || path.startsWith('http') || path.startsWith('public/')) return path;
-  if (path === 'logo.png' || path === 'lion.png' || path === 'lioness.png') return `public/${path}`;
+  if (path.startsWith('data:') || path.startsWith('http')) return path;
+  if (path.startsWith('public/')) return path.substring(7);
   return path;
 }
 
@@ -723,11 +723,11 @@ function loadDefaultQuiz() {
   "teams": [
     {
       "name": "Lion",
-        "logo": "public/lion.png"
+      "logo": "lion.png"
     },
     {
       "name": "Lioness",
-      "logo": "public/lioness.png"
+      "logo": "lioness.png"
     }
   ]
 };
@@ -1011,7 +1011,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
     panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''}`;
     panel.style.borderColor = isActive ? 'var(--color-gold)' : color.border;
 
-    const logoSrc = assetPath(team.logo || (team.name === 'Lion' ? 'public/lion.png' : 'public/lioness.png'));
+    const logoSrc = assetPath(team.logo || (team.name === 'Lion' ? 'lion.png' : 'lioness.png'));
     panel.innerHTML = `
       <img src="${logoSrc}" class="team-logo-circular" alt="${team.name}" />
       <div class="team-details">
@@ -1284,7 +1284,7 @@ function playWrongAnswerVideo(onClosed) {
   videoContainer.style.background = '#000';
 
   const video = document.createElement('video');
-  video.src = 'public/worng_answer_cartoon.mp4';
+  video.src = 'worng_answer_cartoon.mp4';
   video.style.width = '100%';
   video.style.height = '100%';
   video.style.display = 'block';
@@ -1383,7 +1383,7 @@ function playCorrectAnswerVideo(onClosed) {
   videoContainer.style.background = '#000';
 
   const video = document.createElement('video');
-  video.src = 'public/correct_answer.mp4';
+  video.src = 'correct_answer.mp4';
   video.style.width = '100%';
   video.style.height = '100%';
   video.style.display = 'block';
@@ -1918,7 +1918,7 @@ document.getElementById('btn-fullscreen-toggle')?.addEventListener('click', () =
 document.addEventListener('fullscreenchange', () => {
   const icon = document.getElementById('fullscreen-icon');
   if (icon) {
-    icon.src = document.fullscreenElement ? 'public/exit_fullscreen.png' : 'public/fullscreen.png';
+    icon.src = document.fullscreenElement ? 'exit_fullscreen.png' : 'fullscreen.png';
   }
 });
 
