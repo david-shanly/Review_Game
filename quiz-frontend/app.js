@@ -2090,6 +2090,20 @@ function handleLogoUpload(e, teamIndex) {
 document.getElementById('admin-team1-logo')?.addEventListener('change', e => handleLogoUpload(e, 0));
 document.getElementById('admin-team2-logo')?.addEventListener('change', e => handleLogoUpload(e, 1));
 
+// Save Game Board
+const btnSaveGame = document.getElementById('btn-save-game-board');
+if (btnSaveGame) {
+  btnSaveGame.addEventListener('click', () => {
+    playSound('click');
+    saveDB();
+    if (playState.phase === 'live') {
+      saveGameState();
+    }
+    renderGameBoard();
+    alert('Game Board Saved Successfully!');
+  });
+}
+
 // Export JSON
 document.getElementById('btn-export-json').addEventListener('click', () => {
   playSound('click');
@@ -2139,7 +2153,7 @@ document.getElementById('import-json-file').addEventListener('change', e => {
 
 // Reset game (not questions)
 document.getElementById('btn-reset-game').addEventListener('click', () => {
-  if (confirm('Are you sure you want to reset the game? This will clear all scores, progress, and timer.')) {
+  showCustomConfirm('Are you sure you want to reset the game? This will clear all scores, progress, and timer.', () => {
     playSound('click');
     playState.phase = 'live';
     playState.gameState = 'IDLE';
@@ -2152,19 +2166,20 @@ document.getElementById('btn-reset-game').addEventListener('click', () => {
     renderGameBoard();
     updateScoreUI();
     showScreen('dashboard');
-  }
+  });
 });
 
 // Clear all questions
 document.getElementById('btn-clear-db').addEventListener('click', () => {
-  if (!confirm('Clear all questions? This cannot be undone unless you import or reload a saved quiz.')) return;
-  db.questions = [];
-  saveDB();
-  selectedAdminCellId = null;
-  document.getElementById('admin-question-editor').classList.add('hidden');
-  renderAdminGrid();
-  renderGameBoard();
-  playSound('wrong');
+  showCustomConfirm('Clear all questions? This cannot be undone unless you import or reload a saved quiz.', () => {
+    db.questions = [];
+    saveDB();
+    selectedAdminCellId = null;
+    document.getElementById('admin-question-editor').classList.add('hidden');
+    renderAdminGrid();
+    renderGameBoard();
+    playSound('wrong');
+  });
 });
 
 // ============================================================
