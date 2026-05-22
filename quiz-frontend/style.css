@@ -1242,6 +1242,9 @@ body {
   transform: scale(1);
   opacity: 1;
 }
+.modal-overlay.open .modal-content.feedback-correct {
+  transform: scale(0.9);
+}
 
 .modal-header {
   display: flex;
@@ -1567,11 +1570,6 @@ body {
   box-shadow: 0 8px 32px rgba(5, 150, 105, 0.3) !important;
   border-color: var(--color-success) !important;
   transition: all 0.3s ease;
-}
-
-/* Dynamically shrink modal by 4% when correct answer is revealed */
-.modal-overlay.open .modal-content.feedback-correct {
-  transform: scale(0.96) !important;
 }
 
 [data-theme="dark"] .feedback-wrong {
