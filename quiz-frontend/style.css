@@ -1245,7 +1245,7 @@ body {
 
 .modal-header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   gap: 16px;
   border-bottom: 2px solid var(--cell-border);
@@ -1255,7 +1255,7 @@ body {
   display: flex;
   gap: 14px;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   flex-wrap: wrap;
   width: 100%;
 }
@@ -1271,37 +1271,36 @@ body {
 
 #modal-points-display {
   background: linear-gradient(135deg, #FDE88A 0%, #F4C430 45%, #C8900A 100%) !important;
-  color: var(--color-gold) !important;
   color: #182033 !important;
-  border: 3px solid rgba(244,196,48,0.95) !important;
+  border: 2px solid rgba(244,196,48,0.95) !important;
   font-family: var(--font-display);
-  font-size: 1.55rem;
-  min-height: 82px;
-  padding: 20px 34px;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.38);
+  font-size: 1.1rem;
+  min-height: 74px;
+  padding: 18px 20px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.3);
   box-shadow:
-    0 0 0 4px rgba(244,196,48,0.12),
-    0 0 28px rgba(244,196,48,0.62),
-    0 10px 26px rgba(0,0,0,0.28);
+    0 0 0 3px rgba(244,196,48,0.1),
+    0 0 16px rgba(244,196,48,0.4),
+    0 4px 12px rgba(0,0,0,0.15);
   animation: badgeGlowPulse 1.6s ease-in-out infinite alternate;
 }
 
 .modal-turn-status {
   font-family: var(--font-body);
   font-weight: 900;
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   letter-spacing: 1.8px;
-  min-height: 82px;
-  padding: 20px 36px;
+  min-height: 74px;
+  padding: 18px 24px;
   border-radius: var(--radius-pill);
   background: linear-gradient(135deg, rgba(244,196,48,0.24), rgba(244,196,48,0.08));
   color: var(--color-gold);
   border: 3px solid rgba(244,196,48,0.55);
   text-transform: uppercase;
   box-shadow:
-    0 0 0 4px rgba(244,196,48,0.08),
-    0 0 26px rgba(244,196,48,0.42),
-    inset 0 0 18px rgba(244,196,48,0.08);
+    0 0 0 3px rgba(244,196,48,0.08),
+    0 0 16px rgba(244,196,48,0.25),
+    inset 0 0 12px rgba(244,196,48,0.08);
   animation: badgeGlowPulse 1.6s ease-in-out infinite alternate;
 }
 
