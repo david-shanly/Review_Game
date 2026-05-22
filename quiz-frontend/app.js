@@ -1360,7 +1360,7 @@ function playWrongAnswerVideo(onClosed) {
   videoContainer.style.background = '#000';
 
   const video = document.createElement('video');
-  video.src = 'worng_answer_cartoon.mp4';
+  video.src = 'wrong_answer_video.mp4';
   video.style.width = '100%';
   video.style.height = '100%';
   video.style.display = 'block';
@@ -1732,41 +1732,42 @@ function resolveAnswer(isCorrect) {
   const pts = playState.hasPassed ? Math.floor(q.points / 2) : q.points;
 
   if (isCorrect) {
-    transitionState('RESOLVED');
-    playSound('correct');
-    disableQuestionInputs();
+    playCorrectAnswerVideo(() => {
+      transitionState('RESOLVED');
+      playSound('correct');
+      disableQuestionInputs();
 
-    applyScore(teamIndex, pts, false, true); // Safe scoring via controlled engine
-    triggerBurst();
-    updateScoreUI(teamIndex);
-    saveGameState();
+      applyScore(teamIndex, pts, false, true); // Safe scoring via controlled engine
+      triggerBurst();
+      updateScoreUI(teamIndex);
+      saveGameState();
 
-    playState.answeredCells[cId] = { teamIndex, pointsWon: pts, cancelled: false };
-    if (playState.stats[teamIndex]) {
-      playState.stats[teamIndex].correct++;
-      playState.stats[teamIndex].attempts++;
-    }
+      playState.answeredCells[cId] = { teamIndex, pointsWon: pts, cancelled: false };
+      if (playState.stats[teamIndex]) {
+        playState.stats[teamIndex].correct++;
+        playState.stats[teamIndex].attempts++;
+      }
 
-    const contentNode = document.querySelector('.modal-content');
-    contentNode.classList.remove('feedback-wrong');
-    contentNode.classList.add('feedback-correct');
+      const contentNode = document.querySelector('.modal-content');
+      contentNode.classList.remove('feedback-wrong');
+      contentNode.classList.add('feedback-correct');
 
-    document.getElementById('modal-correct-answer-text').textContent = q.answer;
-    document.getElementById('modal-reveal-panel').classList.remove('hidden');
-    
-    const turnStatus = document.getElementById('modal-turn-status');
-    turnStatus.textContent = "Correct Answer!";
-    turnStatus.style.color = "var(--color-success)";
-    turnStatus.style.borderColor = "var(--color-success)";
+      document.getElementById('modal-correct-answer-text').textContent = q.answer;
+      document.getElementById('modal-reveal-panel').classList.remove('hidden');
+      
+      const turnStatus = document.getElementById('modal-turn-status');
+      turnStatus.textContent = "Correct Answer!";
+      turnStatus.style.color = "var(--color-success)";
+      turnStatus.style.borderColor = "var(--color-success)";
 
-    playState.cancelLocked = true;
-    const btnCancel = document.getElementById('btn-modal-cancel');
-    if (btnCancel) btnCancel.disabled = true;
+      playState.cancelLocked = true;
+      const btnCancel = document.getElementById('btn-modal-cancel');
+      if (btnCancel) btnCancel.disabled = true;
 
-    saveGameState();
-    switchTurn();
-    enableNextButton();
-
+      saveGameState();
+      switchTurn();
+      enableNextButton();
+    });
   } else {
     playSound('wrong');
     if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
