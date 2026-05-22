@@ -1287,18 +1287,17 @@ body {
 
 
 #screen-winner {
-  transform: scale(0.90);
-  transform-origin: center center;
+  zoom: 0.88;
 }
 
 .winner-card {
+  width: 90%;
   max-width: 594px;
   margin: 32px auto;
   text-align: center;
   padding: 50px 43px;
   border-radius: var(--radius-lg);
-  /* Parent is scaled to 0.90. 1.11 * 0.90 = 1.0 absolute scale */
-  transform: scale(1.11);
+  transform: scale(1.10);
 }
 
 .winner-trophy {
