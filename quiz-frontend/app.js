@@ -1018,10 +1018,10 @@ function renderGameBoard() {
       btn.disabled = true;
       const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
       if (answered.teamIndex === -1) {
-        btn.style.background = 'rgba(255,255,255,0.04)';
-        btn.style.borderColor = 'rgba(255,255,255,0.1)';
-        btn.style.opacity = '0.5';
-        btn.innerHTML = `<span class="cell-qn" style="font-size:1rem; opacity:0.5;">✗</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.style.background = 'rgba(128, 128, 128, 0.2)';
+        btn.style.borderColor = 'rgba(128, 128, 128, 0.4)';
+        btn.style.opacity = '0.75';
+        btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
