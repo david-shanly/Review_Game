@@ -619,7 +619,7 @@ function applyTheme(theme) {
 }
 
 function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 
@@ -1545,7 +1545,7 @@ const savedTheme = localStorage.getItem('review_game_theme');
 if (savedTheme) {
   applyTheme(savedTheme);
 } else {
-  applyTheme('light');
+  applyTheme('dark');
 }
 
 // Load saved data

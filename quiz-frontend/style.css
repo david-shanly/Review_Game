@@ -8,6 +8,7 @@
 /* ============================================================
    DESIGN TOKENS — Dark Theme (default)
    ============================================================ */
+:root,
 [data-theme="dark"] {
   /* Backgrounds */
   --bg-color: #07112B;
@@ -105,7 +106,6 @@
 /* ============================================================
    DESIGN TOKENS — Light Theme
    ============================================================ */
-:root,
 [data-theme="light"] {
   --bg-color: #EEF3FF;
   --bg-gradient: linear-gradient(145deg, #E4ECFF 0%, #F0F5FF 50%, #FAFCFF 100%);

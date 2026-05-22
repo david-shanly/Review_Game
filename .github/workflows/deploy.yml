@@ -45,3 +45,28 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  build-electron:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: quiz-frontend
+        run: npm install
+
+      - name: Build Electron App for Windows
+        working-directory: quiz-frontend
+        run: npm run electron:build:win
+
+      - name: Upload Desktop Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-game-windows-setup
+          path: quiz-frontend/dist-electron/*.exe
