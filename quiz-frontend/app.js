@@ -1012,7 +1012,7 @@ function renderGameBoard() {
     } else if (answered && answered.cancelled) {
       btn.className = 'game-cell-btn cell-cancelled';
       btn.disabled = true;
-      btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+      btn.innerHTML = `<span class="cell-qn" style="font-size: 2.5rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
     } else if (answered) {
       btn.className = 'game-cell-btn cell-answered';
       btn.disabled = true;
@@ -1021,13 +1021,13 @@ function renderGameBoard() {
         btn.style.background = 'rgba(128, 128, 128, 0.2)';
         btn.style.borderColor = 'rgba(128, 128, 128, 0.4)';
         btn.style.opacity = '0.75';
-        btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="font-size: 2.5rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
         btn.style.background = tColor.bg;
         btn.style.borderColor = tColor.border;
-        btn.innerHTML = `<span class="cell-qn" style="color:${tColor.text}; font-size:1.4rem;">✓</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="color:${tColor.text}; font-size: 2.5rem; font-weight: bold;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
       }
     } else {
       btn.className = 'game-cell-btn';
