@@ -36,6 +36,7 @@ let db = {
 let playState = {
   activeScreen: 'dashboard',
   gameState: 'IDLE', // IDLE | QUESTION_LOADING | AWAITING_FIRST_ANSWER | AWAITING_STEAL | RESOLVED | LOCKED
+  phase: 'locked',   // locked | live | ended
   teams: [],           // [{ name, score }]
   currentTeamIndex: 0,
   hasPassed: false,
@@ -70,7 +71,7 @@ function transitionState(newState) {
   return false;
 }
 
-function canOpenCell() { return playState.gameState === 'IDLE'; }
+function canOpenCell() { return playState.gameState === 'IDLE' && playState.phase === 'live'; }
 function canAnswer() { return playState.gameState === 'AWAITING_FIRST_ANSWER' || playState.gameState === 'AWAITING_STEAL'; }
 
 
@@ -313,6 +314,189 @@ function updateDashboardStatus() {
     startBtn.disabled = false;
   }
 }
+
+// ============================================================
+// GAMEPLAY STATE PERSISTENCE (localStorage)
+// ============================================================
+function saveGameState() {
+  localStorage.setItem('review_game_playstate', JSON.stringify({
+    phase: playState.phase,
+    gameState: playState.gameState,
+    teams: playState.teams,
+    currentTeamIndex: playState.currentTeamIndex,
+    hasPassed: playState.hasPassed,
+    answeredCells: playState.answeredCells,
+    currentCellId: playState.currentCellId,
+    currentQuestion: playState.currentQuestion,
+    stats: playState.stats,
+    cancelLocked: playState.cancelLocked
+  }));
+}
+
+function loadGameState() {
+  const stored = localStorage.getItem('review_game_playstate');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed && typeof parsed === 'object') {
+        playState.phase = parsed.phase ?? 'locked';
+        playState.gameState = parsed.gameState ?? 'IDLE';
+        playState.teams = parsed.teams ?? [];
+        playState.currentTeamIndex = parsed.currentTeamIndex ?? 0;
+        playState.hasPassed = parsed.hasPassed ?? false;
+        playState.answeredCells = parsed.answeredCells ?? {};
+        playState.currentCellId = parsed.currentCellId ?? null;
+        playState.currentQuestion = parsed.currentQuestion ?? null;
+        playState.stats = parsed.stats ?? {};
+        playState.cancelLocked = parsed.cancelLocked ?? false;
+        
+        // Sync UIs
+        updateGameStatusUI();
+        updateScoreUI();
+        renderGameBoard();
+        updateTurnUI();
+        
+        // If there was an active screen or if we are in game/winner screens
+        if (playState.phase === 'ended') {
+          showScreen('winner');
+          endGame();
+        } else if (playState.phase === 'live') {
+          showScreen('game');
+          // If a question was open, reopen it
+          if (playState.currentCellId && playState.currentQuestion && (playState.gameState === 'AWAITING_FIRST_ANSWER' || playState.gameState === 'AWAITING_STEAL')) {
+            const cId = playState.currentCellId;
+            const q = playState.currentQuestion;
+            const gState = playState.gameState;
+            const hPassed = playState.hasPassed;
+            const cLocked = playState.cancelLocked;
+            
+            playState.gameState = 'IDLE';
+            openQuestionModal(cId, q);
+            
+            playState.gameState = gState;
+            playState.hasPassed = hPassed;
+            playState.cancelLocked = cLocked;
+            
+            if (playState.gameState === 'AWAITING_STEAL') {
+              const stealPts = Math.floor(q.points / 2);
+              document.getElementById('modal-points-display').textContent = `Now worth ${stealPts} Points (Steal Phase)`;
+              
+              const turnStatus = document.getElementById('modal-turn-status');
+              const nextTeamIndex = playState.currentTeamIndex;
+              turnStatus.innerHTML = `❌ Wrong Answer<br><span style="font-size:0.8rem;">Passed to ${playState.teams[nextTeamIndex].name}</span>`;
+              turnStatus.style.color = "var(--color-error)";
+              turnStatus.style.borderColor = "var(--color-error)";
+              
+              const passBtn = document.getElementById('btn-modal-pass');
+              if (passBtn) passBtn.style.display = 'none';
+            }
+            
+            const btnCancel = document.getElementById('btn-modal-cancel');
+            if (btnCancel && cLocked) {
+              btnCancel.disabled = true;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load play state:', e);
+    }
+  }
+}
+
+function updateGameStatusUI() {
+  const badge = document.getElementById('game-status-badge');
+  const startBtn = document.getElementById('btn-admin-start-game');
+  const lockOverlay = document.getElementById('game-board-lock-overlay');
+  
+  if (!badge) return;
+  
+  badge.classList.remove('badge-locked', 'badge-live', 'badge-ended');
+  
+  if (playState.phase === 'locked') {
+    badge.textContent = '🔒 LOCKED';
+    badge.classList.add('badge-locked');
+    if (startBtn) {
+      startBtn.textContent = '🚀 Start Game';
+      startBtn.disabled = false;
+    }
+    if (lockOverlay) {
+      lockOverlay.classList.remove('hidden');
+      const lockOverlayContent = lockOverlay.querySelector('.lock-overlay-content');
+      if (lockOverlayContent) {
+        lockOverlayContent.innerHTML = `
+          <div class="lock-icon">🔒</div>
+          <h3>Game Board Locked</h3>
+          <p>Waiting for the administrator to start the game from the Admin Panel.</p>
+          <button id="btn-overlay-go-admin" class="btn btn-secondary" style="margin-top: 15px;" type="button">⚙️ Open Admin Panel</button>
+        `;
+        const btnGoAdmin = document.getElementById('btn-overlay-go-admin');
+        if (btnGoAdmin) {
+          btnGoAdmin.addEventListener('click', () => {
+            playSound('click');
+            renderAdminGrid();
+            showScreen('admin');
+          });
+        }
+      }
+    }
+  } else if (playState.phase === 'live') {
+    badge.textContent = '🟢 LIVE';
+    badge.classList.add('badge-live');
+    if (startBtn) {
+      startBtn.textContent = '🔄 Reset Game';
+      startBtn.disabled = false;
+    }
+    if (lockOverlay) lockOverlay.classList.add('hidden');
+  } else if (playState.phase === 'ended') {
+    badge.textContent = '🏁 ENDED';
+    badge.classList.add('badge-ended');
+    if (startBtn) {
+      startBtn.textContent = '🚀 Restart Game';
+      startBtn.disabled = false;
+    }
+    if (lockOverlay) {
+      lockOverlay.classList.remove('hidden');
+      const lockOverlayContent = lockOverlay.querySelector('.lock-overlay-content');
+      if (lockOverlayContent) {
+        lockOverlayContent.innerHTML = `
+          <div class="lock-icon">🏆</div>
+          <h3>Game Over!</h3>
+          <p>The game has ended. View the Winner screen or reset the game to start over.</p>
+          <button id="btn-overlay-view-winner" class="btn btn-primary" style="margin-top: 15px;" type="button">🏆 View Winner Screen</button>
+        `;
+        const btnViewWinner = document.getElementById('btn-overlay-view-winner');
+        if (btnViewWinner) {
+          btnViewWinner.addEventListener('click', () => {
+            playSound('click');
+            showScreen('winner');
+          });
+        }
+      }
+    }
+  }
+}
+
+async function runCountdown() {
+  const overlay = document.getElementById('countdown-overlay');
+  const numEl = overlay ? overlay.querySelector('.countdown-number') : null;
+  if (!overlay || !numEl) return;
+  overlay.classList.remove('hidden');
+  
+  for (let i = 3; i > 0; i--) {
+    numEl.textContent = i;
+    playTone(600, 'sine', 0.08, 0.2);
+    
+    numEl.style.animation = 'none';
+    void numEl.offsetHeight; // trigger reflow
+    numEl.style.animation = 'countdownPulse 1s ease-in-out';
+    
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  
+  overlay.classList.add('hidden');
+}
+
 
 
 
@@ -589,6 +773,11 @@ function loadDefaultQuiz() {
   db = data;
   saveDB();
   loadDB();
+  playState.phase = 'locked';
+  playState.gameState = 'IDLE';
+  resetPlayState();
+  saveGameState();
+  updateGameStatusUI();
   renderAdminGrid();
   
   // Flash a quick success message on the status board instead of a blocking alert
@@ -833,10 +1022,12 @@ function switchTurn() {
 // ============================================================
 // SCORE DROP VISUAL FEEDBACK
 // ============================================================
-function updateScoreUI() {
+function updateScoreUI(updatedTeamIndex = -1) {
   const container = document.getElementById('game-team-panels');
   if (!container) return;
   container.innerHTML = '';
+
+  const liveScoreContainer = document.getElementById('live-score-display');
 
   playState.teams.forEach((team, i) => {
     const color = TEAM_COLORS[i % TEAM_COLORS.length];
@@ -855,6 +1046,48 @@ function updateScoreUI() {
     `;
     container.appendChild(panel);
   });
+
+  // Re-render or update live score display
+  if (liveScoreContainer) {
+    if (liveScoreContainer.children.length !== playState.teams.length) {
+      liveScoreContainer.innerHTML = '';
+      playState.teams.forEach((team, i) => {
+        const color = TEAM_COLORS[i % TEAM_COLORS.length];
+        const liveItem = document.createElement('div');
+        liveItem.className = 'live-score-item';
+        liveItem.id = `live-score-item-${i}`;
+        liveItem.style.setProperty('--team-bg', color.bg);
+        liveItem.style.setProperty('--team-border', color.border);
+        liveItem.style.setProperty('--team-color', color.text);
+        
+        liveItem.innerHTML = `
+          <span class="live-score-team-name">${team.name}</span>
+          <span id="live-score-val-${i}" class="live-score-value">${team.score}</span>
+        `;
+        liveScoreContainer.appendChild(liveItem);
+      });
+    } else {
+      playState.teams.forEach((team, i) => {
+        const valSpan = document.getElementById(`live-score-val-${i}`);
+        const nameSpan = valSpan ? valSpan.previousElementSibling : null;
+        if (nameSpan) nameSpan.textContent = team.name;
+        if (valSpan) {
+          const oldScore = parseInt(valSpan.textContent, 10);
+          valSpan.textContent = team.score;
+          
+          if (i === updatedTeamIndex || oldScore !== team.score) {
+            const liveItem = document.getElementById(`live-score-item-${i}`);
+            if (liveItem) {
+              // Apply live score animation queue protection (force reflow)
+              liveItem.classList.remove('score-updated');
+              void liveItem.offsetWidth;
+              liveItem.classList.add('score-updated');
+            }
+          }
+        }
+      });
+    }
+  }
 
   renderSidebarLeaderboard();
 }
@@ -888,6 +1121,38 @@ function renderSidebarLeaderboard() {
 }
 
 // ============================================================
+// QUESTION MODAL HELPERS & DOUBLE CLICK PROTECTION
+// ============================================================
+function disableModalActionButtons() {
+  const btnSubmit = document.getElementById('btn-modal-submit');
+  const btnPass = document.getElementById('btn-modal-pass');
+  const btnCancel = document.getElementById('btn-modal-cancel');
+  
+  if (btnSubmit) btnSubmit.disabled = true;
+  if (btnPass) btnPass.disabled = true;
+  if (btnCancel) btnCancel.disabled = true;
+}
+
+function enableModalActionButtons() {
+  const btnSubmit = document.getElementById('btn-modal-submit');
+  const btnPass = document.getElementById('btn-modal-pass');
+  const btnCancel = document.getElementById('btn-modal-cancel');
+  
+  if (btnSubmit) btnSubmit.disabled = false;
+  
+  const q = playState.currentQuestion;
+  const canPass = q && !playState.hasPassed && !q.stealAttempted;
+  if (btnPass) {
+    btnPass.style.display = canPass ? 'inline-flex' : 'none';
+    btnPass.disabled = !canPass;
+  }
+  
+  if (btnCancel) {
+    btnCancel.disabled = !!playState.cancelLocked;
+  }
+}
+
+// ============================================================
 // QUESTION MODAL
 // ============================================================
 function openQuestionModal(cId, q) {
@@ -895,10 +1160,10 @@ function openQuestionModal(cId, q) {
   playState.currentCellId = cId;
   playState.currentQuestion = q;
   playState.hasPassed = false;
+  playState.cancelLocked = false;
 
   const overlay = document.getElementById('modal-overlay');
-  const passBtn = document.getElementById('btn-modal-pass');
-  if (passBtn) passBtn.style.display = 'inline-flex';
+  enableModalActionButtons();
   document.getElementById('modal-steal-label').classList.toggle('hidden', true);
 
   const qnIndex = q.qnIndex || parseInt(cId.replace('qn', ''), 10);
@@ -1075,6 +1340,7 @@ function resolveAnswer(isCorrect) {
     triggerBurst();
 
     playState.answeredCells[cId] = { teamIndex, pointsWon: pts, cancelled: false };
+    q.status = 'resolved';
     if (playState.stats[teamIndex]) {
       playState.stats[teamIndex].correct++;
       playState.stats[teamIndex].attempts++;
@@ -1092,21 +1358,29 @@ function resolveAnswer(isCorrect) {
     turnStatus.style.color = "var(--color-success)";
     turnStatus.style.borderColor = "var(--color-success)";
 
-    updateScoreUI();
+    playState.cancelLocked = true;
+    const btnCancel = document.getElementById('btn-modal-cancel');
+    if (btnCancel) btnCancel.disabled = true;
+
+    updateScoreUI(teamIndex);
+    saveGameState();
 
     switchTurn();
-  enableNextButton();
+    enableNextButton();
 
   } else {
     playSound('wrong');
     if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
 
-    if (!playState.hasPassed) {
+    if (!playState.hasPassed && !q.stealAttempted) {
       // First wrong -> Penalize and Steal
       const penalty = Math.floor(q.points / 2);
       applyScore(teamIndex, penalty, true); // Safe scoring via controlled engine
       transitionState('AWAITING_STEAL');
 
+      q.stealAttempted = true;
+      updateScoreUI(teamIndex);
+      saveGameState();
       startStealPhase();
     } else {
       // Second wrong -> Penalize and Resolve
@@ -1114,6 +1388,7 @@ function resolveAnswer(isCorrect) {
       transitionState('RESOLVED');
 
       playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
+      q.status = 'resolved';
 
       const turnStatus = document.getElementById('modal-turn-status');
       turnStatus.textContent = "Incorrect Answer";
@@ -1127,10 +1402,15 @@ function resolveAnswer(isCorrect) {
       document.getElementById('modal-correct-answer-text').textContent = q.answer;
       document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
-      updateScoreUI();
+      playState.cancelLocked = true;
+      const btnCancel = document.getElementById('btn-modal-cancel');
+      if (btnCancel) btnCancel.disabled = true;
+
+      updateScoreUI(teamIndex);
+      saveGameState();
 
       switchTurn();
-  enableNextButton();
+      enableNextButton();
     }
   }
 }
@@ -1162,6 +1442,9 @@ function startStealPhase() {
   const fillInput = document.getElementById('modal-fill-input');
   if (fillInput) { fillInput.value = ''; fillInput.focus(); }
 
+  // Re-enable action buttons for steal team
+  enableModalActionButtons();
+
   updateScoreUI();
   updateTurnUI();
 }
@@ -1174,10 +1457,12 @@ function submitAnswer(isCorrect) {
 function handlePass() {
   if (!canInteract() || !canAnswer()) return;
   const q = playState.currentQuestion;
-  if (!q || playState.hasPassed) return;
+  if (!q || playState.hasPassed || q.stealAttempted) return;
   playSound('pass');
 
+  q.stealAttempted = true;
   transitionState('AWAITING_STEAL');
+  saveGameState();
   startStealPhase();
   
   const turnStatus = document.getElementById('modal-turn-status');
@@ -1297,12 +1582,23 @@ document.getElementById('btn-go-admin-float').addEventListener('click', () => {
 // ============================================================
 document.getElementById('btn-start-game').addEventListener('click', () => {
   playSound('open');
-  setupTeamsFromInputs();
-  resetPlayState();
-  renderGameBoard();
-  updateTurnUI();
-  updateScoreUI();
-  showScreen('game');
+  if (playState.phase === 'locked') {
+    setupTeamsFromInputs();
+    resetPlayState();
+    renderGameBoard();
+    updateTurnUI();
+    updateScoreUI();
+    showScreen('game');
+  } else {
+    renderGameBoard();
+    updateTurnUI();
+    updateScoreUI();
+    if (playState.phase === 'ended') {
+      showScreen('winner');
+    } else {
+      showScreen('game');
+    }
+  }
 });
 
 // ============================================================
@@ -1385,12 +1681,64 @@ document.getElementById('import-json-file').addEventListener('change', e => {
 
 // Reset game scores (not questions)
 document.getElementById('btn-reset-game').addEventListener('click', () => {
-  playSound('click');
-  setupTeamsFromInputs();
-  resetPlayState();
-  updateDashboardStatus();
-  renderGameBoard();
+  if (confirm('Are you sure you want to reset all game scores and lock progress?')) {
+    playSound('click');
+    playState.phase = 'locked';
+    playState.gameState = 'IDLE';
+    setupTeamsFromInputs();
+    resetPlayState();
+    saveGameState();
+    updateGameStatusUI();
+    updateDashboardStatus();
+    renderGameBoard();
+    updateScoreUI();
+  }
 });
+
+// Admin Gameplay Start / Reset control
+const btnAdminStartGame = document.getElementById('btn-admin-start-game');
+if (btnAdminStartGame) {
+  btnAdminStartGame.addEventListener('click', async () => {
+    if (!canInteract()) return;
+    
+    if (db.questions.length === 0) {
+      alert('No questions configured yet! Please add questions or load the default ones first.');
+      return;
+    }
+
+    if (playState.phase === 'locked') {
+      // Show global countdown overlay
+      await runCountdown();
+      
+      setupTeamsFromInputs();
+      resetPlayState();
+      
+      playState.phase = 'live';
+      playState.gameState = 'IDLE';
+      
+      saveGameState();
+      updateGameStatusUI();
+      renderGameBoard();
+      updateTurnUI();
+      updateScoreUI();
+      
+      showScreen('game');
+      playSound('open');
+    } else {
+      if (confirm('Are you sure you want to reset the current game? This will reset all scores and board progress.')) {
+        playState.phase = 'locked';
+        playState.gameState = 'IDLE';
+        resetPlayState();
+        saveGameState();
+        updateGameStatusUI();
+        renderGameBoard();
+        updateTurnUI();
+        updateScoreUI();
+        showScreen('dashboard');
+      }
+    }
+  });
+}
 
 // Clear all questions
 document.getElementById('btn-clear-db').addEventListener('click', () => {
@@ -1475,24 +1823,71 @@ document.getElementById('btn-delete-question').addEventListener('click', () => {
 // ============================================================
 // EVENT LISTENERS — Question Modal
 // ============================================================
+// Show Correct Answer Autofill Helper click handler
+const btnShowCorrectAnswer = document.getElementById('btn-show-correct-answer');
+if (btnShowCorrectAnswer) {
+  btnShowCorrectAnswer.addEventListener('click', () => {
+    if (!canInteract()) return;
+    const q = playState.currentQuestion;
+    if (!q) return;
+    
+    const fillInput = document.getElementById('modal-fill-input');
+    if (fillInput) {
+      fillInput.value = q.answer;
+      fillInput.focus();
+      fillInput.select();
+      
+      // Trigger reveal-highlight animation
+      fillInput.classList.remove('reveal-highlight');
+      void fillInput.offsetWidth;
+      fillInput.classList.add('reveal-highlight');
+    }
+    
+    // Lock cancel button
+    playState.cancelLocked = true;
+    const btnCancel = document.getElementById('btn-modal-cancel');
+    if (btnCancel) {
+      btnCancel.disabled = true;
+    }
+    
+    playSound('click');
+  });
+}
+
 document.getElementById('btn-modal-cancel').addEventListener('click', () => {
+  if (!canInteract()) return;
+  disableModalActionButtons();
   cancelQuestion();
 });
 
-document.getElementById('btn-modal-pass').addEventListener('click', handlePass);
+document.getElementById('btn-modal-pass').addEventListener('click', () => {
+  if (!canInteract()) return;
+  disableModalActionButtons();
+  handlePass();
+});
 
 document.getElementById('btn-modal-submit').addEventListener('click', () => {
+  if (!canInteract()) return;
+  
   const q = playState.currentQuestion;
   if (!q) return;
 
+  disableModalActionButtons();
+
   if (q.type === 'mcq') {
     const selBtn = document.querySelector('.option-btn.selected');
-    if (!selBtn) { return; }
+    if (!selBtn) {
+      enableModalActionButtons();
+      return;
+    }
     const val = selBtn.querySelector('.option-val').textContent;
     submitAnswer(val === q.answer);
   } else {
     const val = document.getElementById('modal-fill-input').value.trim();
-    if (!val) { return; }
+    if (!val) {
+      enableModalActionButtons();
+      return;
+    }
     submitAnswer(val.toLowerCase() === q.answer.toLowerCase());
   }
 });
@@ -1509,11 +1904,16 @@ document.getElementById('modal-fill-input').addEventListener('keydown', e => {
 // EVENT LISTENERS — Game Screen
 // ============================================================
 document.getElementById('btn-end-game').addEventListener('click', () => {
+  if (!canInteract()) return;
   closeModal();
+  playState.phase = 'ended';
+  saveGameState();
+  updateGameStatusUI();
   endGame();
 });
 
 document.getElementById('btn-game-back-admin').addEventListener('click', () => {
+  if (!canInteract()) return;
   closeModal();
   renderAdminGrid();
   showScreen('admin');
@@ -1523,8 +1923,12 @@ document.getElementById('btn-game-back-admin').addEventListener('click', () => {
 // EVENT LISTENERS — Winner Screen
 // ============================================================
 document.getElementById('btn-play-again').addEventListener('click', () => {
+  if (!canInteract()) return;
   playSound('open');
   resetPlayState();
+  playState.phase = 'live';
+  saveGameState();
+  updateGameStatusUI();
   renderGameBoard();
   updateTurnUI();
   updateScoreUI();
@@ -1532,6 +1936,7 @@ document.getElementById('btn-play-again').addEventListener('click', () => {
 });
 
 document.getElementById('btn-winner-home').addEventListener('click', () => {
+  if (!canInteract()) return;
   playSound('click');
   showScreen('dashboard');
 });
@@ -1550,10 +1955,13 @@ if (savedTheme) {
 
 // Load saved data
 loadDB();
+loadGameState();
 renderAdminGrid();
-// (Removed renderTeamInputs call)
 updateScoreUI();
-showScreen('dashboard');
+
+if (playState.phase === 'locked') {
+  showScreen('dashboard');
+}
 
 // Admin Settings Listeners
 document.addEventListener('DOMContentLoaded', () => {

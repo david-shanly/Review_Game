@@ -55,7 +55,7 @@
 
           <div class="dashboard-actions">
             <button id="btn-start-game" class="btn btn-primary btn-start-big" disabled>
-              🎮 Start Quiz!
+              🎮 Start Game!
             </button>
           </div>
 
@@ -84,6 +84,18 @@
 
           <!-- LEFT SIDEBAR: SETTINGS -->
           <aside class="glass-panel admin-sidebar">
+
+            <h3 class="section-title">🕹️ Gameplay Control</h3>
+            <div class="gameplay-control-box" style="margin-bottom: 20px;">
+              <div class="state-indicator-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span style="font-weight:700; color:var(--color-text-muted);">Status:</span>
+                <span id="game-status-badge" class="badge badge-locked">🔒 LOCKED</span>
+              </div>
+              <button id="btn-admin-start-game" class="btn btn-primary btn-block btn-start-game-control" type="button">
+                🚀 Start Game
+              </button>
+            </div>
+            <hr class="divider">
 
             <h3 class="section-title">⚖️ Game Rules</h3>
             <div class="form-group-checkbox">
@@ -234,7 +246,10 @@
       <!-- ========================================
            SCREEN 3: GAME BOARD
            ======================================== -->
-      <section id="screen-game" class="screen">
+      <section id="screen-game" class="screen" style="position: relative;">
+
+        <!-- Floating Live Score Display -->
+        <div id="live-score-display" class="live-score-display-container"></div>
 
         <!-- Top Bar: Teams + Turn -->
         <div class="game-top-bar">
@@ -253,7 +268,15 @@
         <!-- Game Layout: Sidebar Leaderboard + Main Grid -->
         <div class="game-layout-container">
           <!-- Left side: Game Board Grid -->
-          <div class="game-board-container">
+          <div class="game-board-container" style="position: relative;">
+            <div id="game-board-lock-overlay" class="game-board-lock-overlay">
+              <div class="lock-overlay-content">
+                <div class="lock-icon">🔒</div>
+                <h3>Game Board Locked</h3>
+                <p>Waiting for the administrator to start the game from the Admin Panel.</p>
+                <button id="btn-overlay-go-admin" class="btn btn-secondary" style="margin-top: 15px;" type="button">⚙️ Open Admin Panel</button>
+              </div>
+            </div>
             <div id="game-board-grid" class="game-board-table"></div>
           </div>
 
@@ -339,8 +362,11 @@
         </div>
 
         <!-- Fill-in-the-blank -->
-        <div id="modal-fill-container" class="fill-container">
+        <div id="modal-fill-container" class="fill-container" style="display:flex; flex-direction:column; gap:10px;">
           <input type="text" id="modal-fill-input" placeholder="Type answer here..." autocomplete="off">
+          <button id="btn-show-correct-answer" type="button" class="btn btn-secondary btn-show-correct-answer" style="width: 100%;">
+            💡 Show Correct Answer
+          </button>
         </div>
 
         <!-- Correct Answer Reveal -->
@@ -367,6 +393,11 @@
   <footer class="app-footer-text">
     &copy; 2026 Review Game Group C &mdash; Built for church kids!
   </footer>
+
+  <!-- Global Countdown Overlay -->
+  <div id="countdown-overlay" class="countdown-overlay hidden">
+    <div class="countdown-number">3</div>
+  </div>
 
   <script type="module" src="app.js"></script>
 </body>
