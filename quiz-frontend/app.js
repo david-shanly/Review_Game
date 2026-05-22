@@ -253,6 +253,14 @@ function showScreen(id) {
   playState.activeScreen = id;
   if (id === 'winner') startRain();
   else stopConfetti();
+
+  if (id === 'admin') {
+    const isGameActive = (playState.phase === 'live' && playState.teams && playState.teams.length > 0);
+    const btnResume = document.getElementById('btn-admin-resume');
+    if (btnResume) {
+      btnResume.style.display = isGameActive ? 'inline-flex' : 'none';
+    }
+  }
 }
 
 // ============================================================
@@ -794,7 +802,10 @@ function renderAdminGrid() {
       continue;
     }
 
-    cell.className = `board-cell ${q ? 'has-q' : ''} ${selectedAdminCellId === cId ? 'selected-edit' : ''}`;
+    const answered = playState.answeredCells[cId];
+    const isPlayed = !!(playState.teams && playState.teams.length > 0 && answered);
+
+    cell.className = `board-cell ${q ? 'has-q' : ''} ${selectedAdminCellId === cId ? 'selected-edit' : ''} ${isPlayed ? 'cell-played-locked' : ''}`;
     cell.dataset.cellId = cId;
     cell.setAttribute('role', 'button');
     cell.setAttribute('aria-label', `${qnLabel(qn)}: ${q ? 'Edit question' : 'Add question'}`);
@@ -806,11 +817,22 @@ function renderAdminGrid() {
 
     const tagEl = document.createElement('span');
     tagEl.className = 'cell-info-tag';
-    tagEl.textContent = q ? (q.type === 'mcq' ? '🔘 MCQ' : '✏️ Fill') : '+ Add';
+    if (isPlayed) {
+      tagEl.textContent = '🔒 Played';
+      tagEl.style.color = 'var(--color-danger)';
+      tagEl.style.fontWeight = 'bold';
+    } else {
+      tagEl.textContent = q ? (q.type === 'mcq' ? '🔘 MCQ' : '✏️ Fill') : '+ Add';
+    }
     cell.appendChild(tagEl);
 
     cell.addEventListener('click', () => {
       if(!canInteract()) return;
+      if (isPlayed) {
+        playSound('wrong');
+        triggerAlert("ADMIN", `Qn ${qn} has already been played and cannot be changed!`, "lose");
+        return;
+      }
       playSound('click');
       selectedAdminCellId = cId;
       openQuestionEditor(qn);
@@ -1137,6 +1159,13 @@ function openQuestionModal(cId, q) {
   const revealPanel   = document.getElementById('modal-reveal-panel');
   revealPanel.classList.add('hidden');
 
+  // Reset correct answer reveal button inside fill container
+  const btnShowCorrectAnswer = document.getElementById('btn-show-correct-answer');
+  if (btnShowCorrectAnswer) {
+    btnShowCorrectAnswer.disabled = false;
+    btnShowCorrectAnswer.style.cursor = '';
+  }
+
   if (q.type === 'mcq') {
     mcqContainer.classList.remove('hidden');
     fillContainer.classList.add('hidden');
@@ -1145,6 +1174,7 @@ function openQuestionModal(cId, q) {
     optBtns.forEach((btn, i) => {
       btn.className = 'option-btn';
       btn.disabled = false;
+      btn.style.cursor = '';
       btn.querySelector('.option-letter').textContent = letters[i];
       btn.querySelector('.option-val').textContent = q.options ? q.options[i] : '';
       btn.onclick = () => {
@@ -1160,6 +1190,7 @@ function openQuestionModal(cId, q) {
     const fillInput = document.getElementById('modal-fill-input');
     fillInput.value = '';
     fillInput.disabled = false;
+    fillInput.style.cursor = '';
     fillInput.style.borderColor = '';
     setTimeout(() => fillInput.focus(), 100);
   }
@@ -1203,14 +1234,236 @@ function cancelQuestion() {
   document.getElementById('modal-turn-status').textContent = "Question Cancelled";
   saveGameState();
   enableNextButton();
+  disableQuestionInputs();
+}
+
+function disableQuestionInputs() {
+  // Disable MCQ buttons
+  const optBtns = document.querySelectorAll('.option-btn');
+  optBtns.forEach(btn => {
+    btn.disabled = true;
+    btn.style.cursor = 'not-allowed';
+  });
+
+  // Disable Fill-in-the-blank input
+  const fillInput = document.getElementById('modal-fill-input');
+  if (fillInput) {
+    fillInput.disabled = true;
+    fillInput.style.cursor = 'not-allowed';
+  }
+
+  // Disable "Correct Answer" reveal button
+  const revealBtn = document.getElementById('btn-show-correct-answer');
+  if (revealBtn) {
+    revealBtn.disabled = true;
+    revealBtn.style.cursor = 'not-allowed';
+  }
+}
+
+function playWrongAnswerVideo(onClosed) {
+  const overlay = document.createElement('div');
+  overlay.className = 'wrong-answer-video-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0, 0, 0, 0.95)';
+  overlay.style.zIndex = '9999';
+  overlay.style.display = 'flex';
+  overlay.style.flexDirection = 'column';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.backdropFilter = 'blur(12px)';
+
+  const videoContainer = document.createElement('div');
+  videoContainer.style.position = 'relative';
+  videoContainer.style.maxWidth = '85%';
+  videoContainer.style.maxHeight = '75%';
+  videoContainer.style.borderRadius = '24px';
+  videoContainer.style.overflow = 'hidden';
+  videoContainer.style.border = '6px solid #ff4d4d';
+  videoContainer.style.boxShadow = '0 0 50px rgba(255, 77, 77, 0.6)';
+  videoContainer.style.background = '#000';
+
+  const video = document.createElement('video');
+  video.src = 'public/worng_answer_cartoon.mp4';
+  video.style.width = '100%';
+  video.style.height = '100%';
+  video.style.display = 'block';
+  video.autoplay = true;
+  video.controls = false;
+
+  const skipBtn = document.createElement('button');
+  skipBtn.textContent = '⏭️ Skip Video';
+  skipBtn.style.marginTop = '24px';
+  skipBtn.style.padding = '14px 36px';
+  skipBtn.style.fontSize = '1.3rem';
+  skipBtn.style.fontWeight = '800';
+  skipBtn.style.color = '#fff';
+  skipBtn.style.background = 'rgba(255, 77, 77, 0.2)';
+  skipBtn.style.border = '3px solid #ff4d4d';
+  skipBtn.style.borderRadius = 'var(--radius-pill)';
+  skipBtn.style.cursor = 'pointer';
+  skipBtn.style.transition = 'all 0.2s';
+  skipBtn.style.boxShadow = '0 0 15px rgba(255, 77, 77, 0.3)';
+
+  skipBtn.onmouseover = () => {
+    skipBtn.style.background = '#ff4d4d';
+    skipBtn.style.boxShadow = '0 0 25px rgba(255, 77, 77, 0.8)';
+    skipBtn.style.transform = 'scale(1.05)';
+  };
+  skipBtn.onmouseout = () => {
+    skipBtn.style.background = 'rgba(255, 77, 77, 0.2)';
+    skipBtn.style.boxShadow = '0 0 15px rgba(255, 77, 77, 0.3)';
+    skipBtn.style.transform = 'scale(1)';
+  };
+
+  const closeOverlay = () => {
+    video.pause();
+    overlay.remove();
+    if (onClosed) onClosed();
+  };
+
+  video.onended = closeOverlay;
+  skipBtn.onclick = closeOverlay;
+
+  setTimeout(() => {
+    if (overlay.parentNode) {
+      closeOverlay();
+    }
+  }, 12000); // 12 seconds fallback
+
+  videoContainer.appendChild(video);
+  overlay.appendChild(videoContainer);
+  overlay.appendChild(skipBtn);
+  document.body.appendChild(overlay);
+
+  video.play().catch(err => {
+    console.warn('Autoplay failed, showing play button', err);
+    video.controls = true;
+    const playPrompt = document.createElement('div');
+    playPrompt.textContent = '▶️ Play Video';
+    playPrompt.style.position = 'absolute';
+    playPrompt.style.inset = '0';
+    playPrompt.style.background = 'rgba(0,0,0,0.5)';
+    playPrompt.style.color = '#fff';
+    playPrompt.style.fontSize = '2rem';
+    playPrompt.style.fontWeight = 'bold';
+    playPrompt.style.display = 'flex';
+    playPrompt.style.alignItems = 'center';
+    playPrompt.style.justifyContent = 'center';
+    playPrompt.style.cursor = 'pointer';
+    playPrompt.onclick = () => {
+      video.play();
+      playPrompt.remove();
+    };
+    videoContainer.appendChild(playPrompt);
+  });
+}
+
+function playCorrectAnswerVideo(onClosed) {
+  const overlay = document.createElement('div');
+  overlay.className = 'correct-answer-video-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0, 0, 0, 0.95)';
+  overlay.style.zIndex = '9999';
+  overlay.style.display = 'flex';
+  overlay.style.flexDirection = 'column';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.backdropFilter = 'blur(12px)';
+
+  const videoContainer = document.createElement('div');
+  videoContainer.style.position = 'relative';
+  videoContainer.style.maxWidth = '85%';
+  videoContainer.style.maxHeight = '75%';
+  videoContainer.style.borderRadius = '24px';
+  videoContainer.style.overflow = 'hidden';
+  videoContainer.style.border = '6px solid var(--color-success)';
+  videoContainer.style.boxShadow = '0 0 50px rgba(74, 222, 128, 0.6)';
+  videoContainer.style.background = '#000';
+
+  const video = document.createElement('video');
+  video.src = 'public/correct_answer.mp4';
+  video.style.width = '100%';
+  video.style.height = '100%';
+  video.style.display = 'block';
+  video.autoplay = true;
+  video.controls = false;
+
+  const skipBtn = document.createElement('button');
+  skipBtn.textContent = '⏭️ Skip Video';
+  skipBtn.style.marginTop = '24px';
+  skipBtn.style.padding = '14px 36px';
+  skipBtn.style.fontSize = '1.3rem';
+  skipBtn.style.fontWeight = '800';
+  skipBtn.style.color = '#fff';
+  skipBtn.style.background = 'rgba(74, 222, 128, 0.2)';
+  skipBtn.style.border = '3px solid var(--color-success)';
+  skipBtn.style.borderRadius = 'var(--radius-pill)';
+  skipBtn.style.cursor = 'pointer';
+  skipBtn.style.transition = 'all 0.2s';
+  skipBtn.style.boxShadow = '0 0 15px rgba(74, 222, 128, 0.3)';
+
+  skipBtn.onmouseover = () => {
+    skipBtn.style.background = 'var(--color-success)';
+    skipBtn.style.boxShadow = '0 0 25px rgba(74, 222, 128, 0.8)';
+    skipBtn.style.transform = 'scale(1.05)';
+  };
+  skipBtn.onmouseout = () => {
+    skipBtn.style.background = 'rgba(74, 222, 128, 0.2)';
+    skipBtn.style.boxShadow = '0 0 15px rgba(74, 222, 128, 0.3)';
+    skipBtn.style.transform = 'scale(1)';
+  };
+
+  const closeOverlay = () => {
+    video.pause();
+    overlay.remove();
+    if (onClosed) onClosed();
+  };
+
+  video.onended = closeOverlay;
+  skipBtn.onclick = closeOverlay;
+
+  setTimeout(() => {
+    if (overlay.parentNode) {
+      closeOverlay();
+    }
+  }, 12000); // 12 seconds fallback
+
+  videoContainer.appendChild(video);
+  overlay.appendChild(videoContainer);
+  overlay.appendChild(skipBtn);
+  document.body.appendChild(overlay);
+
+  video.play().catch(err => {
+    console.warn('Autoplay failed, showing play button', err);
+    video.controls = true;
+    const playPrompt = document.createElement('div');
+    playPrompt.textContent = '▶️ Play Video';
+    playPrompt.style.position = 'absolute';
+    playPrompt.style.inset = '0';
+    playPrompt.style.background = 'rgba(0,0,0,0.5)';
+    playPrompt.style.color = '#fff';
+    playPrompt.style.fontSize = '2rem';
+    playPrompt.style.fontWeight = 'bold';
+    playPrompt.style.display = 'flex';
+    playPrompt.style.alignItems = 'center';
+    playPrompt.style.justifyContent = 'center';
+    playPrompt.style.cursor = 'pointer';
+    playPrompt.onclick = () => {
+      video.play();
+      playPrompt.remove();
+    };
+    videoContainer.appendChild(playPrompt);
+  });
 }
 
 // ============================================================
 // SCORING ENGINE
 // ============================================================
 
-function applyScore(teamIndex, points, isPenalty = false) {
-  if (playState.gameState !== 'AWAITING_FIRST_ANSWER' && playState.gameState !== 'AWAITING_STEAL') {
+function applyScore(teamIndex, points, isPenalty = false, bypassStateCheck = false) {
+  if (!bypassStateCheck && playState.gameState !== 'AWAITING_FIRST_ANSWER' && playState.gameState !== 'AWAITING_STEAL') {
     console.warn('Blocked invalid score attempt: not in scoring state');
     return;
   }
@@ -1221,12 +1474,12 @@ function applyScore(teamIndex, points, isPenalty = false) {
 
   if (isPenalty) {
     playState.teams[teamIndex].score -= points;
-    // Show red danger alert
-    queueScoreAlert(teamName, `-${points} Points`, 'lose');
+    // Show red danger alert immediately
+    triggerAlert(teamName, `-${points} Points`, 'lose');
   } else {
     playState.teams[teamIndex].score += points;
-    // Show green success alert
-    queueScoreAlert(teamName, `+${points} Points`, 'gain');
+    // Show green success alert immediately
+    triggerAlert(teamName, `+${points} Points`, 'gain');
   }
 }
 
@@ -1287,55 +1540,112 @@ function queueScoreAlert(teamName, text, type) {
   setTimeout(() => triggerAlert(teamName, text, type), 2300);
 }
 
-function triggerDanielCartoon(teamIndex, isCorrect) {
-  const team = playState.teams[teamIndex];
-  if (!team) return;
-
-  const color = TEAM_COLORS[teamIndex % TEAM_COLORS.length];
+function showCustomConfirm(message, onConfirm) {
   const overlay = document.createElement('div');
-  overlay.className = `daniel-cartoon-overlay ${isCorrect ? 'cartoon-correct' : 'cartoon-wrong'}`;
-  overlay.style.setProperty('--team-color', color.text);
-  overlay.style.setProperty('--team-bg', color.bg);
-  overlay.style.setProperty('--team-border', color.border);
+  overlay.className = 'confirm-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+  overlay.style.background = currentTheme === 'light' ? 'rgba(238, 243, 255, 0.7)' : 'rgba(0, 0, 0, 0.75)';
+  
+  overlay.style.backdropFilter = 'blur(12px)';
+  overlay.style.zIndex = '10000';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.25s ease';
 
-  const actionText = isCorrect ? 'Correct!' : 'Wrong!';
-  const actionClass = isCorrect ? 'lift-action' : 'bonk-action';
-  const logo = assetPath(team.logo || (teamIndex === 0 ? 'public/lion.png' : 'public/lioness.png'));
+  const card = document.createElement('div');
+  card.className = 'confirm-card glass-panel';
+  card.style.width = '90%';
+  card.style.maxWidth = '460px';
+  card.style.padding = '32px';
+  card.style.borderRadius = 'var(--radius-sm)';
+  card.style.textAlign = 'center';
+  card.style.border = '2px solid var(--panel-border-active)';
+  card.style.boxShadow = 'var(--card-shadow)';
+  card.style.background = 'var(--panel-bg)';
+  card.style.color = 'var(--color-text-light)';
+  card.style.transform = 'scale(0.8)';
+  card.style.transition = 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
 
-  overlay.innerHTML = `
-    <div class="daniel-cartoon-card">
-      <div class="cartoon-stage ${actionClass}">
-        <div class="cartoon-daniel">
-          <div class="daniel-head"></div>
-          <div class="daniel-hair"></div>
-          <div class="daniel-body"></div>
-          <div class="daniel-arm daniel-arm-left"></div>
-          <div class="daniel-arm daniel-arm-right"></div>
-          <div class="daniel-leg daniel-leg-left"></div>
-          <div class="daniel-leg daniel-leg-right"></div>
-          <div class="daniel-label">DANIEL</div>
-          ${isCorrect ? '' : '<div class="cartoon-hammer"><span></span></div>'}
-        </div>
-        <div class="cartoon-person">
-          <div class="person-head"></div>
-          <div class="person-body">
-            <img src="${logo}" alt="${team.name}" />
-          </div>
-          <div class="person-arm person-arm-left"></div>
-          <div class="person-arm person-arm-right"></div>
-          <div class="person-leg person-leg-left"></div>
-          <div class="person-leg person-leg-right"></div>
-          <div class="person-team">${team.name}</div>
-        </div>
-        <div class="cartoon-burst">${isCorrect ? 'UP!' : 'BONK!'}</div>
-      </div>
-      <div class="cartoon-caption" style="color:${color.text};">${team.name} - ${actionText}</div>
-    </div>
-  `;
+  const icon = document.createElement('div');
+  icon.textContent = '⚠️';
+  icon.style.fontSize = '3.5rem';
+  icon.style.marginBottom = '16px';
 
+  const text = document.createElement('h3');
+  text.textContent = message;
+  text.style.fontSize = '1.35rem';
+  text.style.fontWeight = '700';
+  text.style.color = 'var(--color-text-light)';
+  text.style.marginBottom = '12px';
+  text.style.fontFamily = 'var(--font-display)';
+
+  const subtext = document.createElement('p');
+  subtext.textContent = 'This action cannot be undone.';
+  subtext.style.fontSize = '0.95rem';
+  subtext.style.color = 'var(--color-text-muted)';
+  subtext.style.marginBottom = '28px';
+
+  const actions = document.createElement('div');
+  actions.style.display = 'flex';
+  actions.style.gap = '14px';
+  actions.style.justifyContent = 'center';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn btn-secondary';
+  cancelBtn.textContent = 'No';
+  cancelBtn.style.padding = '12px 28px';
+  cancelBtn.style.fontSize = '1.05rem';
+  cancelBtn.style.borderRadius = 'var(--radius-pill)';
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.className = 'btn btn-danger';
+  confirmBtn.textContent = 'Yes';
+  confirmBtn.style.padding = '12px 32px';
+  confirmBtn.style.fontSize = '1.05rem';
+  confirmBtn.style.borderRadius = 'var(--radius-pill)';
+
+  const close = (confirmed) => {
+    overlay.style.opacity = '0';
+    card.style.transform = 'scale(0.8)';
+    setTimeout(() => {
+      overlay.remove();
+      if (confirmed) onConfirm();
+    }, 250);
+  };
+
+  cancelBtn.onclick = () => {
+    playSound('click');
+    close(false);
+  };
+
+  confirmBtn.onclick = () => {
+    playSound('click');
+    close(true);
+  };
+
+  actions.appendChild(cancelBtn);
+  actions.appendChild(confirmBtn);
+
+  card.appendChild(icon);
+  card.appendChild(text);
+  card.appendChild(subtext);
+  card.appendChild(actions);
+
+  overlay.appendChild(card);
   document.body.appendChild(overlay);
-  setTimeout(() => overlay.remove(), 2300);
+
+  requestAnimationFrame(() => {
+    overlay.style.opacity = '1';
+    card.style.transform = 'scale(1)';
+  });
 }
+
+
 
 function resolveAnswer(isCorrect) {
   const q = playState.currentQuestion;
@@ -1346,11 +1656,14 @@ function resolveAnswer(isCorrect) {
   const pts = playState.hasPassed ? Math.floor(q.points / 2) : q.points;
 
   if (isCorrect) {
-    applyScore(teamIndex, pts, false); // Safe scoring via controlled engine
-    triggerDanielCartoon(teamIndex, true);
     transitionState('RESOLVED');
     playSound('correct');
+    disableQuestionInputs();
+
+    applyScore(teamIndex, pts, false, true); // Safe scoring via controlled engine
     triggerBurst();
+    updateScoreUI(teamIndex);
+    saveGameState();
 
     playState.answeredCells[cId] = { teamIndex, pointsWon: pts, cancelled: false };
     if (playState.stats[teamIndex]) {
@@ -1374,9 +1687,7 @@ function resolveAnswer(isCorrect) {
     const btnCancel = document.getElementById('btn-modal-cancel');
     if (btnCancel) btnCancel.disabled = true;
 
-    updateScoreUI(teamIndex);
     saveGameState();
-
     switchTurn();
     enableNextButton();
 
@@ -1387,19 +1698,29 @@ function resolveAnswer(isCorrect) {
     if (!playState.hasPassed && !playState.stealAttempted) {
       // First wrong -> Penalize and Steal
       const penalty = Math.floor(q.points / 2);
-      applyScore(teamIndex, penalty, true); // Safe scoring via controlled engine
-      triggerDanielCartoon(teamIndex, false);
+      
+      playWrongAnswerVideo(() => {
+        applyScore(teamIndex, penalty, true, true); // Safe scoring via controlled engine
+        updateScoreUI(teamIndex);
+        saveGameState();
+      });
+
       transitionState('AWAITING_STEAL');
 
       playState.stealAttempted = true;
-      updateScoreUI(teamIndex);
       saveGameState();
       startStealPhase();
     } else {
       // Second wrong -> Penalize and Resolve
-      applyScore(teamIndex, pts, true); // Safe scoring via controlled engine
-      triggerDanielCartoon(teamIndex, false);
+      
+      playWrongAnswerVideo(() => {
+        applyScore(teamIndex, pts, true, true); // Safe scoring via controlled engine
+        updateScoreUI(teamIndex);
+        saveGameState();
+      });
+
       transitionState('RESOLVED');
+      disableQuestionInputs();
 
       playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
 
@@ -1419,9 +1740,7 @@ function resolveAnswer(isCorrect) {
       const btnCancel = document.getElementById('btn-modal-cancel');
       if (btnCancel) btnCancel.disabled = true;
 
-      updateScoreUI(teamIndex);
       saveGameState();
-
       switchTurn();
       enableNextButton();
     }
@@ -1583,6 +1902,26 @@ document.getElementById('btn-sound-toggle').addEventListener('click', () => {
   if (soundEnabled) playSound('click');
 });
 
+document.getElementById('btn-fullscreen-toggle')?.addEventListener('click', () => {
+  playSound('click');
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.warn(`Fullscreen error: ${err.message}`);
+    });
+  } else {
+    document.exitFullscreen().catch(err => {
+      console.warn(`Exit fullscreen error: ${err.message}`);
+    });
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  const icon = document.getElementById('fullscreen-icon');
+  if (icon) {
+    icon.src = document.fullscreenElement ? 'public/exit_fullscreen.png' : 'public/fullscreen.png';
+  }
+});
+
 // Floating admin button (in header)
 document.getElementById('btn-go-admin-float').addEventListener('click', () => {
   playSound('click');
@@ -1615,6 +1954,14 @@ document.getElementById('btn-admin-back').addEventListener('click', () => {
   showScreen('dashboard');
 });
 
+const btnAdminResume = document.getElementById('btn-admin-resume');
+if (btnAdminResume) {
+  btnAdminResume.addEventListener('click', () => {
+    playSound('open');
+    showScreen('game');
+  });
+}
+
 document.getElementById('settings-subtract').addEventListener('change', e => {
   db.settings.subtractOnWrong = e.target.checked;
   saveDB();
@@ -1622,12 +1969,26 @@ document.getElementById('settings-subtract').addEventListener('change', e => {
 
 // Admin Team Setup Event Listeners
 document.getElementById('admin-team1-name')?.addEventListener('input', e => {
-  db.teams[0].name = e.target.value.trim() || 'Team 1';
+  const newName = e.target.value.trim() || 'Team 1';
+  db.teams[0].name = newName;
   saveDB();
+  if (playState.teams[0]) {
+    playState.teams[0].name = newName;
+    saveGameState();
+    updateScoreUI();
+    updateTurnUI();
+  }
 });
 document.getElementById('admin-team2-name')?.addEventListener('input', e => {
-  db.teams[1].name = e.target.value.trim() || 'Team 2';
+  const newName = e.target.value.trim() || 'Team 2';
+  db.teams[1].name = newName;
   saveDB();
+  if (playState.teams[1]) {
+    playState.teams[1].name = newName;
+    saveGameState();
+    updateScoreUI();
+    updateTurnUI();
+  }
 });
 
 function handleLogoUpload(e, teamIndex) {
@@ -1637,6 +1998,11 @@ function handleLogoUpload(e, teamIndex) {
   reader.onload = function(ev) {
     db.teams[teamIndex].logo = ev.target.result;
     saveDB();
+    if (playState.teams[teamIndex]) {
+      playState.teams[teamIndex].logo = ev.target.result;
+      saveGameState();
+      updateScoreUI();
+    }
   };
   reader.readAsDataURL(file);
 }
@@ -1681,6 +2047,7 @@ document.getElementById('import-json-file').addEventListener('change', e => {
         document.getElementById('settings-total-questions').value = db.settings.totalQuestions;
         document.getElementById('settings-display-mode').value = db.settings.displayMode;
         renderAdminGrid();
+        renderGameBoard();
       }
     } catch (err) {
       console.error('Invalid JSON file.', err);
@@ -1696,7 +2063,7 @@ document.getElementById('btn-reset-game').addEventListener('click', () => {
     playSound('click');
     playState.phase = 'live';
     playState.gameState = 'IDLE';
-    setupTeamsFromInputs();
+    playState.teams = []; // Clear active game teams to prevent resume until clicked Start
     resetPlayState();
     saveGameState();
     updateGameStatusUI();
@@ -1714,6 +2081,7 @@ document.getElementById('btn-clear-db').addEventListener('click', () => {
   selectedAdminCellId = null;
   document.getElementById('admin-question-editor').classList.add('hidden');
   renderAdminGrid();
+  renderGameBoard();
   playSound('wrong');
 });
 
@@ -1774,6 +2142,7 @@ document.getElementById('question-form').addEventListener('submit', e => {
   document.getElementById('admin-question-editor').classList.add('hidden');
   selectedAdminCellId = null;
   renderAdminGrid();
+  renderGameBoard();
 });
 
 document.getElementById('btn-delete-question').addEventListener('click', () => {
@@ -1785,6 +2154,7 @@ document.getElementById('btn-delete-question').addEventListener('click', () => {
   document.getElementById('admin-question-editor').classList.add('hidden');
   selectedAdminCellId = null;
   renderAdminGrid();
+  renderGameBoard();
 });
 
 // ============================================================
@@ -1872,18 +2242,34 @@ document.getElementById('modal-fill-input').addEventListener('keydown', e => {
 // ============================================================
 document.getElementById('btn-end-game').addEventListener('click', () => {
   if (!canInteract()) return;
-  closeModal();
-  playState.phase = 'ended';
-  saveGameState();
-  updateGameStatusUI();
-  endGame();
+  
+  showCustomConfirm('Want to confirm ending the game?', () => {
+    closeModal();
+    playState.phase = 'ended';
+    saveGameState();
+    updateGameStatusUI();
+    endGame();
+  });
 });
 
-document.getElementById('btn-game-back-admin').addEventListener('click', () => {
+document.getElementById('btn-resign-game').addEventListener('click', () => {
   if (!canInteract()) return;
-  closeModal();
-  renderAdminGrid();
-  showScreen('admin');
+  
+  showCustomConfirm('Want to confirm resigning the game?', () => {
+    closeModal();
+    playSound('cancel');
+    resetPlayState();
+    playState.teams = []; // Clear active game teams
+    playState.phase = 'live';
+    playState.gameState = 'IDLE';
+    saveGameState();
+    
+    updateGameStatusUI();
+    renderGameBoard();
+    updateTurnUI();
+    updateScoreUI();
+    showScreen('dashboard');
+  });
 });
 
 // ============================================================
@@ -1905,6 +2291,8 @@ document.getElementById('btn-play-again').addEventListener('click', () => {
 document.getElementById('btn-winner-home').addEventListener('click', () => {
   if (!canInteract()) return;
   playSound('click');
+  playState.teams = []; // Clear active game teams
+  saveGameState();
   showScreen('dashboard');
 });
 
@@ -1941,6 +2329,7 @@ document.addEventListener('DOMContentLoaded', () => {
       db.settings.totalQuestions = val;
       saveDB();
       renderAdminGrid();
+      renderGameBoard();
     });
   }
   
@@ -1950,6 +2339,7 @@ document.addEventListener('DOMContentLoaded', () => {
       db.settings.displayMode = e.target.value;
       saveDB();
       renderAdminGrid();
+      renderGameBoard();
     });
   }
 });
