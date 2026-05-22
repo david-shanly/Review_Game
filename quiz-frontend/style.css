@@ -414,6 +414,7 @@ body {
   border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
+  transform: scale(1.10);
 }
 
 .hero-card::before {
@@ -1121,12 +1122,18 @@ body {
 /* ============================================================
    SCREEN 4: WINNER
    ============================================================ */
+#screen-winner {
+  transform: scale(0.75);
+  transform-origin: center center;
+}
+
 .winner-card {
   max-width: 594px;
   margin: 32px auto;
   text-align: center;
   padding: 50px 43px;
   border-radius: var(--radius-lg);
+  transform: scale(1.30);
 }
 
 .winner-trophy {
