@@ -389,7 +389,7 @@ body {
 #screen-container {
   flex: 1;
   padding: 28px 24px;
-  max-width: 1600px;
+  max-width: 1568px;
   margin: 0 auto;
   width: 100%;
 }
@@ -982,7 +982,7 @@ body {
   border: 2.5px solid var(--cell-border);
   border-radius: var(--radius-sm);
   color: var(--color-text-light);
-  min-height: 118px;
+  min-height: 115px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1018,7 +1018,7 @@ body {
 .cell-qn {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 1.95rem;
+  font-size: 1.91rem;
   color: var(--color-gold);
   line-height: 1;
 }
