@@ -1012,22 +1012,22 @@ function renderGameBoard() {
     } else if (answered && answered.cancelled) {
       btn.className = 'game-cell-btn cell-cancelled';
       btn.disabled = true;
-      btn.innerHTML = `<span class="cell-qn" style="font-size: 2.5rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+      btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
     } else if (answered) {
       btn.className = 'game-cell-btn cell-answered';
       btn.disabled = true;
       const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
       if (answered.teamIndex === -1) {
-        btn.style.background = 'rgba(128, 128, 128, 0.2)';
-        btn.style.borderColor = 'rgba(128, 128, 128, 0.4)';
-        btn.style.opacity = '0.75';
-        btn.innerHTML = `<span class="cell-qn" style="font-size: 2.5rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.style.background = 'rgba(255,255,255,0.04)';
+        btn.style.borderColor = 'rgba(255,255,255,0.1)';
+        btn.style.opacity = '0.5';
+        btn.innerHTML = `<span class="cell-qn" style="font-size:1rem; opacity:0.5;">✗</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
         btn.style.background = tColor.bg;
         btn.style.borderColor = tColor.border;
-        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size: 2.5rem; font-weight: bold;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="color:${tColor.text}; font-size:1.4rem;">✓</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
       }
     } else {
       btn.className = 'game-cell-btn';
@@ -1360,7 +1360,7 @@ function playWrongAnswerVideo(onClosed) {
   videoContainer.style.background = '#000';
 
   const video = document.createElement('video');
-  video.src = 'wrong_answer_video.mp4';
+  video.src = 'worng_answer_cartoon.mp4';
   video.style.width = '100%';
   video.style.height = '100%';
   video.style.display = 'block';
@@ -1435,7 +1435,104 @@ function playWrongAnswerVideo(onClosed) {
   });
 }
 
+function playCorrectAnswerVideo(onClosed) {
+  const overlay = document.createElement('div');
+  overlay.className = 'correct-answer-video-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0, 0, 0, 0.95)';
+  overlay.style.zIndex = '9999';
+  overlay.style.display = 'flex';
+  overlay.style.flexDirection = 'column';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.backdropFilter = 'blur(12px)';
 
+  const videoContainer = document.createElement('div');
+  videoContainer.style.position = 'relative';
+  videoContainer.style.maxWidth = '85%';
+  videoContainer.style.maxHeight = '75%';
+  videoContainer.style.borderRadius = '24px';
+  videoContainer.style.overflow = 'hidden';
+  videoContainer.style.border = '6px solid var(--color-success)';
+  videoContainer.style.boxShadow = '0 0 50px rgba(74, 222, 128, 0.6)';
+  videoContainer.style.background = '#000';
+
+  const video = document.createElement('video');
+  video.src = 'correct_answer.mp4';
+  video.style.width = '100%';
+  video.style.height = '100%';
+  video.style.display = 'block';
+  video.autoplay = true;
+  video.controls = false;
+
+  const skipBtn = document.createElement('button');
+  skipBtn.textContent = '⏭️ Skip Video';
+  skipBtn.style.marginTop = '24px';
+  skipBtn.style.padding = '14px 36px';
+  skipBtn.style.fontSize = '1.3rem';
+  skipBtn.style.fontWeight = '800';
+  skipBtn.style.color = '#fff';
+  skipBtn.style.background = 'rgba(74, 222, 128, 0.2)';
+  skipBtn.style.border = '3px solid var(--color-success)';
+  skipBtn.style.borderRadius = 'var(--radius-pill)';
+  skipBtn.style.cursor = 'pointer';
+  skipBtn.style.transition = 'all 0.2s';
+  skipBtn.style.boxShadow = '0 0 15px rgba(74, 222, 128, 0.3)';
+
+  skipBtn.onmouseover = () => {
+    skipBtn.style.background = 'var(--color-success)';
+    skipBtn.style.boxShadow = '0 0 25px rgba(74, 222, 128, 0.8)';
+    skipBtn.style.transform = 'scale(1.05)';
+  };
+  skipBtn.onmouseout = () => {
+    skipBtn.style.background = 'rgba(74, 222, 128, 0.2)';
+    skipBtn.style.boxShadow = '0 0 15px rgba(74, 222, 128, 0.3)';
+    skipBtn.style.transform = 'scale(1)';
+  };
+
+  const closeOverlay = () => {
+    video.pause();
+    overlay.remove();
+    if (onClosed) onClosed();
+  };
+
+  video.onended = closeOverlay;
+  skipBtn.onclick = closeOverlay;
+
+  setTimeout(() => {
+    if (overlay.parentNode) {
+      closeOverlay();
+    }
+  }, 12000); // 12 seconds fallback
+
+  videoContainer.appendChild(video);
+  overlay.appendChild(videoContainer);
+  overlay.appendChild(skipBtn);
+  document.body.appendChild(overlay);
+
+  video.play().catch(err => {
+    console.warn('Autoplay failed, showing play button', err);
+    video.controls = true;
+    const playPrompt = document.createElement('div');
+    playPrompt.textContent = '▶️ Play Video';
+    playPrompt.style.position = 'absolute';
+    playPrompt.style.inset = '0';
+    playPrompt.style.background = 'rgba(0,0,0,0.5)';
+    playPrompt.style.color = '#fff';
+    playPrompt.style.fontSize = '2rem';
+    playPrompt.style.fontWeight = 'bold';
+    playPrompt.style.display = 'flex';
+    playPrompt.style.alignItems = 'center';
+    playPrompt.style.justifyContent = 'center';
+    playPrompt.style.cursor = 'pointer';
+    playPrompt.onclick = () => {
+      video.play();
+      playPrompt.remove();
+    };
+    videoContainer.appendChild(playPrompt);
+  });
+}
 
 // ============================================================
 // SCORING ENGINE
@@ -1797,8 +1894,6 @@ function checkGameOver() {
 
 function endGame() {
   clearGameTimer();
-  playState.phase = 'ended';
-  saveGameState();
   const sorted = playState.teams
     .map((t, idx) => ({ ...t, index: idx }))
     .sort((a, b) => b.score - a.score);
@@ -1995,20 +2090,6 @@ function handleLogoUpload(e, teamIndex) {
 document.getElementById('admin-team1-logo')?.addEventListener('change', e => handleLogoUpload(e, 0));
 document.getElementById('admin-team2-logo')?.addEventListener('change', e => handleLogoUpload(e, 1));
 
-// Save Game Board
-const btnSaveGame = document.getElementById('btn-save-game-board');
-if (btnSaveGame) {
-  btnSaveGame.addEventListener('click', () => {
-    playSound('click');
-    saveDB();
-    if (playState.phase === 'live') {
-      saveGameState();
-    }
-    renderGameBoard();
-    alert('Game Board Saved Successfully!');
-  });
-}
-
 // Export JSON
 document.getElementById('btn-export-json').addEventListener('click', () => {
   playSound('click');
@@ -2058,7 +2139,7 @@ document.getElementById('import-json-file').addEventListener('change', e => {
 
 // Reset game (not questions)
 document.getElementById('btn-reset-game').addEventListener('click', () => {
-  showCustomConfirm('Are you sure you want to reset the game? This will clear all scores, progress, and timer.', () => {
+  if (confirm('Are you sure you want to reset the game? This will clear all scores, progress, and timer.')) {
     playSound('click');
     playState.phase = 'live';
     playState.gameState = 'IDLE';
@@ -2071,20 +2152,19 @@ document.getElementById('btn-reset-game').addEventListener('click', () => {
     renderGameBoard();
     updateScoreUI();
     showScreen('dashboard');
-  });
+  }
 });
 
 // Clear all questions
 document.getElementById('btn-clear-db').addEventListener('click', () => {
-  showCustomConfirm('Clear all questions? This cannot be undone unless you import or reload a saved quiz.', () => {
-    db.questions = [];
-    saveDB();
-    selectedAdminCellId = null;
-    document.getElementById('admin-question-editor').classList.add('hidden');
-    renderAdminGrid();
-    renderGameBoard();
-    playSound('wrong');
-  });
+  if (!confirm('Clear all questions? This cannot be undone unless you import or reload a saved quiz.')) return;
+  db.questions = [];
+  saveDB();
+  selectedAdminCellId = null;
+  document.getElementById('admin-question-editor').classList.add('hidden');
+  renderAdminGrid();
+  renderGameBoard();
+  playSound('wrong');
 });
 
 // ============================================================
@@ -2283,7 +2363,6 @@ document.getElementById('btn-play-again').addEventListener('click', () => {
   playSound('open');
   resetPlayState();
   playState.phase = 'live';
-  playState.gameState = 'IDLE';
   gameTimerEndTime = Date.now() + 10 * 60 * 1000;
   gameTimerAlertShown = false;
   startGameTimer();
