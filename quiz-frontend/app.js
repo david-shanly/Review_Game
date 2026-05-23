@@ -1360,7 +1360,7 @@ function playWrongAnswerVideo(onClosed) {
   videoContainer.style.background = '#000';
 
   const video = document.createElement('video');
-  video.src = 'worng_answer_cartoon.mp4';
+  video.src = 'wrong_answer_video.mp4';
   video.style.width = '100%';
   video.style.height = '100%';
   video.style.display = 'block';
@@ -1459,7 +1459,7 @@ function playCorrectAnswerVideo(onClosed) {
   videoContainer.style.background = '#000';
 
   const video = document.createElement('video');
-  video.src = 'correct_answer.mp4';
+  video.src = 'correct_answer_video.mp4';
   video.style.width = '100%';
   video.style.height = '100%';
   video.style.display = 'block';
@@ -1736,10 +1736,12 @@ function resolveAnswer(isCorrect) {
     playSound('correct');
     disableQuestionInputs();
 
-    applyScore(teamIndex, pts, false, true); // Safe scoring via controlled engine
-    triggerBurst();
-    updateScoreUI(teamIndex);
-    saveGameState();
+    playCorrectAnswerVideo(() => {
+      applyScore(teamIndex, pts, false, true); // Safe scoring via controlled engine
+      triggerBurst();
+      updateScoreUI(teamIndex);
+      saveGameState();
+    });
 
     playState.answeredCells[cId] = { teamIndex, pointsWon: pts, cancelled: false };
     if (playState.stats[teamIndex]) {
