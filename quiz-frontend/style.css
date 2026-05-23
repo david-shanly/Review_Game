@@ -877,12 +877,12 @@ body {
 }
 
 .board-cell.has-q::after {
-  content: '✓';
+  content: '✔';
   position: absolute;
   top: 5px;
   right: 7px;
-  font-size: 0.75rem;
-  color: var(--color-gold);
+  font-size: 1.3rem;
+  color: var(--color-success);
   font-weight: 900;
 }
 
@@ -1206,7 +1206,7 @@ body {
 
 .game-cell-btn.cell-cancelled .cell-qn {
   color: var(--color-cancel);
-  font-size: 2rem;
+  font-size: 1.8rem;
 }
 
 /* Answered cell */

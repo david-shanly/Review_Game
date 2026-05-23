@@ -283,7 +283,7 @@ function cellId(qnIndex) {
 }
 
 function qnLabel(qnIndex) {
-  return `Qn${qnIndex}`;
+  return `Q${qnIndex}`;
 }
 
 // ============================================================
@@ -874,11 +874,11 @@ function renderAdminGrid() {
     const labelEl = document.createElement('span');
     labelEl.className = 'cell-qn-label';
     if (db.settings.displayMode === 'POINTS_ONLY') {
-      labelEl.textContent = q ? q.points : qnLabel(qn);
+      labelEl.textContent = q ? `(${q.points})` : qnLabel(qn);
     } else if (db.settings.displayMode === 'QUESTION_ONLY') {
       labelEl.textContent = qnLabel(qn);
     } else {
-      labelEl.innerHTML = q ? `${qnLabel(qn)}<br><span style="font-size:0.8em">${q.points}</span>` : qnLabel(qn);
+      labelEl.innerHTML = q ? `${qnLabel(qn)}<br><span style="font-size:0.8em">(${q.points})</span>` : qnLabel(qn);
     }
     cell.appendChild(labelEl);
 
@@ -997,11 +997,11 @@ function renderGameBoard() {
     let displayHtml = qnLabel(qn);
     if (q) {
       if (db.settings.displayMode === 'POINTS_ONLY') {
-        displayHtml = q.points;
+        displayHtml = `(${q.points})`;
       } else if (db.settings.displayMode === 'QUESTION_ONLY') {
         displayHtml = qnLabel(qn);
       } else {
-        displayHtml = `${qnLabel(qn)}<br><span style="font-size:0.8em">${q.points}</span>`;
+        displayHtml = `${qnLabel(qn)}<br><span style="font-size:0.8em">(${q.points})</span>`;
       }
     }
 
@@ -1021,13 +1021,13 @@ function renderGameBoard() {
         btn.style.background = 'rgba(255,255,255,0.04)';
         btn.style.borderColor = 'rgba(255,255,255,0.1)';
         btn.style.opacity = '0.5';
-        btn.innerHTML = `<span class="cell-qn" style="font-size:1rem; opacity:0.5;">✗</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="font-size:1.8rem; opacity:0.5;">✗</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
         btn.style.background = tColor.bg;
         btn.style.borderColor = tColor.border;
-        btn.innerHTML = `<span class="cell-qn" style="color:${tColor.text}; font-size:1.4rem;">✓</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size:1.8rem; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
       }
     } else {
       btn.className = 'game-cell-btn';
