@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 function createWindow() {
@@ -12,6 +12,7 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
+      preload: path.join(__dirname, 'preload.cjs'),
     },
     backgroundColor: '#07112B',
     show: false,
@@ -27,7 +28,29 @@ function createWindow() {
 
   // Remove menu bar for kiosk-style presentation
   win.setMenuBarVisibility(false);
+
+  // Monitor fullscreen state changes and notify the frontend
+  win.on('enter-fullscreen', () => {
+    win.webContents.send('fullscreen-changed', true);
+  });
+  win.on('leave-fullscreen', () => {
+    win.webContents.send('fullscreen-changed', false);
+  });
 }
+
+// IPC handler to toggle native window fullscreen
+ipcMain.on('toggle-fullscreen', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) {
+    win.setFullScreen(!win.isFullScreen());
+  }
+});
+
+// IPC handler to query current native window fullscreen state
+ipcMain.handle('is-fullscreen', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  return win ? win.isFullScreen() : false;
+});
 
 app.whenReady().then(() => {
   createWindow();

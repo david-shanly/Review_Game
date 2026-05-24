@@ -35,7 +35,19 @@ const TEAM_ICONS = ['⚔️', '🌸', '🦁', '👑', '🔥', '💎'];
 // STATE
 // ============================================================
 let db = {
-  settings: { subtractOnWrong: true, totalQuestions: 20, displayMode: 'QUESTION_POINTS' },
+  settings: {
+    subtractOnWrong: true,
+    totalQuestions: 20,
+    displayMode: 'QUESTION_POINTS',
+    timerDuration: 10,
+    gridFont: 'Fredoka One',
+    applyFontToAll: false,
+    playVideoFeedback: false,
+    useCustomFeedbackVideos: false,
+    enableTieBreaker: false,
+    gridFontColor: '#ffffff',
+    gridFontBold: false
+  },
   questions: [], // each: { id, qnIndex, type, question, options, answer, points }
   teams: [...DEFAULT_TEAMS],
 };
@@ -43,27 +55,30 @@ let db = {
 let gameTimerInterval = null;
 let gameTimerEndTime = null;
 let gameTimerAlertShown = false;
+let currentUploadedVideoBase64 = null;
+let currentUploadedCorrectVideo = null;
+let currentUploadedWrongVideo = null;
 
 function startGameTimer() {
   clearInterval(gameTimerInterval);
   const display = document.getElementById('game-timer-display');
   if (display) display.style.display = 'flex';
-  
+
   gameTimerInterval = setInterval(() => {
-    if (!gameTimerEndTime || playState.phase !== 'live') {
-       clearInterval(gameTimerInterval);
-       if (playState.phase !== 'live' && display) display.style.display = 'none';
-       return;
+    if (!gameTimerEndTime || playState.phase === 'ended') {
+      clearInterval(gameTimerInterval);
+      if (playState.phase === 'ended' && display) display.style.display = 'none';
+      return;
     }
     const now = Date.now();
     let left = Math.max(0, gameTimerEndTime - now);
-    
+
     if (left <= 60000 && !gameTimerAlertShown && left > 0) {
       gameTimerAlertShown = true;
       triggerAlert('SYSTEM', '1 Minute Remaining!', 'lose');
       saveGameState();
     }
-    
+
     if (left === 0) {
       clearInterval(gameTimerInterval);
       if (display) display.textContent = 'Time Left: 00:00';
@@ -71,7 +86,7 @@ function startGameTimer() {
       endGame();
       return;
     }
-    
+
     const totalSecs = Math.floor(left / 1000);
     const m = Math.floor(totalSecs / 60);
     const s = totalSecs % 60;
@@ -208,7 +223,7 @@ class ConfettiParticle {
   constructor(x, y, burst = false) {
     this.x = x; this.y = y;
     this.size = Math.random() * 9 + 5;
-    this.color = ['#F4C430','#38D9F5','#FF6B9D','#7EE8A2','#ffffff','#A78BFA'][Math.floor(Math.random() * 6)];
+    this.color = ['#F4C430', '#38D9F5', '#FF6B9D', '#7EE8A2', '#ffffff', '#A78BFA'][Math.floor(Math.random() * 6)];
     if (burst) {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 10 + 5;
@@ -283,6 +298,7 @@ function cellId(qnIndex) {
 }
 
 function qnLabel(qnIndex) {
+  if (qnIndex === 'tiebreaker') return 'TIE BREAKER';
   return `Q${qnIndex}`;
 }
 
@@ -291,9 +307,9 @@ function qnLabel(qnIndex) {
 // ============================================================
 const screens = {
   dashboard: document.getElementById('screen-dashboard'),
-  admin:     document.getElementById('screen-admin'),
-  game:      document.getElementById('screen-game'),
-  winner:    document.getElementById('screen-winner'),
+  admin: document.getElementById('screen-admin'),
+  game: document.getElementById('screen-game'),
+  winner: document.getElementById('screen-winner'),
 };
 
 function showScreen(id) {
@@ -309,6 +325,106 @@ function showScreen(id) {
     if (btnResume) {
       btnResume.style.display = isGameActive ? 'inline-flex' : 'none';
     }
+  }
+
+  // Toggle header buttons visibility based on screen
+  const hamburgerBtn = document.getElementById('btn-hamburger-menu');
+  if (hamburgerBtn) {
+    hamburgerBtn.style.display = id === 'admin' ? 'inline-block' : 'none';
+  }
+  const settingsBtn = document.getElementById('btn-go-admin-float');
+  if (settingsBtn) {
+    settingsBtn.style.display = id === 'admin' ? 'none' : 'inline-block';
+  }
+  
+  if (typeof applyDynamicScaling === 'function') {
+    applyDynamicScaling();
+  }
+}
+
+// IndexedDB for large media assets (videos) to bypass localStorage quota limits
+const DB_NAME = 'BibleQuizVideoDB';
+const STORE_NAME = 'videos';
+let idbInstance = null;
+
+function getIndexedDB() {
+  return new Promise((resolve, reject) => {
+    if (idbInstance) return resolve(idbInstance);
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+    request.onsuccess = (e) => {
+      idbInstance = e.target.result;
+      resolve(idbInstance);
+    };
+    request.onerror = (e) => {
+      reject(e.target.error);
+    };
+  });
+}
+
+async function saveVideoToIndexedDB(qnIndex, base64Data) {
+  try {
+    const dbInstance = await getIndexedDB();
+    return new Promise((resolve, reject) => {
+      const transaction = dbInstance.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.put(base64Data, `video-${qnIndex}`);
+      request.onsuccess = () => resolve();
+      request.onerror = (e) => reject(e.target.error);
+    });
+  } catch (err) {
+    console.error('Failed to save video to IndexedDB', err);
+  }
+}
+
+async function getVideoFromIndexedDB(qnIndex) {
+  try {
+    const dbInstance = await getIndexedDB();
+    return new Promise((resolve, reject) => {
+      const transaction = dbInstance.transaction([STORE_NAME], 'readonly');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.get(`video-${qnIndex}`);
+      request.onsuccess = (e) => resolve(e.target.result || null);
+      request.onerror = (e) => reject(e.target.error);
+    });
+  } catch (err) {
+    console.error('Failed to get video from IndexedDB', err);
+    return null;
+  }
+}
+
+async function deleteVideoFromIndexedDB(qnIndex) {
+  try {
+    const dbInstance = await getIndexedDB();
+    return new Promise((resolve, reject) => {
+      const transaction = dbInstance.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.delete(`video-${qnIndex}`);
+      request.onsuccess = () => resolve();
+      request.onerror = (e) => reject(e.target.error);
+    });
+  } catch (err) {
+    console.error('Failed to delete video from IndexedDB', err);
+  }
+}
+
+async function clearAllVideosFromIndexedDB() {
+  try {
+    const dbInstance = await getIndexedDB();
+    return new Promise((resolve, reject) => {
+      const transaction = dbInstance.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.clear();
+      request.onsuccess = () => resolve();
+      request.onerror = (e) => reject(e.target.error);
+    });
+  } catch (err) {
+    console.error('Failed to clear videos from IndexedDB', err);
   }
 }
 
@@ -330,12 +446,27 @@ function loadDB() {
           settings: {
             subtractOnWrong: parsed.settings?.subtractOnWrong ?? true,
             totalQuestions: parsed.settings?.totalQuestions ?? 20,
-            displayMode: parsed.settings?.displayMode ?? 'QUESTION_POINTS'
+            displayMode: parsed.settings?.displayMode ?? 'QUESTION_POINTS',
+            timerDuration: parsed.settings?.timerDuration ?? 10,
+            gridFont: parsed.settings?.gridFont ?? 'Fredoka One',
+            applyFontToAll: parsed.settings?.applyFontToAll ?? false,
+            playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
+            enableTieBreaker: parsed.settings?.enableTieBreaker ?? false,
+            useCustomFeedbackVideos: parsed.settings?.useCustomFeedbackVideos ?? false,
+            gridFontColor: parsed.settings?.gridFontColor ?? '#ffffff',
+            gridFontBold: parsed.settings?.gridFontBold ?? false,
+            useDefaultFontColor: parsed.settings?.useDefaultFontColor ?? true
           },
           questions: parsed.questions || [],
           teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
-            ? parsed.teams.map((t, i) => typeof t === 'string' ? { name: t, logo: DEFAULT_TEAMS[i].logo } : t)
-            : [...DEFAULT_TEAMS],
+            ? parsed.teams.map((t, i) => {
+              let teamObj = typeof t === 'string' ? { name: t, logo: DEFAULT_TEAMS[i].logo } : t;
+              if (teamObj.useDefault === undefined) {
+                teamObj.useDefault = (teamObj.name === DEFAULT_TEAMS[i].name && (teamObj.logo === DEFAULT_TEAMS[i].logo || !teamObj.logo));
+              }
+              return teamObj;
+            })
+            : DEFAULT_TEAMS.map((t, i) => ({ ...t, useDefault: true })),
         };
       }
     } catch (e) {
@@ -343,11 +474,32 @@ function loadDB() {
     }
   }
 
-  // Populate Admin Inputs
+  // Ensure default structure exists if empty initially
+  if (!db.teams || db.teams.length < 2) {
+    db.teams = DEFAULT_TEAMS.map((t, i) => ({ ...t, useDefault: true }));
+  }
+
+  // Populate Admin Inputs & Sync Default Toggles
   const t1Name = document.getElementById('admin-team1-name');
-  if (t1Name) t1Name.value = db.teams[0].name;
+  if (t1Name) t1Name.value = db.teams[0].name || 'Lion';
   const t2Name = document.getElementById('admin-team2-name');
-  if (t2Name) t2Name.value = db.teams[1].name;
+  if (t2Name) t2Name.value = db.teams[1].name || 'Lioness';
+
+  const t1Def = document.getElementById('admin-team1-default');
+  if (t1Def) {
+    t1Def.checked = !!db.teams[0].useDefault;
+    if (t1Name) t1Name.disabled = t1Def.checked;
+    const t1Logo = document.getElementById('admin-team1-logo');
+    if (t1Logo) t1Logo.disabled = t1Def.checked;
+  }
+
+  const t2Def = document.getElementById('admin-team2-default');
+  if (t2Def) {
+    t2Def.checked = !!db.teams[1].useDefault;
+    if (t2Name) t2Name.disabled = t2Def.checked;
+    const t2Logo = document.getElementById('admin-team2-logo');
+    if (t2Logo) t2Logo.disabled = t2Def.checked;
+  }
 
   // Sync UI
   const subEl = document.getElementById('settings-subtract');
@@ -356,12 +508,57 @@ function loadDB() {
   if (totEl) totEl.value = db.settings.totalQuestions;
   const modeEl = document.getElementById('settings-display-mode');
   if (modeEl) modeEl.value = db.settings.displayMode;
+  const timerEl = document.getElementById('settings-timer-duration');
+  if (timerEl) timerEl.value = db.settings.timerDuration ?? 10;
+  const fontEl = document.getElementById('settings-grid-font');
+  if (fontEl) fontEl.value = db.settings.gridFont ?? 'Fredoka One';
+  const fontColorEl = document.getElementById('settings-grid-font-color');
+  if (fontColorEl) fontColorEl.value = db.settings.gridFontColor ?? '#ffffff';
+
+  // Sync Default Font Color Checkbox
+  const fontColorDefEl = document.getElementById('settings-grid-font-color-default');
+  if (fontColorDefEl) {
+    fontColorDefEl.checked = db.settings.useDefaultFontColor !== false;
+    if (fontColorEl) fontColorEl.disabled = fontColorDefEl.checked;
+  }
+
+  // Sync Bold Style button visual active state
+  const fontBoldBtn = document.getElementById('settings-grid-font-bold-btn');
+  if (fontBoldBtn) {
+    fontBoldBtn.classList.toggle('active', !!db.settings.gridFontBold);
+  }
+
+  const applyAllEl = document.getElementById('settings-font-apply-all');
+  if (applyAllEl) applyAllEl.checked = !!db.settings.applyFontToAll;
+  const tieBreakerEl = document.getElementById('settings-enable-tiebreaker');
+  if (tieBreakerEl) {
+    tieBreakerEl.checked = !!db.settings.enableTieBreaker;
+    tieBreakerEl.addEventListener('change', (e) => {
+      db.settings.enableTieBreaker = e.target.checked;
+      saveDB();
+      renderAdminGrid();
+    });
+  }
+
+  const videoFeedbackEl = document.getElementById('settings-play-video-feedback');
+  if (videoFeedbackEl) {
+    videoFeedbackEl.checked = !!db.settings.playVideoFeedback;
+    const optionsEl = document.getElementById('video-feedback-options');
+    if (optionsEl) optionsEl.style.display = videoFeedbackEl.checked ? 'flex' : 'none';
+  }
+  const customFeedbackEl = document.getElementById('settings-use-custom-feedback');
+  if (customFeedbackEl) {
+    customFeedbackEl.checked = !!db.settings.useCustomFeedbackVideos;
+    const uploadsEl = document.getElementById('custom-video-uploads');
+    if (uploadsEl) uploadsEl.style.display = customFeedbackEl.checked ? 'flex' : 'none';
+  }
+  applySelectedFont();
   updateDashboardStatus();
 }
 
 function updateDashboardStatus() {
   const statusDiv = document.getElementById('dashboard-status');
-  const startBtn  = document.getElementById('btn-start-game');
+  const startBtn = document.getElementById('btn-start-game');
   const count = db.questions.length;
 
   if (count === 0) {
@@ -369,6 +566,7 @@ function updateDashboardStatus() {
       <div class="bold-text">⚠️ No questions configured yet!</div>
       <p style="margin-top:6px;font-size:0.9rem;color:var(--color-text-muted);">Open the Admin Panel (⚙️) to add questions.</p>`;
     startBtn.disabled = true;
+    startBtn.innerHTML = '🎮 Start Game!';
   } else {
     statusDiv.innerHTML = `
       <div class="bold-text" style="color:var(--color-success);">✅ Quiz ready!</div>
@@ -376,6 +574,21 @@ function updateDashboardStatus() {
         <strong style="color:var(--color-text-light);">${count}</strong> question${count !== 1 ? 's' : ''} added. Good to go!
       </p>`;
     startBtn.disabled = false;
+
+    // Check if the game is already active
+    const adminResumeBtn = document.getElementById('btn-admin-resume');
+    if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended') {
+      startBtn.innerHTML = '▶️ Resume Game';
+      if (adminResumeBtn) {
+        adminResumeBtn.style.display = 'inline-block';
+        adminResumeBtn.innerHTML = '▶️ Resume Game';
+      }
+    } else {
+      startBtn.innerHTML = '🎮 Start Game!';
+      if (adminResumeBtn) {
+        adminResumeBtn.style.display = 'none';
+      }
+    }
   }
 }
 
@@ -421,7 +634,7 @@ function loadGameState() {
         playState.currentQuestion = parsed.currentQuestion ?? null;
         playState.stats = parsed.stats ?? {};
         playState.cancelLocked = parsed.cancelLocked ?? false;
-        
+
         gameTimerEndTime = parsed.timerEndTime ?? null;
         gameTimerAlertShown = parsed.timerAlertShown ?? false;
 
@@ -430,7 +643,7 @@ function loadGameState() {
         updateScoreUI();
         renderGameBoard();
         updateTurnUI();
-        
+
         // If there was an active screen or if we are in game/winner screens
         if (playState.phase === 'ended') {
           showScreen('winner');
@@ -448,29 +661,29 @@ function loadGameState() {
             const hPassed = playState.hasPassed;
             const sAttempted = playState.stealAttempted;
             const cLocked = playState.cancelLocked;
-            
+
             playState.gameState = 'IDLE';
             openQuestionModal(cId, q);
-            
+
             playState.gameState = gState;
             playState.hasPassed = hPassed;
             playState.stealAttempted = sAttempted;
             playState.cancelLocked = cLocked;
-            
+
             if (playState.gameState === 'AWAITING_STEAL') {
               const stealPts = Math.floor(q.points / 2);
               document.getElementById('modal-points-display').textContent = `${stealPts} POINTS - STEAL`;
-              
+
               const turnStatus = document.getElementById('modal-turn-status');
               const nextTeamIndex = playState.currentTeamIndex;
               turnStatus.innerHTML = `❌ Wrong Answer<br><span style="font-size:0.8rem;">Passed to ${playState.teams[nextTeamIndex].name}</span>`;
               turnStatus.style.color = "var(--color-error)";
               turnStatus.style.borderColor = "var(--color-error)";
-              
+
               const passBtn = document.getElementById('btn-modal-pass');
               if (passBtn) passBtn.style.display = 'none';
             }
-            
+
             const btnCancel = document.getElementById('btn-modal-cancel');
             if (btnCancel && cLocked) {
               btnCancel.disabled = true;
@@ -504,294 +717,300 @@ async function runCountdown() {
   const numEl = overlay ? overlay.querySelector('.countdown-number') : null;
   if (!overlay || !numEl) return;
   overlay.classList.remove('hidden');
-  
+
   for (let i = 3; i > 0; i--) {
     numEl.textContent = i;
     playTone(600, 'sine', 0.08, 0.2);
-    
+
     numEl.style.animation = 'none';
     void numEl.offsetHeight; // trigger reflow
     numEl.style.animation = 'countdownPulse 1s ease-in-out';
-    
+
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
-  
+
   overlay.classList.add('hidden');
 }
 
 
 
 
-function loadDefaultQuiz() {
+async function loadDefaultQuiz() {
+  try {
+    await clearAllVideosFromIndexedDB();
+  } catch (err) {
+    console.error("Failed to clear IndexedDB custom videos on loading defaults:", err);
+  }
+
   const data = {
-  "settings": {
-    "subtractOnWrong": true,
-    "totalQuestions": 20,
-    "displayMode": "QUESTION_NUMBER"
-  },
-  "questions": [
-    {
-      "id": "q1",
-      "qnIndex": 1,
-      "type": "mcq",
-      "question": "What new name was given to Daniel in Babylon?",
-      "options": [
-        "Belteshazzar",
-        "Shadrach",
-        "Meshach",
-        "Abednego"
-      ],
-      "answer": "Belteshazzar",
-      "points": 100
+    "settings": {
+      "subtractOnWrong": true,
+      "totalQuestions": 20,
+      "displayMode": "QUESTION_NUMBER"
     },
-    {
-      "id": "q2",
-      "qnIndex": 2,
-      "type": "fill",
-      "question": "What did Daniel and his friends refuse to consume?",
-      "options": [],
-      "answer": "The king's food and wine",
-      "points": 100
-    },
-    {
-      "id": "q3",
-      "qnIndex": 3,
-      "type": "mcq",
-      "question": "How many days did Daniel ask to be tested on a diet of vegetables and water?",
-      "options": [
-        "7 days",
-        "10 days",
-        "12 days",
-        "40 days"
-      ],
-      "answer": "10 days",
-      "points": 100
-    },
-    {
-      "id": "q4",
-      "qnIndex": 4,
-      "type": "mcq",
-      "question": "What was the statue's head made of in Nebuchadnezzar's dream?",
-      "options": [
-        "Silver",
-        "Bronze",
-        "Iron",
-        "Gold"
-      ],
-      "answer": "Gold",
-      "points": 200
-    },
-    {
-      "id": "q5",
-      "qnIndex": 5,
-      "type": "fill",
-      "question": "What hit the statue and smashed it to pieces in the dream?",
-      "options": [],
-      "answer": "A stone cut out without hands",
-      "points": 200
-    },
-    {
-      "id": "q6",
-      "qnIndex": 6,
-      "type": "mcq",
-      "question": "Who were thrown into the fiery furnace for refusing to bow to the golden image?",
-      "options": [
-        "Daniel and his friends",
-        "Shadrach, Meshach, Abednego",
-        "The wise men of Babylon",
-        "The king's guards"
-      ],
-      "answer": "Shadrach, Meshach, Abednego",
-      "points": 100
-    },
-    {
-      "id": "q7",
-      "qnIndex": 7,
-      "type": "mcq",
-      "question": "How many men did the king see walking in the fiery furnace?",
-      "options": [
-        "Two",
-        "Three",
-        "Four",
-        "Five"
-      ],
-      "answer": "Four",
-      "points": 100
-    },
-    {
-      "id": "q8",
-      "qnIndex": 8,
-      "type": "fill",
-      "question": "What happened to Nebuchadnezzar when he became too proud?",
-      "options": [],
-      "answer": "He lived like a wild animal",
-      "points": 300
-    },
-    {
-      "id": "q9",
-      "qnIndex": 9,
-      "type": "mcq",
-      "question": "Which king saw the handwriting on the wall during a great feast?",
-      "options": [
-        "Nebuchadnezzar",
-        "Belshazzar",
-        "Darius",
-        "Cyrus"
-      ],
-      "answer": "Belshazzar",
-      "points": 200
-    },
-    {
-      "id": "q10",
-      "qnIndex": 10,
-      "type": "mcq",
-      "question": "What were the words written on the wall?",
-      "options": [
-        "Mene, Mene, Tekel, Upharsin",
-        "Holy, Holy, Holy",
-        "Babylon is Fallen",
-        "Repent and Believe"
-      ],
-      "answer": "Mene, Mene, Tekel, Upharsin",
-      "points": 200
-    },
-    {
-      "id": "q11",
-      "qnIndex": 11,
-      "type": "mcq",
-      "question": "Which king threw Daniel into the lions' den?",
-      "options": [
-        "Nebuchadnezzar",
-        "Belshazzar",
-        "Darius",
-        "Cyrus"
-      ],
-      "answer": "Darius",
-      "points": 100
-    },
-    {
-      "id": "q12",
-      "qnIndex": 12,
-      "type": "fill",
-      "question": "Why was Daniel thrown into the lions' den?",
-      "options": [],
-      "answer": "For praying to God",
-      "points": 100
-    },
-    {
-      "id": "q13",
-      "qnIndex": 13,
-      "type": "mcq",
-      "question": "How did God protect Daniel in the lions' den?",
-      "options": [
-        "He made the lions sleep",
-        "He sent an angel to shut their mouths",
-        "He gave Daniel a sword",
-        "He blinded the lions"
-      ],
-      "answer": "He sent an angel to shut their mouths",
-      "points": 100
-    },
-    {
-      "id": "q14",
-      "qnIndex": 14,
-      "type": "mcq",
-      "question": "What was the first beast Daniel saw in his vision of the four beasts?",
-      "options": [
-        "A bear",
-        "A leopard",
-        "A lion with eagle's wings",
-        "A terrifying beast with iron teeth"
-      ],
-      "answer": "A lion with eagle's wings",
-      "points": 300
-    },
-    {
-      "id": "q15",
-      "qnIndex": 15,
-      "type": "mcq",
-      "question": "Which angel came to explain Daniel's visions to him?",
-      "options": [
-        "Michael",
-        "Gabriel",
-        "Raphael",
-        "Lucifer"
-      ],
-      "answer": "Gabriel",
-      "points": 200
-    },
-    {
-      "id": "q16",
-      "qnIndex": 16,
-      "type": "fill",
-      "question": "How many weeks were decreed in Daniel's vision of the future?",
-      "options": [],
-      "answer": "70 weeks",
-      "points": 400
-    },
-    {
-      "id": "q17",
-      "qnIndex": 17,
-      "type": "mcq",
-      "question": "Who is the 'Prince' that stands watch over Daniel's people?",
-      "options": [
-        "Gabriel",
-        "Michael",
-        "The King of Persia",
-        "The King of Greece"
-      ],
-      "answer": "Michael",
-      "points": 300
-    },
-    {
-      "id": "q18",
-      "qnIndex": 18,
-      "type": "mcq",
-      "question": "What did King Nebuchadnezzar do when Shadrach, Meshach, and Abednego survived the fire?",
-      "options": [
-        "He executed his guards",
-        "He praised their God and promoted them",
-        "He banished them from Babylon",
-        "He ignored the miracle"
-      ],
-      "answer": "He praised their God and promoted them",
-      "points": 200
-    },
-    {
-      "id": "q19",
-      "qnIndex": 19,
-      "type": "fill",
-      "question": "In what city did Daniel serve under multiple kings?",
-      "options": [],
-      "answer": "Babylon",
-      "points": 100
-    },
-    {
-      "id": "q20",
-      "qnIndex": 20,
-      "type": "mcq",
-      "question": "What did Daniel do three times a day, facing Jerusalem?",
-      "options": [
-        "Ate vegetables",
-        "Sang hymns",
-        "Prayed and gave thanks to God",
-        "Offered a sacrifice"
-      ],
-      "answer": "Prayed and gave thanks to God",
-      "points": 100
-    }
-  ],
-  "teams": [
-    {
-      "name": "Lion",
-      "logo": "lion.png"
-    },
-    {
-      "name": "Lioness",
-      "logo": "lioness.png"
-    }
-  ]
-};
+    "questions": [
+      {
+        "id": "q1",
+        "qnIndex": 1,
+        "type": "mcq",
+        "question": "What new name was given to Daniel in Babylon?",
+        "options": [
+          "Belteshazzar",
+          "Shadrach",
+          "Meshach",
+          "Abednego"
+        ],
+        "answer": "Belteshazzar",
+        "points": 100
+      },
+      {
+        "id": "q2",
+        "qnIndex": 2,
+        "type": "fill",
+        "question": "What did Daniel and his friends refuse to consume?",
+        "options": [],
+        "answer": "The king's food and wine",
+        "points": 100
+      },
+      {
+        "id": "q3",
+        "qnIndex": 3,
+        "type": "mcq",
+        "question": "How many days did Daniel ask to be tested on a diet of vegetables and water?",
+        "options": [
+          "7 days",
+          "10 days",
+          "12 days",
+          "40 days"
+        ],
+        "answer": "10 days",
+        "points": 100
+      },
+      {
+        "id": "q4",
+        "qnIndex": 4,
+        "type": "mcq",
+        "question": "What was the statue's head made of in Nebuchadnezzar's dream?",
+        "options": [
+          "Silver",
+          "Bronze",
+          "Iron",
+          "Gold"
+        ],
+        "answer": "Gold",
+        "points": 200
+      },
+      {
+        "id": "q5",
+        "qnIndex": 5,
+        "type": "fill",
+        "question": "What hit the statue and smashed it to pieces in the dream?",
+        "options": [],
+        "answer": "A stone cut out without hands",
+        "points": 200
+      },
+      {
+        "id": "q6",
+        "qnIndex": 6,
+        "type": "mcq",
+        "question": "Who were thrown into the fiery furnace for refusing to bow to the golden image?",
+        "options": [
+          "Daniel and his friends",
+          "Shadrach, Meshach, Abednego",
+          "The wise men of Babylon",
+          "The king's guards"
+        ],
+        "answer": "Shadrach, Meshach, Abednego",
+        "points": 100
+      },
+      {
+        "id": "q7",
+        "qnIndex": 7,
+        "type": "mcq",
+        "question": "How many men did the king see walking in the fiery furnace?",
+        "options": [
+          "Two",
+          "Three",
+          "Four",
+          "Five"
+        ],
+        "answer": "Four",
+        "points": 100
+      },
+      {
+        "id": "q8",
+        "qnIndex": 8,
+        "type": "fill",
+        "question": "What happened to Nebuchadnezzar when he became too proud?",
+        "options": [],
+        "answer": "He lived like a wild animal",
+        "points": 300
+      },
+      {
+        "id": "q9",
+        "qnIndex": 9,
+        "type": "mcq",
+        "question": "Which king saw the handwriting on the wall during a great feast?",
+        "options": [
+          "Nebuchadnezzar",
+          "Belshazzar",
+          "Darius",
+          "Cyrus"
+        ],
+        "answer": "Belshazzar",
+        "points": 200
+      },
+      {
+        "id": "q10",
+        "qnIndex": 10,
+        "type": "mcq",
+        "question": "What were the words written on the wall?",
+        "options": [
+          "Mene, Mene, Tekel, Upharsin",
+          "Holy, Holy, Holy",
+          "Babylon is Fallen",
+          "Repent and Believe"
+        ],
+        "answer": "Mene, Mene, Tekel, Upharsin",
+        "points": 200
+      },
+      {
+        "id": "q11",
+        "qnIndex": 11,
+        "type": "mcq",
+        "question": "Which king threw Daniel into the lions' den?",
+        "options": [
+          "Nebuchadnezzar",
+          "Belshazzar",
+          "Darius",
+          "Cyrus"
+        ],
+        "answer": "Darius",
+        "points": 100
+      },
+      {
+        "id": "q12",
+        "qnIndex": 12,
+        "type": "fill",
+        "question": "Why was Daniel thrown into the lions' den?",
+        "options": [],
+        "answer": "For praying to God",
+        "points": 100
+      },
+      {
+        "id": "q13",
+        "qnIndex": 13,
+        "type": "mcq",
+        "question": "How did God protect Daniel in the lions' den?",
+        "options": [
+          "He made the lions sleep",
+          "He sent an angel to shut their mouths",
+          "He gave Daniel a sword",
+          "He blinded the lions"
+        ],
+        "answer": "He sent an angel to shut their mouths",
+        "points": 100
+      },
+      {
+        "id": "q14",
+        "qnIndex": 14,
+        "type": "mcq",
+        "question": "What was the first beast Daniel saw in his vision of the four beasts?",
+        "options": [
+          "A bear",
+          "A leopard",
+          "A lion with eagle's wings",
+          "A terrifying beast with iron teeth"
+        ],
+        "answer": "A lion with eagle's wings",
+        "points": 300
+      },
+      {
+        "id": "q15",
+        "qnIndex": 15,
+        "type": "mcq",
+        "question": "Which angel came to explain Daniel's visions to him?",
+        "options": [
+          "Michael",
+          "Gabriel",
+          "Raphael",
+          "Lucifer"
+        ],
+        "answer": "Gabriel",
+        "points": 200
+      },
+      {
+        "id": "q16",
+        "qnIndex": 16,
+        "type": "fill",
+        "question": "How many weeks were decreed in Daniel's vision of the future?",
+        "options": [],
+        "answer": "70 weeks",
+        "points": 400
+      },
+      {
+        "id": "q17",
+        "qnIndex": 17,
+        "type": "mcq",
+        "question": "Who is the 'Prince' that stands watch over Daniel's people?",
+        "options": [
+          "Gabriel",
+          "Michael",
+          "The King of Persia",
+          "The King of Greece"
+        ],
+        "answer": "Michael",
+        "points": 300
+      },
+      {
+        "id": "q18",
+        "qnIndex": 18,
+        "type": "mcq",
+        "question": "What did King Nebuchadnezzar do when Shadrach, Meshach, and Abednego survived the fire?",
+        "options": [
+          "He executed his guards",
+          "He praised their God and promoted them",
+          "He banished them from Babylon",
+          "He ignored the miracle"
+        ],
+        "answer": "He praised their God and promoted them",
+        "points": 200
+      },
+      {
+        "id": "q19",
+        "qnIndex": 19,
+        "type": "fill",
+        "question": "In what city did Daniel serve under multiple kings?",
+        "options": [],
+        "answer": "Babylon",
+        "points": 100
+      },
+      {
+        "id": "q20",
+        "qnIndex": 20,
+        "type": "mcq",
+        "question": "What did Daniel do three times a day, facing Jerusalem?",
+        "options": [
+          "Ate vegetables",
+          "Sang hymns",
+          "Prayed and gave thanks to God",
+          "Offered a sacrifice"
+        ],
+        "answer": "Prayed and gave thanks to God",
+        "points": 100
+      }
+    ],
+    "teams": [
+      {
+        "name": "Lion",
+        "logo": "lion.png"
+      },
+      {
+        "name": "Lioness",
+        "logo": "lioness.png"
+      }
+    ]
+  };
   db = data;
   saveDB();
   loadDB();
@@ -801,7 +1020,10 @@ function loadDefaultQuiz() {
   saveGameState();
   updateGameStatusUI();
   renderAdminGrid();
-  
+
+  // Display animated toast notification
+  triggerAlert('SYSTEM', 'Questions loaded!', 'gain');
+
   // Flash a quick success message on the status board instead of a blocking alert
   const statusDiv = document.getElementById('dashboard-status');
   if (statusDiv) {
@@ -834,6 +1056,66 @@ function toggleTheme() {
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 
+function applySelectedFont() {
+  const font = db.settings.gridFont || 'Fredoka One';
+  const applyAll = !!db.settings.applyFontToAll;
+  const useDefaultColor = db.settings.useDefaultFontColor !== false; // Default to true!
+  const fontColor = db.settings.gridFontColor || '#ffffff';
+  const fontBold = !!db.settings.gridFontBold;
+
+  let styleEl = document.getElementById('dynamic-font-overrides');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'dynamic-font-overrides';
+    document.head.appendChild(styleEl);
+  }
+
+  let css = '';
+
+  // 1. Font Family override
+  if (font !== 'none') {
+    if (applyAll) {
+      css += `
+        body, html, input, button, select, textarea, .logo-text, .cell-qn, .cell-qn-label, .option-btn, .winner-team-name, .hero-title, .turn-team {
+          font-family: "${font}", "Fredoka One", "Nunito", sans-serif !important;
+        }
+      `;
+    } else {
+      css += `
+        .board-cell, .game-cell-btn, .cell-qn, .cell-qn-label, .board-cell *, .game-cell-btn * {
+          font-family: "${font}", "Fredoka One", "Nunito", sans-serif !important;
+        }
+      `;
+    }
+  }
+
+  // 2. Font Color override (applies STRICTLY to grid cell text elements when not default)
+  if (!useDefaultColor) {
+    css += `
+      #game-board-grid .game-cell-btn,
+      #game-board-grid .game-cell-btn *,
+      #admin-interactive-grid .board-cell,
+      #admin-interactive-grid .board-cell * {
+        color: ${fontColor} !important;
+      }
+    `;
+  }
+
+  // 3. Font Weight override (bold or normal) - STRICTLY confined to grid cells
+  if (fontBold) {
+    css += `
+      #game-board-grid .game-cell-btn,
+      #game-board-grid .game-cell-btn *,
+      #admin-interactive-grid .board-cell,
+      #admin-interactive-grid .board-cell * {
+        font-weight: 900 !important;
+      }
+    `;
+  }
+
+  styleEl.innerHTML = css;
+}
+
 // ============================================================
 // ADMIN — GRID
 // ============================================================
@@ -854,7 +1136,7 @@ function renderAdminGrid() {
     const cId = cellId(qn);
     const q = db.questions.find(x => x.qnIndex === qn);
     const cell = document.createElement('div');
-    
+
     if (qn > total) {
       cell.className = 'board-cell cell-disabled';
       cell.style.opacity = '0.2';
@@ -871,14 +1153,38 @@ function renderAdminGrid() {
     cell.setAttribute('role', 'button');
     cell.setAttribute('aria-label', `${qnLabel(qn)}: ${q ? 'Edit question' : 'Add question'}`);
 
+    cell.style.fontFamily = db.settings.gridFont || 'var(--font-display)';
+    cell.style.color = db.settings.gridFontColor || 'var(--color-text-light)';
+    cell.style.fontWeight = db.settings.gridFontBold ? '900' : 'normal';
+
     const labelEl = document.createElement('span');
     labelEl.className = 'cell-qn-label';
-    if (db.settings.displayMode === 'POINTS_ONLY') {
-      labelEl.textContent = q ? `(${q.points})` : qnLabel(qn);
-    } else if (db.settings.displayMode === 'QUESTION_ONLY') {
-      labelEl.textContent = qnLabel(qn);
+    let displayHtml = qnLabel(qn);
+    if (q) {
+      if (db.settings.displayMode === 'POINTS_ONLY') {
+        displayHtml = `(${q.points})`;
+      } else if (db.settings.displayMode === 'QUESTION_ONLY') {
+        displayHtml = qnLabel(qn);
+      } else {
+        displayHtml = `${qnLabel(qn)}<br><span style="font-size:0.8em">(${q.points})</span>`;
+      }
+    }
+
+    if (isPlayed) {
+      if (answered.cancelled) {
+        labelEl.innerHTML = `❌<br><span style="color:var(--color-cancel); font-size: 0.8em;">${displayHtml}</span>`;
+      } else if (answered.teamIndex === -1) {
+        cell.style.background = '#cbd5e1';
+        cell.style.borderColor = '#475569';
+        labelEl.innerHTML = `<span style="font-size:1.4rem; font-weight:900;">❌</span><br><span style="color:#334155; font-size: 0.8em;">${displayHtml}</span>`;
+      } else {
+        const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
+        cell.style.background = tColor.bg;
+        cell.style.borderColor = tColor.border;
+        labelEl.innerHTML = `<span style="color:var(--color-success); font-size:1.4rem; font-weight:900;">✔</span><br><span style="color:${tColor.text}; font-size: 0.8em;">${displayHtml}</span>`;
+      }
     } else {
-      labelEl.innerHTML = q ? `${qnLabel(qn)}<br><span style="font-size:0.8em">(${q.points})</span>` : qnLabel(qn);
+      labelEl.innerHTML = displayHtml;
     }
     cell.appendChild(labelEl);
 
@@ -894,7 +1200,7 @@ function renderAdminGrid() {
     cell.appendChild(tagEl);
 
     cell.addEventListener('click', () => {
-      if(!canInteract()) return;
+      if (!canInteract()) return;
       if (isPlayed) {
         playSound('wrong');
         triggerAlert("ADMIN", `Qn ${qn} has already been played and cannot be changed!`, "lose");
@@ -907,9 +1213,46 @@ function renderAdminGrid() {
     });
     container.appendChild(cell);
   }
+  
+  if (db.settings.enableTieBreaker) {
+    const hasQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
+    const btn = document.createElement('div');
+    const isSelected = selectedAdminCellId === 'qntiebreaker';
+    btn.className = `board-cell tiebreaker-admin-cell ${hasQ ? 'has-q' : ''} ${isSelected ? 'selected-edit' : ''}`;
+    btn.style.gridColumn = '1 / -1';
+    btn.style.marginTop = '10px';
+    btn.style.borderColor = 'var(--color-gold)';
+    btn.style.background = 'rgba(244, 196, 48, 0.1)';
+    
+    const labelEl = document.createElement('div');
+    labelEl.className = 'cell-qn-label';
+    labelEl.innerHTML = `<span style="color:var(--color-gold); font-size: 1.2rem; font-weight:900;">🏆 TIE BREAKER</span>`;
+    btn.appendChild(labelEl);
+    
+    const tagEl = document.createElement('span');
+    tagEl.className = 'cell-info-tag';
+    if (hasQ) {
+      tagEl.textContent = `✅ Configured (${hasQ.points}pts)`;
+      tagEl.style.color = 'var(--color-success)';
+      tagEl.style.fontWeight = 'bold';
+    } else {
+      tagEl.textContent = '⚠️ Empty (+ Add)';
+      tagEl.style.color = 'var(--color-error)';
+      tagEl.style.fontWeight = 'bold';
+    }
+    btn.appendChild(tagEl);
+
+    btn.addEventListener('click', () => {
+      playSound('open');
+      selectedAdminCellId = 'qntiebreaker';
+      openQuestionEditor('tiebreaker');
+      renderAdminGrid();
+    });
+    container.appendChild(btn);
+  }
 }
 
-function openQuestionEditor(qnIndex) {
+async function openQuestionEditor(qnIndex) {
   const cId = cellId(qnIndex);
   const q = db.questions.find(x => x.qnIndex === qnIndex);
   document.getElementById('editor-cell-title').textContent = `📝 Editing ${qnLabel(qnIndex)}`;
@@ -917,6 +1260,32 @@ function openQuestionEditor(qnIndex) {
 
   const form = document.getElementById('question-form');
   form.reset();
+
+  currentUploadedVideoBase64 = null;
+  currentUploadedCorrectVideo = null;
+  currentUploadedWrongVideo = null;
+
+  const statusEl = document.getElementById('q-video-status');
+  const clearBtn = document.getElementById('btn-clear-q-video');
+  const fileInput = document.getElementById('q-video-file');
+  if (fileInput) fileInput.value = '';
+
+  const correctStatusEl = document.getElementById('q-video-correct-status');
+  const correctClearBtn = document.getElementById('btn-clear-q-video-correct');
+  const correctFileInput = document.getElementById('q-video-correct-file');
+  if (correctFileInput) correctFileInput.value = '';
+
+  const wrongStatusEl = document.getElementById('q-video-wrong-status');
+  const wrongClearBtn = document.getElementById('btn-clear-q-video-wrong');
+  const wrongFileInput = document.getElementById('q-video-wrong-file');
+  if (wrongFileInput) wrongFileInput.value = '';
+
+  if (statusEl) statusEl.textContent = 'No video selected';
+  if (clearBtn) clearBtn.style.display = 'none';
+  if (correctStatusEl) correctStatusEl.textContent = 'No video selected';
+  if (correctClearBtn) correctClearBtn.style.display = 'none';
+  if (wrongStatusEl) wrongStatusEl.textContent = 'No video selected';
+  if (wrongClearBtn) wrongClearBtn.style.display = 'none';
 
   if (q) {
     document.getElementById('q-type').value = q.type;
@@ -941,6 +1310,53 @@ function openQuestionEditor(qnIndex) {
     } else {
       document.getElementById('q-fill-answer').value = q.answer || '';
     }
+
+    // Load Main Question Video
+    if (q.video) {
+      if (statusEl) statusEl.textContent = "⌛ Loading custom video...";
+      try {
+        const storedVideo = await getVideoFromIndexedDB(qnIndex);
+        if (storedVideo) {
+          currentUploadedVideoBase64 = storedVideo;
+          if (statusEl) statusEl.textContent = "✅ Custom video attached";
+          if (clearBtn) clearBtn.style.display = 'inline-flex';
+        }
+      } catch (err) {
+        console.error("Error reading video from IndexedDB:", err);
+      }
+    }
+
+    // Load Correct Answer Video
+    if (q.hasCustomCorrectVideo) {
+      if (correctStatusEl) correctStatusEl.textContent = "⌛ Loading...";
+      try {
+        const storedVid = await getVideoFromIndexedDB('q-' + qnIndex + '-correct');
+        if (storedVid) {
+          currentUploadedCorrectVideo = storedVid;
+          if (correctStatusEl) correctStatusEl.textContent = "✅ Custom video attached";
+          if (correctClearBtn) correctClearBtn.style.display = 'inline-flex';
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Load Wrong Answer Video
+    if (q.hasCustomWrongVideo) {
+      if (wrongStatusEl) wrongStatusEl.textContent = "⌛ Loading...";
+      try {
+        const storedVid = await getVideoFromIndexedDB('q-' + qnIndex + '-wrong');
+        if (storedVid) {
+          currentUploadedWrongVideo = storedVid;
+          if (wrongStatusEl) wrongStatusEl.textContent = "✅ Custom video attached";
+          if (wrongClearBtn) wrongClearBtn.style.display = 'inline-flex';
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+
     document.getElementById('btn-delete-question').style.display = 'inline-flex';
   } else {
     document.getElementById('q-type').value = 'fill';
@@ -949,6 +1365,10 @@ function openQuestionEditor(qnIndex) {
     document.getElementById('mcq-options-container').classList.add('hidden');
     document.getElementById('fill-answer-container').classList.remove('hidden');
     setMCQRequired(false);
+
+    if (statusEl) statusEl.textContent = "No video selected";
+    if (clearBtn) clearBtn.style.display = 'none';
+
     document.getElementById('btn-delete-question').style.display = 'none';
   }
 
@@ -981,7 +1401,7 @@ function renderGameBoard() {
     const q = db.questions.find(x => x.qnIndex === qn);
     const btn = document.createElement('button');
     btn.dataset.cellId = cId;
-    
+
     if (qn > total) {
       btn.className = 'game-cell-btn cell-disabled';
       btn.disabled = true;
@@ -993,7 +1413,7 @@ function renderGameBoard() {
 
     btn.setAttribute('aria-label', qnLabel(qn));
     const answered = playState.answeredCells[cId];
-    
+
     let displayHtml = qnLabel(qn);
     if (q) {
       if (db.settings.displayMode === 'POINTS_ONLY') {
@@ -1018,10 +1438,8 @@ function renderGameBoard() {
       btn.disabled = true;
       const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
       if (answered.teamIndex === -1) {
-        btn.style.background = 'rgba(255,255,255,0.04)';
-        btn.style.borderColor = 'rgba(255,255,255,0.1)';
-        btn.style.opacity = '0.5';
-        btn.innerHTML = `<span class="cell-qn" style="font-size:1.8rem; opacity:0.5;">✗</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.className = 'game-cell-btn cell-wrong';
+        btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
@@ -1040,6 +1458,68 @@ function renderGameBoard() {
     }
     container.appendChild(btn);
   }
+
+  if (db.settings.enableTieBreaker) {
+    const validQuestions = db.questions.filter(x => typeof x.qnIndex === 'number' && x.qnIndex <= total);
+    let allAnswered = true;
+    for (const q of validQuestions) {
+      if (!playState.answeredCells[cellId(q.qnIndex)]) {
+        allAnswered = false;
+        break;
+      }
+    }
+    const isTied = (playState.teams.length > 1 && playState.teams[0].score === playState.teams[1].score);
+    
+    if (validQuestions.length > 0 && (allAnswered || playState.forceTieBreaker) && isTied) {
+      const tieQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
+      const cId = 'c-tiebreaker';
+      const btn = document.createElement('button');
+      btn.dataset.cellId = cId;
+      btn.className = 'game-cell-btn';
+      btn.style.borderColor = 'var(--color-gold)';
+      btn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.4)';
+      
+      let displayHtml = 'TIE BREAKER';
+      if (db.settings.displayMode === 'POINTS_ONLY' && tieQ) {
+        displayHtml = `(${tieQ.points})`;
+      } else if (db.settings.displayMode !== 'QUESTION_ONLY' && tieQ) {
+        displayHtml = `TIE BREAKER<br><span style="font-size:0.8em">(${tieQ.points})</span>`;
+      }
+
+      const answered = playState.answeredCells[cId];
+      if (!tieQ) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="cell-qn" style="opacity:0.2; font-size:1rem;">—</span>`;
+      } else if (answered && answered.cancelled) {
+        btn.className = 'game-cell-btn cell-cancelled';
+        btn.disabled = true;
+        btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+      } else if (answered) {
+        btn.className = 'game-cell-btn cell-answered';
+        btn.disabled = true;
+        const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
+        if (answered.teamIndex === -1) {
+          btn.className = 'game-cell-btn cell-wrong';
+          btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        } else {
+          const team = playState.teams[answered.teamIndex];
+          const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
+          btn.style.background = tColor.bg;
+          btn.style.borderColor = tColor.border;
+          btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size:1.8rem; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+        }
+      } else {
+        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-gold); font-size:1.1rem; text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.addEventListener('click', () => {
+          if (!canInteract() || !canOpenCell()) return;
+          playSound('open');
+          openQuestionModal(cId, tieQ);
+        });
+      }
+      container.appendChild(btn);
+    }
+  }
+  applySelectedFont();
 }
 
 // ============================================================
@@ -1110,7 +1590,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
         liveItem.style.setProperty('--team-bg', color.bg);
         liveItem.style.setProperty('--team-border', color.border);
         liveItem.style.setProperty('--team-color', color.text);
-        
+
         liveItem.innerHTML = `
           <span class="live-score-team-name">${team.name}</span>
           <span id="live-score-val-${i}" class="live-score-value">${team.score}</span>
@@ -1125,7 +1605,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
         if (valSpan) {
           const oldScore = parseInt(valSpan.textContent, 10);
           valSpan.textContent = team.score;
-          
+
           if (i === updatedTeamIndex || oldScore !== team.score) {
             const liveItem = document.getElementById(`live-score-item-${i}`);
             if (liveItem) {
@@ -1178,7 +1658,7 @@ function disableModalActionButtons() {
   const btnSubmit = document.getElementById('btn-modal-submit');
   const btnPass = document.getElementById('btn-modal-pass');
   const btnCancel = document.getElementById('btn-modal-cancel');
-  
+
   if (btnSubmit) btnSubmit.disabled = true;
   if (btnPass) btnPass.disabled = true;
   if (btnCancel) btnCancel.disabled = true;
@@ -1188,16 +1668,16 @@ function enableModalActionButtons() {
   const btnSubmit = document.getElementById('btn-modal-submit');
   const btnPass = document.getElementById('btn-modal-pass');
   const btnCancel = document.getElementById('btn-modal-cancel');
-  
+
   if (btnSubmit) btnSubmit.disabled = false;
-  
+
   const q = playState.currentQuestion;
   const canPass = q && !playState.hasPassed && !playState.stealAttempted;
   if (btnPass) {
     btnPass.style.display = canPass ? 'inline-flex' : 'none';
     btnPass.disabled = !canPass;
   }
-  
+
   if (btnCancel) {
     btnCancel.disabled = !!playState.cancelLocked;
   }
@@ -1221,7 +1701,7 @@ function openQuestionModal(cId, q) {
   const qnIndex = q.qnIndex || parseInt(cId.replace('qn', ''), 10);
   document.getElementById('modal-cell-id').textContent = qnLabel(qnIndex);
   document.getElementById('modal-points-display').textContent = `${q.points} POINTS`;
-  
+
   const turnStatus = document.getElementById('modal-turn-status');
   turnStatus.style.color = 'var(--color-gold)';
   turnStatus.style.borderColor = 'rgba(244,196,48,0.3)';
@@ -1230,9 +1710,9 @@ function openQuestionModal(cId, q) {
 
   document.getElementById('modal-question-text').textContent = q.question;
 
-  const mcqContainer  = document.getElementById('modal-mcq-container');
+  const mcqContainer = document.getElementById('modal-mcq-container');
   const fillContainer = document.getElementById('modal-fill-container');
-  const revealPanel   = document.getElementById('modal-reveal-panel');
+  const revealPanel = document.getElementById('modal-reveal-panel');
   revealPanel.classList.add('hidden');
 
   // Reset correct answer reveal button inside fill container
@@ -1275,15 +1755,15 @@ function openQuestionModal(cId, q) {
   const contentNode = document.querySelector('.modal-content');
   contentNode.classList.remove('feedback-correct', 'feedback-wrong');
   const btnNext = document.getElementById('btn-modal-next');
-  if(btnNext) {
+  if (btnNext) {
     btnNext.style.display = 'none';
     btnNext.disabled = true;
   }
   const btnSubmit = document.getElementById('btn-modal-submit');
-  if(btnSubmit) btnSubmit.style.display = 'inline-flex';
-  
+  if (btnSubmit) btnSubmit.style.display = 'inline-flex';
+
   overlay.classList.add('open');
-  
+
   transitionState('AWAITING_FIRST_ANSWER');
 }
 
@@ -1336,7 +1816,21 @@ function disableQuestionInputs() {
   }
 }
 
-function playWrongAnswerVideo(onClosed) {
+async function playWrongAnswerVideo(videoSrc, onClosed) {
+  if (typeof videoSrc === 'function') {
+    onClosed = videoSrc;
+    videoSrc = null;
+  }
+
+  let finalSrc = videoSrc;
+  if (!finalSrc || finalSrc === 'wrong_answer_video.mp4') {
+    if (db.settings.useCustomFeedbackVideos) {
+      const customData = await getVideoFromIndexedDB('feedback-wrong');
+      if (customData) finalSrc = customData;
+    }
+  }
+  finalSrc = finalSrc || 'wrong_answer_video.mp4';
+
   const overlay = document.createElement('div');
   overlay.className = 'wrong-answer-video-overlay';
   overlay.style.position = 'fixed';
@@ -1360,7 +1854,7 @@ function playWrongAnswerVideo(onClosed) {
   videoContainer.style.background = '#000';
 
   const video = document.createElement('video');
-  video.src = 'wrong_answer_video.mp4';
+  video.src = finalSrc;
   video.style.width = '100%';
   video.style.height = '100%';
   video.style.display = 'block';
@@ -1435,7 +1929,21 @@ function playWrongAnswerVideo(onClosed) {
   });
 }
 
-function playCorrectAnswerVideo(onClosed) {
+async function playCorrectAnswerVideo(videoSrc, onClosed) {
+  if (typeof videoSrc === 'function') {
+    onClosed = videoSrc;
+    videoSrc = null;
+  }
+
+  let finalSrc = videoSrc;
+  if (!finalSrc || finalSrc === 'correct_answer_video.mp4') {
+    if (db.settings.useCustomFeedbackVideos) {
+      const customData = await getVideoFromIndexedDB('feedback-correct');
+      if (customData) finalSrc = customData;
+    }
+  }
+  finalSrc = finalSrc || 'correct_answer_video.mp4';
+
   const overlay = document.createElement('div');
   overlay.className = 'correct-answer-video-overlay';
   overlay.style.position = 'fixed';
@@ -1459,7 +1967,7 @@ function playCorrectAnswerVideo(onClosed) {
   videoContainer.style.background = '#000';
 
   const video = document.createElement('video');
-  video.src = 'correct_answer_video.mp4';
+  video.src = finalSrc;
   video.style.width = '100%';
   video.style.height = '100%';
   video.style.display = 'block';
@@ -1505,6 +2013,111 @@ function playCorrectAnswerVideo(onClosed) {
       closeOverlay();
     }
   }, 12000); // 12 seconds fallback
+
+  videoContainer.appendChild(video);
+  overlay.appendChild(videoContainer);
+  overlay.appendChild(skipBtn);
+  document.body.appendChild(overlay);
+
+  video.play().catch(err => {
+    console.warn('Autoplay failed, showing play button', err);
+    video.controls = true;
+    const playPrompt = document.createElement('div');
+    playPrompt.textContent = '▶️ Play Video';
+    playPrompt.style.position = 'absolute';
+    playPrompt.style.inset = '0';
+    playPrompt.style.background = 'rgba(0,0,0,0.5)';
+    playPrompt.style.color = '#fff';
+    playPrompt.style.fontSize = '2rem';
+    playPrompt.style.fontWeight = 'bold';
+    playPrompt.style.display = 'flex';
+    playPrompt.style.alignItems = 'center';
+    playPrompt.style.justifyContent = 'center';
+    playPrompt.style.cursor = 'pointer';
+    playPrompt.onclick = () => {
+      video.play();
+      playPrompt.remove();
+    };
+    videoContainer.appendChild(playPrompt);
+  });
+}
+
+async function playWinnerScreenVideo(onClosed) {
+  let finalSrc = 'winner_screen_video.mp4';
+  if (db.settings.useCustomFeedbackVideos) {
+    const customData = await getVideoFromIndexedDB('feedback-winner');
+    if (customData) finalSrc = customData;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'winner-video-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0, 0, 0, 0.95)';
+  overlay.style.zIndex = '9999';
+  overlay.style.display = 'flex';
+  overlay.style.flexDirection = 'column';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.backdropFilter = 'blur(12px)';
+
+  const videoContainer = document.createElement('div');
+  videoContainer.style.position = 'relative';
+  videoContainer.style.maxWidth = '85%';
+  videoContainer.style.maxHeight = '75%';
+  videoContainer.style.borderRadius = '24px';
+  videoContainer.style.overflow = 'hidden';
+  videoContainer.style.border = '6px solid var(--color-gold)';
+  videoContainer.style.boxShadow = '0 0 50px rgba(244, 196, 48, 0.6)';
+  videoContainer.style.background = '#000';
+
+  const video = document.createElement('video');
+  video.src = finalSrc;
+  video.style.width = '100%';
+  video.style.height = '100%';
+  video.style.display = 'block';
+  video.autoplay = true;
+  video.controls = false;
+
+  const skipBtn = document.createElement('button');
+  skipBtn.textContent = '⏭️ Skip Video';
+  skipBtn.style.marginTop = '24px';
+  skipBtn.style.padding = '14px 36px';
+  skipBtn.style.fontSize = '1.3rem';
+  skipBtn.style.fontWeight = '800';
+  skipBtn.style.color = '#000';
+  skipBtn.style.background = 'var(--color-gold)';
+  skipBtn.style.border = '3px solid var(--color-gold-dark)';
+  skipBtn.style.borderRadius = 'var(--radius-pill)';
+  skipBtn.style.cursor = 'pointer';
+  skipBtn.style.transition = 'all 0.2s';
+  skipBtn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.3)';
+
+  skipBtn.onmouseover = () => {
+    skipBtn.style.background = 'var(--color-gold-light)';
+    skipBtn.style.boxShadow = '0 0 25px rgba(244, 196, 48, 0.8)';
+    skipBtn.style.transform = 'scale(1.05)';
+  };
+  skipBtn.onmouseout = () => {
+    skipBtn.style.background = 'var(--color-gold)';
+    skipBtn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.3)';
+    skipBtn.style.transform = 'scale(1)';
+  };
+
+  const closeOverlay = () => {
+    video.pause();
+    overlay.remove();
+    if (onClosed) onClosed();
+  };
+
+  video.onended = closeOverlay;
+  skipBtn.onclick = closeOverlay;
+
+  setTimeout(() => {
+    if (overlay.parentNode) {
+      closeOverlay();
+    }
+  }, 90000); // 90 seconds fallback for a longer winner video
 
   videoContainer.appendChild(video);
   overlay.appendChild(videoContainer);
@@ -1595,19 +2208,19 @@ document.addEventListener('DOMContentLoaded', () => {
 function triggerAlert(teamName, text, type) {
   const alertEl = document.createElement('div');
   alertEl.className = `score-alert ${type === 'gain' ? 'alert-gain' : 'alert-lose'}`;
-  
+
   const teamSpan = document.createElement('span');
   teamSpan.className = 'alert-team';
   teamSpan.textContent = teamName;
-  
+
   const textSpan = document.createElement('span');
   textSpan.textContent = text;
-  
+
   alertEl.appendChild(teamSpan);
   alertEl.appendChild(textSpan);
-  
+
   document.body.appendChild(alertEl);
-  
+
   // Auto-dismiss
   setTimeout(() => alertEl.remove(), 2600);
 }
@@ -1616,15 +2229,15 @@ function queueScoreAlert(teamName, text, type) {
   setTimeout(() => triggerAlert(teamName, text, type), 2300);
 }
 
-function showCustomConfirm(message, onConfirm) {
+function showCustomConfirm(message, onConfirm, opts = {}) {
   const overlay = document.createElement('div');
   overlay.className = 'confirm-overlay';
   overlay.style.position = 'fixed';
   overlay.style.inset = '0';
-  
+
   const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
   overlay.style.background = currentTheme === 'light' ? 'rgba(238, 243, 255, 0.7)' : 'rgba(0, 0, 0, 0.75)';
-  
+
   overlay.style.backdropFilter = 'blur(12px)';
   overlay.style.zIndex = '10000';
   overlay.style.display = 'flex';
@@ -1648,7 +2261,7 @@ function showCustomConfirm(message, onConfirm) {
   card.style.transition = 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
 
   const icon = document.createElement('div');
-  icon.textContent = '⚠️';
+  icon.textContent = opts.icon || '⚠️';
   icon.style.fontSize = '3.5rem';
   icon.style.marginBottom = '16px';
 
@@ -1661,7 +2274,7 @@ function showCustomConfirm(message, onConfirm) {
   text.style.fontFamily = 'var(--font-display)';
 
   const subtext = document.createElement('p');
-  subtext.textContent = 'This action cannot be undone.';
+  subtext.textContent = opts.subtext || 'This action cannot be undone.';
   subtext.style.fontSize = '0.95rem';
   subtext.style.color = 'var(--color-text-muted)';
   subtext.style.marginBottom = '28px';
@@ -1672,15 +2285,15 @@ function showCustomConfirm(message, onConfirm) {
   actions.style.justifyContent = 'center';
 
   const cancelBtn = document.createElement('button');
-  cancelBtn.className = 'btn btn-secondary';
-  cancelBtn.textContent = 'No';
+  cancelBtn.className = opts.cancelClass || 'btn btn-secondary';
+  cancelBtn.textContent = opts.cancelText || 'No';
   cancelBtn.style.padding = '12px 28px';
   cancelBtn.style.fontSize = '1.05rem';
   cancelBtn.style.borderRadius = 'var(--radius-pill)';
 
   const confirmBtn = document.createElement('button');
-  confirmBtn.className = 'btn btn-danger';
-  confirmBtn.textContent = 'Yes';
+  confirmBtn.className = opts.confirmClass || 'btn btn-danger';
+  confirmBtn.textContent = opts.confirmText || 'Yes';
   confirmBtn.style.padding = '12px 32px';
   confirmBtn.style.fontSize = '1.05rem';
   confirmBtn.style.borderRadius = 'var(--radius-pill)';
@@ -1690,7 +2303,11 @@ function showCustomConfirm(message, onConfirm) {
     card.style.transform = 'scale(0.8)';
     setTimeout(() => {
       overlay.remove();
-      if (confirmed) onConfirm();
+      if (confirmed) {
+        onConfirm();
+      } else if (opts.onCancel) {
+        opts.onCancel();
+      }
     }, 250);
   };
 
@@ -1723,7 +2340,7 @@ function showCustomConfirm(message, onConfirm) {
 
 
 
-function resolveAnswer(isCorrect) {
+async function resolveAnswer(isCorrect) {
   const q = playState.currentQuestion;
   if (!q || !canAnswer()) return;
 
@@ -1731,17 +2348,50 @@ function resolveAnswer(isCorrect) {
   const teamIndex = playState.currentTeamIndex;
   const pts = playState.hasPassed ? Math.floor(q.points / 2) : q.points;
 
+  // Asynchronously fetch the custom video from IndexedDB if metadata flag is true
+  let customCorrectVideoSrc = null;
+  if (q.hasCustomCorrectVideo) {
+    try {
+      customCorrectVideoSrc = await getVideoFromIndexedDB('q-' + q.qnIndex + '-correct');
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  let customWrongVideoSrc = null;
+  if (q.hasCustomWrongVideo) {
+    try {
+      customWrongVideoSrc = await getVideoFromIndexedDB('q-' + q.qnIndex + '-wrong');
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   if (isCorrect) {
     transitionState('RESOLVED');
-    playSound('correct');
     disableQuestionInputs();
 
-    playCorrectAnswerVideo(() => {
+    if (customCorrectVideoSrc) {
+      playCorrectAnswerVideo(customCorrectVideoSrc, () => {
+        applyScore(teamIndex, pts, false, true); // Safe scoring via controlled engine
+        triggerBurst();
+        updateScoreUI(teamIndex);
+        saveGameState();
+      });
+    } else if (db.settings.playVideoFeedback) {
+      playCorrectAnswerVideo('correct_answer_video.mp4', () => {
+        applyScore(teamIndex, pts, false, true); // Safe scoring via controlled engine
+        triggerBurst();
+        updateScoreUI(teamIndex);
+        saveGameState();
+      });
+    } else {
+      playSound('correct');
       applyScore(teamIndex, pts, false, true); // Safe scoring via controlled engine
       triggerBurst();
       updateScoreUI(teamIndex);
       saveGameState();
-    });
+    }
 
     playState.answeredCells[cId] = { teamIndex, pointsWon: pts, cancelled: false };
     if (playState.stats[teamIndex]) {
@@ -1755,7 +2405,7 @@ function resolveAnswer(isCorrect) {
 
     document.getElementById('modal-correct-answer-text').textContent = q.answer;
     document.getElementById('modal-reveal-panel').classList.remove('hidden');
-    
+
     const turnStatus = document.getElementById('modal-turn-status');
     turnStatus.textContent = "Correct Answer!";
     turnStatus.style.color = "var(--color-success)";
@@ -1770,18 +2420,30 @@ function resolveAnswer(isCorrect) {
     enableNextButton();
 
   } else {
-    playSound('wrong');
     if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
 
     if (!playState.hasPassed && !playState.stealAttempted) {
       // First wrong -> Penalize and Steal
       const penalty = Math.floor(q.points / 2);
-      
-      playWrongAnswerVideo(() => {
+
+      if (customWrongVideoSrc) {
+        playWrongAnswerVideo(customWrongVideoSrc, () => {
+          applyScore(teamIndex, penalty, true, true); // Safe scoring via controlled engine
+          updateScoreUI(teamIndex);
+          saveGameState();
+        });
+      } else if (db.settings.playVideoFeedback) {
+        playWrongAnswerVideo('wrong_answer_video.mp4', () => {
+          applyScore(teamIndex, penalty, true, true); // Safe scoring via controlled engine
+          updateScoreUI(teamIndex);
+          saveGameState();
+        });
+      } else {
+        playSound('wrong');
         applyScore(teamIndex, penalty, true, true); // Safe scoring via controlled engine
         updateScoreUI(teamIndex);
         saveGameState();
-      });
+      }
 
       transitionState('AWAITING_STEAL');
 
@@ -1790,12 +2452,25 @@ function resolveAnswer(isCorrect) {
       startStealPhase();
     } else {
       // Second wrong -> Penalize and Resolve
-      
-      playWrongAnswerVideo(() => {
+
+      if (customWrongVideoSrc) {
+        playWrongAnswerVideo(customWrongVideoSrc, () => {
+          applyScore(teamIndex, pts, true, true); // Safe scoring via controlled engine
+          updateScoreUI(teamIndex);
+          saveGameState();
+        });
+      } else if (db.settings.playVideoFeedback) {
+        playWrongAnswerVideo('wrong_answer_video.mp4', () => {
+          applyScore(teamIndex, pts, true, true); // Safe scoring via controlled engine
+          updateScoreUI(teamIndex);
+          saveGameState();
+        });
+      } else {
+        playSound('wrong');
         applyScore(teamIndex, pts, true, true); // Safe scoring via controlled engine
         updateScoreUI(teamIndex);
         saveGameState();
-      });
+      }
 
       transitionState('RESOLVED');
       disableQuestionInputs();
@@ -1833,7 +2508,7 @@ function startStealPhase() {
   const q = playState.currentQuestion;
   const stealPts = Math.floor(q.points / 2);
   document.getElementById('modal-points-display').textContent = `${stealPts} POINTS - STEAL`;
-  
+
   // Disable previously selected option if any
   document.querySelectorAll('.option-btn.selected').forEach(btn => btn.disabled = true);
 
@@ -1873,7 +2548,7 @@ function handlePass() {
   transitionState('AWAITING_STEAL');
   saveGameState();
   startStealPhase();
-  
+
   const turnStatus = document.getElementById('modal-turn-status');
   turnStatus.style.color = "var(--color-gold)";
   turnStatus.style.borderColor = "var(--color-gold)";
@@ -1885,13 +2560,28 @@ function handlePass() {
 // GAME OVER CHECK
 // ============================================================
 function checkGameOver() {
-  const allAnsweredOrCancelled = db.questions.every(q => {
-    const cId = cellId(q.qnIndex);
-    return !!playState.answeredCells[cId];
+  const total = db.settings.totalQuestions;
+  const validQuestions = db.questions.filter(x => typeof x.qnIndex === 'number' && x.qnIndex <= total);
+  
+  const allMainAnswered = validQuestions.length > 0 && validQuestions.every(q => {
+    return !!playState.answeredCells[cellId(q.qnIndex)];
   });
-  if (allAnsweredOrCancelled && db.questions.length > 0) {
-    endGame();
+
+  if (!allMainAnswered && !playState.forceTieBreaker) return;
+
+  const isTied = (playState.teams.length > 1 && playState.teams[0].score === playState.teams[1].score);
+  
+  if (db.settings.enableTieBreaker && isTied) {
+    const tieQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
+    if (tieQ) {
+      if (playState.answeredCells['c-tiebreaker']) {
+        endGame();
+      }
+      return;
+    }
   }
+
+  endGame();
 }
 
 function endGame() {
@@ -1940,14 +2630,37 @@ function endGame() {
     statsDiv.innerHTML = html;
   }
 
-  showScreen('winner');
+  // Play winner screen video, then show winner screen
+  if (db.settings.playVideoFeedback) {
+    playWinnerScreenVideo(() => {
+      playState.phase = 'ended';
+      saveGameState();
+      updateDashboardStatus();
+      showScreen('winner');
+    });
+  } else {
+    playSound('correct');
+    playState.phase = 'ended';
+    saveGameState();
+    updateDashboardStatus();
+    showScreen('winner');
+  }
 }
 
 // ============================================================
 // TEAMS SETUP
 // ============================================================
 function setupTeamsFromInputs() {
-  playState.teams = db.teams.map(t => ({ name: t.name, logo: t.logo, score: 0 }));
+  playState.teams = db.teams.map((t, idx) => {
+    const isDef = !!t.useDefault;
+    const defaultName = idx === 0 ? 'Lion' : 'Lioness';
+    const defaultLogo = idx === 0 ? 'lion.png' : 'lioness.png';
+    return {
+      name: isDef ? defaultName : (t.name || defaultName),
+      logo: isDef ? defaultLogo : (t.logo || defaultLogo),
+      score: 0
+    };
+  });
   playState.stats = {};
   playState.teams.forEach((t, i) => {
     playState.stats[i] = { correct: 0, attempts: 0 };
@@ -1981,31 +2694,105 @@ document.getElementById('btn-sound-toggle').addEventListener('click', () => {
   if (soundEnabled) playSound('click');
 });
 
+let isElectronFS = true; // Electron starts in fullscreen by default!
+if (window.electronAPI) {
+  window.electronAPI.isFullscreen().then(state => {
+    isElectronFS = state;
+    updateFullscreenIcon();
+  });
+  window.electronAPI.onFullscreenChange(state => {
+    isElectronFS = state;
+    updateFullscreenIcon();
+  });
+}
+
+function getFullscreenState() {
+  if (window.electronAPI) {
+    return isElectronFS;
+  }
+  return !!(document.fullscreenElement ||
+    document.webkitFullscreenElement ||
+    document.mozFullScreenElement ||
+    document.msFullscreenElement);
+}
+
+function toggleFullscreen() {
+  if (window.electronAPI) {
+    window.electronAPI.toggleFullscreen();
+    return;
+  }
+
+  const docEl = document.documentElement;
+  const isFS = getFullscreenState();
+
+  if (!isFS) {
+    if (docEl.requestFullscreen) {
+      docEl.requestFullscreen().catch(err => console.warn(err));
+    } else if (docEl.webkitRequestFullscreen) {
+      docEl.webkitRequestFullscreen();
+    } else if (docEl.mozRequestFullScreen) {
+      docEl.mozRequestFullScreen();
+    } else if (docEl.msRequestFullscreen) {
+      docEl.msRequestFullscreen();
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(err => console.warn(err));
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  }
+}
+
 document.getElementById('btn-fullscreen-toggle')?.addEventListener('click', () => {
   playSound('click');
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(err => {
-      console.warn(`Fullscreen error: ${err.message}`);
-    });
-  } else {
-    document.exitFullscreen().catch(err => {
-      console.warn(`Exit fullscreen error: ${err.message}`);
-    });
-  }
+  toggleFullscreen();
 });
 
-document.addEventListener('fullscreenchange', () => {
+const updateFullscreenIcon = () => {
   const icon = document.getElementById('fullscreen-icon');
   if (icon) {
-    icon.src = document.fullscreenElement ? 'exit_fullscreen.png' : 'fullscreen.png';
+    const isFS = getFullscreenState();
+    icon.src = isFS ? 'exit_fullscreen.png' : 'fullscreen.png';
   }
-});
+};
 
-// Floating admin button (in header)
-document.getElementById('btn-go-admin-float').addEventListener('click', () => {
+document.addEventListener('fullscreenchange', updateFullscreenIcon);
+document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
+document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
+
+// Floating admin gear button (in main app header actions)
+document.getElementById('btn-go-admin-float')?.addEventListener('click', () => {
   playSound('click');
   renderAdminGrid();
   showScreen('admin');
+});
+
+// Control Center hamburger settings button (only inside Admin screen, left side)
+document.getElementById('btn-hamburger-menu')?.addEventListener('click', () => {
+  playSound('click');
+
+  // Slide open the sidebar Control Center from the left side
+  document.getElementById('left-sliding-sidebar')?.classList.add('open');
+  document.getElementById('sidebar-backdrop')?.classList.add('show');
+});
+
+// Close Sidebar listeners
+document.getElementById('btn-close-sidebar')?.addEventListener('click', () => {
+  playSound('click');
+  document.getElementById('left-sliding-sidebar')?.classList.remove('open');
+  document.getElementById('sidebar-backdrop')?.classList.remove('show');
+});
+
+document.getElementById('sidebar-backdrop')?.addEventListener('click', () => {
+  playSound('click');
+  document.getElementById('left-sliding-sidebar')?.classList.remove('open');
+  document.getElementById('sidebar-backdrop')?.classList.remove('show');
 });
 
 // ============================================================
@@ -2013,19 +2800,26 @@ document.getElementById('btn-go-admin-float').addEventListener('click', () => {
 // ============================================================
 document.getElementById('btn-start-game').addEventListener('click', () => {
   playSound('open');
-  setupTeamsFromInputs();
-  resetPlayState();
-  playState.phase = 'live';
-  playState.gameState = 'IDLE';
-  gameTimerEndTime = Date.now() + 10 * 60 * 1000;
-  gameTimerAlertShown = false;
-  startGameTimer();
-  saveGameState();
-  updateGameStatusUI();
-  renderGameBoard();
-  updateTurnUI();
-  updateScoreUI();
-  showScreen('game');
+  if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended') {
+    // Resume existing game
+    showScreen('game');
+  } else {
+    // Start fresh game
+    setupTeamsFromInputs();
+    resetPlayState();
+    playState.phase = 'live';
+    playState.gameState = 'IDLE';
+    const minutes = db.settings.timerDuration ?? 10;
+    gameTimerEndTime = Date.now() + minutes * 60 * 1000;
+    gameTimerAlertShown = false;
+    startGameTimer();
+    saveGameState();
+    updateGameStatusUI();
+    renderGameBoard();
+    updateTurnUI();
+    updateScoreUI();
+    showScreen('game');
+  }
 });
 
 // ============================================================
@@ -2033,6 +2827,9 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
 // ============================================================
 document.getElementById('btn-admin-back').addEventListener('click', () => {
   playSound('click');
+  document.getElementById('left-sliding-sidebar')?.classList.remove('open');
+  document.getElementById('sidebar-backdrop')?.classList.remove('show');
+  updateDashboardStatus();
   showScreen('dashboard');
 });
 
@@ -2051,6 +2848,7 @@ document.getElementById('settings-subtract').addEventListener('change', e => {
 
 // Admin Team Setup Event Listeners
 document.getElementById('admin-team1-name')?.addEventListener('input', e => {
+  if (db.teams[0] && db.teams[0].useDefault) return; // Prevent edits if using default!
   const newName = e.target.value.trim() || 'Team 1';
   db.teams[0].name = newName;
   saveDB();
@@ -2062,6 +2860,7 @@ document.getElementById('admin-team1-name')?.addEventListener('input', e => {
   }
 });
 document.getElementById('admin-team2-name')?.addEventListener('input', e => {
+  if (db.teams[1] && db.teams[1].useDefault) return; // Prevent edits if using default!
   const newName = e.target.value.trim() || 'Team 2';
   db.teams[1].name = newName;
   saveDB();
@@ -2074,10 +2873,11 @@ document.getElementById('admin-team2-name')?.addEventListener('input', e => {
 });
 
 function handleLogoUpload(e, teamIndex) {
+  if (db.teams[teamIndex] && db.teams[teamIndex].useDefault) return; // Prevent upload if using default!
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(ev) {
+  reader.onload = function (ev) {
     db.teams[teamIndex].logo = ev.target.result;
     saveDB();
     if (playState.teams[teamIndex]) {
@@ -2091,6 +2891,54 @@ function handleLogoUpload(e, teamIndex) {
 
 document.getElementById('admin-team1-logo')?.addEventListener('change', e => handleLogoUpload(e, 0));
 document.getElementById('admin-team2-logo')?.addEventListener('change', e => handleLogoUpload(e, 1));
+
+// Setup Default Team Toggles helper
+const setupDefaultTeamToggle = (teamIdx, defaultCheckboxId, nameInputId, logoInputId, defaultName, defaultLogo) => {
+  const checkbox = document.getElementById(defaultCheckboxId);
+  if (!checkbox) return;
+  checkbox.addEventListener('change', e => {
+    playSound('click');
+    const checked = e.target.checked;
+    db.teams[teamIdx].useDefault = checked;
+
+    const nameInput = document.getElementById(nameInputId);
+    const logoInput = document.getElementById(logoInputId);
+
+    if (nameInput) nameInput.disabled = checked;
+    if (logoInput) logoInput.disabled = checked;
+
+    if (checked) {
+      if (nameInput) nameInput.value = defaultName;
+      if (logoInput) logoInput.value = ''; // Reset file input selection
+      db.teams[teamIdx].name = defaultName;
+      db.teams[teamIdx].logo = defaultLogo;
+    } else {
+      const currentVal = nameInput ? nameInput.value.trim() : '';
+      db.teams[teamIdx].name = currentVal || defaultName;
+      // logo stays default until they upload a custom one or restore existing
+    }
+
+    saveDB();
+
+    if (playState.teams[teamIdx]) {
+      playState.teams[teamIdx].name = db.teams[teamIdx].name;
+      playState.teams[teamIdx].logo = db.teams[teamIdx].logo;
+      saveGameState();
+      updateScoreUI();
+      updateTurnUI();
+    }
+  });
+};
+
+setupDefaultTeamToggle(0, 'admin-team1-default', 'admin-team1-name', 'admin-team1-logo', 'Lion', 'lion.png');
+setupDefaultTeamToggle(1, 'admin-team2-default', 'admin-team2-name', 'admin-team2-logo', 'Lioness', 'lioness.png');
+
+// Save Game Board
+document.getElementById('btn-save-game-board')?.addEventListener('click', () => {
+  playSound('click');
+  saveDB();
+  triggerAlert('SYSTEM', 'Game saved automatically!', 'gain');
+});
 
 // Export JSON
 document.getElementById('btn-export-json').addEventListener('click', () => {
@@ -2109,7 +2957,7 @@ document.getElementById('import-json-file').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = function() {
+  reader.onload = function () {
     try {
       const parsed = JSON.parse(reader.result);
       if (parsed && typeof parsed === 'object') {
@@ -2117,7 +2965,14 @@ document.getElementById('import-json-file').addEventListener('change', e => {
           settings: {
             subtractOnWrong: parsed.settings?.subtractOnWrong ?? true,
             totalQuestions: parsed.settings?.totalQuestions ?? 20,
-            displayMode: parsed.settings?.displayMode ?? 'QUESTION_NUMBER'
+            displayMode: parsed.settings?.displayMode ?? 'QUESTION_NUMBER',
+            timerDuration: parsed.settings?.timerDuration ?? 10,
+            gridFont: parsed.settings?.gridFont ?? 'Fredoka One',
+            applyFontToAll: parsed.settings?.applyFontToAll ?? false,
+            playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
+            useCustomFeedbackVideos: parsed.settings?.useCustomFeedbackVideos ?? false,
+            gridFontColor: parsed.settings?.gridFontColor ?? '#ffffff',
+            gridFontBold: parsed.settings?.gridFontBold ?? false
           },
           questions: parsed.questions || [],
           teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
@@ -2128,6 +2983,27 @@ document.getElementById('import-json-file').addEventListener('change', e => {
         document.getElementById('settings-subtract').checked = !!db.settings.subtractOnWrong;
         document.getElementById('settings-total-questions').value = db.settings.totalQuestions;
         document.getElementById('settings-display-mode').value = db.settings.displayMode;
+        const timerEl = document.getElementById('settings-timer-duration');
+        if (timerEl) timerEl.value = db.settings.timerDuration ?? 10;
+        const fontEl = document.getElementById('settings-grid-font');
+        if (fontEl) fontEl.value = db.settings.gridFont ?? 'Fredoka One';
+        const fontColorEl = document.getElementById('settings-grid-font-color');
+        if (fontColorEl) fontColorEl.value = db.settings.gridFontColor ?? '#ffffff';
+        const fontBoldEl = document.getElementById('settings-grid-font-bold');
+        if (fontBoldEl) fontBoldEl.checked = !!db.settings.gridFontBold;
+        const applyAllEl = document.getElementById('settings-font-apply-all');
+        if (applyAllEl) applyAllEl.checked = !!db.settings.applyFontToAll;
+        const videoFeedbackEl = document.getElementById('settings-play-video-feedback');
+        if (videoFeedbackEl) {
+          videoFeedbackEl.checked = !!db.settings.playVideoFeedback;
+          document.getElementById('video-feedback-options').style.display = videoFeedbackEl.checked ? 'flex' : 'none';
+        }
+        const customFeedbackEl = document.getElementById('settings-use-custom-feedback');
+        if (customFeedbackEl) {
+          customFeedbackEl.checked = !!db.settings.useCustomFeedbackVideos;
+          document.getElementById('custom-video-uploads').style.display = customFeedbackEl.checked ? 'flex' : 'none';
+        }
+        applySelectedFont();
         renderAdminGrid();
         renderGameBoard();
       }
@@ -2139,34 +3015,52 @@ document.getElementById('import-json-file').addEventListener('change', e => {
   e.target.value = '';
 });
 
+// Save Settings
+document.getElementById('btn-save-settings')?.addEventListener('click', () => {
+  playSound('click');
+  saveDB();
+  triggerAlert('SYSTEM', 'Settings saved successfully!', 'gain');
+});
+
 // Reset game (not questions)
 document.getElementById('btn-reset-game').addEventListener('click', () => {
-  if (confirm('Are you sure you want to reset the game? This will clear all scores, progress, and timer.')) {
-    playSound('click');
-    playState.phase = 'live';
-    playState.gameState = 'IDLE';
-    playState.teams = []; // Clear active game teams to prevent resume until clicked Start
-    resetPlayState();
-    clearGameTimer();
-    localStorage.removeItem('review_game_playstate');
-    updateGameStatusUI();
-    updateDashboardStatus();
-    renderGameBoard();
-    updateScoreUI();
-    showScreen('dashboard');
-  }
+  playSound('click');
+  playState.phase = 'live';
+  playState.gameState = 'IDLE';
+  playState.teams = []; // Clear active game teams to prevent resume until clicked Start
+  resetPlayState();
+  clearGameTimer();
+  localStorage.removeItem('review_game_playstate');
+  updateGameStatusUI();
+  updateDashboardStatus();
+  renderGameBoard();
+  updateScoreUI();
+
+  // Show premium success notification
+  triggerAlert('SYSTEM', 'Game successfully reset!', 'gain');
+
+  showScreen('dashboard');
 });
 
 // Clear all questions
-document.getElementById('btn-clear-db').addEventListener('click', () => {
-  if (!confirm('Clear all questions? This cannot be undone unless you import or reload a saved quiz.')) return;
+document.getElementById('btn-clear-db').addEventListener('click', async () => {
+  playSound('wrong');
   db.questions = [];
+
+  try {
+    await clearAllVideosFromIndexedDB();
+  } catch (err) {
+    console.error("Failed to clear all custom videos from IndexedDB:", err);
+  }
+
   saveDB();
   selectedAdminCellId = null;
   document.getElementById('admin-question-editor').classList.add('hidden');
   renderAdminGrid();
   renderGameBoard();
-  playSound('wrong');
+
+  // Show premium success notification
+  triggerAlert('SYSTEM', 'All questions cleared!', 'gain');
 });
 
 // ============================================================
@@ -2186,15 +3080,16 @@ document.getElementById('q-type').addEventListener('change', e => {
   setMCQRequired(isMCQ);
 });
 
-document.getElementById('question-form').addEventListener('submit', e => {
+document.getElementById('question-form').addEventListener('submit', async e => {
   e.preventDefault();
   if (!selectedAdminCellId) return;
   playSound('correct');
 
-  const qnIndex = parseInt(selectedAdminCellId.replace('qn', ''), 10);
+  const rawId = selectedAdminCellId.toString().replace('qn', '');
+  const qnIndex = rawId === 'tiebreaker' ? 'tiebreaker' : parseInt(rawId, 10);
   const type = document.getElementById('q-type').value;
   const text = document.getElementById('q-text').value.trim();
-  const pts  = parseInt(document.getElementById('q-points').value, 10) || 100;
+  const pts = parseInt(document.getElementById('q-points').value, 10) || 100;
   let answer = '', options = [];
 
   if (type === 'mcq') {
@@ -2208,6 +3103,25 @@ document.getElementById('question-form').addEventListener('submit', e => {
     answer = document.getElementById('q-fill-answer').value.trim();
   }
 
+  // Handle custom video saving to IndexedDB
+  if (currentUploadedVideoBase64) {
+    await saveVideoToIndexedDB(qnIndex, currentUploadedVideoBase64);
+  } else {
+    await deleteVideoFromIndexedDB(qnIndex);
+  }
+
+  if (currentUploadedCorrectVideo) {
+    await saveVideoToIndexedDB('q-' + qnIndex + '-correct', currentUploadedCorrectVideo);
+  } else {
+    await deleteVideoFromIndexedDB('q-' + qnIndex + '-correct');
+  }
+
+  if (currentUploadedWrongVideo) {
+    await saveVideoToIndexedDB('q-' + qnIndex + '-wrong', currentUploadedWrongVideo);
+  } else {
+    await deleteVideoFromIndexedDB('q-' + qnIndex + '-wrong');
+  }
+
   const existIdx = db.questions.findIndex(q => q.qnIndex === qnIndex);
   const qObj = {
     id: existIdx !== -1 ? db.questions[existIdx].id : Date.now(),
@@ -2217,6 +3131,9 @@ document.getElementById('question-form').addEventListener('submit', e => {
     options,
     answer,
     points: pts,
+    video: currentUploadedVideoBase64 ? true : null,
+    hasCustomCorrectVideo: currentUploadedCorrectVideo ? true : false,
+    hasCustomWrongVideo: currentUploadedWrongVideo ? true : false
   };
 
   if (existIdx !== -1) db.questions[existIdx] = qObj;
@@ -2229,11 +3146,17 @@ document.getElementById('question-form').addEventListener('submit', e => {
   renderGameBoard();
 });
 
-document.getElementById('btn-delete-question').addEventListener('click', () => {
+document.getElementById('btn-delete-question').addEventListener('click', async () => {
   if (!selectedAdminCellId) return;
   playSound('wrong');
-  const qnIndex = parseInt(selectedAdminCellId.replace('qn', ''), 10);
+  const rawId = selectedAdminCellId.toString().replace('qn', '');
+  const qnIndex = rawId === 'tiebreaker' ? 'tiebreaker' : parseInt(rawId, 10);
   db.questions = db.questions.filter(q => q.qnIndex !== qnIndex);
+
+  await deleteVideoFromIndexedDB(qnIndex);
+  await deleteVideoFromIndexedDB('q-' + qnIndex + '-correct');
+  await deleteVideoFromIndexedDB('q-' + qnIndex + '-wrong');
+
   saveDB();
   document.getElementById('admin-question-editor').classList.add('hidden');
   selectedAdminCellId = null;
@@ -2251,26 +3174,26 @@ if (btnShowCorrectAnswer) {
     if (!canInteract()) return;
     const q = playState.currentQuestion;
     if (!q) return;
-    
+
     const fillInput = document.getElementById('modal-fill-input');
     if (fillInput) {
       fillInput.value = q.answer;
       fillInput.focus();
       fillInput.select();
-      
+
       // Trigger reveal-highlight animation
       fillInput.classList.remove('reveal-highlight');
       void fillInput.offsetWidth;
       fillInput.classList.add('reveal-highlight');
     }
-    
+
     // Lock cancel button
     playState.cancelLocked = true;
     const btnCancel = document.getElementById('btn-modal-cancel');
     if (btnCancel) {
       btnCancel.disabled = true;
     }
-    
+
     playSound('click');
   });
 }
@@ -2289,7 +3212,7 @@ document.getElementById('btn-modal-pass').addEventListener('click', () => {
 
 document.getElementById('btn-modal-submit').addEventListener('click', () => {
   if (!canInteract()) return;
-  
+
   const q = playState.currentQuestion;
   if (!q) return;
 
@@ -2309,7 +3232,14 @@ document.getElementById('btn-modal-submit').addEventListener('click', () => {
       enableModalActionButtons();
       return;
     }
-    submitAnswer(val.toLowerCase() === q.answer.toLowerCase());
+    const normalize = str => str.toLowerCase().replace(/[\s.,&/|-]/g, '');
+    
+    // Check if it's an exact match after stripping punctuation and spaces
+    // Or if the admin provided multiple options separated by `||` (e.g., "Option 1 || Option 2")
+    const possibleAnswers = q.answer.split('||').map(s => normalize(s));
+    const isCorrect = possibleAnswers.includes(normalize(val));
+    
+    submitAnswer(isCorrect);
   }
 });
 
@@ -2326,19 +3256,70 @@ document.getElementById('modal-fill-input').addEventListener('keydown', e => {
 // ============================================================
 document.getElementById('btn-end-game').addEventListener('click', () => {
   if (!canInteract()) return;
+
+  const t1 = playState?.teams?.[0];
+  const t2 = playState?.teams?.[1];
+  const isTied = (t1 && t2 && t1.score === t2.score);
+  const tieQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
   
-  showCustomConfirm('Want to confirm ending the game?', () => {
-    closeModal();
-    playState.phase = 'ended';
-    saveGameState();
-    updateGameStatusUI();
-    endGame();
-  });
+  if (isTied && db.settings.enableTieBreaker) {
+    if (tieQ) {
+      showCustomConfirm(
+        'Scores are exactly tied!',
+        () => {
+          closeModal();
+          triggerAlert("SYSTEM", "Tie Breaker has been forced!", "info");
+          playState.forceTieBreaker = true;
+          renderGameBoard();
+        },
+        {
+          confirmText: 'Play Tie Breaker',
+          confirmClass: 'btn btn-primary',
+          cancelText: 'End Game Now',
+          cancelClass: 'btn btn-danger',
+          icon: '🏆',
+          subtext: 'Do you want to play the Tie Breaker question or end the game immediately?',
+          onCancel: () => {
+            closeModal();
+            playState.phase = 'ended';
+            saveGameState();
+            updateGameStatusUI();
+            endGame();
+          }
+        }
+      );
+    } else {
+      showCustomConfirm(
+        'Scores are tied, but no Tie Breaker question is configured!',
+        () => {
+          closeModal();
+          playState.phase = 'ended';
+          saveGameState();
+          updateGameStatusUI();
+          endGame();
+        },
+        {
+          confirmText: 'End Game Anyway',
+          cancelText: 'Cancel',
+          subtext: 'You enabled the Tie Breaker feature, but the TIE BREAKER cell in the Admin Grid is empty. Please configure it first.',
+          icon: '⚠️'
+        }
+      );
+    }
+  } else {
+    showCustomConfirm('Want to confirm ending the game?', () => {
+      closeModal();
+      playState.phase = 'ended';
+      saveGameState();
+      updateGameStatusUI();
+      endGame();
+    });
+  }
 });
 
 document.getElementById('btn-resign-game').addEventListener('click', () => {
   if (!canInteract()) return;
-  
+
   showCustomConfirm('Want to confirm resigning the game?', () => {
     closeModal();
     playSound('cancel');
@@ -2348,7 +3329,7 @@ document.getElementById('btn-resign-game').addEventListener('click', () => {
     playState.gameState = 'IDLE';
     clearGameTimer();
     localStorage.removeItem('review_game_playstate');
-    
+
     updateGameStatusUI();
     renderGameBoard();
     updateTurnUI();
@@ -2365,7 +3346,8 @@ document.getElementById('btn-play-again').addEventListener('click', () => {
   playSound('open');
   resetPlayState();
   playState.phase = 'live';
-  gameTimerEndTime = Date.now() + 10 * 60 * 1000;
+  const minutes = db.settings.timerDuration ?? 10;
+  gameTimerEndTime = Date.now() + minutes * 60 * 1000;
   gameTimerAlertShown = false;
   startGameTimer();
   saveGameState();
@@ -2421,7 +3403,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderGameBoard();
     });
   }
-  
+
   const modeEl = document.getElementById('settings-display-mode');
   if (modeEl) {
     modeEl.addEventListener('change', (e) => {
@@ -2431,4 +3413,270 @@ document.addEventListener('DOMContentLoaded', () => {
       renderGameBoard();
     });
   }
+
+  const timerEl = document.getElementById('settings-timer-duration');
+  if (timerEl) {
+    timerEl.addEventListener('change', (e) => {
+      let val = parseInt(e.target.value, 10);
+      if (isNaN(val) || val < 1) val = 1;
+      db.settings.timerDuration = val;
+      saveDB();
+    });
+  }
+
+  const fontEl = document.getElementById('settings-grid-font');
+  if (fontEl) {
+    fontEl.addEventListener('change', (e) => {
+      db.settings.gridFont = e.target.value;
+      saveDB();
+      applySelectedFont();
+    });
+  }
+
+  const fontColorEl = document.getElementById('settings-grid-font-color');
+  if (fontColorEl) {
+    fontColorEl.addEventListener('change', (e) => {
+      db.settings.gridFontColor = e.target.value;
+      saveDB();
+      applySelectedFont();
+    });
+  }
+
+  const fontColorDefEl = document.getElementById('settings-grid-font-color-default');
+  if (fontColorDefEl) {
+    fontColorDefEl.addEventListener('change', (e) => {
+      db.settings.useDefaultFontColor = e.target.checked;
+      if (fontColorEl) fontColorEl.disabled = e.target.checked;
+      saveDB();
+      applySelectedFont();
+    });
+  }
+
+  const fontBoldBtn = document.getElementById('settings-grid-font-bold-btn');
+  if (fontBoldBtn) {
+    fontBoldBtn.addEventListener('click', () => {
+      playSound('click');
+      db.settings.gridFontBold = !db.settings.gridFontBold;
+      fontBoldBtn.classList.toggle('active', db.settings.gridFontBold);
+      saveDB();
+      applySelectedFont();
+    });
+  }
+
+  const applyAllEl = document.getElementById('settings-font-apply-all');
+  if (applyAllEl) {
+    applyAllEl.addEventListener('change', (e) => {
+      db.settings.applyFontToAll = e.target.checked;
+      saveDB();
+      applySelectedFont();
+    });
+  }
+
+  const videoFeedbackEl = document.getElementById('settings-play-video-feedback');
+  if (videoFeedbackEl) {
+    videoFeedbackEl.addEventListener('change', (e) => {
+      db.settings.playVideoFeedback = e.target.checked;
+      document.getElementById('video-feedback-options').style.display = e.target.checked ? 'flex' : 'none';
+      saveDB();
+    });
+  }
+
+  const customFeedbackEl = document.getElementById('settings-use-custom-feedback');
+  if (customFeedbackEl) {
+    customFeedbackEl.addEventListener('change', (e) => {
+      db.settings.useCustomFeedbackVideos = e.target.checked;
+      document.getElementById('custom-video-uploads').style.display = e.target.checked ? 'flex' : 'none';
+      saveDB();
+    });
+  }
+
+  // File Upload Handlers for Custom Feedback Videos
+  const handleFeedbackVideoUpload = async (type, file) => {
+    if (!file) return;
+    try {
+      const buffer = await file.arrayBuffer();
+      const base64Str = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+      const mime = file.type || 'video/mp4';
+      const dataUri = `data:${mime};base64,${base64Str}`;
+      await saveVideoToIndexedDB(`feedback-${type}`, dataUri);
+      document.getElementById(`status-feedback-${type}`).textContent = `Custom video saved! (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
+      document.getElementById(`btn-clear-feedback-${type}`).style.display = 'inline-block';
+      triggerAlert('SYSTEM', `Custom ${type} video saved successfully!`, 'gain');
+    } catch (err) {
+      console.error('Failed to read/save feedback video', err);
+      alert('Error saving custom video. File might be too large.');
+    }
+  };
+
+  ['correct', 'wrong', 'winner'].forEach(type => {
+    const inputEl = document.getElementById(`upload-feedback-${type}`);
+    const clearBtn = document.getElementById(`btn-clear-feedback-${type}`);
+
+    if (inputEl) {
+      inputEl.addEventListener('change', (e) => {
+        handleFeedbackVideoUpload(type, e.target.files[0]);
+        e.target.value = ''; // reset
+      });
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', async () => {
+        await deleteVideoFromIndexedDB(`feedback-${type}`);
+        document.getElementById(`status-feedback-${type}`).textContent = 'No video selected';
+        clearBtn.style.display = 'none';
+        triggerAlert('SYSTEM', `Custom ${type} video cleared.`, 'gain');
+      });
+    }
+
+    // Check if video exists to show clear button initially
+    getVideoFromIndexedDB(`feedback-${type}`).then(data => {
+      if (data) {
+        const statusEl = document.getElementById(`status-feedback-${type}`);
+        if (statusEl) statusEl.textContent = 'Custom video stored';
+        if (clearBtn) clearBtn.style.display = 'inline-block';
+      }
+    });
+  });
+
+  // Collapsible Advanced Utilities Drawer Toggle
+  const toggleDrawerBtn = document.getElementById('btn-toggle-utility-drawer');
+  const drawerContent = document.getElementById('admin-utility-drawer');
+  const drawerArrow = document.getElementById('utility-drawer-arrow');
+  const utilityBar = document.querySelector('.admin-grid-utility-bar');
+
+  if (toggleDrawerBtn && drawerContent) {
+    toggleDrawerBtn.addEventListener('click', () => {
+      playSound('click');
+      const isExpanded = drawerContent.classList.toggle('expanded');
+      if (utilityBar) utilityBar.classList.toggle('expanded', isExpanded);
+
+      if (isExpanded) {
+        drawerContent.style.maxHeight = drawerContent.scrollHeight + "px";
+        if (drawerArrow) drawerArrow.style.transform = 'rotate(180deg)';
+      } else {
+        drawerContent.style.maxHeight = '0';
+        if (drawerArrow) drawerArrow.style.transform = 'rotate(0deg)';
+      }
+    });
+  }
+
+  // Question Editor custom video upload
+  const videoInput = document.getElementById('q-video-file');
+  if (videoInput) {
+    videoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('q-video-status');
+      if (statusEl) statusEl.textContent = "Loading video...";
+
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        currentUploadedVideoBase64 = ev.target.result;
+        if (statusEl) statusEl.textContent = `✅ Loaded: ${file.name}`;
+        const clearBtn = document.getElementById('btn-clear-q-video');
+        if (clearBtn) clearBtn.style.display = 'inline-flex';
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const clearVideoBtn = document.getElementById('btn-clear-q-video');
+  if (clearVideoBtn) {
+    clearVideoBtn.addEventListener('click', () => {
+      currentUploadedVideoBase64 = null;
+      const fileInput = document.getElementById('q-video-file');
+      if (fileInput) fileInput.value = '';
+      const statusEl = document.getElementById('q-video-status');
+      if (statusEl) statusEl.textContent = 'No video selected';
+      clearVideoBtn.style.display = 'none';
+    });
+  }
+
+  // Question Editor - Correct Video Upload
+  const videoCorrectInput = document.getElementById('q-video-correct-file');
+  if (videoCorrectInput) {
+    videoCorrectInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('q-video-correct-status');
+      if (statusEl) statusEl.textContent = "Loading video...";
+
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        currentUploadedCorrectVideo = ev.target.result;
+        if (statusEl) statusEl.textContent = `✅ Loaded: ${file.name}`;
+        const clearBtn = document.getElementById('btn-clear-q-video-correct');
+        if (clearBtn) clearBtn.style.display = 'inline-flex';
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const clearCorrectVideoBtn = document.getElementById('btn-clear-q-video-correct');
+  if (clearCorrectVideoBtn) {
+    clearCorrectVideoBtn.addEventListener('click', () => {
+      currentUploadedCorrectVideo = null;
+      const fileInput = document.getElementById('q-video-correct-file');
+      if (fileInput) fileInput.value = '';
+      const statusEl = document.getElementById('q-video-correct-status');
+      if (statusEl) statusEl.textContent = 'No video selected';
+      clearCorrectVideoBtn.style.display = 'none';
+    });
+  }
+
+  // Question Editor - Wrong Video Upload
+  const videoWrongInput = document.getElementById('q-video-wrong-file');
+  if (videoWrongInput) {
+    videoWrongInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('q-video-wrong-status');
+      if (statusEl) statusEl.textContent = "Loading video...";
+
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        currentUploadedWrongVideo = ev.target.result;
+        if (statusEl) statusEl.textContent = `✅ Loaded: ${file.name}`;
+        const clearBtn = document.getElementById('btn-clear-q-video-wrong');
+        if (clearBtn) clearBtn.style.display = 'inline-flex';
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const clearWrongVideoBtn = document.getElementById('btn-clear-q-video-wrong');
+  if (clearWrongVideoBtn) {
+    clearWrongVideoBtn.addEventListener('click', () => {
+      currentUploadedWrongVideo = null;
+      const fileInput = document.getElementById('q-video-wrong-file');
+      if (fileInput) fileInput.value = '';
+      const statusEl = document.getElementById('q-video-wrong-status');
+      if (statusEl) statusEl.textContent = 'No video selected';
+      clearWrongVideoBtn.style.display = 'none';
+    });
+  }
 });
+
+// Dynamic Scaling Engine
+function applyDynamicScaling() {
+  const currentScreen = document.querySelector('.screen.active')?.id;
+  if (getFullscreenState() || currentScreen === 'screen-admin') {
+    document.body.style.zoom = 1;
+    return;
+  }
+  const screenW = window.screen.width || 1920;
+  const screenH = window.screen.height || 1080;
+
+  // Base scale off inner size vs full screen resolution
+  const scaleX = window.innerWidth / screenW;
+  const scaleY = window.innerHeight / screenH;
+
+  // Use the smaller ratio so nothing gets clipped
+  const scale = Math.min(scaleX, scaleY);
+  document.body.style.zoom = scale;
+}
+window.addEventListener('resize', applyDynamicScaling);
+window.addEventListener('load', applyDynamicScaling);

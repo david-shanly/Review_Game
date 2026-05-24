@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;600;700;800&family=Montserrat:wght@400;700;900&family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,9 +20,14 @@
 
     <!-- ===== HEADER ===== -->
     <header class="app-header">
-      <div class="logo-container">
-        <img src="logo.png" alt="Logo" class="logo-icon" />
-        <h1 class="logo-text">Review Game <span class="logo-accent">Group C - 2026</span></h1>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button id="btn-hamburger-menu" class="btn btn-icon btn-admin-float" title="Open Settings" aria-label="Open Settings" style="font-size: 1.4rem;">
+          ☰
+        </button>
+        <div class="logo-container">
+          <img src="logo.png" alt="Logo" class="logo-icon" />
+          <h1 class="logo-text">Review Game <span class="logo-accent">Group C - 2026</span></h1>
+        </div>
       </div>
       <div class="header-actions">
         <div id="game-timer-display" class="timer-display" style="display: none; font-weight: bold; margin-right: 15px; color: var(--color-gold); font-size: 1.2rem; align-items: center;">Time Left: 10:00</div>
@@ -34,7 +40,7 @@
         <button id="btn-fullscreen-toggle" class="btn btn-icon" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">
           <img id="fullscreen-icon" src="fullscreen.png" alt="Fullscreen" style="width: 1.5rem; height: 1.5rem; object-fit: contain; pointer-events: none;" />
         </button>
-        <button id="btn-go-admin-float" class="btn btn-icon btn-admin-float" title="Admin Panel" aria-label="Admin Panel">
+        <button id="btn-go-admin-float" class="btn btn-icon" title="Admin Panel" aria-label="Admin Panel">
           ⚙️
         </button>
       </div>
@@ -77,9 +83,15 @@
            ======================================== -->
       <section id="screen-admin" class="screen">
         <div class="admin-header-row">
-          <div>
-            <h2 class="section-title" style="border:none; margin:0; font-size:1.6rem;">⚙️ Admin Panel</h2>
-            <p style="color: var(--color-text-muted); font-size:0.9rem; margin-top:4px;">Set up your quiz and manage teams.</p>
+          <div style="display: flex; align-items: center; gap: 24px;">
+            <div>
+              <h2 class="section-title" style="border:none; margin:0; font-size:1.6rem;">⚙️ Admin Panel</h2>
+              <p style="color: var(--color-text-muted); font-size:0.9rem; margin-top:4px;">Set up your quiz and manage teams.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-left: 12px; padding-left: 24px; border-left: 1.5px solid var(--cell-border);">
+              <span class="badge badge-gold" style="font-size: 0.9rem; padding: 6px 12px;">📋 <span id="slots-count-display">20</span> Question Slots</span>
+              <span id="admin-q-count" class="badge" style="font-size: 0.9rem; padding: 6px 12px;">Questions added: 0</span>
+            </div>
           </div>
           <div class="admin-header-actions" style="display: flex; gap: 12px; align-items: center;">
             <button id="btn-admin-back" class="btn btn-secondary">← Back to Home</button>
@@ -89,85 +101,12 @@
 
         <div class="admin-grid-layout">
 
-          <!-- LEFT SIDEBAR: SETTINGS -->
-          <aside class="glass-panel admin-sidebar">
+          
 
-            <h3 class="section-title">⚖️ Game Rules</h3>
-            <div class="form-group-checkbox">
-              <input type="checkbox" id="settings-subtract">
-              <label for="settings-subtract">Deduct half points on wrong answer (score can go negative)</label>
-            </div>
-            
-            <div class="form-group" style="margin-top: 16px;">
-              <label for="settings-display-mode">Grid Display Mode</label>
-              <select id="settings-display-mode">
-                <option value="QUESTION_POINTS">Question + Points (default)</option>
-                <option value="QUESTION_ONLY">Question Only</option>
-                <option value="POINTS_ONLY">Points Only (legacy)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="settings-total-questions">Total Questions</label>
-              <input type="number" id="settings-total-questions" value="20" min="1" max="100">
-            </div>
-
-            <hr class="divider">
-
-            <!-- Teams Setup for 2-team fixed system -->
-            <h3 class="section-title">👥 Teams Setup</h3>
-            
-            <div class="team-setup-grid">
-              <!-- Team 1 Card -->
-              <div class="team-setup-card">
-                <div class="team-setup-header">
-                  <span class="team-setup-badge team1-badge">TEAM 1</span>
-                </div>
-                <label for="admin-team1-name" class="team-setup-label">Name</label>
-                <input type="text" id="admin-team1-name" value="Lion" class="team-setup-input" autocomplete="off">
-                
-                <label for="admin-team1-logo" class="team-setup-label">Custom Logo</label>
-                <input type="file" id="admin-team1-logo" accept="image/*" class="team-setup-file">
-              </div>
-
-              <!-- Team 2 Card -->
-              <div class="team-setup-card">
-                <div class="team-setup-header">
-                  <span class="team-setup-badge team2-badge">TEAM 2</span>
-                </div>
-                <label for="admin-team2-name" class="team-setup-label">Name</label>
-                <input type="text" id="admin-team2-name" value="Lioness" class="team-setup-input" autocomplete="off">
-                
-                <label for="admin-team2-logo" class="team-setup-label">Custom Logo</label>
-                <input type="file" id="admin-team2-logo" accept="image/*" class="team-setup-file">
-              </div>
-            </div>
-
-            <hr class="divider">
-
-            <h3 class="section-title">💾 Quiz Data</h3>
-            <p class="small-text" style="margin-bottom:12px; color: var(--color-text-muted);">Save or load your questions as a file.</p>
-
-            <div class="admin-db-actions">
-              <button id="btn-load-default" class="btn btn-primary btn-block" style="background-color: var(--color-gold); color: #000; font-weight: 800;">📖 Load Default Questions</button>
-              <button id="btn-save-game-board" class="btn btn-primary btn-block">💾 Save Game</button>
-              <button id="btn-export-json" class="btn btn-secondary btn-block">📤 Export Quiz (JSON)</button>
-              <div class="file-upload-wrapper">
-                <button class="btn btn-secondary btn-block">📥 Import Quiz (JSON)</button>
-                <input type="file" id="import-json-file" accept=".json">
-              </div>
-              <button id="btn-reset-game" class="btn btn-secondary btn-block">🔄 Reset Game</button>
-              <button id="btn-clear-db" class="btn btn-danger btn-block admin-footer-btn">🗑️ Clear All Questions</button>
-            </div>
-          </aside>
-
-          <!-- RIGHT: GRID + EDITOR -->
+          <!-- RIGHT: GRID + UTILITIES + EDITOR -->
           <div class="admin-main">
 
-            <div class="admin-grid-info-bar">
-              <span class="badge badge-gold">📋 20 Question Slots (Qn1 – Qn20)</span>
-              <span id="admin-q-count" class="badge">Questions added: 0</span>
-            </div>
+
 
             <!-- Interactive Grid -->
             <div class="admin-grid-scroll-wrapper">
@@ -224,10 +163,40 @@
                   <input type="text" id="q-fill-answer" placeholder="Type the correct answer...">
                 </div>
 
-                <div class="form-group">
-                  <label for="q-points">Points Value</label>
-                  <input type="number" id="q-points" value="100" min="1">
+                <div class="form-group" style="margin-top: 16px;">
+                  <label>🎬 Custom Question Video (Optional)</label>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+                    <input type="file" id="q-video-file" accept="video/mp4,video/webm,video/ogg" style="display: none;">
+                    <button type="button" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.9rem;" onclick="document.getElementById('q-video-file').click()">📁 Choose Video</button>
+                    <span id="q-video-status" style="font-size: 0.85rem; color: var(--color-text-muted);">No video selected</span>
+                    <button type="button" id="btn-clear-q-video" class="btn btn-danger" style="display: none; padding: 8px 14px; font-size: 0.85rem;">✕ Clear</button>
+                  </div>
                 </div>
+
+                <div class="form-group" style="margin-top: 16px; padding: 12px; border: 1px solid var(--panel-border-active); border-radius: 8px; background: rgba(0,0,0,0.15);">
+                  <label style="color: var(--color-gold); margin-bottom: 8px; display: block;">🎥 Per-Question Feedback Videos (Optional)</label>
+                  
+                  <label style="font-size: 0.75rem; color: var(--color-success); font-weight: 800;">✅ Correct Answer Video</label>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px; margin-bottom: 12px;">
+                    <input type="file" id="q-video-correct-file" accept="video/mp4,video/webm,video/ogg" style="display: none;">
+                    <button type="button" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem;"
+                      onclick="document.getElementById('q-video-correct-file').click()">📁 Choose</button>
+                    <span id="q-video-correct-status" style="font-size: 0.75rem; color: var(--color-text-muted);">No video selected</span>
+                    <button type="button" id="btn-clear-q-video-correct" class="btn btn-danger"
+                      style="display: none; padding: 6px 10px; font-size: 0.75rem;">✕ Clear</button>
+                  </div>
+                  
+                  <label style="font-size: 0.75rem; color: var(--color-danger); font-weight: 800;">❌ Wrong Answer Video</label>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                    <input type="file" id="q-video-wrong-file" accept="video/mp4,video/webm,video/ogg" style="display: none;">
+                    <button type="button" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem;"
+                      onclick="document.getElementById('q-video-wrong-file').click()">📁 Choose</button>
+                    <span id="q-video-wrong-status" style="font-size: 0.75rem; color: var(--color-text-muted);">No video selected</span>
+                    <button type="button" id="btn-clear-q-video-wrong" class="btn btn-danger"
+                      style="display: none; padding: 6px 10px; font-size: 0.75rem;">✕ Clear</button>
+                  </div>
+                </div>
+
 
                 <div class="form-actions">
                   <button type="button" id="btn-delete-question" class="btn btn-danger" style="display:none;">🗑️ Delete</button>
@@ -384,6 +353,209 @@
   <div id="countdown-overlay" class="countdown-overlay hidden">
     <div class="countdown-number">3</div>
   </div>
+
+  <!-- ===== SLIDING LEFT SIDEBAR ===== -->
+  <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+  <aside id="left-sliding-sidebar" class="left-sliding-sidebar glass-panel">
+    <div class="sidebar-header">
+      <h3 class="sidebar-title">⚙️ Control Center</h3>
+      <button id="btn-close-sidebar" class="btn-close-sidebar" title="Close Panel">✕</button>
+    </div>
+    
+    <div class="sidebar-content">
+      <!-- Section 0: Teams Setup (Moved) -->
+      <div class="sidebar-section" style="padding-bottom:12px;">
+<!-- LEFT SIDEBAR: SETTINGS -->
+          <aside class="admin-sidebar" style="display: flex; flex-direction: column; gap: 20px; padding: 0;">
+            <!-- Section 1: Teams Setup -->
+            <div>
+              <h3 class="section-title" style="margin-top: 0;">👥 Teams Setup</h3>
+              <div class="team-setup-grid" style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+                <!-- Team 1 Card -->
+                <div class="team-setup-card" id="team1-setup-card" style="padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--cell-border);">
+                  <div class="team-setup-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="team-setup-badge team1-badge">TEAM 1</span>
+                    <div class="form-group-checkbox" style="margin: 0; display: flex; align-items: center; gap: 4px;">
+                      <input type="checkbox" id="admin-team1-default" style="margin: 0; width: 14px; height: 14px; cursor: pointer;">
+                      <label for="admin-team1-default" style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); cursor: pointer; margin: 0; user-select: none;">Default</label>
+                    </div>
+                  </div>
+                  <label for="admin-team1-name" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Name</label>
+                  <input type="text" id="admin-team1-name" value="Lion" class="team-setup-input" autocomplete="off" style="padding: 8px 12px; font-size: 0.85rem; margin-bottom: 8px;">
+                  
+                  <label for="admin-team1-logo" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Custom Logo</label>
+                  <input type="file" id="admin-team1-logo" accept="image/*" class="team-setup-file" style="font-size: 0.75rem;">
+                </div>
+
+                <!-- Team 2 Card -->
+                <div class="team-setup-card" id="team2-setup-card" style="padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--cell-border);">
+                  <div class="team-setup-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="team-setup-badge team2-badge">TEAM 2</span>
+                    <div class="form-group-checkbox" style="margin: 0; display: flex; align-items: center; gap: 4px;">
+                      <input type="checkbox" id="admin-team2-default" style="margin: 0; width: 14px; height: 14px; cursor: pointer;">
+                      <label for="admin-team2-default" style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); cursor: pointer; margin: 0; user-select: none;">Default</label>
+                    </div>
+                  </div>
+                  <label for="admin-team2-name" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Name</label>
+                  <input type="text" id="admin-team2-name" value="Lioness" class="team-setup-input" autocomplete="off" style="padding: 8px 12px; font-size: 0.85rem; margin-bottom: 8px;">
+                  
+                  <label for="admin-team2-logo" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Custom Logo</label>
+                  <input type="file" id="admin-team2-logo" accept="image/*" class="team-setup-file" style="font-size: 0.75rem;">
+                </div>
+              </div>
+            </div>
+
+          </aside>
+      </div>
+      <hr class="sidebar-divider">
+
+      <!-- Section 1: Grid Typography -->
+      <div class="sidebar-section">
+        <h4 class="sidebar-section-title">🎨 Grid Typography</h4>
+        <div class="form-group">
+          <label for="settings-grid-font">Grid Font Style</label>
+          <select id="settings-grid-font" style="padding: 8px 12px; font-size: 0.85rem; width: 100%;">
+            <option value="none">None (System Default)</option>
+            <option value="Fredoka One">Fredoka One (Default)</option>
+            <option value="Inter">Inter (Modern Sans)</option>
+            <option value="Outfit">Outfit (Geometric Sans)</option>
+            <option value="Montserrat">Montserrat (Stylish Bold)</option>
+            <option value="Cinzel">Cinzel (Classic / Serif)</option>
+            <option value="Georgia">Georgia (Traditional Serif)</option>
+            <option value="Arial">Arial (Standard Sans)</option>
+            <option value="Comic Sans MS">Comic Sans (Playful)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-top: 12px;">
+          <label>Grid Font Format</label>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+            <input type="color" id="settings-grid-font-color" value="#ffffff" style="width: 32px; height: 30px; border-radius: 6px; border: 2px solid var(--color-border); cursor: pointer; background: transparent; padding: 0;" title="Grid Font Color">
+            <button type="button" id="settings-grid-font-bold-btn" class="font-style-btn" title="Toggle Bold" style="width: 30px; height: 30px; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: 900; padding: 0;">B</button>
+            <div class="form-group-checkbox" style="margin: 0; display: flex; align-items: center; gap: 4px;">
+              <input type="checkbox" id="settings-grid-font-color-default" style="margin: 0; width: 14px; height: 14px; cursor: pointer;">
+              <label for="settings-grid-font-color-default" style="font-size: 0.78rem; font-weight: 700; color: var(--color-text-muted); cursor: pointer; margin: 0; user-select: none;">Default Color</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group-checkbox" style="margin-top: 14px; margin-bottom: 4px;">
+          <input type="checkbox" id="settings-font-apply-all">
+          <label for="settings-font-apply-all" style="font-size: 0.8rem;">Apply font to all text in app</label>
+        </div>
+      </div>
+
+      <hr class="sidebar-divider">
+
+      <!-- Section 2: Advanced Utilities in Row Way -->
+      <div class="sidebar-section">
+        <h4 class="sidebar-section-title">🔧 Advanced Utilities</h4>
+
+        <!-- Row 1: Game Rules -->
+        <div class="sidebar-row-card">
+          <div class="sidebar-row-header">⚖️ Game Rules</div>
+          <div class="form-group-checkbox" style="margin-top: 8px;">
+            <input type="checkbox" id="settings-subtract" checked>
+            <label for="settings-subtract">Deduct points on wrong answer</label>
+          </div>
+          <div class="form-group-checkbox" style="margin-top: 8px;">
+            <input type="checkbox" id="settings-enable-tiebreaker">
+            <label for="settings-enable-tiebreaker">Enable Tie Breaker (if tied at end)</label>
+          </div>
+          <div class="form-group" style="margin-top: 8px;">
+            <label for="settings-display-mode">Grid Display Mode</label>
+            <select id="settings-display-mode" style="width: 100%;">
+              <option value="QUESTION_POINTS">Question + Points</option>
+              <option value="QUESTION_ONLY">Question Only</option>
+              <option value="POINTS_ONLY">Points Only</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 2: Layout & Timer -->
+        <div class="sidebar-row-card" style="margin-top: 12px;">
+          <div class="sidebar-row-header">📏 Layout & Timer</div>
+          <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <div class="form-group" style="flex: 1;">
+              <label for="settings-total-questions">Questions</label>
+              <input type="number" id="settings-total-questions" value="20" min="1" max="100" style="width: 100%;">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="settings-timer-duration">Timer (mins)</label>
+              <input type="number" id="settings-timer-duration" value="10" min="1" max="180" style="width: 100%;">
+            </div>
+          </div>
+          <div class="form-group-checkbox" style="margin-top: 10px;">
+            <input type="checkbox" id="settings-play-video-feedback">
+            <label for="settings-play-video-feedback">Use Video for Feedback</label>
+          </div>
+          <div id="video-feedback-options" style="display: none; margin-left: 20px; margin-top: 8px; flex-direction: column; gap: 10px;">
+            <div class="form-group-checkbox" style="margin: 0;">
+              <input type="checkbox" id="settings-use-custom-feedback">
+              <label for="settings-use-custom-feedback" style="font-size: 0.75rem;">Use Custom Videos (Uncheck for defaults)</label>
+            </div>
+            
+            <div id="custom-video-uploads" style="display: none; flex-direction: column; gap: 8px; padding-left: 8px; border-left: 2px solid var(--panel-border-active);">
+              <!-- Correct Video Upload -->
+              <div>
+                <label style="font-size: 0.75rem; color: var(--color-text-muted);">✅ Correct Answer Video</label>
+                <input type="file" id="upload-feedback-correct" accept="video/mp4,video/webm,video/ogg" style="display: none;">
+                <div style="display: flex; gap: 6px; margin-top: 4px;">
+                  <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="document.getElementById('upload-feedback-correct').click()">Choose File</button>
+                  <button type="button" id="btn-clear-feedback-correct" class="btn btn-danger" style="display: none; padding: 4px 8px; font-size: 0.7rem;">Clear</button>
+                </div>
+                <div id="status-feedback-correct" style="font-size: 0.65rem; color: var(--color-text-muted); margin-top: 2px;">No video selected</div>
+              </div>
+              
+              <!-- Wrong Video Upload -->
+              <div>
+                <label style="font-size: 0.75rem; color: var(--color-text-muted);">❌ Wrong Answer Video</label>
+                <input type="file" id="upload-feedback-wrong" accept="video/mp4,video/webm,video/ogg" style="display: none;">
+                <div style="display: flex; gap: 6px; margin-top: 4px;">
+                  <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="document.getElementById('upload-feedback-wrong').click()">Choose File</button>
+                  <button type="button" id="btn-clear-feedback-wrong" class="btn btn-danger" style="display: none; padding: 4px 8px; font-size: 0.7rem;">Clear</button>
+                </div>
+                <div id="status-feedback-wrong" style="font-size: 0.65rem; color: var(--color-text-muted); margin-top: 2px;">No video selected</div>
+              </div>
+              
+              <!-- Winner Video Upload -->
+              <div>
+                <label style="font-size: 0.75rem; color: var(--color-text-muted);">🏆 Winner Video</label>
+                <input type="file" id="upload-feedback-winner" accept="video/mp4,video/webm,video/ogg" style="display: none;">
+                <div style="display: flex; gap: 6px; margin-top: 4px;">
+                  <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="document.getElementById('upload-feedback-winner').click()">Choose File</button>
+                  <button type="button" id="btn-clear-feedback-winner" class="btn btn-danger" style="display: none; padding: 4px 8px; font-size: 0.7rem;">Clear</button>
+                </div>
+                <div id="status-feedback-winner" style="font-size: 0.65rem; color: var(--color-text-muted); margin-top: 2px;">No video selected</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Quiz Files -->
+        <div class="sidebar-row-card" style="margin-top: 12px;">
+          <div class="sidebar-row-header">📂 Quiz Files</div>
+          <div class="sidebar-btn-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+            <button id="btn-load-default" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">📖 Defaults</button>
+            <button id="btn-save-game-board" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">💾 Save Game</button>
+            <button id="btn-export-json" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">📤 Export</button>
+            <button id="btn-import-wrapper" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;" onclick="document.getElementById('import-json-file').click();">📥 Import</button>
+            <input type="file" id="import-json-file" accept=".json" style="display: none;">
+          </div>
+        </div>
+
+        <!-- Row 4: Danger Operations -->
+        <div class="sidebar-row-card danger-card" style="margin-top: 12px;">
+          <div class="sidebar-row-header" style="color: var(--color-error);">⚠️ Danger Operations</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+            <button id="btn-save-settings" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">💾 Save Changes</button>
+            <button id="btn-reset-game" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700; border-color: rgba(255, 61, 61, 0.3);">🔄 Reset Active Game</button>
+            <button id="btn-clear-db" class="btn btn-danger" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">🗑️ Clear All Questions</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
 
   <script type="module" src="app.js"></script>
 </body>

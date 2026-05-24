@@ -194,6 +194,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+#app-container, .app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Confetti canvas */
 #confetti-canvas {
   position: fixed;
@@ -607,10 +613,12 @@ body {
 
 .admin-grid-layout {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 1fr;
   gap: 24px;
   align-items: start;
+  zoom: 1.10;
 }
+
 
 .admin-sidebar {
   padding: 24px;
@@ -847,28 +855,36 @@ body {
 
 /* Admin cells */
 .board-cell {
-  background: var(--cell-bg);
-  border: 2px solid var(--cell-border);
+  background: var(--panel-bg);
+  border: 2.5px solid var(--cell-border);
   border-radius: var(--radius-sm);
-  min-height: 80px;
+  min-height: 86px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all var(--transition-bounce);
-  padding: 10px 8px;
-  text-align: center;
+  padding: 8px 6px;
   position: relative;
   overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 
 .board-cell:hover {
+  border-color: var(--color-gold);
   background: var(--cell-hover-bg);
-  border-color: var(--cell-hover-border);
   transform: translateY(-3px) scale(1.04);
-  box-shadow: 0 6px 20px rgba(244, 196, 48, 0.18);
+  box-shadow: 0 10px 30px rgba(244, 196, 48, 0.3);
+}
+
+.board-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 50% 0%, rgba(244, 196, 48, 0.06), transparent 70%);
+  pointer-events: none;
 }
 
 .board-cell.has-q {
@@ -909,7 +925,7 @@ body {
 .cell-qn-label {
   font-family: var(--font-display);
   font-size: 1.4rem;
-  color: var(--color-text-light);
+  color: var(--color-gold);
   font-weight: 400;
   line-height: 1;
 }
@@ -1206,6 +1222,21 @@ body {
 
 .game-cell-btn.cell-cancelled .cell-qn {
   color: var(--color-cancel);
+  font-size: 1.8rem;
+}
+
+/* Wrong answer cell state */
+.game-cell-btn.cell-wrong {
+  background: #cbd5e1 !important; /* light grey */
+  border-color: #475569 !important; /* dark grey outline */
+  opacity: 1 !important;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.game-cell-btn.cell-wrong .cell-qn {
+  color: #334155 !important;
   font-size: 1.8rem;
 }
 
@@ -2042,9 +2073,9 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 24px 40px;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   font-family: var(--font-display);
-  font-size: 3rem;
+  font-size: 2.8rem;
   font-weight: 700;
   color: #fff;
   z-index: 9999;
@@ -2052,12 +2083,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  gap: 12px;
+  text-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 .score-alert .alert-team {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   text-transform: uppercase;
   letter-spacing: 2px;
   opacity: 0.9;
@@ -2340,4 +2371,208 @@ body {
   .admin-header-row {
     flex-wrap: nowrap !important;
   }
+}
+
+/* Premium Word-Style Font Style Toolbar Button */
+.font-style-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 2px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-light);
+  font-family: 'Georgia', serif;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.font-style-btn:hover {
+  border-color: var(--color-gold);
+  background: rgba(244, 196, 48, 0.08);
+}
+
+.font-style-btn.active {
+  background: var(--color-gold) !important;
+  color: #000000 !important;
+  border-color: var(--color-gold) !important;
+  box-shadow: 0 0 12px rgba(244, 196, 48, 0.35);
+}
+
+/* Left-Sliding Sidebar (Control Center) */
+.left-sliding-sidebar {
+  position: fixed;
+  top: 0;
+  left: -420px;
+  width: 400px;
+  bottom: 0;
+  z-index: 2000;
+  background: var(--panel-bg) !important;
+  border-right: 1.5px solid var(--panel-border-active);
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-radius: 0 !important;
+  box-shadow: 10px 0 40px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  display: flex;
+  flex-direction: column;
+  transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0 !important;
+}
+
+.left-sliding-sidebar.open {
+  left: 0;
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(5px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1999;
+}
+
+.sidebar-backdrop.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--cell-border);
+}
+
+.sidebar-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--color-gold);
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.btn-close-sidebar {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color var(--transition-fast), transform var(--transition-fast);
+  padding: 4px;
+  line-height: 1;
+}
+
+.btn-close-sidebar:hover {
+  color: var(--color-error);
+  transform: scale(1.15) rotate(90deg);
+}
+
+/* Sidebar Content */
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Custom scrollbar for sidebar content */
+.sidebar-content::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-pill);
+}
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold);
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-section-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--color-text-light);
+  margin: 0 0 4px 0;
+  border-bottom: 1.5px solid var(--color-gold);
+  padding-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid var(--cell-border);
+  margin: 4px 0;
+}
+
+/* Sidebar row card (stacked row elements) */
+.sidebar-row-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--cell-border);
+  border-radius: 12px;
+  padding: 14px;
+  transition: border-color var(--transition-normal), background var(--transition-normal);
+}
+
+.sidebar-row-card:hover {
+  border-color: rgba(244, 196, 48, 0.25);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-row-header {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: var(--color-gold);
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.danger-card {
+  border-color: rgba(255, 61, 61, 0.15);
+  background: rgba(255, 61, 61, 0.02);
+}
+
+.danger-card:hover {
+  border-color: rgba(255, 61, 61, 0.35);
+  background: rgba(255, 61, 61, 0.04);
+}
+
+/* Settings button hover glow and transitions */
+.btn-hamburger-admin {
+  box-shadow: 0 0 10px rgba(244, 196, 48, 0.05);
+  transition: all var(--transition-fast) !important;
+}
+
+.btn-hamburger-admin:hover {
+  background: rgba(244, 196, 48, 0.08) !important;
+  border-color: var(--color-gold) !important;
+  box-shadow: 0 0 18px rgba(244, 196, 48, 0.25) !important;
+  transform: translateY(-1px) scale(1.02);
+  color: var(--color-gold-light) !important;
+}
+
+.btn-hamburger-admin:active {
+  transform: translateY(1px) scale(0.98);
 }
