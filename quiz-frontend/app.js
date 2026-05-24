@@ -40,6 +40,7 @@ let db = {
     totalQuestions: 20,
     displayMode: 'QUESTION_POINTS',
     timerDuration: 10,
+    enableTimer: true,
     gridFont: 'Fredoka One',
     applyFontToAll: false,
     playVideoFeedback: false,
@@ -448,6 +449,8 @@ function loadDB() {
             totalQuestions: parsed.settings?.totalQuestions ?? 20,
             displayMode: parsed.settings?.displayMode ?? 'QUESTION_POINTS',
             timerDuration: parsed.settings?.timerDuration ?? 10,
+            enableTimer: parsed.settings?.enableTimer ?? true,
+            enableTimer: parsed.settings?.enableTimer ?? true,
             gridFont: parsed.settings?.gridFont ?? 'Fredoka One',
             applyFontToAll: parsed.settings?.applyFontToAll ?? false,
             playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
@@ -510,6 +513,9 @@ function loadDB() {
   if (modeEl) modeEl.value = db.settings.displayMode;
   const timerEl = document.getElementById('settings-timer-duration');
   if (timerEl) timerEl.value = db.settings.timerDuration ?? 10;
+
+  const enableTimerEl = document.getElementById('settings-enable-timer');
+  if (enableTimerEl) enableTimerEl.checked = db.settings.enableTimer ?? true;
   const fontEl = document.getElementById('settings-grid-font');
   if (fontEl) fontEl.value = db.settings.gridFont ?? 'Fredoka One';
   const fontColorEl = document.getElementById('settings-grid-font-color');
@@ -747,7 +753,8 @@ async function loadDefaultQuiz() {
       "subtractOnWrong": true,
       "totalQuestions": 20,
       "displayMode": "QUESTION_NUMBER",
-      "enableTieBreaker": true
+      "enableTieBreaker": true,
+      "enableTimer": true
     },
     "questions": [
             {
