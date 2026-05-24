@@ -3726,7 +3726,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Dynamic Scaling Engine
 function applyDynamicScaling() {
-  const currentScreen = document.querySelector('.screen.active')?.id;
   if (getFullscreenState()) {
     document.body.style.zoom = 1;
     return;
@@ -3739,12 +3738,7 @@ function applyDynamicScaling() {
   const scaleY = window.innerHeight / screenH;
 
   // Use the smaller ratio so nothing gets clipped
-  let scale = Math.min(scaleX, scaleY);
-  
-  if (currentScreen === 'admin') {
-    scale *= 1.01;
-  }
-  
+  const scale = Math.min(scaleX, scaleY);
   document.body.style.zoom = scale;
 }
 window.addEventListener('resize', applyDynamicScaling);

@@ -457,7 +457,7 @@ body {
    ============================================================ */
 #screen-container {
   flex: 1;
-  padding: 28px 24px;
+  padding: 28px 24px 76px 24px;
   max-width: 1552px;
   margin: 0 auto;
   width: 100%;
@@ -1697,12 +1697,17 @@ body {
    ============================================================ */
 .app-footer-text {
   text-align: center;
-  padding: 18px;
+  padding: 14px 18px;
   font-size: 0.82rem;
   color: var(--color-text-muted);
   border-top: 1.5px solid var(--cell-border);
   font-weight: 600;
-  margin-top: auto;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--bg-color);
+  z-index: 1000;
 }
 
 /* ============================================================
