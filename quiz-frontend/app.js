@@ -2597,6 +2597,8 @@ function handlePass() {
 // GAME OVER CHECK
 // ============================================================
 function checkGameOver() {
+  if (db.settings.enableTimer === false) return; // Prevent automatic end if timer is disabled
+
   const total = db.settings.totalQuestions;
   const validQuestions = db.questions.filter(x => typeof x.qnIndex === 'number' && x.qnIndex <= total);
   
