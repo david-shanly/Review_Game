@@ -61,8 +61,13 @@ let currentUploadedCorrectVideo = null;
 let currentUploadedWrongVideo = null;
 
 function startGameTimer() {
-  clearInterval(gameTimerInterval);
   const display = document.getElementById('game-timer-display');
+  if (db.settings.enableTimer === false) {
+    clearInterval(gameTimerInterval);
+    if (display) display.style.display = 'none';
+    return;
+  }
+  clearInterval(gameTimerInterval);
   if (display) display.style.display = 'flex';
 
   gameTimerInterval = setInterval(() => {
@@ -449,7 +454,6 @@ function loadDB() {
             totalQuestions: parsed.settings?.totalQuestions ?? 20,
             displayMode: parsed.settings?.displayMode ?? 'QUESTION_POINTS',
             timerDuration: parsed.settings?.timerDuration ?? 10,
-            enableTimer: parsed.settings?.enableTimer ?? true,
             enableTimer: parsed.settings?.enableTimer ?? true,
             gridFont: parsed.settings?.gridFont ?? 'Fredoka One',
             applyFontToAll: parsed.settings?.applyFontToAll ?? false,
@@ -3466,6 +3470,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const enableTimerEl = document.getElementById('settings-enable-timer');
+  if (enableTimerEl) {
+    enableTimerEl.addEventListener('change', (e) => {
+      db.settings.enableTimer = e.target.checked;
+      saveDB();
+      if (!db.settings.enableTimer) {
+        clearGameTimer();
+      } else {
+        if (playState.phase === 'live' && playState.teams && playState.teams.length > 0) {
+          const minutes = db.settings.timerDuration ?? 10;
+          gameTimerEndTime = Date.now() + minutes * 60 * 1000;
+          gameTimerAlertShown = false;
+          startGameTimer();
+        }
+      }
+    });
+  }
+
   const fontEl = document.getElementById('settings-grid-font');
   if (fontEl) {
     fontEl.addEventListener('change', (e) => {
@@ -3717,7 +3739,12 @@ function applyDynamicScaling() {
   const scaleY = window.innerHeight / screenH;
 
   // Use the smaller ratio so nothing gets clipped
-  const scale = Math.min(scaleX, scaleY);
+  let scale = Math.min(scaleX, scaleY);
+  
+  if (currentScreen === 'admin') {
+    scale *= 1.01;
+  }
+  
   document.body.style.zoom = scale;
 }
 window.addEventListener('resize', applyDynamicScaling);
