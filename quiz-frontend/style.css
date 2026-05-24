@@ -1702,6 +1702,7 @@ body {
   color: var(--color-text-muted);
   border-top: 1.5px solid var(--cell-border);
   font-weight: 600;
+  margin-top: auto;
 }
 
 /* ============================================================

@@ -746,107 +746,108 @@ async function loadDefaultQuiz() {
     "settings": {
       "subtractOnWrong": true,
       "totalQuestions": 20,
-      "displayMode": "QUESTION_NUMBER"
+      "displayMode": "QUESTION_NUMBER",
+      "enableTieBreaker": true
     },
     "questions": [
-      {
+            {
         "id": "q1",
         "qnIndex": 1,
         "type": "mcq",
-        "question": "What new name was given to Daniel in Babylon?",
+        "question": "Why did God allow His people to be taken as slaves to Babylon?",
         "options": [
-          "Belteshazzar",
-          "Shadrach",
-          "Meshach",
-          "Abednego"
+          "They were weak in battle",
+          "They forgot their language",
+          "Idolatry and disobedience",
+          "They wanted to move there"
         ],
-        "answer": "Belteshazzar",
-        "points": 100
+        "answer": "Idolatry and disobedience",
+        "points": 700
       },
       {
         "id": "q2",
         "qnIndex": 2,
         "type": "fill",
-        "question": "What did Daniel and his friends refuse to consume?",
+        "question": "Daniel was more __________ than all the magicians in the kingdom. He could also understand __________ and visions.",
         "options": [],
-        "answer": "The king's food and wine",
-        "points": 100
+        "answer": "wise, dreams",
+        "points": 500
       },
       {
         "id": "q3",
         "qnIndex": 3,
         "type": "mcq",
-        "question": "How many days did Daniel ask to be tested on a diet of vegetables and water?",
+        "question": "Who was given the name Abednego?",
         "options": [
-          "7 days",
-          "10 days",
-          "12 days",
-          "40 days"
+          "Daniel",
+          "Mishael",
+          "Azariah",
+          "Hananiah"
         ],
-        "answer": "10 days",
-        "points": 100
+        "answer": "Azariah",
+        "points": 500
       },
       {
         "id": "q4",
         "qnIndex": 4,
-        "type": "mcq",
-        "question": "What was the statue's head made of in Nebuchadnezzar's dream?",
-        "options": [
-          "Silver",
-          "Bronze",
-          "Iron",
-          "Gold"
-        ],
-        "answer": "Gold",
-        "points": 200
+        "type": "fill",
+        "question": "Meat of some animals was not to be __________ according to Jewish law. A portion of the meat was __________ to idols before it reached the king’s table.",
+        "options": [],
+        "answer": "eaten, offered",
+        "points": 300
       },
       {
         "id": "q5",
         "qnIndex": 5,
-        "type": "fill",
-        "question": "What hit the statue and smashed it to pieces in the dream?",
-        "options": [],
-        "answer": "A stone cut out without hands",
-        "points": 200
+        "type": "mcq",
+        "question": "How long were the four men trained before serving the King?",
+        "options": [
+          "1 year",
+          "2 years",
+          "3 years",
+          "5 years"
+        ],
+        "answer": "2 years",
+        "points": 300
       },
       {
         "id": "q6",
         "qnIndex": 6,
-        "type": "mcq",
-        "question": "Who were thrown into the fiery furnace for refusing to bow to the golden image?",
-        "options": [
-          "Daniel and his friends",
-          "Shadrach, Meshach, Abednego",
-          "The wise men of Babylon",
-          "The king's guards"
-        ],
-        "answer": "Shadrach, Meshach, Abednego",
-        "points": 100
+        "type": "fill",
+        "question": "God __________ them and __________ them in the kingdom. He gave them wisdom and __________.",
+        "options": [],
+        "answer": "blessed, honored, understanding",
+        "points": 600
       },
       {
         "id": "q7",
         "qnIndex": 7,
         "type": "mcq",
-        "question": "How many men did the king see walking in the fiery furnace?",
+        "question": "Who was the King of Babylon when Daniel was taken into captivity?",
         "options": [
-          "Two",
-          "Three",
-          "Four",
-          "Five"
+          "King David",
+          "King Nebuchadnezzar",
+          "King Cyrus",
+          "King Saul"
         ],
-        "answer": "Four",
-        "points": 100
+        "answer": "King Nebuchadnezzar",
+        "points": 200
       },
       {
         "id": "q8",
         "qnIndex": 8,
-        "type": "fill",
-        "question": "What happened to Nebuchadnezzar when he became too proud?",
-        "options": [],
-        "answer": "He lived like a wild animal",
-        "points": 300
+        "type": "mcq",
+        "question": "How many days did Daniel request to be tested with vegetables and water?",
+        "options": [
+          "7 days",
+          "10 days",
+          "14 days",
+          "30 days"
+        ],
+        "answer": "10 days",
+        "points": 200
       },
-      {
+{
         "id": "q9",
         "qnIndex": 9,
         "type": "mcq",
@@ -998,6 +999,24 @@ async function loadDefaultQuiz() {
         ],
         "answer": "Prayed and gave thanks to God",
         "points": 100
+      },
+      {
+        "id": "qtiebreaker",
+        "qnIndex": "tiebreaker",
+        "type": "fill",
+        "question": "What reward has God promised to those who overcome temptation? They will receive the __________ of __________.",
+        "options": [],
+        "answer": "Crown of Life",
+        "points": 1000
+      },
+      {
+        "id": "qtiebreaker",
+        "qnIndex": "tiebreaker",
+        "type": "fill",
+        "question": "What reward has God promised to those who overcome temptation? They will receive the __________ of __________.",
+        "options": [],
+        "answer": "Crown of Life",
+        "points": 1000
       }
     ],
     "teams": [
@@ -1218,9 +1237,15 @@ function renderAdminGrid() {
     const hasQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
     const btn = document.createElement('div');
     const isSelected = selectedAdminCellId === 'qntiebreaker';
+    
+    const wrapper = document.createElement('div');
+    wrapper.style.gridColumn = '1 / -1';
+    wrapper.style.display = 'flex';
+    wrapper.style.justifyContent = 'center';
+    wrapper.style.paddingTop = '10px';
+
     btn.className = `board-cell tiebreaker-admin-cell ${hasQ ? 'has-q' : ''} ${isSelected ? 'selected-edit' : ''}`;
-    btn.style.gridColumn = '1 / -1';
-    btn.style.marginTop = '10px';
+    btn.style.width = '50%';
     btn.style.borderColor = 'var(--color-gold)';
     btn.style.background = 'rgba(244, 196, 48, 0.1)';
     
@@ -1243,12 +1268,14 @@ function renderAdminGrid() {
     btn.appendChild(tagEl);
 
     btn.addEventListener('click', () => {
-      playSound('open');
+      playSound('click');
       selectedAdminCellId = 'qntiebreaker';
       openQuestionEditor('tiebreaker');
       renderAdminGrid();
     });
-    container.appendChild(btn);
+    
+    wrapper.appendChild(btn);
+    container.appendChild(wrapper);
   }
 }
 
@@ -1474,8 +1501,15 @@ function renderGameBoard() {
       const tieQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
       const cId = 'c-tiebreaker';
       const btn = document.createElement('button');
+      const wrapper = document.createElement('div');
+      wrapper.style.gridColumn = '1 / -1';
+      wrapper.style.display = 'flex';
+      wrapper.style.justifyContent = 'center';
+      wrapper.style.paddingTop = '15px';
+
       btn.dataset.cellId = cId;
       btn.className = 'game-cell-btn';
+      btn.style.width = '50%';
       btn.style.borderColor = 'var(--color-gold)';
       btn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.4)';
       
@@ -1516,7 +1550,8 @@ function renderGameBoard() {
           openQuestionModal(cId, tieQ);
         });
       }
-      container.appendChild(btn);
+      wrapper.appendChild(btn);
+      container.appendChild(wrapper);
     }
   }
   applySelectedFont();
@@ -3663,7 +3698,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Dynamic Scaling Engine
 function applyDynamicScaling() {
   const currentScreen = document.querySelector('.screen.active')?.id;
-  if (getFullscreenState() || currentScreen === 'screen-admin') {
+  if (getFullscreenState()) {
     document.body.style.zoom = 1;
     return;
   }
