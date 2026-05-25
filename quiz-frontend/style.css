@@ -177,8 +177,7 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* DYNAMIC SCALING ENGINE: Automatically scales the entire UI (fonts, padding, margins) to fit the viewport perfectly! */
-  font-size: clamp(10px, 1vw + 0.7vh, 26px);
+  font-size: 16px; /* Base for default 1080p desktop */
 }
 
 
@@ -522,15 +521,15 @@ body {
    SCREEN 1: DASHBOARD
    ============================================================ */
 .hero-card {
-  width: 90%; max-width: 588px;
+  width: 90%; max-width: 530px;
   margin: 41px auto;
   text-align: center;
-  padding: 48px 41px;
+  padding: 43px 36px;
   border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
   
-  transform: scale(1.05);
+  
 
   margin: auto;
 }
@@ -1397,7 +1396,7 @@ body {
   padding: 50px 43px;
   border-radius: var(--radius-lg);
   
-  transform: scale(1.05);
+  
 
   margin: auto;
 }
