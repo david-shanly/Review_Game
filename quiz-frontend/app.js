@@ -440,8 +440,8 @@ const defaultSettings = {
   playEmojiFeedback: true,
   enableCustomPerQuestionEmoji: true,
   emojiMode: 'random',
-  positiveEmojis: "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏",
-  negativeEmojis: "🤔,😬,🙊,😅,🙈,🤷‍♂️,🤦‍♀️,🤨",
+  positiveEmojis: '👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏',
+  negativeEmojis: '😢,😭,🤦,📉,💔,🙈,😬',
   gridQnColor: '#ffb700',
   gridQnColorDefault: true,
   gridTileColor: '#ffffff',
@@ -2229,8 +2229,8 @@ function showEmojiFeedback(isCorrect, q, callback) {
     return;
   }
 
-  const positiveEmojis = db.settings.positiveEmojis ? db.settings.positiveEmojis.split(',').map(e => e.trim()).filter(e => e) : ['👏', '🎉', '🌟', '🙌', '💯', '🏆', '🤩', '👍', '👌', '😊', '👏'];
-  const negativeEmojis = db.settings.negativeEmojis ? db.settings.negativeEmojis.split(',').map(e => e.trim()).filter(e => e) : ['😢', '😭', '🤦', '📉', '💔', '🙈', '😬', '💀'];
+  const positiveEmojis = db.settings.positiveEmojis ? db.settings.positiveEmojis.split(',').map(e => e.trim()).filter(e => e) : '👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏'.split(',');
+  const negativeEmojis = db.settings.negativeEmojis ? db.settings.negativeEmojis.split(',').map(e => e.trim()).filter(e => e) : '😢,😭,🤦,📉,💔,🙈,😬'.split(',');
   
   let emoji = null;
   if (q && db.settings.enableCustomPerQuestionEmoji !== false) {
@@ -2939,8 +2939,8 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
             playEmojiFeedback: parsed.settings?.playEmojiFeedback !== false,
             enableCustomPerQuestionEmoji: parsed.settings?.enableCustomPerQuestionEmoji ?? true,
             emojiMode: parsed.settings?.emojiMode ?? 'random',
-            positiveEmojis: parsed.settings?.positiveEmojis ?? "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏",
-            negativeEmojis: parsed.settings?.negativeEmojis ?? "😢,😭,🤦,📉,💔,🙈,😬,💀",
+            positiveEmojis: parsed.settings?.positiveEmojis ?? '👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏',
+            negativeEmojis: parsed.settings?.negativeEmojis ?? '😢,😭,🤦,📉,💔,🙈,😬',
             useCustomFeedbackVideos: parsed.settings?.useCustomFeedbackVideos ?? false,
             gridFontColor: parsed.settings?.gridFontColor ?? '#ffffff',
             gridFontBold: parsed.settings?.gridFontBold ?? false,
@@ -2995,10 +2995,10 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
         }
         
         const posEmojiEl = document.getElementById('settings-positive-emojis');
-        if (posEmojiEl) posEmojiEl.value = db.settings.positiveEmojis || "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏";
+        if (posEmojiEl) posEmojiEl.value = db.settings.positiveEmojis || '👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏';
         
         const negEmojiEl = document.getElementById('settings-negative-emojis');
-        if (negEmojiEl) negEmojiEl.value = db.settings.negativeEmojis || "😢,😭,🤦,📉,💔,🙈,😬,💀";
+        if (negEmojiEl) negEmojiEl.value = db.settings.negativeEmojis || '😢,😭,🤦,📉,💔,🙈,😬';
 
         applySelectedFont();
         renderAdminGrid();

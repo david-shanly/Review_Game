@@ -17,10 +17,12 @@
     "playEmojiFeedback": true,
     "enableCustomPerQuestionEmoji": true,
     "emojiMode": "random",
-    "positiveEmojis": "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏",
-    "negativeEmojis": "🤔,😬,🙊,😅,🙈,🤷‍♂️,🤦‍♀️,🤨",
+    "positiveEmojis": "👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏",
+    "negativeEmojis": "😢,😭,🤦,📉,💔,🙈,😬",
     "gridQnColor": "#ffb700",
-    "gridQnColorDefault": true
+    "gridQnColorDefault": true,
+    "gridTileColor": "#ffffff",
+    "gridTileColorDefault": true
   },
   "questions": [
     {
