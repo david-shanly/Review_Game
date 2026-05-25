@@ -1516,8 +1516,7 @@ body {
   margin: auto;
   width: 100%;
   max-width: min(90vw, 1100px);
-  max-height: calc(100vh - 2rem);
-  overflow-y: auto;
+  
   padding: clamp(1.5rem, 4vh, 2.875rem);
   display: flex;
   flex-direction: column;
@@ -1525,6 +1524,8 @@ body {
   background: var(--panel-bg);
   border: 1px solid var(--cell-border);
   border-radius: var(--radius-lg);
+  max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal-overlay.open .modal-content {
@@ -1638,13 +1639,12 @@ body {
   display: flex;
   align-items: center;
   gap: 21px;
-  padding: 1.8rem 2rem;
-  background: var(--cell-bg);
+  padding: clamp(0.8rem, 2.5vh, 1.8rem) clamp(1rem, 2vw, 2rem);background: var(--cell-bg);
   border: 2px solid var(--cell-border);
   border-radius: var(--radius-sm);
   color: var(--color-text-light);
   font-family: var(--font-body);
-  font-size: 1.87rem;
+  font-size: clamp(1rem, 1vw + 1.5vh, 1.87rem);
   font-weight: 700;
   cursor: pointer;
   transition: all var(--transition-bounce);
