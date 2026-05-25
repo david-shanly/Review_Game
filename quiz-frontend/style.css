@@ -225,12 +225,18 @@ body {
   line-height: 1.6;
   transition: background 0.4s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 #app-container, .app-main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Confetti canvas */
@@ -502,7 +508,11 @@ body {
 }
 
 .screen.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 @keyframes screenIn {
@@ -1198,11 +1208,13 @@ body {
 
 /* Game layout */
 .game-layout-container {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 1fr min(30vw, 320px);
   gap: 21px;
-  margin-bottom: 21px;
-  align-items: start;
+  margin-bottom: 0;
+  align-items: stretch;
 }
 
 .game-board-container {
@@ -1380,6 +1392,8 @@ body {
 
 #screen-winner {
   zoom: 0.88;
+  justify-content: center;
+  align-items: center;
 }
 
 .winner-card {
