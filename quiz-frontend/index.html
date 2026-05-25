@@ -94,7 +94,6 @@
             </div>
           </div>
           <div class="admin-header-actions" style="display: flex; gap: 12px; align-items: center;">
-            <button id="btn-admin-save-db" class="btn btn-secondary" style="background: var(--color-success); border-color: var(--color-success);">💾 Save Database</button>
             <button id="btn-admin-back" class="btn btn-secondary">⬅ Back to Home</button>
             <button id="btn-admin-resume" class="btn btn-primary" style="display: none;">▶ Resume Game</button>
           </div>
@@ -385,14 +384,7 @@
       </div>
       <hr class="sidebar-divider">
 
-      <!-- Section 0: Grid Layout -->
-      <div class="sidebar-section">
-        <h4 class="sidebar-section-title">📐 Grid Layout</h4>
-        <div class="premium-controls-wrapper">
-          
-        </div>
-      </div>
-      <hr class="sidebar-divider">
+      
 
       <!-- Section 1: Grid Typography -->
       <div class="sidebar-section">
@@ -474,7 +466,18 @@
 
         <!-- Row 2: Layout & Timer -->
         <div class="premium-controls-wrapper">
-          <div class="sidebar-row-header">📏 Timer</div>
+          
+          <div class="sidebar-row-header">📏 Layout & Timer</div>
+          <div class="form-group" style="margin-top: 12px; display: flex; gap: 12px;">
+            <div style="flex: 1;">
+              <label for="settings-total-questions">Questions</label>
+              <input type="number" id="settings-total-questions" class="modern-input" value="20" min="1" max="100">
+            </div>
+            <div style="flex: 1;">
+              <label for="settings-columns">Columns</label>
+              <input type="number" id="settings-columns" class="modern-input" value="4" min="1" max="10">
+            </div>
+          </div>
           
           <div class="form-group" style="margin-top: 12px; display: flex; gap: 12px;">
               <div style="flex: 1;">
@@ -573,7 +576,7 @@
           <div class="sidebar-row-header">📂 Quiz Files</div>
           <div class="sidebar-btn-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
             <button id="btn-load-default" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">📖 Defaults</button>
-            <button id="btn-export-json" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">📤 Export</button>
+            <button id="btn-export-json" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">💾 Save DB File</button>
             <button id="btn-import-wrapper" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;" onclick="document.getElementById('import-json-file').click();">📥 Import</button>
             <input type="file" id="import-json-file" accept=".json" style="display: none;">
           </div>
