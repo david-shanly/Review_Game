@@ -569,6 +569,28 @@ function loadDB() {
     const uploadsEl = document.getElementById('custom-video-uploads');
     if (uploadsEl) uploadsEl.style.display = customFeedbackEl.checked ? 'flex' : 'none';
   }
+
+  const emojiFeedbackEl = document.getElementById('settings-play-emoji-feedback');
+  if (emojiFeedbackEl) {
+    emojiFeedbackEl.checked = db.settings.playEmojiFeedback !== false;
+    const emojiOpts = document.getElementById('emoji-feedback-options');
+    if (emojiOpts) emojiOpts.style.display = emojiFeedbackEl.checked ? 'flex' : 'none';
+  }
+  
+  const emojiModeEl = document.getElementById('settings-emoji-mode');
+  if (emojiModeEl) {
+    emojiModeEl.value = db.settings.emojiMode || 'random';
+  }
+  
+  const posEmojiEl = document.getElementById('settings-positive-emojis');
+  if (posEmojiEl) {
+    posEmojiEl.value = db.settings.positiveEmojis || "👏,🎉,🌟,🙌,🔥,💯,🏆,🤩";
+  }
+  
+  const negEmojiEl = document.getElementById('settings-negative-emojis');
+  if (negEmojiEl) {
+    negEmojiEl.value = db.settings.negativeEmojis || "😢,😭,🤦,📉,💔,🙈,😬,💀";
+  }
   applySelectedFont();
   updateDashboardStatus();
 }
@@ -689,7 +711,7 @@ function loadGameState() {
             playState.cancelLocked = cLocked;
 
             if (playState.gameState === 'AWAITING_STEAL') {
-              const stealPts = Math.floor(q.points / 2);
+              const stealPts = 50;
               document.getElementById('modal-points-display').textContent = `${stealPts} POINTS - STEAL`;
 
               const turnStatus = document.getElementById('modal-turn-status');
@@ -768,6 +790,7 @@ async function loadDefaultQuiz() {
       "enableTieBreaker": true,
       "enableTimer": false,
       "playVideoFeedback": false,
+      "playEmojiFeedback": true,
       "useCustomFeedbackVideos": false,
       "gridFont": "none"
     },
@@ -1326,6 +1349,17 @@ async function openQuestionEditor(qnIndex) {
   if (correctClearBtn) correctClearBtn.style.display = 'none';
   if (wrongStatusEl) wrongStatusEl.textContent = 'No video selected';
   if (wrongClearBtn) wrongClearBtn.style.display = 'none';
+
+  const qEmojiCorrect = document.getElementById('q-emoji-correct');
+  const qEmojiWrong = document.getElementById('q-emoji-wrong');
+  if (qEmojiCorrect) qEmojiCorrect.value = q ? (q.customCorrectEmoji || '') : '';
+  if (qEmojiWrong) qEmojiWrong.value = q ? (q.customWrongEmoji || '') : '';
+
+  const perQVideo = document.getElementById('per-question-video-options');
+  if (perQVideo) perQVideo.style.display = db.settings.playEmojiFeedback !== false ? 'none' : 'block';
+
+  const perQEmoji = document.getElementById('per-question-emoji-options');
+  if (perQEmoji) perQEmoji.style.display = db.settings.playVideoFeedback ? 'none' : 'block';
 
   if (q) {
     document.getElementById('q-type').value = q.type;
@@ -2402,7 +2436,7 @@ async function resolveAnswer(isCorrect) {
 
   const cId = playState.currentCellId;
   const teamIndex = playState.currentTeamIndex;
-  const pts = playState.hasPassed ? Math.floor(q.points / 2) : q.points;
+  const pts = playState.hasPassed ? 50 : q.points;
 
   // Asynchronously fetch the custom video from IndexedDB if metadata flag is true
   let customCorrectVideoSrc = null;
@@ -2423,19 +2457,40 @@ async function resolveAnswer(isCorrect) {
     }
   }
 
-const positiveEmojis = ['👏', '🎉', '🌟', '🙌', '🔥', '💯', '🏆', '🤩'];
-const negativeEmojis = ['😢', '😭', '🤦', '📉', '💔', '🙈', '😬', '💀'];
+function showEmojiFeedback(isCorrect, q, callback) {
+  if (db.settings.playEmojiFeedback === false) {
+    if (callback) callback();
+    return;
+  }
 
-function showEmojiFeedback(isCorrect, index, callback) {
-  const emojiArray = isCorrect ? positiveEmojis : negativeEmojis;
-  const emoji = emojiArray[index % emojiArray.length];
+  const positiveEmojis = db.settings.positiveEmojis ? db.settings.positiveEmojis.split(',').map(e => e.trim()).filter(e => e) : ['👏', '🎉', '🌟', '🙌', '🔥', '💯', '🏆', '🤩'];
+  const negativeEmojis = db.settings.negativeEmojis ? db.settings.negativeEmojis.split(',').map(e => e.trim()).filter(e => e) : ['😢', '😭', '🤦', '📉', '💔', '🙈', '😬', '💀'];
+  
+  let emoji = null;
+  if (q) {
+    if (isCorrect && q.customCorrectEmoji) emoji = q.customCorrectEmoji;
+    if (!isCorrect && q.customWrongEmoji) emoji = q.customWrongEmoji;
+  }
+  
+  if (!emoji) {
+    const emojiArray = isCorrect ? positiveEmojis : negativeEmojis;
+    const mode = db.settings.emojiMode || 'random';
+    
+    if (mode === 'random') {
+      const randomIndex = Math.floor(Math.random() * emojiArray.length);
+      emoji = emojiArray[randomIndex];
+    } else {
+      const safeIndex = q ? (parseInt(q.qnIndex) || 1) : 1;
+      emoji = emojiArray[safeIndex % emojiArray.length];
+    }
+  }
   
   const fbOverlay = document.createElement('div');
   fbOverlay.style.position = 'fixed';
   fbOverlay.style.top = '0';
   fbOverlay.style.left = '0';
-  fbOverlay.style.width = '100vw';
-  fbOverlay.style.height = '100vh';
+  fbOverlay.style.right = '0';
+  fbOverlay.style.bottom = '0';
   fbOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
   fbOverlay.style.zIndex = '999999';
   fbOverlay.style.display = 'flex';
@@ -2443,10 +2498,16 @@ function showEmojiFeedback(isCorrect, index, callback) {
   fbOverlay.style.alignItems = 'center';
   fbOverlay.style.opacity = '0';
   fbOverlay.style.transition = 'opacity 0.2s';
+  fbOverlay.style.pointerEvents = 'none'; // Ensure it doesn't trap clicks
   
   const sticker = document.createElement('div');
   sticker.textContent = emoji;
-  sticker.style.fontSize = '12rem';
+  sticker.style.fontSize = '15rem';
+  sticker.style.lineHeight = '1';
+  sticker.style.textAlign = 'center';
+  sticker.style.margin = '0';
+  sticker.style.padding = '0';
+  sticker.style.transformOrigin = 'center center';
   sticker.style.transform = 'scale(0) rotate(-45deg)';
   sticker.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
   sticker.style.filter = 'drop-shadow(0 10px 30px rgba(0,0,0,0.8))';
@@ -2520,16 +2581,14 @@ function showEmojiFeedback(isCorrect, index, callback) {
       playCorrectAnswerVideo(customCorrectVideoSrc, finalizeCorrect);
     } else {
       playSound('correct');
-      // Ensure index is a number or default to 1
-      const safeIndex = parseInt(q.qnIndex) || 1;
-      showEmojiFeedback(true, safeIndex, finalizeCorrect);
+      showEmojiFeedback(true, q, finalizeCorrect);
     }
 
   } else {
     if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
 
     if (!playState.hasPassed && !playState.stealAttempted) {
-      const penalty = Math.floor(q.points / 2);
+      const penalty = 50;
       const finalizeFirstWrong = () => {
         applyScore(teamIndex, penalty, true, true);
         updateScoreUI(teamIndex);
@@ -2543,8 +2602,7 @@ function showEmojiFeedback(isCorrect, index, callback) {
         playWrongAnswerVideo(customWrongVideoSrc, finalizeFirstWrong);
       } else {
         playSound('wrong');
-        const safeIndex = parseInt(q.qnIndex) || 1;
-        showEmojiFeedback(false, safeIndex, finalizeFirstWrong);
+        showEmojiFeedback(false, q, finalizeFirstWrong);
       }
     } else {
       const finalizeSecondWrong = () => {
@@ -2580,8 +2638,7 @@ function showEmojiFeedback(isCorrect, index, callback) {
         playWrongAnswerVideo(customWrongVideoSrc, finalizeSecondWrong);
       } else {
         playSound('wrong');
-        const safeIndex = parseInt(q.qnIndex) || 1;
-        showEmojiFeedback(false, safeIndex, finalizeSecondWrong);
+        showEmojiFeedback(false, q, finalizeSecondWrong);
       }
     }
   }
@@ -2593,7 +2650,7 @@ function startStealPhase() {
   playState.currentTeamIndex = nextTeamIndex;
 
   const q = playState.currentQuestion;
-  const stealPts = Math.floor(q.points / 2);
+  const stealPts = 50;
   document.getElementById('modal-points-display').textContent = `${stealPts} POINTS - STEAL`;
 
   // Disable previously selected option if any
@@ -3069,6 +3126,10 @@ document.getElementById('import-json-file').addEventListener('change', e => {
             gridFont: parsed.settings?.gridFont ?? 'Fredoka One',
             applyFontToAll: parsed.settings?.applyFontToAll ?? false,
             playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
+            playEmojiFeedback: parsed.settings?.playEmojiFeedback !== false,
+            emojiMode: parsed.settings?.emojiMode ?? 'random',
+            positiveEmojis: parsed.settings?.positiveEmojis ?? "👏,🎉,🌟,🙌,🔥,💯,🏆,🤩",
+            negativeEmojis: parsed.settings?.negativeEmojis ?? "😢,😭,🤦,📉,💔,🙈,😬,💀",
             useCustomFeedbackVideos: parsed.settings?.useCustomFeedbackVideos ?? false,
             gridFontColor: parsed.settings?.gridFontColor ?? '#ffffff',
             gridFontBold: parsed.settings?.gridFontBold ?? false
@@ -3102,6 +3163,23 @@ document.getElementById('import-json-file').addEventListener('change', e => {
           customFeedbackEl.checked = !!db.settings.useCustomFeedbackVideos;
           document.getElementById('custom-video-uploads').style.display = customFeedbackEl.checked ? 'flex' : 'none';
         }
+
+        const emojiFeedbackEl = document.getElementById('settings-play-emoji-feedback');
+        if (emojiFeedbackEl) {
+          emojiFeedbackEl.checked = db.settings.playEmojiFeedback !== false;
+          const emojiOpts = document.getElementById('emoji-feedback-options');
+          if (emojiOpts) emojiOpts.style.display = emojiFeedbackEl.checked ? 'flex' : 'none';
+        }
+        
+        const emojiModeEl = document.getElementById('settings-emoji-mode');
+        if (emojiModeEl) emojiModeEl.value = db.settings.emojiMode || 'random';
+        
+        const posEmojiEl = document.getElementById('settings-positive-emojis');
+        if (posEmojiEl) posEmojiEl.value = db.settings.positiveEmojis || "👏,🎉,🌟,🙌,🔥,💯,🏆,🤩";
+        
+        const negEmojiEl = document.getElementById('settings-negative-emojis');
+        if (negEmojiEl) negEmojiEl.value = db.settings.negativeEmojis || "😢,😭,🤦,📉,💔,🙈,😬,💀";
+
         applySelectedFont();
         renderAdminGrid();
         renderGameBoard();
@@ -3232,7 +3310,9 @@ document.getElementById('question-form').addEventListener('submit', async e => {
     points: pts,
     video: currentUploadedVideoBase64 ? true : null,
     hasCustomCorrectVideo: currentUploadedCorrectVideo ? true : false,
-    hasCustomWrongVideo: currentUploadedWrongVideo ? true : false
+    hasCustomWrongVideo: currentUploadedWrongVideo ? true : false,
+    customCorrectEmoji: document.getElementById('q-emoji-correct') ? document.getElementById('q-emoji-correct').value.trim() : '',
+    customWrongEmoji: document.getElementById('q-emoji-wrong') ? document.getElementById('q-emoji-wrong').value.trim() : ''
   };
 
   if (existIdx !== -1) db.questions[existIdx] = qObj;
@@ -3602,6 +3682,58 @@ document.addEventListener('DOMContentLoaded', () => {
     videoFeedbackEl.addEventListener('change', (e) => {
       db.settings.playVideoFeedback = e.target.checked;
       document.getElementById('video-feedback-options').style.display = e.target.checked ? 'flex' : 'none';
+      if (e.target.checked) {
+        const emojiEl = document.getElementById('settings-play-emoji-feedback');
+        if (emojiEl && emojiEl.checked) {
+          emojiEl.checked = false;
+          db.settings.playEmojiFeedback = false;
+          const emojiOpts = document.getElementById('emoji-feedback-options');
+          if (emojiOpts) emojiOpts.style.display = 'none';
+        }
+      }
+      saveDB();
+    });
+  }
+
+  const emojiFeedbackEl = document.getElementById('settings-play-emoji-feedback');
+  if (emojiFeedbackEl) {
+    emojiFeedbackEl.addEventListener('change', (e) => {
+      db.settings.playEmojiFeedback = e.target.checked;
+      const emojiOpts = document.getElementById('emoji-feedback-options');
+      if (emojiOpts) emojiOpts.style.display = e.target.checked ? 'flex' : 'none';
+      if (e.target.checked) {
+        const videoEl = document.getElementById('settings-play-video-feedback');
+        if (videoEl && videoEl.checked) {
+          videoEl.checked = false;
+          db.settings.playVideoFeedback = false;
+          const videoOpts = document.getElementById('video-feedback-options');
+          if (videoOpts) videoOpts.style.display = 'none';
+        }
+      }
+      saveDB();
+    });
+  }
+
+  const emojiModeEl = document.getElementById('settings-emoji-mode');
+  if (emojiModeEl) {
+    emojiModeEl.addEventListener('change', (e) => {
+      db.settings.emojiMode = e.target.value;
+      saveDB();
+    });
+  }
+
+  const posEmojiEl = document.getElementById('settings-positive-emojis');
+  if (posEmojiEl) {
+    posEmojiEl.addEventListener('change', (e) => {
+      db.settings.positiveEmojis = e.target.value;
+      saveDB();
+    });
+  }
+
+  const negEmojiEl = document.getElementById('settings-negative-emojis');
+  if (negEmojiEl) {
+    negEmojiEl.addEventListener('change', (e) => {
+      db.settings.negativeEmojis = e.target.value;
       saveDB();
     });
   }

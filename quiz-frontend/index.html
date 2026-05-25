@@ -173,7 +173,7 @@
                   </div>
                 </div>
 
-                <div class="form-group" style="margin-top: 16px; padding: 12px; border: 1px solid var(--panel-border-active); border-radius: 8px; background: rgba(0,0,0,0.15);">
+                <div id="per-question-video-options" class="form-group" style="margin-top: 16px; padding: 12px; border: 1px solid var(--panel-border-active); border-radius: 8px; background: rgba(0,0,0,0.15);">
                   <label style="color: var(--color-gold); margin-bottom: 8px; display: block;">🎥 Per-Question Feedback Videos (Optional)</label>
                   
                   <label style="font-size: 0.75rem; color: var(--color-success); font-weight: 800;">✅ Correct Answer Video</label>
@@ -195,6 +195,16 @@
                     <button type="button" id="btn-clear-q-video-wrong" class="btn btn-danger"
                       style="display: none; padding: 6px 10px; font-size: 0.75rem;">✕ Clear</button>
                   </div>
+                </div>
+
+                <div id="per-question-emoji-options" class="form-group" style="margin-top: 16px; padding: 12px; border: 1px solid var(--panel-border-active); border-radius: 8px; background: rgba(0,0,0,0.15);">
+                  <label style="color: var(--color-gold); margin-bottom: 8px; display: block;">😀 Per-Question Custom Emojis (Optional)</label>
+                  
+                  <label style="font-size: 0.75rem; color: var(--color-success); font-weight: 800;" for="q-emoji-correct">✅ Correct Answer Emoji</label>
+                  <input type="text" id="q-emoji-correct" class="modern-input" placeholder="e.g. 🏆" style="margin-top: 4px; margin-bottom: 12px;">
+                  
+                  <label style="font-size: 0.75rem; color: var(--color-danger); font-weight: 800;" for="q-emoji-wrong">❌ Wrong Answer Emoji</label>
+                  <input type="text" id="q-emoji-wrong" class="modern-input" placeholder="e.g. 💀" style="margin-top: 4px;">
                 </div>
 
 
@@ -364,48 +374,43 @@
     
     <div class="sidebar-content">
       <!-- Section 0: Teams Setup (Moved) -->
-      <div class="sidebar-section" style="padding-bottom:12px;">
-<!-- LEFT SIDEBAR: SETTINGS -->
-          <aside class="admin-sidebar" style="display: flex; flex-direction: column; gap: 20px; padding: 0;">
-            <!-- Section 1: Teams Setup -->
-            <div>
-              <h3 class="section-title" style="margin-top: 0;">👥 Teams Setup</h3>
-              <div class="team-setup-grid" style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
-                <!-- Team 1 Card -->
-                <div class="team-setup-card" id="team1-setup-card" style="padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--cell-border);">
-                  <div class="team-setup-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span class="team-setup-badge team1-badge">TEAM 1</span>
-                    <div class="form-group-checkbox" style="margin: 0; display: flex; align-items: center; gap: 4px;">
-                      <input type="checkbox" id="admin-team1-default" style="margin: 0; width: 14px; height: 14px; cursor: pointer;">
-                      <label for="admin-team1-default" style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); cursor: pointer; margin: 0; user-select: none;">Default</label>
-                    </div>
-                  </div>
-                  <label for="admin-team1-name" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Name</label>
-                  <input type="text" id="admin-team1-name" value="Lion" class="team-setup-input" autocomplete="off" style="padding: 8px 12px; font-size: 0.85rem; margin-bottom: 8px;">
-                  
-                  <label for="admin-team1-logo" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Custom Logo</label>
-                  <input type="file" id="admin-team1-logo" accept="image/*" class="team-setup-file" style="font-size: 0.75rem;">
-                </div>
-
-                <!-- Team 2 Card -->
-                <div class="team-setup-card" id="team2-setup-card" style="padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--cell-border);">
-                  <div class="team-setup-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span class="team-setup-badge team2-badge">TEAM 2</span>
-                    <div class="form-group-checkbox" style="margin: 0; display: flex; align-items: center; gap: 4px;">
-                      <input type="checkbox" id="admin-team2-default" style="margin: 0; width: 14px; height: 14px; cursor: pointer;">
-                      <label for="admin-team2-default" style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); cursor: pointer; margin: 0; user-select: none;">Default</label>
-                    </div>
-                  </div>
-                  <label for="admin-team2-name" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Name</label>
-                  <input type="text" id="admin-team2-name" value="Lioness" class="team-setup-input" autocomplete="off" style="padding: 8px 12px; font-size: 0.85rem; margin-bottom: 8px;">
-                  
-                  <label for="admin-team2-logo" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Custom Logo</label>
-                  <input type="file" id="admin-team2-logo" accept="image/*" class="team-setup-file" style="font-size: 0.75rem;">
+      <div class="sidebar-section">
+        <h4 class="sidebar-section-title">👥 Teams Setup</h4>
+        <div class="premium-controls-wrapper">
+          <div class="team-setup-grid" style="display: flex; flex-direction: column; gap: 14px;">
+            <!-- Team 1 Card -->
+            <div class="team-setup-card" id="team1-setup-card" style="padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border-active);">
+              <div class="team-setup-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span class="team-setup-badge team1-badge">TEAM 1</span>
+                <div class="form-group-checkbox" style="margin: 0; display: flex; align-items: center; gap: 4px;">
+                  <input type="checkbox" id="admin-team1-default" style="margin: 0; width: 14px; height: 14px; cursor: pointer;">
+                  <label for="admin-team1-default" style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); cursor: pointer; margin: 0; user-select: none;">Default</label>
                 </div>
               </div>
+              <label for="admin-team1-name" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Name</label>
+              <input type="text" id="admin-team1-name" value="Lion" class="team-setup-input" autocomplete="off" style="padding: 8px 12px; font-size: 0.85rem; margin-bottom: 8px;">
+              
+              <label for="admin-team1-logo" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Custom Logo</label>
+              <input type="file" id="admin-team1-logo" accept="image/*" class="team-setup-file" style="font-size: 0.75rem;">
             </div>
 
-          </aside>
+            <!-- Team 2 Card -->
+            <div class="team-setup-card" id="team2-setup-card" style="padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.15); border: 1px solid var(--panel-border-active);">
+              <div class="team-setup-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span class="team-setup-badge team2-badge">TEAM 2</span>
+                <div class="form-group-checkbox" style="margin: 0; display: flex; align-items: center; gap: 4px;">
+                  <input type="checkbox" id="admin-team2-default" style="margin: 0; width: 14px; height: 14px; cursor: pointer;">
+                  <label for="admin-team2-default" style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); cursor: pointer; margin: 0; user-select: none;">Default</label>
+                </div>
+              </div>
+              <label for="admin-team2-name" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Name</label>
+              <input type="text" id="admin-team2-name" value="Lioness" class="team-setup-input" autocomplete="off" style="padding: 8px 12px; font-size: 0.85rem; margin-bottom: 8px;">
+              
+              <label for="admin-team2-logo" class="team-setup-label" style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Custom Logo</label>
+              <input type="file" id="admin-team2-logo" accept="image/*" class="team-setup-file" style="font-size: 0.75rem;">
+            </div>
+          </div>
+        </div>
       </div>
       <hr class="sidebar-divider">
 
@@ -460,7 +465,7 @@
           <div class="sidebar-row-header">⚖️ Game Rules</div>
           <div class="form-group-checkbox" style="margin-top: 8px;">
             <input type="checkbox" id="settings-subtract" checked>
-            <label for="settings-subtract">Deduct points on wrong answer</label>
+            <label for="settings-subtract">Deduct 50 points on wrong answer</label>
           </div>
           <div class="form-group-checkbox" style="margin-top: 8px;">
             <input type="checkbox" id="settings-enable-tiebreaker">
@@ -479,6 +484,7 @@
         <!-- Row 2: Layout & Timer -->
         <div class="premium-controls-wrapper">
           <div class="sidebar-row-header">📏 Layout & Timer</div>
+          
           <div style="display: flex; gap: 10px; margin-top: 12px;">
             <div class="form-group" style="flex: 1;">
               <label for="settings-total-questions">Questions</label>
@@ -489,16 +495,45 @@
               <input type="number" id="settings-timer-duration" class="modern-input" value="10" min="1" max="180">
             </div>
           </div>
+          
           <div class="form-group-checkbox" style="margin-top: 10px;">
             <input type="checkbox" id="settings-enable-timer" checked>
             <label for="settings-enable-timer">Enable Countdown Timer</label>
           </div>
 
-          <div class="form-group-checkbox" style="margin-top: 10px;">
-            <input type="checkbox" id="settings-play-video-feedback">
-            <label for="settings-play-video-feedback">Use Video for Feedback</label>
+          <div class="sidebar-row-header" style="margin-top: 16px;">✨ Feedback Systems</div>
+          
+          <!-- Emoji Feedback Toggle -->
+          <div class="form-group-checkbox" style="margin-top: 10px; background: rgba(255, 255, 255, 0.05); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <input type="checkbox" id="settings-play-emoji-feedback" checked>
+            <label for="settings-play-emoji-feedback" style="font-weight: 800;">Use Emoji Feedback</label>
           </div>
-          <div id="video-feedback-options" style="display: none; margin-left: 20px; margin-top: 8px; flex-direction: column; gap: 10px;">
+          
+          <div id="emoji-feedback-options" style="margin-left: 10px; margin-top: 8px; flex-direction: column; gap: 10px; display: flex; background: rgba(0, 0, 0, 0.15); border: 1px solid var(--panel-border-active); border-radius: 8px; padding: 12px;">
+            <div class="form-group">
+              <label for="settings-emoji-mode" style="font-size: 0.75rem;">Emoji Mode</label>
+              <select id="settings-emoji-mode" class="modern-select">
+                <option value="random">Random</option>
+                <option value="sequential">Sequential</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="settings-positive-emojis" style="font-size: 0.75rem;">✅ Correct Emojis (comma-separated)</label>
+              <input type="text" id="settings-positive-emojis" class="modern-input" value="👏,🎉,🌟,🙌,🔥,💯,🏆,🤩">
+            </div>
+            <div class="form-group">
+              <label for="settings-negative-emojis" style="font-size: 0.75rem;">❌ Wrong Emojis (comma-separated)</label>
+              <input type="text" id="settings-negative-emojis" class="modern-input" value="😢,😭,🤦,📉,💔,🙈,😬,💀">
+            </div>
+          </div>
+
+          <!-- Video Feedback Toggle -->
+          <div class="form-group-checkbox" style="margin-top: 12px; background: rgba(255, 255, 255, 0.05); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <input type="checkbox" id="settings-play-video-feedback">
+            <label for="settings-play-video-feedback" style="font-weight: 800;">Use Video Feedback</label>
+          </div>
+          
+          <div id="video-feedback-options" style="display: none; margin-left: 10px; margin-top: 8px; flex-direction: column; gap: 10px; background: rgba(0, 0, 0, 0.15); border: 1px solid var(--panel-border-active); border-radius: 8px; padding: 12px;">
             <div class="form-group-checkbox" style="margin: 0;">
               <input type="checkbox" id="settings-use-custom-feedback">
               <label for="settings-use-custom-feedback" style="font-size: 0.75rem;">Use Custom Videos (Uncheck for defaults)</label>
