@@ -919,6 +919,7 @@ function renderAdminGrid() {
     // Row labels removed
 
     for (let c = 0; c < cols; c++) {
+      const currentQn = qn; // Capture for closure
       if (qn > total) {
         const cell = document.createElement('div');
         cell.className = 'board-cell cell-disabled';
@@ -994,7 +995,7 @@ function renderAdminGrid() {
         playSound('click');
         selectedAdminCellId = cId;
         renderAdminGrid();
-        openQuestionEditor(qn);
+        openQuestionEditor(currentQn);
       });
       container.appendChild(cell);
       qn++;
