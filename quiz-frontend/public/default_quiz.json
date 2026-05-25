@@ -4,150 +4,126 @@
     "totalQuestions": 13,
     "displayMode": "QUESTION_NUMBER",
     "enableTieBreaker": true,
-    "enableTimer": true
+    "enableTimer": true,
+    "gridCols": 4
   },
   "questions": [
     {
       "id": "q1",
       "qnIndex": 1,
       "type": "mcq",
-      "points": 200,
       "question": "Who was the king of Babylon when Daniel was taken into captivity?",
-      "options": [
-        "King David",
-        "King Cyrus",
-        "King Nebuchadnezzar",
-        "King Saul"
-      ],
-      "answer": "King Nebuchadnezzar"
+      "options": ["King David", "King Cyrus", "King Nebuchadnezzar", "King Saul"],
+      "answer": "King Nebuchadnezzar",
+      "points": 200
     },
     {
       "id": "q2",
       "qnIndex": 2,
       "type": "mcq",
-      "points": 300,
-      "question": "Who was the chief officer who brought the young men of Judah into the palace?",
-      "options": [
-        "Daniel",
-        "Ashpenaz",
-        "Abednego",
-        "E Ezekiel"
-      ],
-      "answer": "Ashpenaz"
+      "question": "Who was the chief officer under King Nebuchadnezzar who brought the young men of Judah into the palace?",
+      "options": ["Daniel", "Ashpenaz", "Abednego", "Ezekiel"],
+      "answer": "Ashpenaz",
+      "points": 200
     },
     {
       "id": "q3",
       "qnIndex": 3,
       "type": "mcq",
-      "points": 200,
       "question": "What was the right choice Daniel and his friends made?",
-      "options": [
-        "To join idol worship",
-        "To honor God and avoid sin",
-        "To run away from Babylon",
-        "To become soldiers"
-      ],
-      "answer": "To honor God and avoid sin"
+      "options": ["To join idol worship", "To honor God and avoid sin", "To run away from Babylon", "To become soldiers"],
+      "answer": "To honor God and avoid sin",
+      "points": 200
     },
     {
       "id": "q4",
       "qnIndex": 4,
       "type": "mcq",
-      "points": 300,
-      "question": "How did Daniel and his friends overcome temptation?",
-      "options": [
-        "By fighting their enemies",
-        "By trusting God",
-        "By hiding from the king",
-        "By ignoring their beliefs"
-      ],
-      "answer": "By trusting God"
+      "question": "Why was eating the king’s food a problem?",
+      "options": ["It was too expensive", "It was not tasty", "It was offered to idols and unclean according to Jewish law", "It was vegetarian"],
+      "answer": "It was offered to idols and unclean according to Jewish law",
+      "points": 200
     },
     {
       "id": "q5",
       "qnIndex": 5,
-      "type": "mcq",
-      "points": 400,
-      "question": "Why was eating the king’s food a problem?",
-      "options": [
-        "It was too expensive",
-        "It was not tasty",
-        "It was offered to idols and unclean according to Jewish law",
-        "It was vegetarian"
-      ],
-      "answer": "It was offered to idols and unclean according to Jewish law"
+      "type": "fill_blank",
+      "question": "Psalms 25:12 \\\"Who is the man that __________? Him shall He teach in the way He chooses.\\\"",
+      "options": [],
+      "answer": "fears the LORD",
+      "points": 300
     },
     {
       "id": "q6",
       "qnIndex": 6,
       "type": "fill_blank",
-      "points": 200,
-      "question": "Psalms 25:12 — “Who is the man that ______? Him shall He teach in the way He chooses.”",
-      "answer": "fears the LORD"
+      "question": "Who got the name Abednego?",
+      "options": [],
+      "answer": "Azariah",
+      "points": 300
     },
     {
       "id": "q7",
       "qnIndex": 7,
       "type": "fill_blank",
-      "points": 300,
-      "question": "Who got the name Abednego? ______",
-      "answer": "Azariah"
+      "question": "How long were Daniel and his friends trained before serving the king?",
+      "options": [],
+      "answer": "3 years",
+      "points": 300
     },
     {
       "id": "q8",
       "qnIndex": 8,
       "type": "fill_blank",
-      "points": 200,
-      "question": "How many days did Daniel request to be tested with vegetables and water? ______",
-      "answer": "10 days"
+      "question": "Daniel and his friends overcome temptation by ___________",
+      "options": [],
+      "answer": "By trusting in God",
+      "points": 300
     },
     {
       "id": "q9",
       "qnIndex": 9,
-      "type": "fill_blank",
-      "points": 300,
-      "question": "How long were Daniel and his friends trained before serving the king? ______",
-      "answer": "3 years"
+      "type": "short",
+      "question": "Why did God allow His people to be taken into Babylon captivity?",
+      "options": [],
+      "answer": "Because Israel disobeyed God and worshipped idols, so God allowed captivity as discipline.",
+      "points": 500
     },
     {
       "id": "q10",
       "qnIndex": 10,
-      "type": "short_answer",
-      "points": 500,
-      "question": "Why did God allow His people to be taken into Babylon captivity?",
-      "answer": "Because the Israelites disobeyed God and worshipped idols, so God allowed captivity as discipline."
+      "type": "short",
+      "question": "What happened when Daniel and his friends refused the king’s food?",
+      "options": [],
+      "answer": "They appeared healthier and stronger than those who ate the king’s food.",
+      "points": 500
     },
     {
       "id": "q11",
       "qnIndex": 11,
-      "type": "short_answer",
-      "points": 600,
-      "question": "What happened when Daniel and his friends refused the king’s food?",
-      "answer": "They looked healthier and better nourished than all the others who ate the king’s food."
+      "type": "short",
+      "question": "How did God reward Daniel and his friends for their obedience?",
+      "options": [],
+      "answer": "God gave them wisdom, favor, and high positions in Babylon, and Daniel received understanding of dreams and visions.",
+      "points": 500
     },
     {
       "id": "q12",
       "qnIndex": 12,
-      "type": "short_answer",
-      "points": 600,
-      "question": "How did God reward Daniel and his friends for their obedience?",
-      "answer": "God gave them wisdom, understanding, health, and high positions in Babylon. Daniel also received the ability to understand dreams and visions."
-    },
-    {
-      "id": "q13",
-      "qnIndex": 13,
-      "type": "long_answer",
-      "points": 800,
-      "question": "Explain the life choices of Daniel and his friends in Babylon and how God helped them because of their faithfulness.",
-      "answer": "Daniel and his friends chose to remain faithful to God by refusing to defile themselves with the king’s food and by living according to God’s commands. Because of their obedience, God blessed them with wisdom, strength, favor, and high positions in Babylon. God also gave Daniel special understanding of dreams and visions, showing that He rewards those who remain faithful."
+      "type": "short",
+      "question": "What choices did Daniel and his friends make in Babylon, and what was the result?",
+      "options": [],
+      "answer": "They chose to stay faithful to God, refused to defile themselves, and God blessed them with wisdom, health, and promotion in the kingdom.",
+      "points": 500
     },
     {
       "id": "tiebreaker",
       "qnIndex": "tiebreaker",
-      "type": "short_answer",
-      "points": 1000,
+      "type": "tiebreaker",
       "question": "What is the reward God has promised to those who overcome temptation?",
-      "answer": "Crown of Life"
+      "options": [],
+      "answer": "Crown of Life",
+      "points": 1000
     }
   ]
 }

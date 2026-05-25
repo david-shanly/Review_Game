@@ -6,7 +6,6 @@
 // ============================================================
 // CONSTANTS
 // ============================================================
-const GRID_COLS = 5; // 5 columns fixed
 const DEFAULT_TEAMS = [
   { name: 'Lion', logo: 'lion.png' },
   { name: 'Lioness', logo: 'lioness.png' }
@@ -440,157 +439,138 @@ function saveDB() {
   updateDashboardStatus();
 }
 
+const defaultSettings = {
+  subtractOnWrong: true,
+  totalQuestions: 13,
+  displayMode: 'QUESTION_NUMBER',
+  timerDuration: 10,
+  enableTimer: true,
+  gridFont: 'Fredoka One',
+  applyFontToAll: false,
+  playVideoFeedback: false,
+  enableTieBreaker: true,
+  useCustomFeedbackVideos: false,
+  gridFontColor: '#ffffff',
+  gridFontBold: false,
+  useDefaultFontColor: true,
+  gridCols: 4,
+  playEmojiFeedback: true,
+  emojiMode: 'random',
+  positiveEmojis: "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏",
+  negativeEmojis: "🤔,😬,🙊,😅,🙈,🤷‍♂️,🤦‍♀️,🤨",
+  gridQnColor: '#ffb700',
+  gridQnColorDefault: true
+};
+
+function hydrateControlCenter(settings) {
+  const gridColsEl = document.getElementById('settings-grid-cols');
+  if (gridColsEl) gridColsEl.value = settings.gridCols ?? 4;
+  
+  const gridFontEl = document.getElementById('settings-grid-font');
+  if (gridFontEl) gridFontEl.value = settings.gridFont ?? 'Fredoka One';
+  
+  const fontColorEl = document.getElementById('settings-grid-font-color');
+  if (fontColorEl) fontColorEl.value = settings.gridFontColor ?? '#ffffff';
+  
+  const fontBoldEl = document.getElementById('settings-grid-font-bold-btn');
+  if (fontBoldEl) {
+    if (settings.gridFontBold) fontBoldEl.classList.add('active');
+    else fontBoldEl.classList.remove('active');
+  }
+  
+  const defaultFontColorEl = document.getElementById('settings-grid-font-color-default');
+  if (defaultFontColorEl) defaultFontColorEl.checked = settings.useDefaultFontColor ?? true;
+
+  const qnColorEl = document.getElementById('settings-grid-qn-color');
+  if (qnColorEl) qnColorEl.value = settings.gridQnColor ?? '#ffb700';
+  
+  const qnColorDefaultEl = document.getElementById('settings-grid-qn-color-default');
+  if (qnColorDefaultEl) qnColorDefaultEl.checked = settings.gridQnColorDefault ?? true;
+
+  const applyAllEl = document.getElementById('settings-font-apply-all');
+  if (applyAllEl) applyAllEl.checked = settings.applyFontToAll ?? false;
+  
+  const subtractEl = document.getElementById('settings-subtract');
+  if (subtractEl) subtractEl.checked = settings.subtractOnWrong ?? true;
+  
+  const tieBreakerEl = document.getElementById('settings-enable-tiebreaker');
+  if (tieBreakerEl) tieBreakerEl.checked = settings.enableTieBreaker ?? true;
+  
+  const displayModeEl = document.getElementById('settings-display-mode');
+  if (displayModeEl) displayModeEl.value = settings.displayMode ?? 'QUESTION_NUMBER';
+  
+  const timerDurationEl = document.getElementById('settings-timer-duration');
+  if (timerDurationEl) timerDurationEl.value = settings.timerDuration ?? 10;
+  
+  const enableTimerEl = document.getElementById('settings-enable-timer');
+  if (enableTimerEl) enableTimerEl.checked = settings.enableTimer ?? true;
+  
+  const emojiFeedbackEl = document.getElementById('settings-play-emoji-feedback');
+  if (emojiFeedbackEl) emojiFeedbackEl.checked = settings.playEmojiFeedback ?? true;
+  
+  const emojiModeEl = document.getElementById('settings-emoji-mode');
+  if (emojiModeEl) emojiModeEl.value = settings.emojiMode ?? 'random';
+  
+  const videoFeedbackEl = document.getElementById('settings-play-video-feedback');
+  if (videoFeedbackEl) videoFeedbackEl.checked = settings.playVideoFeedback ?? false;
+  
+  const customFeedbackEl = document.getElementById('settings-use-custom-feedback');
+  if (customFeedbackEl) customFeedbackEl.checked = settings.useCustomFeedbackVideos ?? false;
+
+  if (db.teams && db.teams.length >= 2) {
+    const t1Name = document.getElementById('admin-team1-name');
+    if (t1Name) t1Name.value = db.teams[0].name;
+    const t2Name = document.getElementById('admin-team2-name');
+    if (t2Name) t2Name.value = db.teams[1].name;
+  }
+}
+
+function loadSavedDB(parsed) {
+  if (parsed && typeof parsed === 'object') {
+    db = {
+      settings: {
+        ...defaultSettings,
+        ...parsed.settings
+      },
+      questions: parsed.questions || [],
+      teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
+        ? parsed.teams.map((t, i) => {
+          let teamObj = typeof t === 'string' ? { name: t, logo: DEFAULT_TEAMS[i].logo } : t;
+          if (teamObj.useDefault === undefined) {
+            teamObj.useDefault = (teamObj.name === DEFAULT_TEAMS[i].name && (teamObj.logo === DEFAULT_TEAMS[i].logo || !teamObj.logo));
+          }
+          return teamObj;
+        })
+        : [...DEFAULT_TEAMS],
+    };
+    
+    hydrateControlCenter(db.settings);
+    
+    document.documentElement.style.setProperty('--cols', db.settings.gridCols);
+    
+    renderGameBoard();
+    renderAdminGrid();
+    applyDynamicFont();
+  }
+}
+
 function loadDB() {
   const stored = localStorage.getItem('review_game_db');
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      if (parsed && typeof parsed === 'object') {
-        db = {
-          settings: {
-            subtractOnWrong: parsed.settings?.subtractOnWrong ?? true,
-            totalQuestions: parsed.settings?.totalQuestions ?? 20,
-            displayMode: parsed.settings?.displayMode ?? 'QUESTION_POINTS',
-            timerDuration: parsed.settings?.timerDuration ?? 10,
-            enableTimer: parsed.settings?.enableTimer ?? true,
-            gridFont: parsed.settings?.gridFont ?? 'Fredoka One',
-            applyFontToAll: parsed.settings?.applyFontToAll ?? false,
-            playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
-            enableTieBreaker: parsed.settings?.enableTieBreaker ?? false,
-            useCustomFeedbackVideos: parsed.settings?.useCustomFeedbackVideos ?? false,
-            gridFontColor: parsed.settings?.gridFontColor ?? '#ffffff',
-            gridFontBold: parsed.settings?.gridFontBold ?? false,
-            useDefaultFontColor: parsed.settings?.useDefaultFontColor ?? true
-          },
-          questions: parsed.questions || [],
-          teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
-            ? parsed.teams.map((t, i) => {
-              let teamObj = typeof t === 'string' ? { name: t, logo: DEFAULT_TEAMS[i].logo } : t;
-              if (teamObj.useDefault === undefined) {
-                teamObj.useDefault = (teamObj.name === DEFAULT_TEAMS[i].name && (teamObj.logo === DEFAULT_TEAMS[i].logo || !teamObj.logo));
-              }
-              return teamObj;
-            })
-            : DEFAULT_TEAMS.map((t, i) => ({ ...t, useDefault: true })),
-        };
-      }
-    } catch (e) {
-      console.warn('Review Game: DB load error, using defaults', e);
+      loadSavedDB(parsed);
+    } catch (err) {
+      console.error('Failed to parse DB from localStorage', err);
+      db.settings = { ...defaultSettings };
+      hydrateControlCenter(db.settings);
     }
+  } else {
+    db.settings = { ...defaultSettings };
+    hydrateControlCenter(db.settings);
   }
-
-  // Ensure default structure exists if empty initially
-  if (!db.teams || db.teams.length < 2) {
-    db.teams = DEFAULT_TEAMS.map((t, i) => ({ ...t, useDefault: true }));
-  }
-
-  // Populate Admin Inputs & Sync Default Toggles
-  const t1Name = document.getElementById('admin-team1-name');
-  if (t1Name) t1Name.value = db.teams[0].name || 'Lion';
-  const t2Name = document.getElementById('admin-team2-name');
-  if (t2Name) t2Name.value = db.teams[1].name || 'Lioness';
-
-  const t1Def = document.getElementById('admin-team1-default');
-  if (t1Def) {
-    t1Def.checked = !!db.teams[0].useDefault;
-    if (t1Name) t1Name.disabled = t1Def.checked;
-    const t1Logo = document.getElementById('admin-team1-logo');
-    if (t1Logo) t1Logo.disabled = t1Def.checked;
-  }
-
-  const t2Def = document.getElementById('admin-team2-default');
-  if (t2Def) {
-    t2Def.checked = !!db.teams[1].useDefault;
-    if (t2Name) t2Name.disabled = t2Def.checked;
-    const t2Logo = document.getElementById('admin-team2-logo');
-    if (t2Logo) t2Logo.disabled = t2Def.checked;
-  }
-
-  // Sync UI
-  const subEl = document.getElementById('settings-subtract');
-  if (subEl) subEl.checked = !!db.settings.subtractOnWrong;
-  const totEl = document.getElementById('settings-total-questions');
-  if (totEl) totEl.value = db.settings.totalQuestions;
-  const modeEl = document.getElementById('settings-display-mode');
-  if (modeEl) modeEl.value = db.settings.displayMode;
-  const timerEl = document.getElementById('settings-timer-duration');
-  if (timerEl) timerEl.value = db.settings.timerDuration ?? 10;
-
-  const enableTimerEl = document.getElementById('settings-enable-timer');
-  if (enableTimerEl) enableTimerEl.checked = db.settings.enableTimer ?? true;
-
-  const highContrastEl = document.getElementById('settings-high-contrast');
-  if (highContrastEl) {
-    highContrastEl.checked = db.settings.highContrast ?? false;
-    document.body.classList.toggle('high-contrast', !!db.settings.highContrast);
-  }
-  const fontEl = document.getElementById('settings-grid-font');
-  if (fontEl) fontEl.value = db.settings.gridFont ?? 'Fredoka One';
-  const fontColorEl = document.getElementById('settings-grid-font-color');
-  if (fontColorEl) fontColorEl.value = db.settings.gridFontColor ?? '#ffffff';
-
-  // Sync Default Font Color Checkbox
-  const fontColorDefEl = document.getElementById('settings-grid-font-color-default');
-  if (fontColorDefEl) {
-    fontColorDefEl.checked = db.settings.useDefaultFontColor !== false;
-    if (fontColorEl) fontColorEl.disabled = fontColorDefEl.checked;
-  }
-
-  // Sync Bold Style button visual active state
-  const fontBoldBtn = document.getElementById('settings-grid-font-bold-btn');
-  if (fontBoldBtn) {
-    fontBoldBtn.classList.toggle('active', !!db.settings.gridFontBold);
-  }
-
-  const applyAllEl = document.getElementById('settings-font-apply-all');
-  if (applyAllEl) applyAllEl.checked = !!db.settings.applyFontToAll;
-  const tieBreakerEl = document.getElementById('settings-enable-tiebreaker');
-  if (tieBreakerEl) {
-    tieBreakerEl.checked = !!db.settings.enableTieBreaker;
-    tieBreakerEl.addEventListener('change', (e) => {
-      db.settings.enableTieBreaker = e.target.checked;
-      saveDB();
-      renderAdminGrid();
-    });
-  }
-
-  const videoFeedbackEl = document.getElementById('settings-play-video-feedback');
-  if (videoFeedbackEl) {
-    videoFeedbackEl.checked = !!db.settings.playVideoFeedback;
-    const optionsEl = document.getElementById('video-feedback-options');
-    if (optionsEl) optionsEl.style.display = videoFeedbackEl.checked ? 'flex' : 'none';
-  }
-  const customFeedbackEl = document.getElementById('settings-use-custom-feedback');
-  if (customFeedbackEl) {
-    customFeedbackEl.checked = !!db.settings.useCustomFeedbackVideos;
-    const uploadsEl = document.getElementById('custom-video-uploads');
-    if (uploadsEl) uploadsEl.style.display = customFeedbackEl.checked ? 'flex' : 'none';
-  }
-
-  const emojiFeedbackEl = document.getElementById('settings-play-emoji-feedback');
-  if (emojiFeedbackEl) {
-    emojiFeedbackEl.checked = db.settings.playEmojiFeedback !== false;
-    const emojiOpts = document.getElementById('emoji-feedback-options');
-    if (emojiOpts) emojiOpts.style.display = emojiFeedbackEl.checked ? 'flex' : 'none';
-  }
-  
-  const emojiModeEl = document.getElementById('settings-emoji-mode');
-  if (emojiModeEl) {
-    emojiModeEl.value = db.settings.emojiMode || 'random';
-  }
-  
-  const posEmojiEl = document.getElementById('settings-positive-emojis');
-  if (posEmojiEl) {
-    posEmojiEl.value = db.settings.positiveEmojis || "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏";
-  }
-  
-  const negEmojiEl = document.getElementById('settings-negative-emojis');
-  if (negEmojiEl) {
-    negEmojiEl.value = db.settings.negativeEmojis || "😢,😭,🤦,📉,💔,🙈,😬,💀";
-  }
-  applySelectedFont();
-  updateDashboardStatus();
 }
+
 
 function updateDashboardStatus() {
   const statusDiv = document.getElementById('dashboard-status');
@@ -776,192 +756,42 @@ async function loadDefaultQuiz() {
   try {
     await clearAllVideosFromIndexedDB();
   } catch (err) {
-    console.error("Failed to clear IndexedDB custom videos on loading defaults:", err);
+    console.error("Failed to clear IndexedDB custom videos:", err);
   }
 
-  const data = {
-  "settings": {
-    "subtractOnWrong": true,
-    "totalQuestions": 13,
-    "displayMode": "QUESTION_NUMBER",
-    "enableTieBreaker": true,
-    "enableTimer": true
-  },
-  "questions": [
-    {
-      "id": "q1",
-      "qnIndex": 1,
-      "type": "mcq",
-      "points": 200,
-      "question": "Who was the king of Babylon when Daniel was taken into captivity?",
-      "options": [
-        "King David",
-        "King Cyrus",
-        "King Nebuchadnezzar",
-        "King Saul"
-      ],
-      "answer": "King Nebuchadnezzar"
-    },
-    {
-      "id": "q2",
-      "qnIndex": 2,
-      "type": "mcq",
-      "points": 300,
-      "question": "Who was the chief officer who brought the young men of Judah into the palace?",
-      "options": [
-        "Daniel",
-        "Ashpenaz",
-        "Abednego",
-        "E Ezekiel"
-      ],
-      "answer": "Ashpenaz"
-    },
-    {
-      "id": "q3",
-      "qnIndex": 3,
-      "type": "mcq",
-      "points": 200,
-      "question": "What was the right choice Daniel and his friends made?",
-      "options": [
-        "To join idol worship",
-        "To honor God and avoid sin",
-        "To run away from Babylon",
-        "To become soldiers"
-      ],
-      "answer": "To honor God and avoid sin"
-    },
-    {
-      "id": "q4",
-      "qnIndex": 4,
-      "type": "mcq",
-      "points": 300,
-      "question": "How did Daniel and his friends overcome temptation?",
-      "options": [
-        "By fighting their enemies",
-        "By trusting God",
-        "By hiding from the king",
-        "By ignoring their beliefs"
-      ],
-      "answer": "By trusting God"
-    },
-    {
-      "id": "q5",
-      "qnIndex": 5,
-      "type": "mcq",
-      "points": 400,
-      "question": "Why was eating the king’s food a problem?",
-      "options": [
-        "It was too expensive",
-        "It was not tasty",
-        "It was offered to idols and unclean according to Jewish law",
-        "It was vegetarian"
-      ],
-      "answer": "It was offered to idols and unclean according to Jewish law"
-    },
-    {
-      "id": "q6",
-      "qnIndex": 6,
-      "type": "fill_blank",
-      "points": 200,
-      "question": "Psalms 25:12 — “Who is the man that ______? Him shall He teach in the way He chooses.”",
-      "answer": "fears the LORD"
-    },
-    {
-      "id": "q7",
-      "qnIndex": 7,
-      "type": "fill_blank",
-      "points": 300,
-      "question": "Who got the name Abednego? ______",
-      "answer": "Azariah"
-    },
-    {
-      "id": "q8",
-      "qnIndex": 8,
-      "type": "fill_blank",
-      "points": 200,
-      "question": "How many days did Daniel request to be tested with vegetables and water? ______",
-      "answer": "10 days"
-    },
-    {
-      "id": "q9",
-      "qnIndex": 9,
-      "type": "fill_blank",
-      "points": 300,
-      "question": "How long were Daniel and his friends trained before serving the king? ______",
-      "answer": "3 years"
-    },
-    {
-      "id": "q10",
-      "qnIndex": 10,
-      "type": "short_answer",
-      "points": 500,
-      "question": "Why did God allow His people to be taken into Babylon captivity?",
-      "answer": "Because the Israelites disobeyed God and worshipped idols, so God allowed captivity as discipline."
-    },
-    {
-      "id": "q11",
-      "qnIndex": 11,
-      "type": "short_answer",
-      "points": 600,
-      "question": "What happened when Daniel and his friends refused the king’s food?",
-      "answer": "They looked healthier and better nourished than all the others who ate the king’s food."
-    },
-    {
-      "id": "q12",
-      "qnIndex": 12,
-      "type": "short_answer",
-      "points": 600,
-      "question": "How did God reward Daniel and his friends for their obedience?",
-      "answer": "God gave them wisdom, understanding, health, and high positions in Babylon. Daniel also received the ability to understand dreams and visions."
-    },
-    {
-      "id": "q13",
-      "qnIndex": 13,
-      "type": "long_answer",
-      "points": 800,
-      "question": "Explain the life choices of Daniel and his friends in Babylon and how God helped them because of their faithfulness.",
-      "answer": "Daniel and his friends chose to remain faithful to God by refusing to defile themselves with the king’s food and by living according to God’s commands. Because of their obedience, God blessed them with wisdom, strength, favor, and high positions in Babylon. God also gave Daniel special understanding of dreams and visions, showing that He rewards those who remain faithful."
-    },
-    {
-      "id": "tiebreaker",
-      "qnIndex": "tiebreaker",
-      "type": "short_answer",
-      "points": 1000,
-      "question": "What is the reward God has promised to those who overcome temptation?",
-      "answer": "Crown of Life"
+  try {
+    const response = await fetch('default_quiz.json');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const defaultData = await response.json();
+    
+    db.questions = defaultData.questions;
+    
+    if (defaultData.settings) {
+       db.settings.totalQuestions = defaultData.settings.totalQuestions;
+       db.settings.enableTieBreaker = defaultData.settings.enableTieBreaker;
+       db.settings.gridCols = defaultData.settings.gridCols || 4;
     }
-  ],
-  "teams": [
-    {
-      "name": "Lion",
-      "logo": "lion.png"
-    },
-    {
-      "name": "Lioness",
-      "logo": "lioness.png"
-    }
-  ]
-};
-  db = data;
+  } catch (err) {
+    console.error("Failed to fetch default_quiz.json:", err);
+  }
+
   saveDB();
   loadDB();
+  
   playState.phase = 'live';
   playState.gameState = 'IDLE';
   resetPlayState();
   saveGameState();
   updateGameStatusUI();
-  renderAdminGrid();
 
-  // Display animated toast notification
   triggerAlert('SYSTEM', 'Questions loaded!', 'gain');
-
-  // Flash a quick success message on the status board instead of a blocking alert
   const statusDiv = document.getElementById('dashboard-status');
   if (statusDiv) {
     statusDiv.innerHTML = '<div class="bold-text" style="color:var(--color-success);">✅ Default Database Loaded!</div>';
     setTimeout(updateDashboardStatus, 3000);
   }
 }
+
 
 // ============================================================
 // THEME
@@ -1068,37 +898,161 @@ function applySelectedFont() {
 // ============================================================
 let selectedAdminCellId = null;
 
+function getTypeLabel(type) {
+  switch (type) {
+    case 'mcq': return 'MCQ';
+    case 'fill_blank': return 'Fill in the Blanks';
+    case 'fill': return 'Fill in the Blanks';
+    case 'short': return 'Short Answer';
+    case 'short_answer': return 'Short Answer';
+    case 'long': return 'Long Answer';
+    case 'long_answer': return 'Long Answer';
+    default: return '';
+  }
+}
+
 function renderAdminGrid() {
   const container = document.getElementById('admin-interactive-grid');
   container.innerHTML = '';
-  container.style.gridTemplateColumns = `repeat(${GRID_COLS}, 1fr)`;
+  const cols = db.settings.gridCols || 4;
+  document.documentElement.style.setProperty('--cols', cols);
 
-  document.getElementById('admin-q-count').textContent = `Questions added: ${db.questions.length}`;
+  const qCountEl = document.getElementById('admin-q-count');
+  if (qCountEl) qCountEl.textContent = `Questions added: ${db.questions.filter(x => x.qnIndex !== 'tiebreaker').length}`;
 
+  const questionsExcludingTB = db.questions.filter(x => x.qnIndex !== 'tiebreaker');
   const total = db.settings.totalQuestions;
-  const rows = Math.ceil(total / GRID_COLS);
-  const totalCells = rows * GRID_COLS;
+  const rows = Math.ceil(total / cols);
 
-  for (let qn = 1; qn <= totalCells; qn++) {
-    const cId = cellId(qn);
-    const q = db.questions.find(x => x.qnIndex === qn);
-    const cell = document.createElement('div');
+  const emptyLabel = document.createElement('div');
+  container.appendChild(emptyLabel);
+  for (let c = 1; c <= cols; c++) {
+    const colLabel = document.createElement('div');
+    colLabel.className = 'grid-col-label';
+    colLabel.textContent = `Column ${c}`;
+    container.appendChild(colLabel);
+  }
 
-    if (qn > total) {
-      cell.className = 'board-cell cell-disabled';
-      cell.style.opacity = '0.2';
-      cell.innerHTML = '<span class="cell-qn-label">—</span>';
-      container.appendChild(cell);
-      continue;
+  let qn = 1;
+  for (let r = 0; r < rows; r++) {
+    let rowTypes = [];
+    let isRowFull = true;
+    for (let c = 0; c < cols; c++) {
+      const cellQn = (r * cols) + c + 1;
+      if (cellQn > total) {
+        isRowFull = false;
+        break;
+      }
+      const q = questionsExcludingTB.find(x => x.qnIndex === cellQn);
+      if (q) rowTypes.push(q.type);
+      else isRowFull = false;
     }
 
-    const answered = playState.answeredCells[cId];
-    const isPlayed = !!(playState.teams && playState.teams.length > 0 && answered);
+    const rowLabel = document.createElement('div');
+    rowLabel.className = 'grid-row-label';
+    if (isRowFull && rowTypes.length > 0 && rowTypes.every(v => v === rowTypes[0])) {
+      rowLabel.textContent = getTypeLabel(rowTypes[0]);
+    } else {
+      rowLabel.textContent = '';
+    }
+    container.appendChild(rowLabel);
 
-    cell.className = `board-cell ${q ? 'has-q' : ''} ${selectedAdminCellId === cId ? 'selected-edit' : ''} ${isPlayed ? 'cell-played-locked' : ''}`;
-    cell.dataset.cellId = cId;
-    cell.setAttribute('role', 'button');
-    cell.setAttribute('aria-label', `${qnLabel(qn)}: ${q ? 'Edit question' : 'Add question'}`);
+    for (let c = 0; c < cols; c++) {
+      if (qn > total) {
+        const cell = document.createElement('div');
+        cell.className = 'board-cell cell-disabled';
+        cell.style.opacity = '0.2';
+        cell.innerHTML = '<span class="cell-qn-label">—</span>';
+        container.appendChild(cell);
+        qn++;
+        continue;
+      }
+
+      const cId = cellId(qn);
+      const q = questionsExcludingTB.find(x => x.qnIndex === qn);
+      const answered = playState.answeredCells[cId];
+      const isPlayed = !!(playState.teams && playState.teams.length > 0 && answered);
+
+      const cell = document.createElement('div');
+      cell.className = `board-cell ${q ? 'has-q' : ''} ${selectedAdminCellId === cId ? 'selected-edit' : ''} ${isPlayed ? 'cell-played-locked' : ''}`;
+      cell.dataset.cellId = cId;
+      cell.setAttribute('role', 'button');
+      cell.setAttribute('aria-label', `${qnLabel(qn)}: ${q ? 'Edit question' : 'Add question'}`);
+
+      cell.style.fontFamily = db.settings.gridFont || 'var(--font-display)';
+      cell.style.color = db.settings.gridFontColor || 'var(--color-text-light)';
+      cell.style.fontWeight = db.settings.gridFontBold ? '900' : 'normal';
+
+      const labelEl = document.createElement('span');
+      labelEl.className = 'cell-qn-label';
+      let displayHtml = qnLabel(qn);
+      if (q) {
+        if (db.settings.displayMode === 'POINTS_ONLY') displayHtml = `(${q.points})`;
+        else if (db.settings.displayMode === 'QUESTION_ONLY') displayHtml = qnLabel(qn);
+        else displayHtml = `${qnLabel(qn)}<br><span style="font-size:0.8em">(${q.points})</span>`;
+      }
+
+      if (isPlayed) {
+        if (answered.cancelled) {
+          labelEl.innerHTML = `❌<br><span style="color:var(--color-cancel); font-size: 0.8em;">${displayHtml}</span>`;
+        } else if (answered.teamIndex === -1) {
+          cell.style.background = '#cbd5e1';
+          cell.style.borderColor = '#475569';
+          labelEl.innerHTML = `❌<br><span style="color:#1e293b; font-size: 0.8em;">${displayHtml}</span>`;
+        } else {
+          const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
+          cell.style.background = tColor.bg;
+          cell.style.borderColor = tColor.border;
+          labelEl.innerHTML = `✔️<br><span style="color:${tColor.text}; font-size: 0.8em;">${displayHtml}</span>`;
+        }
+      } else {
+        labelEl.innerHTML = displayHtml;
+      }
+      cell.appendChild(labelEl);
+
+      const badges = document.createElement('div');
+      badges.className = 'cell-badges';
+
+      if (q) {
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'cell-info-tag type-tag';
+        typeBadge.textContent = q.type.toUpperCase();
+        badges.appendChild(typeBadge);
+      }
+
+      if (q && (q.hasCustomCorrectVideo || q.hasCustomWrongVideo)) {
+        const customBadge = document.createElement('span');
+        customBadge.className = 'cell-info-tag has-custom-tag';
+        customBadge.textContent = '★ Cust. Vid';
+        badges.appendChild(customBadge);
+      }
+      cell.appendChild(badges);
+
+      cell.addEventListener('click', () => {
+        if (isPlayed) return;
+        playSound('click');
+        openQuestionEditor(cId);
+      });
+      container.appendChild(cell);
+      qn++;
+    }
+  }
+
+  if (db.settings.enableTieBreaker) {
+    const qTb = db.questions.find(x => x.qnIndex === 'tiebreaker');
+    const tbPlayed = !!(playState.teams && playState.teams.length > 0 && playState.answeredCells['q-tiebreaker']);
+    
+    const rowLabel = document.createElement('div');
+    rowLabel.className = 'grid-row-label';
+    rowLabel.textContent = '';
+    container.appendChild(rowLabel);
+
+    const cell = document.createElement('div');
+    cell.className = `board-cell ${qTb ? 'has-q' : ''} ${selectedAdminCellId === 'q-tiebreaker' ? 'selected-edit' : ''} ${tbPlayed ? 'cell-played-locked' : ''}`;
+    
+    const start = Math.ceil(cols / 2) + 1; 
+    cell.style.gridColumn = `${start} / span 2`;
+    cell.dataset.cellId = 'q-tiebreaker';
 
     cell.style.fontFamily = db.settings.gridFont || 'var(--font-display)';
     cell.style.color = db.settings.gridFontColor || 'var(--color-text-light)';
@@ -1106,106 +1060,32 @@ function renderAdminGrid() {
 
     const labelEl = document.createElement('span');
     labelEl.className = 'cell-qn-label';
-    let displayHtml = qnLabel(qn);
-    if (q) {
-      if (db.settings.displayMode === 'POINTS_ONLY') {
-        displayHtml = `(${q.points})`;
-      } else if (db.settings.displayMode === 'QUESTION_ONLY') {
-        displayHtml = qnLabel(qn);
-      } else {
-        displayHtml = `${qnLabel(qn)}<br><span style="font-size:0.8em">(${q.points})</span>`;
-      }
-    }
-
-    if (isPlayed) {
-      if (answered.cancelled) {
-        labelEl.innerHTML = `❌<br><span style="color:var(--color-cancel); font-size: 0.8em;">${displayHtml}</span>`;
-      } else if (answered.teamIndex === -1) {
-        cell.style.background = '#cbd5e1';
-        cell.style.borderColor = '#475569';
-        labelEl.innerHTML = `<span style="font-size:1.4rem; font-weight:900;">❌</span><br><span style="color:#334155; font-size: 0.8em;">${displayHtml}</span>`;
-      } else {
-        const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
-        cell.style.background = tColor.bg;
-        cell.style.borderColor = tColor.border;
-        labelEl.innerHTML = `<span style="color:var(--color-success); font-size:1.4rem; font-weight:900;">✔</span><br><span style="color:${tColor.text}; font-size: 0.8em;">${displayHtml}</span>`;
-      }
-    } else {
-      labelEl.innerHTML = displayHtml;
-    }
+    labelEl.innerHTML = 'TB';
+    if (tbPlayed) labelEl.innerHTML = '✔️<br><span style="font-size:0.8em">TB</span>';
     cell.appendChild(labelEl);
 
-    const tagEl = document.createElement('span');
-    tagEl.className = 'cell-info-tag';
-    if (isPlayed) {
-      tagEl.textContent = '🔒 Played';
-      tagEl.style.color = 'var(--color-danger)';
-      tagEl.style.fontWeight = 'bold';
-    } else {
-      tagEl.textContent = q ? (q.type === 'mcq' ? '🔘 MCQ' : '✏️ Fill') : '+ Add';
+    if (qTb) {
+      const badges = document.createElement('div');
+      badges.className = 'cell-badges';
+      const typeBadge = document.createElement('span');
+      typeBadge.className = 'cell-info-tag type-tag';
+      typeBadge.textContent = qTb.type.toUpperCase();
+      badges.appendChild(typeBadge);
+      cell.appendChild(badges);
     }
-    cell.appendChild(tagEl);
 
     cell.addEventListener('click', () => {
-      if (!canInteract()) return;
-      if (isPlayed) {
-        playSound('wrong');
-        triggerAlert("ADMIN", `Qn ${qn} has already been played and cannot be changed!`, "lose");
-        return;
-      }
+      if (tbPlayed) return;
       playSound('click');
-      selectedAdminCellId = cId;
-      openQuestionEditor(qn);
-      renderAdminGrid();
+      openQuestionEditor('q-tiebreaker');
     });
+
     container.appendChild(cell);
   }
-  
-  if (db.settings.enableTieBreaker) {
-    const hasQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
-    const btn = document.createElement('div');
-    const isSelected = selectedAdminCellId === 'qntiebreaker';
-    
-    const wrapper = document.createElement('div');
-    wrapper.style.gridColumn = '1 / -1';
-    wrapper.style.display = 'flex';
-    wrapper.style.justifyContent = 'center';
-    wrapper.style.paddingTop = '10px';
-
-    btn.className = `board-cell tiebreaker-admin-cell ${hasQ ? 'has-q' : ''} ${isSelected ? 'selected-edit' : ''}`;
-    btn.style.width = '50%';
-    btn.style.borderColor = 'var(--color-gold)';
-    btn.style.background = 'rgba(244, 196, 48, 0.1)';
-    
-    const labelEl = document.createElement('div');
-    labelEl.className = 'cell-qn-label';
-    labelEl.innerHTML = `<span style="color:var(--color-gold); font-size: 1.2rem; font-weight:900;">🏆 TIE BREAKER</span>`;
-    btn.appendChild(labelEl);
-    
-    const tagEl = document.createElement('span');
-    tagEl.className = 'cell-info-tag';
-    if (hasQ) {
-      tagEl.textContent = `✅ Configured (${hasQ.points}pts)`;
-      tagEl.style.color = 'var(--color-success)';
-      tagEl.style.fontWeight = 'bold';
-    } else {
-      tagEl.textContent = '⚠️ Empty (+ Add)';
-      tagEl.style.color = 'var(--color-error)';
-      tagEl.style.fontWeight = 'bold';
-    }
-    btn.appendChild(tagEl);
-
-    btn.addEventListener('click', () => {
-      playSound('click');
-      selectedAdminCellId = 'qntiebreaker';
-      openQuestionEditor('tiebreaker');
-      renderAdminGrid();
-    });
-    
-    wrapper.appendChild(btn);
-    container.appendChild(wrapper);
-  }
 }
+
+
+
 
 async function openQuestionEditor(qnIndex) {
   const cId = cellId(qnIndex);
