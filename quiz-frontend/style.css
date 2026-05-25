@@ -1203,7 +1203,7 @@ body {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr min(30vw, 320px);
+  grid-template-columns: 1fr min(20vw, 240px);
   gap: 21px;
   margin-bottom: 0;
   align-items: stretch;
@@ -1320,6 +1320,7 @@ body {
 
 /* Leaderboard sidebar */
 .game-leaderboard-sidebar {
+    align-self: start;
   padding: 22px;
   border-radius: var(--radius-md);
 }
