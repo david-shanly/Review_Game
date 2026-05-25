@@ -2774,10 +2774,7 @@ if (btnAdminResume) {
   });
 }
 
-document.getElementById('settings-subtract').addEventListener('change', e => {
-  db.settings.subtractOnWrong = e.target.checked;
-  saveDB();
-});
+
 
 // Admin Team Setup Event Listeners
 document.getElementById('admin-team1-name')?.addEventListener('input', e => {
@@ -2942,7 +2939,7 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
             : [...DEFAULT_TEAMS],
         };
         saveDB();
-        document.getElementById('settings-subtract').checked = !!db.settings.subtractOnWrong;
+        
         document.getElementById('settings-total-questions').value = db.settings.totalQuestions;
         const colsEl = document.getElementById('settings-columns');
         if (colsEl) colsEl.value = db.settings.gridCols || 4;
@@ -3005,7 +3002,10 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
 document.getElementById('btn-save-settings')?.addEventListener('click', () => {
   playSound('click');
   saveDB();
-  triggerAlert('SYSTEM', 'All changes and game state saved successfully!', 'gain');
+  applySelectedFont();
+  renderGameBoard();
+  renderAdminGrid();
+  triggerAlert('SYSTEM', 'Preferences saved and loaded into game!', 'gain');
 });
 
 // Reset game (not questions)
