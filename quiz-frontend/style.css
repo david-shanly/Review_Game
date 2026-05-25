@@ -177,18 +177,13 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  font-size: 16px; /* Base for default 1080p desktop */
+  /* DYNAMIC SCALING ENGINE: Automatically scales the entire UI (fonts, padding, margins) to fit the viewport perfectly! */
+  font-size: clamp(10px, 1vw + 0.7vh, 26px);
 }
 
-@media (min-width: 1440px) {
-  html { font-size: 18px; }
-}
-@media (min-width: 1920px) {
-  html { font-size: 24px; }
-}
-@media (max-width: 1080px) {
-  html { font-size: 14px; }
-}
+
+
+
 @media (max-width: 768px) {
   .game-board-table {
   flex: 1;
@@ -209,8 +204,7 @@ html {
     font-size: 1.1rem !important;
   }
 
-  html { font-size: 12px; }
-}
+  }
 
 body {
   font-family: var(--font-body);
