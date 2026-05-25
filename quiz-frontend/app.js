@@ -584,7 +584,7 @@ function loadDB() {
   
   const posEmojiEl = document.getElementById('settings-positive-emojis');
   if (posEmojiEl) {
-    posEmojiEl.value = db.settings.positiveEmojis || "👏,🎉,🌟,🙌,🔥,💯,🏆,🤩";
+    posEmojiEl.value = db.settings.positiveEmojis || "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏";
   }
   
   const negEmojiEl = document.getElementById('settings-negative-emojis');
@@ -1878,7 +1878,9 @@ function cancelQuestion() {
   transitionState('RESOLVED');
   playState.answeredCells[cId] = { teamIndex: -2, pointsWon: 0, cancelled: true };
   document.getElementById('modal-turn-status').textContent = "Question Cancelled";
-  switchTurn();
+  if (!playState.hasPassed && !playState.stealAttempted) {
+    switchTurn();
+  }
   saveGameState();
   enableNextButton();
   disableQuestionInputs();
@@ -2464,7 +2466,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
     return;
   }
 
-  const positiveEmojis = db.settings.positiveEmojis ? db.settings.positiveEmojis.split(',').map(e => e.trim()).filter(e => e) : ['👏', '🎉', '🌟', '🙌', '🔥', '💯', '🏆', '🤩'];
+  const positiveEmojis = db.settings.positiveEmojis ? db.settings.positiveEmojis.split(',').map(e => e.trim()).filter(e => e) : ['👏', '🎉', '🌟', '🙌', '💯', '🏆', '🤩', '👍', '👌', '😊', '👏'];
   const negativeEmojis = db.settings.negativeEmojis ? db.settings.negativeEmojis.split(',').map(e => e.trim()).filter(e => e) : ['😢', '😭', '🤦', '📉', '💔', '🙈', '😬', '💀'];
   
   let emoji = null;
@@ -2570,7 +2572,9 @@ function showEmojiFeedback(isCorrect, q, callback) {
     if (btnCancel) btnCancel.disabled = true;
 
     saveGameState();
-    switchTurn();
+    if (!playState.hasPassed && !playState.stealAttempted) {
+      switchTurn();
+    }
     enableNextButton();
   };
 
@@ -2631,7 +2635,9 @@ function showEmojiFeedback(isCorrect, q, callback) {
         if (btnCancel) btnCancel.disabled = true;
 
         saveGameState();
-        switchTurn();
+        if (!playState.hasPassed && !playState.stealAttempted) {
+          switchTurn();
+        }
         enableNextButton();
       };
 
@@ -3122,7 +3128,7 @@ document.getElementById('import-json-file').addEventListener('change', e => {
             playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
             playEmojiFeedback: parsed.settings?.playEmojiFeedback !== false,
             emojiMode: parsed.settings?.emojiMode ?? 'random',
-            positiveEmojis: parsed.settings?.positiveEmojis ?? "👏,🎉,🌟,🙌,🔥,💯,🏆,🤩",
+            positiveEmojis: parsed.settings?.positiveEmojis ?? "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏",
             negativeEmojis: parsed.settings?.negativeEmojis ?? "😢,😭,🤦,📉,💔,🙈,😬,💀",
             useCustomFeedbackVideos: parsed.settings?.useCustomFeedbackVideos ?? false,
             gridFontColor: parsed.settings?.gridFontColor ?? '#ffffff',
@@ -3169,7 +3175,7 @@ document.getElementById('import-json-file').addEventListener('change', e => {
         if (emojiModeEl) emojiModeEl.value = db.settings.emojiMode || 'random';
         
         const posEmojiEl = document.getElementById('settings-positive-emojis');
-        if (posEmojiEl) posEmojiEl.value = db.settings.positiveEmojis || "👏,🎉,🌟,🙌,🔥,💯,🏆,🤩";
+        if (posEmojiEl) posEmojiEl.value = db.settings.positiveEmojis || "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏";
         
         const negEmojiEl = document.getElementById('settings-negative-emojis');
         if (negEmojiEl) negEmojiEl.value = db.settings.negativeEmojis || "😢,😭,🤦,📉,💔,🙈,😬,💀";
