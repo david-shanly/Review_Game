@@ -875,6 +875,8 @@ function applySelectedFont() {
 
   if (!useDefaultTileColor) {
     css += `
+      .game-board-grid .game-cell-btn:not(.cell-answered):not(.cell-wrong):not(.cell-cancelled),
+      .admin-interactive-grid .board-cell,
       #game-board-grid .game-cell-btn:not(.cell-answered):not(.cell-wrong):not(.cell-cancelled),
       #admin-interactive-grid .board-cell {
         background: ${tileColor} !important;
@@ -3519,10 +3521,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const qnColorEl = document.getElementById('settings-grid-qn-color');
   if (qnColorEl) {
+    qnColorEl.addEventListener('input', (e) => {
+      db.settings.gridQnColor = e.target.value;
+      applySelectedFont();
+    });
     qnColorEl.addEventListener('change', (e) => {
       db.settings.gridQnColor = e.target.value;
       saveDB();
-      applySelectedFont();
     });
   }
 
@@ -3538,10 +3543,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const tileColorEl = document.getElementById('settings-grid-tile-color');
   if (tileColorEl) {
+    tileColorEl.addEventListener('input', (e) => {
+      db.settings.gridTileColor = e.target.value;
+      applySelectedFont();
+    });
     tileColorEl.addEventListener('change', (e) => {
       db.settings.gridTileColor = e.target.value;
       saveDB();
-      applySelectedFont();
     });
   }
 
