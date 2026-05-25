@@ -112,8 +112,8 @@ let playState = {
   phase: 'live',   // live | ended
   teams: [],           // [{ name, score }]
   currentTeamIndex: 0,
-  hasPassed: false,
-  stealAttempted: false,
+  currentQuestionValue: 0,
+  teamsAttemptedCount: 0,
   answeredCells: {},   // { "qn1": { teamIndex, pointsWon, cancelled } }
   currentCellId: null,
   currentQuestion: null,
@@ -463,9 +463,6 @@ const defaultSettings = {
 };
 
 function hydrateControlCenter(settings) {
-  const gridColsEl = document.getElementById('settings-grid-cols');
-  if (gridColsEl) gridColsEl.value = settings.gridCols ?? 4;
-  
   const gridFontEl = document.getElementById('settings-grid-font');
   if (gridFontEl) gridFontEl.value = settings.gridFont ?? 'Fredoka One';
   
@@ -532,7 +529,11 @@ function loadSavedDB(parsed) {
         ...defaultSettings,
         ...parsed.settings
       },
-      questions: parsed.questions || [],
+      questions: (parsed.questions || []).map(q => {
+        if (q.type === 'long' || q.type === 'long_answer') q.type = 'short_answer';
+        if (q.questionType === 'long' || q.questionType === 'long_answer') q.questionType = 'short_answer';
+        return q;
+      }),
       teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
         ? parsed.teams.map((t, i) => {
           let teamObj = typeof t === 'string' ? { name: t, logo: DEFAULT_TEAMS[i].logo } : t;
@@ -546,7 +547,7 @@ function loadSavedDB(parsed) {
     
     hydrateControlCenter(db.settings);
     
-    document.documentElement.style.setProperty('--cols', db.settings.gridCols);
+    document.documentElement.style.setProperty('--cols', 4);
     
     renderGameBoard();
     renderAdminGrid();
@@ -622,8 +623,8 @@ function saveGameState() {
     gameState: playState.gameState,
     teams: playState.teams,
     currentTeamIndex: playState.currentTeamIndex,
-    hasPassed: playState.hasPassed,
-    stealAttempted: playState.stealAttempted,
+    currentQuestionValue: playState.currentQuestionValue,
+    teamsAttemptedCount: playState.teamsAttemptedCount,
     answeredCells: playState.answeredCells,
     currentCellId: playState.currentCellId,
     currentQuestion: playState.currentQuestion,
@@ -644,8 +645,8 @@ function loadGameState() {
         playState.gameState = parsed.gameState ?? 'IDLE';
         playState.teams = parsed.teams ?? [];
         playState.currentTeamIndex = parsed.currentTeamIndex ?? 0;
-        playState.hasPassed = parsed.hasPassed ?? false;
-        playState.stealAttempted = parsed.stealAttempted ?? parsed.currentQuestion?.stealAttempted ?? false;
+        playState.currentQuestionValue = parsed.currentQuestionValue ?? 0;
+        playState.teamsAttemptedCount = parsed.teamsAttemptedCount ?? 0;
         playState.answeredCells = parsed.answeredCells ?? {};
         playState.currentCellId = parsed.currentCellId ?? null;
         playState.currentQuestion = parsed.currentQuestion ?? null;
@@ -675,20 +676,20 @@ function loadGameState() {
             const cId = playState.currentCellId;
             const q = playState.currentQuestion;
             const gState = playState.gameState;
-            const hPassed = playState.hasPassed;
-            const sAttempted = playState.stealAttempted;
+            const qVal = playState.currentQuestionValue;
+            const attempts = playState.teamsAttemptedCount;
             const cLocked = playState.cancelLocked;
 
             playState.gameState = 'IDLE';
             openQuestionModal(cId, q);
 
             playState.gameState = gState;
-            playState.hasPassed = hPassed;
-            playState.stealAttempted = sAttempted;
+            playState.currentQuestionValue = qVal;
+            playState.teamsAttemptedCount = attempts;
             playState.cancelLocked = cLocked;
 
             if (playState.gameState === 'AWAITING_STEAL') {
-              const stealPts = Math.floor(q.points * 0.5);
+              const stealPts = playState.currentQuestionValue;
               document.getElementById('modal-points-display').textContent = `${stealPts} POINTS - STEAL`;
 
               const turnStatus = document.getElementById('modal-turn-status');
@@ -769,7 +770,6 @@ async function loadDefaultQuiz() {
     if (defaultData.settings) {
        db.settings.totalQuestions = defaultData.settings.totalQuestions;
        db.settings.enableTieBreaker = defaultData.settings.enableTieBreaker;
-       db.settings.gridCols = defaultData.settings.gridCols || 4;
     }
   } catch (err) {
     console.error("Failed to fetch default_quiz.json:", err);
@@ -905,8 +905,6 @@ function getTypeLabel(type) {
     case 'fill': return 'Fill in the Blanks';
     case 'short': return 'Short Answer';
     case 'short_answer': return 'Short Answer';
-    case 'long': return 'Long Answer';
-    case 'long_answer': return 'Long Answer';
     default: return '';
   }
 }
@@ -914,7 +912,7 @@ function getTypeLabel(type) {
 function renderAdminGrid() {
   const container = document.getElementById('admin-interactive-grid');
   container.innerHTML = '';
-  const cols = db.settings.gridCols || 4;
+  const cols = 4;
   document.documentElement.style.setProperty('--cols', cols);
 
   const qCountEl = document.getElementById('admin-q-count');
@@ -1050,8 +1048,8 @@ function renderAdminGrid() {
     const cell = document.createElement('div');
     cell.className = `board-cell ${qTb ? 'has-q' : ''} ${selectedAdminCellId === 'q-tiebreaker' ? 'selected-edit' : ''} ${tbPlayed ? 'cell-played-locked' : ''}`;
     
-    const start = Math.ceil(cols / 2) + 1; 
-    cell.style.gridColumn = `${start} / span 2`;
+    // mathematically center tiebreaker in a 4-col grid
+    cell.style.gridColumn = `2 / span 2`;
     cell.dataset.cellId = 'q-tiebreaker';
 
     cell.style.fontFamily = db.settings.gridFont || 'var(--font-display)';
@@ -1215,7 +1213,7 @@ function setMCQRequired(req) {
 function renderGameBoard() {
   const container = document.getElementById('game-board-grid');
   container.innerHTML = '';
-  container.style.gridTemplateColumns = `repeat(auto-fit, minmax(200px, 1fr))`;
+  container.style.gridTemplateColumns = `repeat(4, 1fr)`;
 
   const total = db.settings.totalQuestions;
 
@@ -1307,15 +1305,9 @@ function renderGameBoard() {
       const tieQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
       const cId = 'c-tiebreaker';
       const btn = document.createElement('button');
-      const wrapper = document.createElement('div');
-      wrapper.style.gridColumn = '1 / -1';
-      wrapper.style.display = 'flex';
-      wrapper.style.justifyContent = 'center';
-      wrapper.style.paddingTop = '15px';
-
       btn.dataset.cellId = cId;
       btn.className = 'game-cell-btn';
-      btn.style.width = '50%';
+      btn.style.gridColumn = '2 / span 2';
       btn.style.borderColor = 'var(--color-gold)';
       btn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.4)';
       
@@ -1356,8 +1348,7 @@ function renderGameBoard() {
           openQuestionModal(cId, tieQ);
         });
       }
-      wrapper.appendChild(btn);
-      container.appendChild(wrapper);
+      container.appendChild(btn);
     }
   }
   applySelectedFont();
@@ -1384,7 +1375,6 @@ function updateTurnUI() {
 
 function switchTurn() {
   playState.currentTeamIndex = (playState.currentTeamIndex + 1) % playState.teams.length;
-  playState.hasPassed = false;
   updateTurnUI();
 }
 
@@ -1513,7 +1503,7 @@ function enableModalActionButtons() {
   if (btnSubmit) btnSubmit.disabled = false;
 
   const q = playState.currentQuestion;
-  const canPass = q && !playState.hasPassed && !playState.stealAttempted;
+  const canPass = q && (playState.teamsAttemptedCount < playState.teams.length - 1);
   if (btnPass) {
     btnPass.style.display = canPass ? 'inline-flex' : 'none';
     btnPass.disabled = !canPass;
@@ -1531,8 +1521,8 @@ function openQuestionModal(cId, q) {
   if (!transitionState('QUESTION_LOADING')) return;
   playState.currentCellId = cId;
   playState.currentQuestion = q;
-  playState.hasPassed = false;
-  playState.stealAttempted = false;
+  playState.currentQuestionValue = q.points;
+  playState.teamsAttemptedCount = 0;
   playState.cancelLocked = false;
 
   const overlay = document.getElementById('modal-overlay');
@@ -1612,8 +1602,8 @@ function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   playState.currentCellId = null;
   playState.currentQuestion = null;
-  playState.hasPassed = false;
-  playState.stealAttempted = false;
+  playState.currentQuestionValue = 0;
+  playState.teamsAttemptedCount = 0;
   playState.cancelLocked = false;
   if (playState.phase !== 'ended') playState.gameState = 'IDLE';
 }
@@ -1629,9 +1619,7 @@ function cancelQuestion() {
   transitionState('RESOLVED');
   playState.answeredCells[cId] = { teamIndex: -2, pointsWon: 0, cancelled: true };
   document.getElementById('modal-turn-status').textContent = "Question Cancelled";
-  if (!playState.hasPassed && !playState.stealAttempted) {
-    switchTurn();
-  }
+  switchTurn();
   saveGameState();
   enableNextButton();
   disableQuestionInputs();
@@ -2190,7 +2178,7 @@ async function resolveAnswer(isCorrect) {
 
   const cId = playState.currentCellId;
   const teamIndex = playState.currentTeamIndex;
-  const pts = playState.hasPassed ? 50 : q.points;
+  const ptsToAward = playState.currentQuestionValue;
 
   // Asynchronously fetch the custom video from IndexedDB if metadata flag is true
   let customCorrectVideoSrc = null;
@@ -2296,11 +2284,11 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
 
   const finalizeCorrect = () => {
-    applyScore(teamIndex, pts, false, true); // Safe scoring via controlled engine
+    applyScore(teamIndex, ptsToAward, false, true); // Safe scoring via controlled engine
     triggerBurst();
     updateScoreUI(teamIndex);
 
-    playState.answeredCells[cId] = { teamIndex, pointsWon: pts, cancelled: false };
+    playState.answeredCells[cId] = { teamIndex, pointsWon: ptsToAward, cancelled: false };
     if (playState.stats[teamIndex]) {
       playState.stats[teamIndex].correct++;
       playState.stats[teamIndex].attempts++;
@@ -2323,9 +2311,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
     if (btnCancel) btnCancel.disabled = true;
 
     saveGameState();
-    if (!playState.hasPassed && !playState.stealAttempted) {
-      switchTurn();
-    }
+    switchTurn();
     enableNextButton();
   };
 
@@ -2343,27 +2329,28 @@ function showEmojiFeedback(isCorrect, q, callback) {
   } else {
     if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
 
-    if (!playState.hasPassed && !playState.stealAttempted) {
-      const penalty = Math.floor(pts * 0.5);
-      const finalizeFirstWrong = () => {
-        applyScore(teamIndex, penalty, true, true);
-        updateScoreUI(teamIndex);
+    let penalty = ptsToAward;
+    if (playState.teamsAttemptedCount === 0) {
+      penalty = Math.floor(q.points * 0.5);
+    }
+
+    const isExhausted = playState.teamsAttemptedCount + 1 >= playState.teams.length;
+
+    const finalizeWrong = () => {
+      applyScore(teamIndex, penalty, true, true);
+      updateScoreUI(teamIndex);
+      
+      playState.teamsAttemptedCount++;
+      
+      if (!isExhausted) {
+        if (playState.teamsAttemptedCount === 1) {
+          playState.currentQuestionValue = Math.floor(q.points * 0.5);
+        }
         transitionState('AWAITING_STEAL');
-        playState.stealAttempted = true;
+        switchTurn();
         saveGameState();
         startStealPhase();
-      };
-
-      if (customWrongVideoSrc) {
-        playWrongAnswerVideo(customWrongVideoSrc, finalizeFirstWrong);
       } else {
-        playSound('wrong');
-        showEmojiFeedback(false, q, finalizeFirstWrong);
-      }
-    } else {
-      const finalizeSecondWrong = () => {
-        applyScore(teamIndex, Math.floor(pts * 0.5), true, true);
-        updateScoreUI(teamIndex);
         transitionState('RESOLVED');
         disableQuestionInputs();
 
@@ -2386,36 +2373,29 @@ function showEmojiFeedback(isCorrect, q, callback) {
         if (btnCancel) btnCancel.disabled = true;
 
         saveGameState();
-        if (!playState.hasPassed && !playState.stealAttempted) {
-          switchTurn();
-        }
+        switchTurn();
         enableNextButton();
-      };
-
-      if (customWrongVideoSrc) {
-        playWrongAnswerVideo(customWrongVideoSrc, finalizeSecondWrong);
-      } else {
-        playSound('wrong');
-        showEmojiFeedback(false, q, finalizeSecondWrong);
       }
+    };
+
+    if (customWrongVideoSrc) {
+      playWrongAnswerVideo(customWrongVideoSrc, finalizeWrong);
+    } else {
+      playSound('wrong');
+      showEmojiFeedback(false, q, finalizeWrong);
     }
   }
 }
 
 function startStealPhase() {
-  playState.hasPassed = true;
-  const nextTeamIndex = (playState.currentTeamIndex + 1) % playState.teams.length;
-  playState.currentTeamIndex = nextTeamIndex;
-
-  const q = playState.currentQuestion;
-  const stealPts = Math.floor(q.points * 0.5);
+  const stealPts = playState.currentQuestionValue;
   document.getElementById('modal-points-display').textContent = `${stealPts} POINTS - STEAL`;
 
   // Disable previously selected option if any
   document.querySelectorAll('.option-btn.selected').forEach(btn => btn.disabled = true);
 
   const turnStatus = document.getElementById('modal-turn-status');
-  turnStatus.innerHTML = `❌ Wrong Answer<br><span style="font-size:0.8rem;">Passed to ${playState.teams[nextTeamIndex].name}</span>`;
+  turnStatus.innerHTML = `❌ Wrong Answer<br><span style="font-size:0.8rem;">Passed to ${playState.teams[playState.currentTeamIndex].name}</span>`;
   turnStatus.style.color = "var(--color-error)";
   turnStatus.style.borderColor = "var(--color-error)";
   turnStatus.style.textAlign = "center";
@@ -2443,19 +2423,36 @@ function submitAnswer(isCorrect) {
 function handlePass() {
   if (!canAnswer()) return;
   const q = playState.currentQuestion;
-  if (!q || playState.hasPassed || playState.stealAttempted) return;
+  if (!q || playState.teamsAttemptedCount >= playState.teams.length - 1) return;
   playSound('pass');
 
-  playState.stealAttempted = true;
+  playState.teamsAttemptedCount++;
+  
+  if (playState.teamsAttemptedCount === 1) {
+    playState.currentQuestionValue = Math.floor(q.points * 0.5);
+  }
+  
   transitionState('AWAITING_STEAL');
+  switchTurn();
   saveGameState();
-  startStealPhase();
+
+  const stealPts = playState.currentQuestionValue;
+  document.getElementById('modal-points-display').textContent = `${stealPts} POINTS - STEAL`;
+
+  document.querySelectorAll('.option-btn.selected').forEach(btn => btn.disabled = true);
+  document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+  const fillInput = document.getElementById('modal-fill-input');
+  if (fillInput) { fillInput.value = ''; fillInput.focus(); }
 
   const turnStatus = document.getElementById('modal-turn-status');
+  turnStatus.innerHTML = `⏭️ Passed<br><span style="font-size:0.8rem;">To ${playState.teams[playState.currentTeamIndex].name}</span>`;
   turnStatus.style.color = "var(--color-gold)";
   turnStatus.style.borderColor = "var(--color-gold)";
+  turnStatus.style.textAlign = "center";
 
-  document.getElementById('btn-modal-pass').style.display = 'none';
+  enableModalActionButtons();
+  updateScoreUI();
+  updateTurnUI();
 }
 
 // ============================================================
@@ -2584,8 +2581,8 @@ function setupTeamsFromInputs() {
 function resetPlayState() {
   playState.teams.forEach(t => { t.score = 0; });
   playState.currentTeamIndex = 0;
-  playState.hasPassed = false;
-  playState.stealAttempted = false;
+  playState.currentQuestionValue = 0;
+  playState.teamsAttemptedCount = 0;
   playState.answeredCells = {};
   playState.currentCellId = null;
   playState.currentQuestion = null;

@@ -869,7 +869,7 @@ body {
   background: var(--panel-bg);
   border: 2.5px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-sm);
-  min-height: 86px;
+  aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1174,7 +1174,7 @@ body {
   border: 2.5px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-sm);
   color: var(--color-text-light);
-  min-height: 114px;
+  aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
