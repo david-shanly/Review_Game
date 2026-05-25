@@ -990,7 +990,7 @@ function renderAdminGrid() {
       cell.appendChild(badges);
 
       cell.addEventListener('click', () => {
-        if (isPlayed) return;
+        
         playSound('click');
         selectedAdminCellId = cId;
         renderAdminGrid();
@@ -1037,7 +1037,7 @@ function renderAdminGrid() {
     }
 
     cell.addEventListener('click', () => {
-      if (tbPlayed) return;
+      
       playSound('click');
       selectedAdminCellId = 'q-tiebreaker';
       renderAdminGrid();
@@ -1075,8 +1075,15 @@ async function openQuestionEditor(qnIndex) {
   document.getElementById('editor-cell-title').textContent = `📝 Editing ${qnLabel(qnIndex)}`;
   document.getElementById('admin-question-editor').classList.remove('hidden');
 
-  const form = document.getElementById('question-form');
+    const form = document.getElementById('question-form');
   form.reset();
+
+  const statusEl = document.getElementById('q-video-status');
+  const clearBtn = document.getElementById('btn-clear-q-video');
+  const correctStatusEl = document.getElementById('q-video-correct-status');
+  const correctClearBtn = document.getElementById('btn-clear-q-video-correct');
+  const wrongStatusEl = document.getElementById('q-video-wrong-status');
+  const wrongClearBtn = document.getElementById('btn-clear-q-video-wrong');
 
   
   
@@ -1114,7 +1121,23 @@ async function openQuestionEditor(qnIndex) {
       document.getElementById('q-fill-answer').value = q.answer || '';
     }
 
-    // Load Main Question Video
+    } else {
+    document.getElementById('q-type').value = 'mcq';
+    document.getElementById('q-points').value = 100;
+    document.getElementById('q-text').value = '';
+    document.getElementById('mcq-options-container').classList.remove('hidden');
+    document.getElementById('fill-answer-container').classList.add('hidden');
+    setMCQRequired(true);
+    for (let i=0; i<4; i++) {
+       const el = document.getElementById(`opt-${i}`);
+       if (el) el.value = '';
+    }
+    const radio = document.querySelector(`input[name="mcq-correct"][value="0"]`);
+    if (radio) radio.checked = true;
+    document.getElementById('q-fill-answer').value = '';
+  }
+
+  // Load Main Question Video
     if (q.video) {
       if (statusEl) statusEl.textContent = "⌛ Loading custom video...";
       try {
