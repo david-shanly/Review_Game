@@ -1,7 +1,7 @@
 {
   "settings": {
     "subtractOnWrong": true,
-    "totalQuestions": 20,
+    "totalQuestions": 13,
     "displayMode": "QUESTION_NUMBER",
     "enableTieBreaker": true,
     "enableTimer": true
@@ -11,270 +11,143 @@
       "id": "q1",
       "qnIndex": 1,
       "type": "mcq",
-      "question": "Why did God allow His people to be taken as slaves to Babylon?",
+      "points": 200,
+      "question": "Who was the king of Babylon when Daniel was taken into captivity?",
       "options": [
-        "They were weak in battle",
-        "They forgot their language",
-        "Idolatry and disobedience",
-        "They wanted to move there"
+        "King David",
+        "King Cyrus",
+        "King Nebuchadnezzar",
+        "King Saul"
       ],
-      "answer": "Idolatry and disobedience",
-      "points": 700
+      "answer": "King Nebuchadnezzar"
     },
     {
       "id": "q2",
       "qnIndex": 2,
-      "type": "fill",
-      "question": "Daniel was more __________ than all the magicians in the kingdom. He could also understand __________ and visions.",
-      "options": [],
-      "answer": "wise, dreams",
-      "points": 500
+      "type": "mcq",
+      "points": 300,
+      "question": "Who was the chief officer who brought the young men of Judah into the palace?",
+      "options": [
+        "Daniel",
+        "Ashpenaz",
+        "Abednego",
+        "E Ezekiel"
+      ],
+      "answer": "Ashpenaz"
     },
     {
       "id": "q3",
       "qnIndex": 3,
       "type": "mcq",
-      "question": "Who was given the name Abednego?",
+      "points": 200,
+      "question": "What was the right choice Daniel and his friends made?",
       "options": [
-        "Daniel",
-        "Mishael",
-        "Azariah",
-        "Hananiah"
+        "To join idol worship",
+        "To honor God and avoid sin",
+        "To run away from Babylon",
+        "To become soldiers"
       ],
-      "answer": "Azariah",
-      "points": 500
+      "answer": "To honor God and avoid sin"
     },
     {
       "id": "q4",
       "qnIndex": 4,
-      "type": "fill",
-      "question": "Meat of some animals was not to be __________ according to Jewish law. A portion of the meat was __________ to idols before it reached the king’s table.",
-      "options": [],
-      "answer": "eaten, offered",
-      "points": 300
+      "type": "mcq",
+      "points": 300,
+      "question": "How did Daniel and his friends overcome temptation?",
+      "options": [
+        "By fighting their enemies",
+        "By trusting God",
+        "By hiding from the king",
+        "By ignoring their beliefs"
+      ],
+      "answer": "By trusting God"
     },
     {
       "id": "q5",
       "qnIndex": 5,
       "type": "mcq",
-      "question": "How long were the four men trained before serving the King?",
+      "points": 400,
+      "question": "Why was eating the king’s food a problem?",
       "options": [
-        "1 year",
-        "2 years",
-        "3 years",
-        "5 years"
+        "It was too expensive",
+        "It was not tasty",
+        "It was offered to idols and unclean according to Jewish law",
+        "It was vegetarian"
       ],
-      "answer": "3 years",
-      "points": 300
+      "answer": "It was offered to idols and unclean according to Jewish law"
     },
     {
       "id": "q6",
       "qnIndex": 6,
-      "type": "fill",
-      "question": "God __________ them and __________ them in the kingdom. He gave them wisdom and __________.",
-      "options": [],
-      "answer": "blessed, honored, understanding",
-      "points": 600
+      "type": "fill_blank",
+      "points": 200,
+      "question": "Psalms 25:12 — “Who is the man that ______? Him shall He teach in the way He chooses.”",
+      "answer": "fears the LORD"
     },
     {
       "id": "q7",
       "qnIndex": 7,
-      "type": "mcq",
-      "question": "Who was the King of Babylon when Daniel was taken into captivity?",
-      "options": [
-        "King David",
-        "King Nebuchadnezzar",
-        "King Cyrus",
-        "King Saul"
-      ],
-      "answer": "King Nebuchadnezzar",
-      "points": 200
+      "type": "fill_blank",
+      "points": 300,
+      "question": "Who got the name Abednego? ______",
+      "answer": "Azariah"
     },
     {
       "id": "q8",
       "qnIndex": 8,
-      "type": "mcq",
-      "question": "How many days did Daniel request to be tested with vegetables and water?",
-      "options": [
-        "7 days",
-        "10 days",
-        "14 days",
-        "30 days"
-      ],
-      "answer": "10 days",
-      "points": 200
+      "type": "fill_blank",
+      "points": 200,
+      "question": "How many days did Daniel request to be tested with vegetables and water? ______",
+      "answer": "10 days"
     },
     {
       "id": "q9",
       "qnIndex": 9,
-      "type": "mcq",
-      "question": "Which king saw the handwriting on the wall during a great feast?",
-      "options": [
-        "Nebuchadnezzar",
-        "Belshazzar",
-        "Darius",
-        "Cyrus"
-      ],
-      "answer": "Belshazzar",
-      "points": 200
+      "type": "fill_blank",
+      "points": 300,
+      "question": "How long were Daniel and his friends trained before serving the king? ______",
+      "answer": "3 years"
     },
     {
       "id": "q10",
       "qnIndex": 10,
-      "type": "mcq",
-      "question": "What were the words written on the wall?",
-      "options": [
-        "Mene, Mene, Tekel, Upharsin",
-        "Holy, Holy, Holy",
-        "Babylon is Fallen",
-        "Repent and Believe"
-      ],
-      "answer": "Mene, Mene, Tekel, Upharsin",
-      "points": 200
+      "type": "short_answer",
+      "points": 500,
+      "question": "Why did God allow His people to be taken into Babylon captivity?",
+      "answer": "Because the Israelites disobeyed God and worshipped idols, so God allowed captivity as discipline."
     },
     {
       "id": "q11",
       "qnIndex": 11,
-      "type": "mcq",
-      "question": "Which king threw Daniel into the lions' den?",
-      "options": [
-        "Nebuchadnezzar",
-        "Belshazzar",
-        "Darius",
-        "Cyrus"
-      ],
-      "answer": "Darius",
-      "points": 100
+      "type": "short_answer",
+      "points": 600,
+      "question": "What happened when Daniel and his friends refused the king’s food?",
+      "answer": "They looked healthier and better nourished than all the others who ate the king’s food."
     },
     {
       "id": "q12",
       "qnIndex": 12,
-      "type": "fill",
-      "question": "Why was Daniel thrown into the lions' den?",
-      "options": [],
-      "answer": "For praying to God",
-      "points": 100
+      "type": "short_answer",
+      "points": 600,
+      "question": "How did God reward Daniel and his friends for their obedience?",
+      "answer": "God gave them wisdom, understanding, health, and high positions in Babylon. Daniel also received the ability to understand dreams and visions."
     },
     {
       "id": "q13",
       "qnIndex": 13,
-      "type": "mcq",
-      "question": "How did God protect Daniel in the lions' den?",
-      "options": [
-        "He made the lions sleep",
-        "He sent an angel to shut their mouths",
-        "He gave Daniel a sword",
-        "He blinded the lions"
-      ],
-      "answer": "He sent an angel to shut their mouths",
-      "points": 100
+      "type": "long_answer",
+      "points": 800,
+      "question": "Explain the life choices of Daniel and his friends in Babylon and how God helped them because of their faithfulness.",
+      "answer": "Daniel and his friends chose to remain faithful to God by refusing to defile themselves with the king’s food and by living according to God’s commands. Because of their obedience, God blessed them with wisdom, strength, favor, and high positions in Babylon. God also gave Daniel special understanding of dreams and visions, showing that He rewards those who remain faithful."
     },
     {
-      "id": "q14",
-      "qnIndex": 14,
-      "type": "mcq",
-      "question": "What was the first beast Daniel saw in his vision of the four beasts?",
-      "options": [
-        "A bear",
-        "A leopard",
-        "A lion with eagle's wings",
-        "A terrifying beast with iron teeth"
-      ],
-      "answer": "A lion with eagle's wings",
-      "points": 300
-    },
-    {
-      "id": "q15",
-      "qnIndex": 15,
-      "type": "mcq",
-      "question": "Which angel came to explain Daniel's visions to him?",
-      "options": [
-        "Michael",
-        "Gabriel",
-        "Raphael",
-        "Lucifer"
-      ],
-      "answer": "Gabriel",
-      "points": 200
-    },
-    {
-      "id": "q16",
-      "qnIndex": 16,
-      "type": "fill",
-      "question": "How many weeks were decreed in Daniel's vision of the future?",
-      "options": [],
-      "answer": "70 weeks",
-      "points": 400
-    },
-    {
-      "id": "q17",
-      "qnIndex": 17,
-      "type": "mcq",
-      "question": "Who is the 'Prince' that stands watch over Daniel's people?",
-      "options": [
-        "Gabriel",
-        "Michael",
-        "The King of Persia",
-        "The King of Greece"
-      ],
-      "answer": "Michael",
-      "points": 300
-    },
-    {
-      "id": "q18",
-      "qnIndex": 18,
-      "type": "mcq",
-      "question": "What did King Nebuchadnezzar do when Shadrach, Meshach, and Abednego survived the fire?",
-      "options": [
-        "He executed his guards",
-        "He praised their God and promoted them",
-        "He banished them from Babylon",
-        "He ignored the miracle"
-      ],
-      "answer": "He praised their God and promoted them",
-      "points": 200
-    },
-    {
-      "id": "q19",
-      "qnIndex": 19,
-      "type": "fill",
-      "question": "In what city did Daniel serve under multiple kings?",
-      "options": [],
-      "answer": "Babylon",
-      "points": 100
-    },
-    {
-      "id": "q20",
-      "qnIndex": 20,
-      "type": "mcq",
-      "question": "What did Daniel do three times a day, facing Jerusalem?",
-      "options": [
-        "Ate vegetables",
-        "Sang hymns",
-        "Prayed and gave thanks to God",
-        "Offered a sacrifice"
-      ],
-      "answer": "Prayed and gave thanks to God",
-      "points": 100
-    },
-    {
-      "id": "qtiebreaker",
+      "id": "tiebreaker",
       "qnIndex": "tiebreaker",
-      "type": "fill",
-      "question": "What reward has God promised to those who overcome temptation? They will receive the __________ of __________.",
-      "options": [],
-      "answer": "Crown of Life",
-      "points": 1000
-    }
-  ],
-  "teams": [
-    {
-      "name": "Lion",
-      "logo": "lion.png"
-    },
-    {
-      "name": "Lioness",
-      "logo": "lioness.png"
+      "type": "short_answer",
+      "points": 1000,
+      "question": "What is the reward God has promised to those who overcome temptation?",
+      "answer": "Crown of Life"
     }
   ]
 }

@@ -1456,7 +1456,7 @@ body {
 
 .modal-content {
   width: 100%;
-  max-width: 1144px;
+  max-width: 1400px;
   padding: 46px;
   display: flex;
   flex-direction: column;
@@ -1687,7 +1687,10 @@ body {
 
 .reveal-value {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.4;
 }
 
 /* Modal footer */
