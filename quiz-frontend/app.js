@@ -1495,20 +1495,20 @@ function renderGameBoard() {
     } else if (answered && answered.cancelled) {
       btn.className = 'game-cell-btn cell-cancelled';
       btn.disabled = true;
-      btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+      btn.innerHTML = `<span class="cell-qn" style="font-size:2.8rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
     } else if (answered) {
       btn.className = 'game-cell-btn cell-answered';
       btn.disabled = true;
       const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
       if (answered.teamIndex === -1) {
         btn.className = 'game-cell-btn cell-wrong';
-        btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="font-size:2.8rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
         btn.style.background = tColor.bg;
         btn.style.borderColor = tColor.border;
-        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size:1.8rem; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size:2.8rem; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
       }
     } else {
       btn.className = 'game-cell-btn';
@@ -1582,20 +1582,20 @@ function renderGameBoard() {
       } else if (answered && answered.cancelled) {
         btn.className = 'game-cell-btn cell-cancelled';
         btn.disabled = true;
-        btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="font-size:2.8rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
       } else if (answered) {
         btn.className = 'game-cell-btn cell-answered';
         btn.disabled = true;
         const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
         if (answered.teamIndex === -1) {
           btn.className = 'game-cell-btn cell-wrong';
-          btn.innerHTML = `<span class="cell-qn">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+          btn.innerHTML = `<span class="cell-qn" style="font-size:2.8rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
         } else {
           const team = playState.teams[answered.teamIndex];
           const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
           btn.style.background = tColor.bg;
           btn.style.borderColor = tColor.border;
-          btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size:1.8rem; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+          btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size:2.8rem; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
         }
       } else {
         btn.innerHTML = `<span class="cell-qn" style="color:var(--color-gold); font-size:1.1rem; text-align:center; line-height:1.2;">${displayHtml}</span>`;
