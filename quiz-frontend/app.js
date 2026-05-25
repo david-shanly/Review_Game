@@ -1590,7 +1590,7 @@ function cancelQuestion() {
   transitionState('RESOLVED');
   playState.answeredCells[cId] = { teamIndex: -2, pointsWon: 0, cancelled: true };
   document.getElementById('modal-turn-status').textContent = "Question Cancelled";
-  switchTurn();
+  updateTurnUI();
   saveGameState();
   enableNextButton();
   disableQuestionInputs();
