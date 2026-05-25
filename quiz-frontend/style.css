@@ -1515,8 +1515,8 @@ body {
 .modal-content {
   margin: auto;
   width: 100%;
-  max-width: 1400px;
-  max-height: 95vh;
+  max-width: min(90vw, 1100px);
+  max-height: calc(100vh - 2rem);
   overflow-y: auto;
   padding: clamp(1.5rem, 4vh, 2.875rem);
   display: flex;
