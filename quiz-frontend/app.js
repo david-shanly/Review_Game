@@ -898,7 +898,7 @@ function getTypeLabel(type) {
 function renderAdminGrid() {
   const container = document.getElementById('admin-interactive-grid');
   container.innerHTML = '';
-  const cols = 4;
+  const cols = db.settings.gridCols || 4;
   container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
   document.documentElement.style.setProperty('--cols', cols);
 
@@ -1207,10 +1207,11 @@ function setMCQRequired(req) {
 function renderGameBoard() {
   const container = document.getElementById('game-board-grid');
   container.innerHTML = '';
-  container.style.gridTemplateColumns = `repeat(4, 1fr)`;
+  const cols = db.settings.gridCols || 4;
+  container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
   const total = db.settings.totalQuestions;
-  const baseRows = Math.ceil(total / 4);
+  const baseRows = Math.ceil(total / cols);
   const rows = baseRows + (db.settings.enableTieBreaker ? 1 : 0);
   container.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
 
@@ -2690,6 +2691,11 @@ document.getElementById('btn-hamburger-menu')?.addEventListener('click', () => {
 // Close Sidebar listeners
 document.getElementById('btn-close-sidebar')?.addEventListener('click', () => {
   playSound('click');
+
+document.getElementById('btn-admin-save-db')?.addEventListener('click', () => {
+  playSound('click');
+  document.getElementById('btn-export-json').click();
+});
   document.getElementById('left-sliding-sidebar')?.classList.remove('open');
   document.getElementById('sidebar-backdrop')?.classList.remove('show');
 });
@@ -2914,6 +2920,8 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
         saveDB();
         document.getElementById('settings-subtract').checked = !!db.settings.subtractOnWrong;
         document.getElementById('settings-total-questions').value = db.settings.totalQuestions;
+        const colsEl = document.getElementById('settings-columns');
+        if (colsEl) colsEl.value = db.settings.gridCols || 4;
         document.getElementById('settings-display-mode').value = db.settings.displayMode;
         const timerEl = document.getElementById('settings-timer-duration');
         if (timerEl) timerEl.value = db.settings.timerDuration ?? 10;
@@ -3339,6 +3347,19 @@ document.addEventListener('DOMContentLoaded', () => {
       renderGameBoard();
     });
   }
+
+  const colsEl = document.getElementById('settings-columns');
+  if (colsEl) {
+    colsEl.addEventListener('change', (e) => {
+      let val = parseInt(e.target.value, 10);
+      if (isNaN(val) || val < 1) val = 1;
+      db.settings.gridCols = val;
+      saveDB();
+      renderAdminGrid();
+      renderGameBoard();
+    });
+  }
+
 
   const modeEl = document.getElementById('settings-display-mode');
   if (modeEl) {
