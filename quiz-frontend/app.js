@@ -45,7 +45,7 @@ let db = {
     playVideoFeedback: false,
     useCustomFeedbackVideos: false,
     enableTieBreaker: false,
-    gridFontColor: '#ffffff',
+    gridFontColor: '#000000',
     gridFontBold: false
   },
   questions: [], // each: { id, qnIndex, type, question, options, answer, points }
@@ -433,7 +433,7 @@ const defaultSettings = {
   playVideoFeedback: false,
   enableTieBreaker: true,
   useCustomFeedbackVideos: false,
-  gridFontColor: '#ffffff',
+  gridFontColor: '#000000',
   gridFontBold: false,
   useDefaultFontColor: true,
   gridCols: 4,
@@ -453,13 +453,9 @@ function hydrateControlCenter(settings) {
   if (gridFontEl) gridFontEl.value = settings.gridFont ?? 'Fredoka One';
   
   const fontColorEl = document.getElementById('settings-grid-font-color');
-  if (fontColorEl) fontColorEl.value = settings.gridFontColor ?? '#ffffff';
+  if (fontColorEl) fontColorEl.value = settings.gridFontColor ?? '#000000';
   
-  const fontBoldEl = document.getElementById('settings-grid-font-bold-btn');
-  if (fontBoldEl) {
-    if (settings.gridFontBold) fontBoldEl.classList.add('active');
-    else fontBoldEl.classList.remove('active');
-  }
+
   
   const defaultFontColorEl = document.getElementById('settings-grid-font-color-default');
   if (defaultFontColorEl) defaultFontColorEl.checked = settings.useDefaultFontColor ?? true;
@@ -2954,7 +2950,7 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
             positiveEmojis: parsed.settings?.positiveEmojis ?? '👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏',
             negativeEmojis: parsed.settings?.negativeEmojis ?? '😢,😭,🤦,📉,💔,🙈,😬',
             useCustomFeedbackVideos: parsed.settings?.useCustomFeedbackVideos ?? false,
-            gridFontColor: parsed.settings?.gridFontColor ?? '#ffffff',
+            gridFontColor: parsed.settings?.gridFontColor ?? '#000000',
             gridFontBold: parsed.settings?.gridFontBold ?? false,
             gridTileColor: parsed.settings?.gridTileColor ?? '#ffffff',
             
@@ -2975,9 +2971,7 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
         const fontEl = document.getElementById('settings-grid-font');
         if (fontEl) fontEl.value = db.settings.gridFont ?? 'Fredoka One';
         const fontColorEl = document.getElementById('settings-grid-font-color');
-        if (fontColorEl) fontColorEl.value = db.settings.gridFontColor ?? '#ffffff';
-        const fontBoldEl = document.getElementById('settings-grid-font-bold');
-        if (fontBoldEl) fontBoldEl.checked = !!db.settings.gridFontBold;
+        if (fontColorEl) fontColorEl.value = db.settings.gridFontColor ?? '#000000';
         const applyAllEl = document.getElementById('settings-font-apply-all');
         if (applyAllEl) applyAllEl.checked = !!db.settings.applyFontToAll;
         const videoFeedbackEl = document.getElementById('settings-play-video-feedback');

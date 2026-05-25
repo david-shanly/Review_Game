@@ -2828,3 +2828,28 @@ body {
     order: 1; /* Grid stays on top */
   }
 }
+
+
+/* Updated Fill Blank Input style */
+#team-answer-input {
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-size: 1.5rem !important;
+  padding: 1rem 1.5rem !important;
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 0 auto !important;
+  border-radius: 12px !important;
+  border: 2px solid var(--color-gold) !important;
+}
+#fill-blank-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+
+/* Points Default Color */
+.qn-points-text {
+  color: #000000;
+}
