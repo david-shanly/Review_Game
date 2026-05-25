@@ -76,9 +76,9 @@
   /* Effects */
   --card-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
   --glow-gold: 0 0 24px rgba(244, 196, 48, 0.35);
-  --radius-sm: 24px;
-  --radius-md: 36px;
-  --radius-lg: 48px;
+  --radius-sm: 1.5rem;
+  --radius-md: 2.25rem;
+  --radius-lg: 3rem;
   --radius-pill: 999px;
   --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -94,9 +94,9 @@
   /* Effects */
   --card-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
   --glow-gold: 0 0 24px rgba(244, 196, 48, 0.35);
-  --radius-sm: 24px;
-  --radius-md: 36px;
-  --radius-lg: 48px;
+  --radius-sm: 1.5rem;
+  --radius-md: 2.25rem;
+  --radius-lg: 3rem;
   --radius-pill: 999px;
   --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -348,7 +348,7 @@ body {
 }
 
 .btn-large {
-  padding: 16px 40px;
+  padding: 1rem 40px;
   font-size: 1.15rem;
 }
 
@@ -423,7 +423,7 @@ body {
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 .logo-icon {
@@ -451,7 +451,7 @@ body {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 @keyframes logoFloat {
@@ -545,7 +545,7 @@ body {
   font-family: var(--font-display);
   font-size: 2.24rem;
   line-height: 1.2;
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
   font-weight: 400;
 }
 
@@ -575,7 +575,7 @@ body {
 .hero-decor {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 1.25rem;
   font-size: 2rem;
   margin-top: 8px;
 }
@@ -622,12 +622,12 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 15px;
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
 }
 
 .admin-grid-layout {
   display: grid;
-  grid-template-columns: 1fr 272px;
+  grid-template-columns: 1fr min(30vw, 320px);
   gap: 21px;
   align-items: start;
   
@@ -644,7 +644,7 @@ body {
 .admin-main {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 .admin-grid-info-bar {
@@ -661,7 +661,7 @@ body {
   letter-spacing: 0.3px;
   border-bottom: 2px solid var(--cell-border);
   padding-bottom: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
   color: var(--color-text-light);
 }
 
@@ -670,7 +670,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .form-group label {
@@ -688,7 +688,7 @@ body {
   background: var(--input-bg);
   border: 2px solid var(--input-border);
   color: var(--input-color);
-  padding: 12px 16px;
+  padding: 0.75rem 16px;
   font-size: 1rem;
   font-family: var(--font-body);
   font-weight: 600;
@@ -740,14 +740,14 @@ body {
 .team-inputs-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
 }
 
 .team-input-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 .team-input-row label {
@@ -781,7 +781,7 @@ body {
 .form-group-checkbox {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
   margin-bottom: 12px;
   cursor: pointer;
   background: rgba(255, 255, 255, 0.04);
@@ -823,7 +823,7 @@ body {
 .admin-db-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 .file-upload-wrapper {
@@ -864,8 +864,10 @@ body {
 
 /* Admin grid board */
 .admin-grid-scroll-wrapper {
+  flex: 1;
+
   overflow-x: auto;
-  padding: 12px;
+  padding: 0.75rem;
   background: var(--cell-bg);
   border-radius: var(--radius-md);
   border: 1.5px solid var(--cell-border);
@@ -873,7 +875,7 @@ body {
 
 .game-board-table {
   display: grid;
-  gap: 10px;
+  gap: 0.625rem;
   min-width: 360px;
   width: 100%;
 }
@@ -892,7 +894,7 @@ body {
   transition: all var(--transition-bounce);
   font-weight: 900 !important;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
-  padding: 8px 6px;
+  padding: 0.5rem 6px;
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
@@ -998,7 +1000,7 @@ body {
 .mcq-option-input {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
   margin-bottom: 10px;
 }
 
@@ -1043,8 +1045,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: stretch;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
 
@@ -1060,7 +1062,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 20px;
+  padding: 0.75rem 20px;
   border-radius: var(--radius-md);
   background: var(--panel-bg);
   border: 2px solid var(--panel-border);
@@ -1172,7 +1174,7 @@ body {
 /* Game layout */
 .game-layout-container {
   display: grid;
-  grid-template-columns: 1fr 272px;
+  grid-template-columns: 1fr min(30vw, 320px);
   gap: 21px;
   margin-bottom: 21px;
   align-items: start;
@@ -1198,7 +1200,7 @@ body {
   font-weight: 900 !important;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
   transition: all var(--transition-bounce);
-  padding: 12px 8px;
+  padding: 0.75rem 8px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
   font-family: var(--font-display);
   -webkit-tap-highlight-color: transparent;
@@ -1292,14 +1294,14 @@ body {
 .leaderboard-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 .leaderboard-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 0.75rem 16px;
   background: var(--cell-bg);
   border: 1.5px solid var(--cell-border);
   border-radius: var(--radius-sm);
@@ -1387,7 +1389,7 @@ body {
   letter-spacing: 2.7px;
   padding: 6px 20px;
   border-radius: var(--radius-pill);
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .winner-team-name {
@@ -1461,7 +1463,7 @@ body {
   z-index: 500;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 1.25rem;
 }
 
 .modal-overlay.open {
@@ -1474,7 +1476,7 @@ body {
   padding: 2.875rem;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 1.5rem;
   transform: scale(0.88);
   opacity: 0;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
@@ -1494,7 +1496,7 @@ body {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
   border-bottom: 2px solid var(--cell-border);
   padding-bottom: 22px;
 }
@@ -1581,7 +1583,7 @@ body {
   line-height: 1.45;
   color: var(--color-text-light);
   text-align: center;
-  padding: 8px 0;
+  padding: 0.5rem 0;
 }
 
 /* MCQ Options Grid */
@@ -1762,7 +1764,7 @@ body {
   .game-leaderboard-sidebar {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 16px;
+    gap: 1rem;
     align-items: start;
   }
 }
@@ -1857,7 +1859,7 @@ body {
   }
 
   .btn-start-big {
-    padding: 16px 32px;
+    padding: 1rem 32px;
     font-size: clamp(0.9rem, 2vw, 1.1rem);
   }
 
@@ -1927,8 +1929,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 16px;
-  padding: 16px;
+  gap: 1rem;
+  padding: 1rem;
 }
 
 .team-logo-circular {
@@ -2003,7 +2005,7 @@ body {
 .team-setup-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 1rem;
   margin-top: 16px;
 }
 
@@ -2062,13 +2064,13 @@ body {
   background: var(--input-bg);
   border: 2px solid var(--input-border);
   color: var(--input-color);
-  padding: 12px 16px;
+  padding: 0.75rem 16px;
   font-size: 1rem;
   font-family: var(--font-body);
   font-weight: 700;
   border-radius: var(--radius-sm);
   transition: border-color var(--transition-fast);
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .team-setup-input:focus {
@@ -2088,7 +2090,7 @@ body {
   background: var(--badge-bg);
   color: var(--color-text-light);
   border: 1.5px solid var(--color-border);
-  padding: 8px 16px;
+  padding: 0.5rem 16px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 800;
@@ -2111,7 +2113,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  padding: 24px 40px;
+  padding: 1.5rem 40px;
   border-radius: var(--radius-md);
   font-family: var(--font-display);
   font-size: 2.8rem;
@@ -2370,7 +2372,7 @@ body {
 
   .dynamic-team-panel {
     min-width: 0 !important;
-    padding: 8px 12px !important;
+    padding: 0.5rem 12px !important;
   }
 
   .team-score {
@@ -2379,7 +2381,7 @@ body {
 
   .turn-announcer {
     min-width: 120px !important;
-    padding: 8px 12px !important;
+    padding: 0.5rem 12px !important;
   }
 
   .turn-team {
@@ -2491,7 +2493,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 1.25rem 24px;
   border-bottom: 1px solid var(--cell-border);
 }
 
@@ -2651,10 +2653,10 @@ body {
    ============================================================ */
 .premium-controls-wrapper {
   background: rgba(0, 0, 0, 0.2);
-  padding: 16px;
+  padding: 1rem;
   border-radius: var(--radius-sm);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .modern-select, .modern-input {
@@ -2744,7 +2746,7 @@ body {
   font-family: var(--font-display);
   font-size: 1.2rem;
   color: var(--color-gold);
-  padding: 8px 0;
+  padding: 0.5rem 0;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -2773,3 +2775,22 @@ body {
 
 
 
+
+
+.form-open { overflow-y: auto !important; }
+
+/* Mobile Stacking Rule */
+@media (max-width: 768px) {
+  .game-layout-container, .admin-grid-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  .admin-sidebar, .game-leaderboard-sidebar {
+    width: 100%;
+    order: 2; /* Sidebar drops below grid */
+  }
+  .game-board-container, .admin-grid-scroll-wrapper {
+    width: 100%;
+    order: 1; /* Grid stays on top */
+  }
+}
