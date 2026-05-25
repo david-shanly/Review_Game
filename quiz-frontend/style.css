@@ -177,6 +177,20 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  font-size: 16px; /* Base for default 1080p desktop */
+}
+
+@media (min-width: 1440px) {
+  html { font-size: 18px; }
+}
+@media (min-width: 1920px) {
+  html { font-size: 24px; }
+}
+@media (max-width: 1080px) {
+  html { font-size: 14px; }
+}
+@media (max-width: 768px) {
+  html { font-size: 12px; }
 }
 
 body {
@@ -254,7 +268,7 @@ body {
   font-weight: 800;
   font-size: 1rem;
   letter-spacing: 0.3px;
-  padding: 12px 24px;
+  padding: 0.75rem 1.5rem;
   border-radius: var(--radius-pill);
   border: none;
   cursor: pointer;
@@ -395,7 +409,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
+  padding: 0.75rem 1.5rem;
   background: var(--header-bg);
   border-bottom: 1.5px solid var(--header-border);
   backdrop-filter: blur(12px);
@@ -621,7 +635,7 @@ body {
 
 
 .admin-sidebar {
-  padding: 24px;
+  padding: 1.5rem;
   position: sticky;
   top: 90px;
   border-radius: var(--radius-md);
@@ -771,7 +785,7 @@ body {
   margin-bottom: 12px;
   cursor: pointer;
   background: rgba(255, 255, 255, 0.04);
-  padding: 10px 14px;
+  padding: 0.625rem 0.875rem;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all var(--transition-fast);
@@ -869,7 +883,7 @@ body {
   background: var(--panel-bg);
   border: 2.5px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-sm);
-  min-height: 70px;
+  min-height: 4.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1001,7 +1015,7 @@ body {
   background: var(--input-bg);
   border: 2px solid var(--input-border);
   color: var(--input-color);
-  padding: 10px 14px;
+  padding: 0.625rem 0.875rem;
   font-size: 0.95rem;
   font-family: var(--font-body);
   font-weight: 600;
@@ -1174,7 +1188,7 @@ body {
   border: 2.5px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-sm);
   color: var(--color-text-light);
-  min-height: 85px;
+  min-height: 5.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1457,7 +1471,7 @@ body {
 .modal-content {
   width: 100%;
   max-width: 1400px;
-  padding: 46px;
+  padding: 2.875rem;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -1581,7 +1595,7 @@ body {
   display: flex;
   align-items: center;
   gap: 21px;
-  padding: 29px 33px;
+  padding: 1.8rem 2rem;
   background: var(--cell-bg);
   border: 2px solid var(--cell-border);
   border-radius: var(--radius-sm);
@@ -1639,7 +1653,7 @@ body {
   background: var(--input-bg);
   border: 2px solid var(--input-border);
   color: var(--input-color);
-  padding: 29px 33px;
+  padding: 1.8rem 2rem;
   font-size: 1.87rem;
   font-family: var(--font-body);
   font-weight: 700;
@@ -1785,7 +1799,7 @@ body {
   }
 
   .modal-content {
-    padding: 24px;
+    padding: 1.5rem;
     gap: 18px;
   }
 
@@ -1835,7 +1849,7 @@ body {
   }
 
   .game-cell-btn {
-    min-height: 80px;
+    min-height: 5.5rem;
   }
 
   .cell-qn {
@@ -1848,7 +1862,7 @@ body {
   }
 
   .modal-content {
-    padding: 18px;
+    padding: 1.125rem;
   }
 
   .question-text {
@@ -1997,7 +2011,7 @@ body {
   background: var(--cell-bg);
   border: 2px solid var(--cell-border);
   border-radius: var(--radius-md);
-  padding: 18px;
+  padding: 1.125rem;
   transition: all var(--transition-normal);
 }
 
@@ -2509,7 +2523,7 @@ body {
 .sidebar-content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 22px;
@@ -2644,7 +2658,7 @@ body {
 }
 
 .modern-select, .modern-input {
-  padding: 10px 14px;
+  padding: 0.625rem 0.875rem;
   font-size: 0.9rem;
   width: 100%;
   border-radius: 8px;
@@ -2752,3 +2766,10 @@ body {
   justify-content: center;
   width: 100%;
 }
+
+
+
+
+
+
+
