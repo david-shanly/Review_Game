@@ -2667,7 +2667,8 @@ function toggleFullscreen() {
 
   if (!isFS) {
     if (docEl.requestFullscreen) {
-      docEl.requestFullscreen().catch(err => console.warn(err));
+      const p = docEl.requestFullscreen();
+      if (p && p.catch) p.catch(err => console.warn(err));
     } else if (docEl.webkitRequestFullscreen) {
       docEl.webkitRequestFullscreen();
     } else if (docEl.mozRequestFullScreen) {
@@ -2677,7 +2678,8 @@ function toggleFullscreen() {
     }
   } else {
     if (document.exitFullscreen) {
-      document.exitFullscreen().catch(err => console.warn(err));
+      const p = document.exitFullscreen();
+      if (p && p.catch) p.catch(err => console.warn(err));
     } else if (document.webkitExitFullscreen) {
       document.webkitExitFullscreen();
     } else if (document.mozCancelFullScreen) {
