@@ -443,7 +443,9 @@ const defaultSettings = {
   positiveEmojis: "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏",
   negativeEmojis: "🤔,😬,🙊,😅,🙈,🤷‍♂️,🤦‍♀️,🤨",
   gridQnColor: '#ffb700',
-  gridQnColorDefault: true
+  gridQnColorDefault: true,
+  gridTileColor: '#ffffff',
+  gridTileColorDefault: true
 };
 
 function hydrateControlCenter(settings) {
@@ -467,6 +469,12 @@ function hydrateControlCenter(settings) {
   
   const qnColorDefaultEl = document.getElementById('settings-grid-qn-color-default');
   if (qnColorDefaultEl) qnColorDefaultEl.checked = settings.gridQnColorDefault ?? true;
+
+  const tileColorEl = document.getElementById('settings-grid-tile-color');
+  const tileColorDefEl = document.getElementById('settings-grid-tile-color-default');
+  if (tileColorEl) tileColorEl.value = settings.gridTileColor || '#ffffff';
+  if (tileColorDefEl) tileColorDefEl.checked = settings.gridTileColorDefault !== false;
+  if (tileColorEl && tileColorDefEl) tileColorEl.disabled = tileColorDefEl.checked;
 
   const applyAllEl = document.getElementById('settings-font-apply-all');
   if (applyAllEl) applyAllEl.checked = settings.applyFontToAll ?? false;
@@ -2910,7 +2918,9 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
             negativeEmojis: parsed.settings?.negativeEmojis ?? "😢,😭,🤦,📉,💔,🙈,😬,💀",
             useCustomFeedbackVideos: parsed.settings?.useCustomFeedbackVideos ?? false,
             gridFontColor: parsed.settings?.gridFontColor ?? '#ffffff',
-            gridFontBold: parsed.settings?.gridFontBold ?? false
+            gridFontBold: parsed.settings?.gridFontBold ?? false,
+            gridTileColor: parsed.settings?.gridTileColor ?? '#ffffff',
+            gridTileColorDefault: parsed.settings?.gridTileColorDefault ?? true
           },
           questions: parsed.questions || [],
           teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
