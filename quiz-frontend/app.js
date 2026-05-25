@@ -428,7 +428,7 @@ const defaultSettings = {
   displayMode: 'QUESTION_NUMBER',
   timerDuration: 10,
   enableTimer: true,
-  gridFont: 'Fredoka One',
+  gridFont: 'none',
   applyFontToAll: false,
   playVideoFeedback: false,
   enableTieBreaker: true,
@@ -442,7 +442,7 @@ const defaultSettings = {
   emojiMode: 'random',
   positiveEmojis: '👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏',
   negativeEmojis: '😢,😭,🤦,📉,💔,🙈,😬',
-  gridQnColor: '#ffb700',
+  gridQnColor: '#1e3a8a',
   gridQnColorDefault: true,
   gridTileColor: '#ffffff',
   gridTileColorDefault: true
@@ -465,7 +465,7 @@ function hydrateControlCenter(settings) {
   if (defaultFontColorEl) defaultFontColorEl.checked = settings.useDefaultFontColor ?? true;
 
   const qnColorEl = document.getElementById('settings-grid-qn-color');
-  if (qnColorEl) qnColorEl.value = settings.gridQnColor ?? '#ffb700';
+  if (qnColorEl) qnColorEl.value = settings.gridQnColor ?? '#1e3a8a';
   
   const qnColorDefaultEl = document.getElementById('settings-grid-qn-color-default');
   if (qnColorDefaultEl) qnColorDefaultEl.checked = settings.gridQnColorDefault ?? true;
@@ -847,25 +847,35 @@ function applySelectedFont() {
     }
   }
 
-  // 2. Font Color override (applies STRICTLY to grid cell text elements when not default)
+  // 2. Font Color override (applies STRICTLY to point labels when not default)
   if (!useDefaultColor) {
     css += `
-      #game-board-grid .game-cell-btn,
-      #game-board-grid .game-cell-btn *:not(.cell-qn-label),
-      #admin-interactive-grid .board-cell,
-      #admin-interactive-grid .board-cell *:not(.cell-qn-label) {
+      .qn-points-text {
         color: ${fontColor} !important;
       }
     `;
   }
 
   const useDefaultQnColor = db.settings.useDefaultQnColor !== false;
-  const qnFontColor = db.settings.gridQnColor || '#ffb700';
+  const qnFontColor = db.settings.gridQnColor || '#1e3a8a';
 
   if (!useDefaultQnColor) {
     css += `
       .qn-only-text {
         color: ${qnFontColor} !important;
+      }
+    `;
+  }
+
+  const useDefaultTileColor = db.settings.gridTileColorDefault !== false;
+  const tileColor = db.settings.gridTileColor || '#ffffff';
+
+  if (!useDefaultTileColor) {
+    css += `
+      #game-board-grid .game-cell-btn:not(.cell-answered):not(.cell-wrong):not(.cell-cancelled),
+      #admin-interactive-grid .board-cell {
+        background: ${tileColor} !important;
+        background-color: ${tileColor} !important;
       }
     `;
   }
@@ -957,9 +967,9 @@ function renderAdminGrid() {
       labelEl.className = 'cell-qn-label';
       let displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span>`;
       if (q) {
-        if (db.settings.displayMode === 'POINTS_ONLY') displayHtml = `(${q.points})`;
+        if (db.settings.displayMode === 'POINTS_ONLY') displayHtml = `<span class="qn-points-text">(${q.points})</span>`;
         else if (db.settings.displayMode === 'QUESTION_ONLY') displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span>`;
-        else displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span><br><span style="font-size:0.8em">(${q.points})</span>`;
+        else displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span><br><span class="qn-points-text" style="font-size:0.8em">(${q.points})</span>`;
       }
 
       if (isPlayed) {
@@ -1251,7 +1261,7 @@ function renderGameBoard() {
       } else if (db.settings.displayMode === 'QUESTION_ONLY') {
         displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span>`;
       } else {
-        displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span><br><span style="font-size:0.8em">(${q.points})</span>`;
+        displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span><br><span class="qn-points-text" style="font-size:0.8em">(${q.points})</span>`;
       }
     }
 
@@ -1333,9 +1343,9 @@ function renderGameBoard() {
       
       let displayHtml = '<span class="qn-only-text">TIE BREAKER</span>';
       if (db.settings.displayMode === 'POINTS_ONLY' && tieQ) {
-        displayHtml = `(${tieQ.points})`;
+        displayHtml = `<span class="qn-points-text">(${tieQ.points})</span>`;
       } else if (db.settings.displayMode !== 'QUESTION_ONLY' && tieQ) {
-        displayHtml = `<span class="qn-only-text">TIE BREAKER</span><br><span style="font-size:0.8em">(${tieQ.points})</span>`;
+        displayHtml = `<span class="qn-only-text">TIE BREAKER</span><br><span class="qn-points-text" style="font-size:0.8em">(${tieQ.points})</span>`;
       }
 
       const answered = playState.answeredCells[cId];
@@ -2933,7 +2943,7 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
             totalQuestions: parsed.settings?.totalQuestions ?? 12,
             displayMode: parsed.settings?.displayMode ?? 'QUESTION_NUMBER',
             
-            gridFont: parsed.settings?.gridFont ?? 'Fredoka One',
+            gridFont: parsed.settings?.gridFont ?? 'none',
             applyFontToAll: parsed.settings?.applyFontToAll ?? false,
             playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
             playEmojiFeedback: parsed.settings?.playEmojiFeedback !== false,
@@ -3515,6 +3525,25 @@ document.addEventListener('DOMContentLoaded', () => {
     qnColorDefEl.addEventListener('change', (e) => {
       db.settings.useDefaultQnColor = e.target.checked;
       if (qnColorEl) qnColorEl.disabled = e.target.checked;
+      saveDB();
+      applySelectedFont();
+    });
+  }
+
+  const tileColorEl = document.getElementById('settings-grid-tile-color');
+  if (tileColorEl) {
+    tileColorEl.addEventListener('change', (e) => {
+      db.settings.gridTileColor = e.target.value;
+      saveDB();
+      applySelectedFont();
+    });
+  }
+
+  const tileColorDefEl = document.getElementById('settings-grid-tile-color-default');
+  if (tileColorDefEl) {
+    tileColorDefEl.addEventListener('change', (e) => {
+      db.settings.gridTileColorDefault = e.target.checked;
+      if (tileColorEl) tileColorEl.disabled = e.target.checked;
       saveDB();
       applySelectedFont();
     });

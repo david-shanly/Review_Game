@@ -5,7 +5,7 @@
     "displayMode": "QUESTION_NUMBER",
     "timerDuration": 10,
     "enableTimer": true,
-    "gridFont": "Fredoka One",
+    "gridFont": "none",
     "applyFontToAll": false,
     "playVideoFeedback": false,
     "enableTieBreaker": true,
@@ -19,7 +19,7 @@
     "emojiMode": "random",
     "positiveEmojis": "👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏",
     "negativeEmojis": "😢,😭,🤦,📉,💔,🙈,😬",
-    "gridQnColor": "#ffb700",
+    "gridQnColor": "#1e3a8a",
     "gridQnColorDefault": true,
     "gridTileColor": "#ffffff",
     "gridTileColorDefault": true
