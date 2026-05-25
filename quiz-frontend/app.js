@@ -568,10 +568,9 @@ function updateDashboardStatus() {
   if (count === 0) {
     statusDiv.innerHTML = `
       <div class="bold-text">⚠️ No questions configured yet!</div>
-      <p style="margin-top:6px;font-size:0.9rem;color:var(--color-text-muted);">Open the Admin Panel (⚙️) to add questions.</p>
-      <button onclick="document.getElementById('btn-go-admin-float').click()" class="btn btn-secondary" style="margin-top: 15px;">⚙️ Open Admin Panel</button>`;
-    startBtn.disabled = true;
-    startBtn.innerHTML = '🎮 Start Game!';
+      <p style="margin-top:6px;font-size:0.9rem;color:var(--color-text-muted);">You must add questions to the database before starting the game.</p>`;
+    startBtn.disabled = false;
+    startBtn.innerHTML = '⚙️ Go to Admin Panel';
   } else {
     statusDiv.innerHTML = `
       <div class="bold-text" style="color:var(--color-success);">✅ Quiz ready!</div>

@@ -1522,7 +1522,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: clamp(0.75rem, 2vh, 1.5rem);
-  background: var(--card-bg);
+  background: var(--panel-bg);
   border: 1px solid var(--cell-border);
   border-radius: var(--radius-lg);
 }
