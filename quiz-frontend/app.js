@@ -485,6 +485,9 @@ function hydrateControlCenter(settings) {
   const tieBreakerEl = document.getElementById('settings-enable-tiebreaker');
   if (tieBreakerEl) tieBreakerEl.checked = settings.enableTieBreaker ?? true;
   
+  const tbVisEl = document.getElementById('settings-tiebreaker-visible');
+  if (tbVisEl) tbVisEl.checked = settings.tiebreakerVisible ?? true;
+  
   const displayModeEl = document.getElementById('settings-display-mode');
   if (displayModeEl) displayModeEl.value = settings.displayMode ?? 'QUESTION_NUMBER';
   
@@ -965,6 +968,7 @@ function renderAdminGrid() {
 
       const labelEl = document.createElement('span');
       labelEl.className = 'cell-qn-label';
+      labelEl.style.textAlign = 'center';
       let displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span>`;
       if (q) {
         if (db.settings.displayMode === 'POINTS_ONLY') displayHtml = `<span class="qn-points-text">(${q.points})</span>`;
@@ -1047,6 +1051,7 @@ function renderAdminGrid() {
 
     const labelEl = document.createElement('span');
     labelEl.className = 'cell-qn-label';
+    labelEl.style.textAlign = 'center';
     labelEl.innerHTML = '<span class="qn-only-text">TB</span>';
     if (tbPlayed) labelEl.innerHTML = `✔️<br><span class="qn-only-text" style="font-size:0.8em">TB</span>`;
     cell.appendChild(labelEl);
@@ -1329,7 +1334,8 @@ function renderGameBoard() {
     }
     const isTied = (playState.teams.length > 1 && playState.teams[0].score === playState.teams[1].score);
     
-    if (validQuestions.length > 0 && (allAnswered || playState.forceTieBreaker) && isTied) {
+    const showTb = (allAnswered || playState.forceTieBreaker) && isTied;
+    if (validQuestions.length > 0 && (showTb || db.settings.tiebreakerVisible !== false)) {
       const tieQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
       const cId = 'c-tiebreaker';
       const btn = document.createElement('button');
@@ -2941,7 +2947,7 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
           settings: {
             subtractOnWrong: parsed.settings?.subtractOnWrong ?? true,
             totalQuestions: parsed.settings?.totalQuestions ?? 12,
-            displayMode: parsed.settings?.displayMode ?? 'QUESTION_NUMBER',
+            displayMode: parsed.settings?.displayMode ?? 'QUESTION_AND_POINTS',
             
             gridFont: parsed.settings?.gridFont ?? 'none',
             applyFontToAll: parsed.settings?.applyFontToAll ?? false,
