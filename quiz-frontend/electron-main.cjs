@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -50,6 +51,32 @@ ipcMain.on('toggle-fullscreen', (event) => {
 ipcMain.handle('is-fullscreen', (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   return win ? win.isFullScreen() : false;
+});
+
+// IPC handler to read DB from user data
+ipcMain.handle('read-db', () => {
+  const dbPath = path.join(app.getPath('userData'), 'questions.json');
+  try {
+    if (fs.existsSync(dbPath)) {
+      return fs.readFileSync(dbPath, 'utf8');
+    }
+    return null;
+  } catch (err) {
+    console.error('Failed to read native DB:', err);
+    return null;
+  }
+});
+
+// IPC handler to write DB to user data
+ipcMain.handle('write-db', (event, dataString) => {
+  const dbPath = path.join(app.getPath('userData'), 'questions.json');
+  try {
+    fs.writeFileSync(dbPath, dataString, 'utf8');
+    return true;
+  } catch (err) {
+    console.error('Failed to write native DB:', err);
+    return false;
+  }
 });
 
 app.whenReady().then(() => {

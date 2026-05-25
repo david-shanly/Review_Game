@@ -1036,7 +1036,7 @@ function renderAdminGrid() {
       cell.addEventListener('click', () => {
         if (isPlayed) return;
         playSound('click');
-        openQuestionEditor(cId);
+        openQuestionEditor(qn);
       });
       container.appendChild(cell);
       qn++;
@@ -1053,7 +1053,9 @@ function renderAdminGrid() {
     cell.className = `board-cell ${qTb ? 'has-q' : ''} ${selectedAdminCellId === 'q-tiebreaker' ? 'selected-edit' : ''} ${tbPlayed ? 'cell-played-locked' : ''}`;
     
     // mathematically center tiebreaker in a 4-col grid
-    cell.style.gridColumn = `2 / span 2`;
+    cell.style.gridColumn = '1 / -1';
+    cell.style.justifySelf = 'center';
+    cell.style.width = 'calc(50% - 5px)';
     cell.dataset.cellId = 'q-tiebreaker';
 
     cell.style.fontFamily = db.settings.gridFont || 'var(--font-display)';
@@ -1079,7 +1081,7 @@ function renderAdminGrid() {
     cell.addEventListener('click', () => {
       if (tbPlayed) return;
       playSound('click');
-      openQuestionEditor('q-tiebreaker');
+      openQuestionEditor('tiebreaker');
     });
 
     container.appendChild(cell);
@@ -1105,6 +1107,9 @@ function toggleQuestionEditorEmojiInputs() {
 }
 
 async function openQuestionEditor(qnIndex) {
+  const adminScreen = document.getElementById('screen-admin');
+  if (adminScreen) adminScreen.classList.add('form-open');
+
   const cId = cellId(qnIndex);
   const q = db.questions.find(x => x.qnIndex === qnIndex);
   document.getElementById('editor-cell-title').textContent = `📝 Editing ${qnLabel(qnIndex)}`;
@@ -1211,6 +1216,12 @@ async function openQuestionEditor(qnIndex) {
   }
 
   document.getElementById('admin-question-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeQuestionEditor() {
+  document.getElementById('admin-question-editor').classList.add('hidden');
+  const adminScreen = document.getElementById('screen-admin');
+  if (adminScreen) adminScreen.classList.remove('form-open');
 }
 
 function setMCQRequired(req) {
@@ -1322,7 +1333,9 @@ function renderGameBoard() {
       const btn = document.createElement('button');
       btn.dataset.cellId = cId;
       btn.className = 'game-cell-btn';
-      btn.style.gridColumn = '2 / span 2';
+      btn.style.gridColumn = '1 / -1';
+      btn.style.justifySelf = 'center';
+      btn.style.width = 'calc(50% - 5px)';
       btn.style.borderColor = 'var(--color-gold)';
       btn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.4)';
       
@@ -3030,7 +3043,7 @@ document.getElementById('btn-clear-db').addEventListener('click', async () => {
 
   saveDB();
   selectedAdminCellId = null;
-  document.getElementById('admin-question-editor').classList.add('hidden');
+  closeQuestionEditor();
   renderAdminGrid();
   renderGameBoard();
 
@@ -3043,7 +3056,7 @@ document.getElementById('btn-clear-db').addEventListener('click', async () => {
 // ============================================================
 document.getElementById('btn-close-editor').addEventListener('click', () => {
   playSound('click');
-  document.getElementById('admin-question-editor').classList.add('hidden');
+  closeQuestionEditor();
   selectedAdminCellId = null;
   renderAdminGrid();
 });
@@ -3097,7 +3110,7 @@ document.getElementById('question-form').addEventListener('submit', async e => {
   else db.questions.push(qObj);
 
   saveDB();
-  document.getElementById('admin-question-editor').classList.add('hidden');
+  closeQuestionEditor();
   selectedAdminCellId = null;
   renderAdminGrid();
   renderGameBoard();
@@ -3115,7 +3128,7 @@ document.getElementById('btn-delete-question').addEventListener('click', async (
   await deleteVideoFromIndexedDB('q-' + qnIndex + '-wrong');
 
   saveDB();
-  document.getElementById('admin-question-editor').classList.add('hidden');
+  closeQuestionEditor();
   selectedAdminCellId = null;
   renderAdminGrid();
   renderGameBoard();

@@ -241,7 +241,7 @@ body {
 }
 
 .small-text {
-  font-size: 0.85rem;
+  font-size: clamp(0.7rem, 1.2vw, 0.85rem);
 }
 
 /* Glass panel */
@@ -657,7 +657,7 @@ body {
 .section-title {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
   letter-spacing: 0.3px;
   border-bottom: 2px solid var(--cell-border);
   padding-bottom: 10px;
@@ -707,7 +707,7 @@ body {
 
 .form-group textarea {
   resize: vertical;
-  min-height: 90px;
+  aspect-ratio: 1 / 1;
 }
 
 .form-group select option {
@@ -751,7 +751,7 @@ body {
 }
 
 .team-input-row label {
-  font-size: 0.85rem;
+  font-size: clamp(0.7rem, 1.2vw, 0.85rem);
   font-weight: 700;
   color: var(--color-text-muted);
   white-space: nowrap;
@@ -806,7 +806,7 @@ body {
 
 .form-group-checkbox label {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: clamp(0.7rem, 1.2vw, 0.85rem);
   cursor: pointer;
   color: var(--color-text-light);
   margin: 0;
@@ -883,7 +883,7 @@ body {
   background: var(--panel-bg);
   border: 2.5px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-sm);
-  min-height: 4.5rem;
+  aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1139,7 +1139,7 @@ body {
 
 .turn-team {
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
   font-weight: 400;
   letter-spacing: 0.5px;
   transition: color var(--transition-fast);
@@ -1313,7 +1313,7 @@ body {
 
 .leaderboard-rank {
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
   font-weight: 400;
   color: var(--color-gold);
   margin-right: 8px;
@@ -1328,7 +1328,7 @@ body {
 
 .leaderboard-score {
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
   font-weight: 800;
   color: var(--color-gold);
 }
@@ -1430,7 +1430,7 @@ body {
 
 .standing-place {
   font-family: var(--font-display);
-  font-size: 0.9rem;
+  font-size: clamp(0.75rem, 1.5vw, 0.9rem);
   margin-right: 11px;
 }
 
@@ -1511,7 +1511,7 @@ body {
 #modal-cell-id {
   font-family: var(--font-display);
   font-size: 1.27rem;
-  min-height: 74px;
+  aspect-ratio: 1 / 1;
   padding: 18px 20px;
   border: 2px solid rgba(244, 196, 48, 0.42);
   box-shadow: 0 0 16px rgba(244, 196, 48, 0.18);
@@ -1523,7 +1523,7 @@ body {
   border: 2px solid rgba(244, 196, 48, 0.95) !important;
   font-family: var(--font-display);
   font-size: 1.27rem;
-  min-height: 74px;
+  aspect-ratio: 1 / 1;
   padding: 18px 20px;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
   box-shadow: 0 0 0 3px rgba(244, 196, 48, 0.1),
@@ -1537,7 +1537,7 @@ body {
   font-weight: 900;
   font-size: 1.27rem;
   letter-spacing: 1.8px;
-  min-height: 74px;
+  aspect-ratio: 1 / 1;
   padding: 18px 24px;
   border-radius: var(--radius-pill);
   background: linear-gradient(135deg, rgba(244, 196, 48, 0.24), rgba(244, 196, 48, 0.08));
@@ -1858,7 +1858,7 @@ body {
 
   .btn-start-big {
     padding: 16px 32px;
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
   }
 
   .modal-content {
@@ -1866,7 +1866,7 @@ body {
   }
 
   .question-text {
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
   }
 
   .option-btn {
@@ -2079,7 +2079,7 @@ body {
 
 .team-setup-file {
   width: 100%;
-  font-size: 0.85rem;
+  font-size: clamp(0.7rem, 1.2vw, 0.85rem);
   color: var(--color-text-muted);
   background: transparent;
 }
@@ -2552,7 +2552,7 @@ body {
 
 .sidebar-section-title {
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
   color: var(--color-text-light);
   margin: 0 0 4px 0;
   border-bottom: 1.5px solid var(--color-gold);
@@ -2659,7 +2659,7 @@ body {
 
 .modern-select, .modern-input {
   padding: 0.625rem 0.875rem;
-  font-size: 0.9rem;
+  font-size: clamp(0.75rem, 1.5vw, 0.9rem);
   width: 100%;
   border-radius: 8px;
   border: 1px solid var(--color-border);
