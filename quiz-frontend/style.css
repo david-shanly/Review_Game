@@ -1266,7 +1266,7 @@ body {
 .cell-qn {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 1.89rem;
+  font-size: clamp(1rem, 1.5vw + 1.5vh, 1.89rem);
   color: var(--color-gold);
   line-height: 1;
 }

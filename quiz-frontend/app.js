@@ -1202,6 +1202,9 @@ function renderGameBoard() {
   container.style.gridTemplateColumns = `repeat(4, 1fr)`;
 
   const total = db.settings.totalQuestions;
+  const baseRows = Math.ceil(total / 4);
+  const rows = baseRows + (db.settings.enableTieBreaker ? 1 : 0);
+  container.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
 
   for (let qn = 1; qn <= total; qn++) {
     const cId = cellId(qn);
