@@ -1520,7 +1520,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: clamp(0.75rem, 1.5vh, 1.5rem);
-  min-height: 65vh;
+  min-height: 80vh;
   justify-content: space-between;
   background: var(--panel-bg);
   border: 1px solid var(--cell-border);
