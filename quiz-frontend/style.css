@@ -982,7 +982,7 @@ body {
 .cell-qn-label {
   font-family: var(--font-display);
   font-size: 1.6rem;
-  color: var(--color-gold);
+  color: #1e3a8a;
   font-weight: 400;
   line-height: 1;
 }
@@ -1267,7 +1267,7 @@ body {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(1rem, 1.5vw + 1.5vh, 1.89rem);
-  color: var(--color-gold);
+  color: #1e3a8a;
   line-height: 1;
 }
 
@@ -2760,7 +2760,7 @@ body {
 .default-color-toggle label {
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--color-gold-light);
+  color: #000000;
   margin: 0;
   cursor: pointer;
 } 

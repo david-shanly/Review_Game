@@ -1379,7 +1379,7 @@ function renderGameBoard() {
           btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size:2.8rem; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
         }
       } else {
-        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-gold); font-size:1.1rem; text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="color:#1e3a8a; font-size:1.1rem; text-align:center; line-height:1.2;">${displayHtml}</span>`;
         btn.addEventListener('click', () => {
           if (!canInteract() || !canOpenCell()) return;
           playSound('open');
