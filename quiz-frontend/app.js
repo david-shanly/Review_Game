@@ -3089,11 +3089,26 @@ const setupDefaultTeamToggle = (teamIdx, defaultCheckboxId, nameInputId, logoInp
 setupDefaultTeamToggle(0, 'admin-team1-default', 'admin-team1-name', 'admin-team1-logo', 'Lion', 'lion.png');
 setupDefaultTeamToggle(1, 'admin-team2-default', 'admin-team2-name', 'admin-team2-logo', 'Lioness', 'lioness.png');
 
-// Save Game Board
-document.getElementById('btn-save-game-board')?.addEventListener('click', () => {
+// Host Cheat Sheet
+document.getElementById('btn-cheat-sheet')?.addEventListener('click', () => {
   playSound('click');
-  saveDB();
-  triggerAlert('SYSTEM', 'Game saved automatically!', 'gain');
+  const printWindow = window.open('', '_blank');
+  let html = '<html><head><title>Host Cheat Sheet</title><style>body{font-family:sans-serif; padding:20px; color:#1e293b;} h1{text-align:center; border-bottom:2px solid #e2e8f0; padding-bottom:10px;} .q-box{border:1px solid #cbd5e1; padding:15px; margin-bottom:15px; border-radius:8px; background:#f8fafc;} .ans{color:#059669; font-weight:bold; font-size:1.1em;} .pts{color:#475569; font-size:0.9em; float:right;}</style></head><body>';
+  html += '<h1>Review Game - Host Cheat Sheet</h1>';
+  
+  const validQs = db.questions.filter(q => typeof q.qnIndex === 'number').sort((a,b) => a.qnIndex - b.qnIndex);
+  validQs.forEach(q => {
+    html += `<div class="q-box"><span class="pts">(${q.points} pts)</span><strong>Question ${q.qnIndex}:</strong><br><br><span style="font-size:1.2em;">${q.question}</span><br><br><span class="ans">Answer: ${q.answer}</span></div>`;
+  });
+  
+  const tieQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
+  if (tieQ) {
+    html += `<h2>Tie Breaker</h2><div class="q-box"><span class="pts">(${tieQ.points} pts)</span><strong>Question TIE:</strong><br><br><span style="font-size:1.2em;">${tieQ.question}</span><br><br><span class="ans">Answer: ${tieQ.answer}</span></div>`;
+  }
+  
+  html += '</body></html>';
+  printWindow.document.write(html);
+  printWindow.document.close();
 });
 
 // Export JSON
@@ -3196,7 +3211,7 @@ document.getElementById('import-json-file').addEventListener('change', e => {
 document.getElementById('btn-save-settings')?.addEventListener('click', () => {
   playSound('click');
   saveDB();
-  triggerAlert('SYSTEM', 'Settings saved successfully!', 'gain');
+  triggerAlert('SYSTEM', 'All changes and game state saved successfully!', 'gain');
 });
 
 // Reset game (not questions)

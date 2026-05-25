@@ -581,10 +581,13 @@
           <div class="sidebar-row-header">📂 Quiz Files</div>
           <div class="sidebar-btn-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
             <button id="btn-load-default" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">📖 Defaults</button>
-            <button id="btn-save-game-board" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">💾 Save Game</button>
+            <button id="btn-cheat-sheet" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">🖨️ Cheat Sheet</button>
             <button id="btn-export-json" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">📤 Export</button>
             <button id="btn-import-wrapper" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;" onclick="document.getElementById('import-json-file').click();">📥 Import</button>
             <input type="file" id="import-json-file" accept=".json" style="display: none;">
+          </div>
+          <div style="margin-top: 12px;">
+            <button id="btn-save-settings" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 0.9rem; font-weight:700; border-radius: 8px;">💾 Save All Changes</button>
           </div>
         </div>
 
@@ -592,7 +595,6 @@
         <div class="premium-controls-wrapper danger-card">
           <div class="sidebar-row-header" style="color: var(--color-error);">⚠️ Danger Operations</div>
           <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-            <button id="btn-save-settings" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">💾 Save Changes</button>
             <button id="btn-reset-game" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700; border-color: rgba(255, 61, 61, 0.3);">🔄 Reset Active Game</button>
             <button id="btn-clear-db" class="btn btn-danger" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">🗑️ Clear All Questions</button>
           </div>
