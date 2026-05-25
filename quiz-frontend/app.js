@@ -56,55 +56,9 @@ let gameTimerInterval = null;
 let gameTimerEndTime = null;
 let gameTimerAlertShown = false;
 
-function startGameTimer() {
-  const display = document.getElementById('game-timer-display');
-  if (db.settings.enableTimer === false) {
-    clearInterval(gameTimerInterval);
-    if (display) display.style.display = 'none';
-    return;
-  }
-  clearInterval(gameTimerInterval);
-  if (display) display.style.display = 'flex';
+function startGameTimer() {}
 
-  gameTimerInterval = setInterval(() => {
-    if (!gameTimerEndTime || playState.phase === 'ended') {
-      clearInterval(gameTimerInterval);
-      if (playState.phase === 'ended' && display) display.style.display = 'none';
-      return;
-    }
-    const now = Date.now();
-    let left = Math.max(0, gameTimerEndTime - now);
-
-    if (left <= 60000 && !gameTimerAlertShown && left > 0) {
-      gameTimerAlertShown = true;
-      triggerAlert('SYSTEM', '1 Minute Remaining!', 'lose');
-      saveGameState();
-    }
-
-    if (left === 0) {
-      clearInterval(gameTimerInterval);
-      if (display) display.textContent = 'Time Left: 00:00';
-      closeModal();
-      endGame();
-      return;
-    }
-
-    const totalSecs = Math.floor(left / 1000);
-    const m = Math.floor(totalSecs / 60);
-    const s = totalSecs % 60;
-    if (display) {
-      display.textContent = `Time Left: ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    }
-  }, 1000);
-}
-
-function clearGameTimer() {
-  clearInterval(gameTimerInterval);
-  gameTimerEndTime = null;
-  gameTimerAlertShown = false;
-  const display = document.getElementById('game-timer-display');
-  if (display) display.style.display = 'none';
-}
+function clearGameTimer() {}
 
 let playState = {
   activeScreen: 'dashboard',
@@ -1114,7 +1068,7 @@ async function openQuestionEditor(qnIndex) {
   if (adminScreen) adminScreen.classList.add('form-open');
 
   const cId = cellId(qnIndex);
-  const q = db.questions.find(x => x.qnIndex === qnIndex);
+  const q = db.questions.find(x => String(x.qnIndex) === String(qnIndex));
   document.getElementById('editor-cell-title').textContent = `📝 Editing ${qnLabel(qnIndex)}`;
   document.getElementById('admin-question-editor').classList.remove('hidden');
 
@@ -2485,7 +2439,7 @@ function handlePass() {
 // GAME OVER CHECK
 // ============================================================
 function checkGameOver() {
-  if (db.settings.enableTimer === false) return; // Prevent automatic end if timer is disabled
+  
 
   const total = db.settings.totalQuestions;
   const validQuestions = db.questions.filter(x => typeof x.qnIndex === 'number' && x.qnIndex <= total);
@@ -2925,7 +2879,7 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
             subtractOnWrong: parsed.settings?.subtractOnWrong ?? true,
             totalQuestions: parsed.settings?.totalQuestions ?? 12,
             displayMode: parsed.settings?.displayMode ?? 'QUESTION_NUMBER',
-            timerDuration: parsed.settings?.timerDuration ?? 10,
+            
             gridFont: parsed.settings?.gridFont ?? 'Fredoka One',
             applyFontToAll: parsed.settings?.applyFontToAll ?? false,
             playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
