@@ -552,10 +552,12 @@ function loadDB() {
       console.error('Failed to parse DB from localStorage', err);
       db.settings = { ...defaultSettings };
       hydrateControlCenter(db.settings);
+      loadDefaultQuiz();
     }
   } else {
     db.settings = { ...defaultSettings };
     hydrateControlCenter(db.settings);
+    loadDefaultQuiz();
   }
 }
 
@@ -840,29 +842,27 @@ function applySelectedFont() {
   if (!useDefaultColor) {
     css += `
       #game-board-grid .game-cell-btn,
-      #game-board-grid .game-cell-btn *,
+      #game-board-grid .game-cell-btn *:not(.cell-qn-label),
       #admin-interactive-grid .board-cell,
-      #admin-interactive-grid .board-cell * {
+      #admin-interactive-grid .board-cell *:not(.cell-qn-label) {
         color: ${fontColor} !important;
       }
     `;
   }
 
-  // 2.5 Grid QN Label Color Override
-  const gridQnColorEl = document.getElementById('settings-grid-qn-color');
-  const gridQnColorDefaultEl = document.getElementById('settings-grid-qn-color-default');
-  
-  const qnColor = gridQnColorEl ? gridQnColorEl.value : '#ffb700';
-  const useDefaultQnColor = gridQnColorDefaultEl ? gridQnColorDefaultEl.checked : true;
+  const useDefaultQnColor = db.settings.useDefaultQnColor !== false;
+  const qnFontColor = db.settings.gridQnColor || '#ffb700';
 
   if (!useDefaultQnColor) {
     css += `
       #game-board-grid .cell-qn-label,
       #admin-interactive-grid .cell-qn-label {
-        color: ${qnColor} !important;
+        color: ${qnFontColor} !important;
       }
     `;
   }
+
+
 
   // 3. Font Weight override (bold or normal) - STRICTLY confined to grid cells
   if (fontBold) {
@@ -3441,6 +3441,25 @@ document.addEventListener('DOMContentLoaded', () => {
       playSound('click');
       db.settings.gridFontBold = !db.settings.gridFontBold;
       fontBoldBtn.classList.toggle('active', db.settings.gridFontBold);
+      saveDB();
+      applySelectedFont();
+    });
+  }
+
+  const qnColorEl = document.getElementById('settings-grid-qn-color');
+  if (qnColorEl) {
+    qnColorEl.addEventListener('change', (e) => {
+      db.settings.gridQnColor = e.target.value;
+      saveDB();
+      applySelectedFont();
+    });
+  }
+
+  const qnColorDefEl = document.getElementById('settings-grid-qn-color-default');
+  if (qnColorDefEl) {
+    qnColorDefEl.addEventListener('change', (e) => {
+      db.settings.useDefaultQnColor = e.target.checked;
+      if (qnColorEl) qnColorEl.disabled = e.target.checked;
       saveDB();
       applySelectedFont();
     });
