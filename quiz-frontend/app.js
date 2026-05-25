@@ -1551,6 +1551,7 @@ function openQuestionModal(cId, q) {
   playState.currentQuestion = q;
   playState.currentQuestionValue = q.points;
   playState.teamsAttemptedCount = 0;
+  playState.originalTeamIndex = playState.currentTeamIndex;
   playState.cancelLocked = false;
 
   const overlay = document.getElementById('modal-overlay');
@@ -1632,6 +1633,7 @@ function closeModal() {
   playState.currentQuestion = null;
   playState.currentQuestionValue = 0;
   playState.teamsAttemptedCount = 0;
+  playState.originalTeamIndex = playState.currentTeamIndex;
   playState.cancelLocked = false;
   if (playState.phase !== 'ended') playState.gameState = 'IDLE';
 }
@@ -2358,9 +2360,6 @@ function showEmojiFeedback(isCorrect, q, callback) {
     if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
 
     let penalty = ptsToAward;
-    if (playState.teamsAttemptedCount === 0) {
-      penalty = Math.floor(q.points * 0.5);
-    }
 
     const isExhausted = playState.teamsAttemptedCount + 1 >= playState.teams.length;
 
@@ -2371,9 +2370,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
       playState.teamsAttemptedCount++;
       
       if (!isExhausted) {
-        if (playState.teamsAttemptedCount === 1) {
-          playState.currentQuestionValue = Math.floor(q.points * 0.5);
-        }
+        playState.currentQuestionValue = Math.max(1, Math.floor(playState.currentQuestionValue * 0.5));
         transitionState('AWAITING_STEAL');
         switchTurn();
         saveGameState();
@@ -2456,9 +2453,7 @@ function handlePass() {
 
   playState.teamsAttemptedCount++;
   
-  if (playState.teamsAttemptedCount === 1) {
-    playState.currentQuestionValue = Math.floor(q.points * 0.5);
-  }
+  playState.currentQuestionValue = Math.max(1, Math.floor(playState.currentQuestionValue * 0.5));
   
   transitionState('AWAITING_STEAL');
   switchTurn();
