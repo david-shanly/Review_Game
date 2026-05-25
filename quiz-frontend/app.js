@@ -435,6 +435,35 @@ async function clearAllVideosFromIndexedDB() {
 // PERSISTENCE (localStorage)
 // ============================================================
 function saveDB() {
+  if (db.settings.enableCustomPerQuestionEmoji === false) {
+    db.questions.forEach(q => {
+      delete q.customCorrectEmoji;
+      delete q.customWrongEmoji;
+    });
+  }
+  
+  if (window.customDatabaseFileHandle) {
+    saveDatabaseToFileHandle(window.customDatabaseFileHandle, db).catch(err => {
+      console.error("Error saving to custom DB file handle", err);
+      fallbackSaveDB();
+    });
+  } else {
+    // If default DB, send via POST to save-db endpoint
+    fetch('/api/save-db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(db, null, 2)
+    }).then(res => {
+      if (!res.ok) throw new Error('Failed to save to /api/save-db');
+      fallbackSaveDB(); // Still save to localStorage just in case
+    }).catch(err => {
+      console.warn("Could not save to default_quiz.json (probably not in dev mode), falling back to localStorage", err);
+      fallbackSaveDB();
+    });
+  }
+}
+
+function fallbackSaveDB() {
   localStorage.setItem('review_game_db', JSON.stringify(db));
   updateDashboardStatus();
 }
@@ -455,6 +484,7 @@ const defaultSettings = {
   useDefaultFontColor: true,
   gridCols: 4,
   playEmojiFeedback: true,
+  enableCustomPerQuestionEmoji: true,
   emojiMode: 'random',
   positiveEmojis: "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏",
   negativeEmojis: "🤔,😬,🙊,😅,🙈,🤷‍♂️,🤦‍♀️,🤨",
@@ -507,6 +537,9 @@ function hydrateControlCenter(settings) {
   
   const emojiModeEl = document.getElementById('settings-emoji-mode');
   if (emojiModeEl) emojiModeEl.value = settings.emojiMode ?? 'random';
+  
+  const customEmojiEl = document.getElementById('settings-enable-custom-emoji');
+  if (customEmojiEl) customEmojiEl.checked = settings.enableCustomPerQuestionEmoji ?? true;
   
   const videoFeedbackEl = document.getElementById('settings-play-video-feedback');
   if (videoFeedbackEl) videoFeedbackEl.checked = settings.playVideoFeedback ?? false;
@@ -1056,6 +1089,21 @@ function renderAdminGrid() {
 
 
 
+function toggleQuestionEditorEmojiInputs() {
+  const container = document.getElementById('per-question-emoji-options');
+  if (container) {
+    if (db.settings.playVideoFeedback || db.settings.enableCustomPerQuestionEmoji === false) {
+      container.style.display = 'none';
+    } else {
+      container.style.display = 'block';
+    }
+  }
+  const perQVideo = document.getElementById('per-question-video-options');
+  if (perQVideo) {
+    perQVideo.style.display = db.settings.playEmojiFeedback !== false ? 'none' : 'block';
+  }
+}
+
 async function openQuestionEditor(qnIndex) {
   const cId = cellId(qnIndex);
   const q = db.questions.find(x => x.qnIndex === qnIndex);
@@ -1073,11 +1121,7 @@ async function openQuestionEditor(qnIndex) {
   if (qEmojiCorrect) qEmojiCorrect.value = q ? (q.customCorrectEmoji || '') : '';
   if (qEmojiWrong) qEmojiWrong.value = q ? (q.customWrongEmoji || '') : '';
 
-  const perQVideo = document.getElementById('per-question-video-options');
-  if (perQVideo) perQVideo.style.display = db.settings.playEmojiFeedback !== false ? 'none' : 'block';
-
-  const perQEmoji = document.getElementById('per-question-emoji-options');
-  if (perQEmoji) perQEmoji.style.display = db.settings.playVideoFeedback ? 'none' : 'block';
+  toggleQuestionEditorEmojiInputs();
 
   if (q) {
     document.getElementById('q-type').value = q.questionType || (q.type === 'fill' ? 'fill_blank' : 'mcq');
@@ -2180,7 +2224,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
   const negativeEmojis = db.settings.negativeEmojis ? db.settings.negativeEmojis.split(',').map(e => e.trim()).filter(e => e) : ['😢', '😭', '🤦', '📉', '💔', '🙈', '😬', '💀'];
   
   let emoji = null;
-  if (q) {
+  if (q && db.settings.enableCustomPerQuestionEmoji !== false) {
     if (isCorrect && q.customCorrectEmoji) emoji = q.customCorrectEmoji;
     if (!isCorrect && q.customWrongEmoji) emoji = q.customWrongEmoji;
   }
@@ -2815,26 +2859,55 @@ const setupDefaultTeamToggle = (teamIdx, defaultCheckboxId, nameInputId, logoInp
 setupDefaultTeamToggle(0, 'admin-team1-default', 'admin-team1-name', 'admin-team1-logo', 'Lion', 'lion.png');
 setupDefaultTeamToggle(1, 'admin-team2-default', 'admin-team2-name', 'admin-team2-logo', 'Lioness', 'lioness.png');
 
+async function saveDatabaseToFileHandle(handle, data) {
+  const writable = await handle.createWritable();
+  await writable.write(JSON.stringify(data, null, 2));
+  await writable.close();
+  triggerAlert("System", "Database saved directly to file!", "gain");
+  updateDashboardStatus();
+}
+
 // Export JSON
-document.getElementById('btn-export-json').addEventListener('click', () => {
+document.getElementById('btn-export-json').addEventListener('click', async () => {
   playSound('click');
-  const a = document.createElement('a');
-  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(db, null, 2));
-  a.download = `review_game_${ts}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  try {
+    if (window.showSaveFilePicker) {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: `review_game_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.json`,
+        types: [{ description: 'JSON File', accept: { 'application/json': ['.json'] } }]
+      });
+      await saveDatabaseToFileHandle(handle, db);
+      window.customDatabaseFileHandle = handle;
+    } else {
+      throw new Error("File System Access API not supported");
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.warn("Fallback to download API", err);
+      const a = document.createElement('a');
+      const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(db, null, 2));
+      a.download = `review_game_${ts}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  }
 });
 
 // Import JSON
-document.getElementById('import-json-file').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function () {
+document.getElementById('import-json-file').addEventListener('click', async (e) => {
+  if (window.showOpenFilePicker) {
+    e.preventDefault(); // Stop default file input behavior
     try {
-      const parsed = JSON.parse(reader.result);
+      const [fileHandle] = await window.showOpenFilePicker({
+        types: [{ description: 'JSON File', accept: { 'application/json': ['.json'] } }]
+      });
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      window.customDatabaseFileHandle = fileHandle; // Retain handle for writing back
+      
+      const parsed = JSON.parse(text);
       if (parsed && typeof parsed === 'object') {
         db = {
           settings: {
@@ -2846,6 +2919,7 @@ document.getElementById('import-json-file').addEventListener('change', e => {
             applyFontToAll: parsed.settings?.applyFontToAll ?? false,
             playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
             playEmojiFeedback: parsed.settings?.playEmojiFeedback !== false,
+            enableCustomPerQuestionEmoji: parsed.settings?.enableCustomPerQuestionEmoji ?? true,
             emojiMode: parsed.settings?.emojiMode ?? 'random',
             positiveEmojis: parsed.settings?.positiveEmojis ?? "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏",
             negativeEmojis: parsed.settings?.negativeEmojis ?? "😢,😭,🤦,📉,💔,🙈,😬,💀",
@@ -2892,6 +2966,11 @@ document.getElementById('import-json-file').addEventListener('change', e => {
         
         const emojiModeEl = document.getElementById('settings-emoji-mode');
         if (emojiModeEl) emojiModeEl.value = db.settings.emojiMode || 'random';
+        
+        if (customEmojiEl) {
+          customEmojiEl.checked = db.settings.enableCustomPerQuestionEmoji ?? true;
+          toggleQuestionEditorEmojiInputs();
+        }
         
         const posEmojiEl = document.getElementById('settings-positive-emojis');
         if (posEmojiEl) posEmojiEl.value = db.settings.positiveEmojis || "👏,🎉,🌟,🙌,💯,🏆,🤩,👍,👌,😊,👏";
@@ -3418,6 +3497,15 @@ document.addEventListener('DOMContentLoaded', () => {
     emojiModeEl.addEventListener('change', (e) => {
       db.settings.emojiMode = e.target.value;
       saveDB();
+    });
+  }
+
+  const customEmojiEl = document.getElementById('settings-enable-custom-emoji');
+  if (customEmojiEl) {
+    customEmojiEl.addEventListener('change', (e) => {
+      db.settings.enableCustomPerQuestionEmoji = e.target.checked;
+      saveDB();
+      toggleQuestionEditorEmojiInputs();
     });
   }
 
