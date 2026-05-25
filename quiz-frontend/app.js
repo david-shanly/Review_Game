@@ -1631,6 +1631,8 @@ function cancelQuestion() {
   document.getElementById('modal-turn-status').textContent = "Question Cancelled";
   updateTurnUI();
   saveGameState();
+  renderGameBoard();
+  renderAdminGrid();
   enableNextButton();
   disableQuestionInputs();
 }
@@ -2321,7 +2323,11 @@ function showEmojiFeedback(isCorrect, q, callback) {
     if (btnCancel) btnCancel.disabled = true;
 
     saveGameState();
-    switchTurn();
+    if (playState.teamsAttemptedCount === 0) {
+      switchTurn();
+    }
+    renderGameBoard();
+    renderAdminGrid();
     enableNextButton();
   };
 
@@ -2340,20 +2346,25 @@ function showEmojiFeedback(isCorrect, q, callback) {
     if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
 
     let penalty = ptsToAward;
+    if (playState.teamsAttemptedCount === 0) {
+      penalty = Math.floor(ptsToAward * 0.5);
+    }
 
     const isExhausted = playState.teamsAttemptedCount + 1 >= playState.teams.length;
 
     const finalizeWrong = () => {
       applyScore(teamIndex, penalty, true, true);
-      updateScoreUI(teamIndex);
+      updateScoreUI(); // Update all to reflect new scores
       
       playState.teamsAttemptedCount++;
       
       if (!isExhausted) {
-        playState.currentQuestionValue = Math.max(1, Math.floor(playState.currentQuestionValue * 0.5));
+        playState.currentQuestionValue = ptsToAward - penalty;
         transitionState('AWAITING_STEAL');
         switchTurn();
         saveGameState();
+        renderGameBoard();
+        renderAdminGrid();
         startStealPhase();
       } else {
         transitionState('RESOLVED');
@@ -2378,7 +2389,8 @@ function showEmojiFeedback(isCorrect, q, callback) {
         if (btnCancel) btnCancel.disabled = true;
 
         saveGameState();
-        switchTurn();
+        renderGameBoard();
+        renderAdminGrid();
         enableNextButton();
       }
     };
@@ -2433,11 +2445,13 @@ function handlePass() {
 
   playState.teamsAttemptedCount++;
   
-  playState.currentQuestionValue = Math.max(1, Math.floor(playState.currentQuestionValue * 0.5));
+  playState.currentQuestionValue = Math.floor(playState.currentQuestionValue * 0.5);
   
   transitionState('AWAITING_STEAL');
   switchTurn();
   saveGameState();
+  renderGameBoard();
+  renderAdminGrid();
 
   const stealPts = playState.currentQuestionValue;
   document.getElementById('modal-points-display').textContent = `${stealPts} POINTS - STEAL`;
