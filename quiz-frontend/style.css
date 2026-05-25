@@ -521,10 +521,10 @@ body {
    SCREEN 1: DASHBOARD
    ============================================================ */
 .hero-card {
-  width: 90%; max-width: 530px;
+  width: 90%; max-width: 556px;
   margin: 41px auto;
   text-align: center;
-  padding: 43px 36px;
+  padding: 45px 38px;
   border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
