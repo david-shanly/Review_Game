@@ -1,1 +1,21 @@
-dist-electron/
+# Dependencies & build output
+node_modules
+dist
+dist-ssr
+dist-electron
+*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# One-off dev patch scripts (generated during edits — not part of the app)
+temp_*.js
+temp_*.cjs
+fix_*.cjs
+patch_*.cjs
+update_*.cjs
+execute_unified.cjs
+add_labels_toggle.cjs
