@@ -1,7 +1,7 @@
 {
   "settings": {
     "subtractOnWrong": true,
-    "totalQuestions": 12,
+    "totalQuestions": 20,
     "displayMode": "QUESTION_NUMBER",
     "timerDuration": 10,
     "enableTimer": true,
@@ -10,7 +10,7 @@
     "playVideoFeedback": false,
     "enableTieBreaker": true,
     "useCustomFeedbackVideos": false,
-    "gridFontColor": "#ffffff",
+    "gridFontColor": "#000000",
     "gridFontBold": false,
     "useDefaultFontColor": true,
     "gridCols": 4,
@@ -21,8 +21,7 @@
     "negativeEmojis": "😢,😭,🤦,📉,💔,🙈,😬",
     "gridQnColor": "#1e3a8a",
     "gridQnColorDefault": true,
-    "gridTileColor": "#ffffff",
-    "gridTileColorDefault": true
+    "gridTileColor": "#ffffff"
   },
   "questions": [
     {

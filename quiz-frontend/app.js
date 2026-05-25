@@ -469,8 +469,7 @@ function hydrateControlCenter(settings) {
   const tileColorEl = document.getElementById('settings-grid-tile-color');
   if (tileColorEl) tileColorEl.value = settings.gridTileColor || '#ffffff';
 
-  const applyAllEl = document.getElementById('settings-font-apply-all');
-  if (applyAllEl) applyAllEl.checked = settings.applyFontToAll ?? false;
+
   
   const subtractEl = document.getElementById('settings-subtract');
   if (subtractEl) subtractEl.checked = settings.subtractOnWrong ?? true;
@@ -828,19 +827,11 @@ function applySelectedFont() {
 
   // 1. Font Family override
   if (font !== 'none') {
-    if (applyAll) {
-      css += `
-        body, html, input, button, select, textarea, .logo-text, .cell-qn, .cell-qn-label, .option-btn, .winner-team-name, .hero-title, .turn-team {
-          font-family: "${font}", "Fredoka One", "Nunito", sans-serif !important;
-        }
-      `;
-    } else {
-      css += `
-        .board-cell, .game-cell-btn, .cell-qn, .cell-qn-label, .board-cell *, .game-cell-btn * {
-          font-family: "${font}", "Fredoka One", "Nunito", sans-serif !important;
-        }
-      `;
-    }
+    css += `
+      .board-cell, .game-cell-btn, .cell-qn, .cell-qn-label, .board-cell *, .game-cell-btn * {
+        font-family: "${font}", "Fredoka One", "Nunito", sans-serif !important;
+      }
+    `;
   }
 
   // 2. Font Color override (applies STRICTLY to point labels when not default)
@@ -2942,7 +2933,7 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
             displayMode: parsed.settings?.displayMode ?? 'QUESTION_AND_POINTS',
             
             gridFont: parsed.settings?.gridFont ?? 'none',
-            applyFontToAll: parsed.settings?.applyFontToAll ?? false,
+            
             playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
             playEmojiFeedback: parsed.settings?.playEmojiFeedback !== false,
             enableCustomPerQuestionEmoji: parsed.settings?.enableCustomPerQuestionEmoji ?? true,
@@ -3543,14 +3534,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  const applyAllEl = document.getElementById('settings-font-apply-all');
-  if (applyAllEl) {
-    applyAllEl.addEventListener('change', (e) => {
-      db.settings.applyFontToAll = e.target.checked;
-      saveDB();
-      applySelectedFont();
-    });
-  }
+
 
   const videoFeedbackEl = document.getElementById('settings-play-video-feedback');
   if (videoFeedbackEl) {
