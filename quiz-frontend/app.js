@@ -999,7 +999,13 @@ function renderAdminGrid() {
       cell.appendChild(badges);
 
       cell.addEventListener('click', () => {
-        
+        if (playState.phase === 'live') {
+           const answered = playState.answeredCells[cId];
+           if (answered && !answered.cancelled) {
+             triggerAlert('SYSTEM', 'Cannot edit an already answered question during a live game.', 'error');
+             return;
+           }
+        }
         playSound('click');
         selectedAdminCellId = cId;
         renderAdminGrid();
@@ -1012,7 +1018,7 @@ function renderAdminGrid() {
 
   if (db.settings.enableTieBreaker) {
     const qTb = db.questions.find(x => x.qnIndex === 'tiebreaker');
-    const tbPlayed = !!(playState.teams && playState.teams.length > 0 && playState.answeredCells['q-tiebreaker']);
+    const tbPlayed = !!(playState.teams && playState.teams.length > 0 && playState.answeredCells['c-tiebreaker']);
     
     // TB row label removed
 
@@ -1046,7 +1052,13 @@ function renderAdminGrid() {
     }
 
     cell.addEventListener('click', () => {
-      
+      if (playState.phase === 'live') {
+         const answered = playState.answeredCells['c-tiebreaker'];
+         if (answered && !answered.cancelled) {
+           triggerAlert('SYSTEM', 'Cannot edit an already answered question during a live game.', 'error');
+           return;
+         }
+      }
       playSound('click');
       selectedAdminCellId = 'q-tiebreaker';
       renderAdminGrid();
@@ -3002,10 +3014,27 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
 document.getElementById('btn-save-settings')?.addEventListener('click', () => {
   playSound('click');
   saveDB();
+  
+  let revived = false;
+  if (playState && playState.answeredCells) {
+    Object.keys(playState.answeredCells).forEach(cId => {
+      if (playState.answeredCells[cId].cancelled) {
+        delete playState.answeredCells[cId];
+        revived = true;
+      }
+    });
+  }
+
   applySelectedFont();
   renderGameBoard();
   renderAdminGrid();
-  triggerAlert('SYSTEM', 'Preferences saved and loaded into game!', 'gain');
+
+  if (revived) {
+    saveGameState();
+    triggerAlert('SYSTEM', 'Cancelled questions revived and preferences saved!', 'gain');
+  } else {
+    triggerAlert('SYSTEM', 'Preferences saved and loaded into game!', 'gain');
+  }
 });
 
 // Reset game (not questions)
