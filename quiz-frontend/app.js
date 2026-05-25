@@ -993,6 +993,8 @@ function renderAdminGrid() {
       cell.addEventListener('click', () => {
         if (isPlayed) return;
         playSound('click');
+        selectedAdminCellId = cId;
+        renderAdminGrid();
         openQuestionEditor(qn);
       });
       container.appendChild(cell);
@@ -1038,6 +1040,8 @@ function renderAdminGrid() {
     cell.addEventListener('click', () => {
       if (tbPlayed) return;
       playSound('click');
+      selectedAdminCellId = 'q-tiebreaker';
+      renderAdminGrid();
       openQuestionEditor('tiebreaker');
     });
 

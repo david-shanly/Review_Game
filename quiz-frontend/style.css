@@ -225,18 +225,17 @@ body {
   line-height: 1.6;
   transition: background 0.4s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
-  height: 100vh;
-  overflow: hidden;
+    min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #app-container, .app-main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
 }
 
 /* Confetti canvas */
@@ -511,8 +510,6 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 @keyframes screenIn {
@@ -540,6 +537,8 @@ body {
   overflow: hidden;
   
   transform: scale(1.05);
+
+  margin: auto;
 }
 
 .hero-card::before {
@@ -1405,6 +1404,8 @@ body {
   border-radius: var(--radius-lg);
   
   transform: scale(1.05);
+
+  margin: auto;
 }
 
 .winner-trophy {
