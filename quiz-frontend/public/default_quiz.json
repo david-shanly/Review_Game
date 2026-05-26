@@ -2,7 +2,7 @@
   "settings": {
     "subtractOnWrong": true,
     "totalQuestions": 12,
-    "displayMode": "QUESTION_NUMBER",
+    "displayMode": "QUESTION_POINTS",
     "timerDuration": 10,
     "enableTimer": true,
     "gridFont": "none",

@@ -2980,7 +2980,7 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
           settings: {
             subtractOnWrong: parsed.settings?.subtractOnWrong ?? true,
             totalQuestions: parsed.settings?.totalQuestions ?? 12,
-            displayMode: parsed.settings?.displayMode ?? 'QUESTION_AND_POINTS',
+            displayMode: parsed.settings?.displayMode ?? 'QUESTION_POINTS',
             
             gridFont: parsed.settings?.gridFont ?? 'none',
             
