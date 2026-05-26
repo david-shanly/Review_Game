@@ -1380,15 +1380,15 @@ body {
 #screen-winner {
   justify-content: center;
   align-items: center;
+  min-height: calc(100vh - 120px); /* header + footer + screen-container padding */
   overflow-y: auto;
+  padding: clamp(16px, 3vh, 40px) 0;
 }
 
 .winner-card {
   width: 90%;
   max-width: min(594px, 85vw);
-  max-height: 90vh;
-  overflow-y: auto;
-  margin: auto;
+  margin: clamp(12px, 2vh, 24px) auto;
   text-align: center;
   padding: clamp(24px, 4vh, 50px) clamp(20px, 4vw, 43px);
   border-radius: var(--radius-lg);
