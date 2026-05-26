@@ -21,7 +21,9 @@
     "negativeEmojis": "😢,😭,🤦,📉,💔,🙈,😬",
     "gridQnColor": "#1e3a8a",
     "gridQnColorDefault": true,
-    "gridTileColor": "#ffffff"
+    "gridTileColor": "#ffffff",
+    "gridTileColorDefault": true,
+    "useDefaultQnColor": true
   },
   "questions": [
     {
@@ -165,13 +167,11 @@
   "teams": [
     {
       "name": "Lion",
-      "logo": "lion.png",
-      "useDefault": true
+      "logo": "lion.png"
     },
     {
       "name": "Lioness",
-      "logo": "lioness.png",
-      "useDefault": true
+      "logo": "lioness.png"
     }
   ]
 }

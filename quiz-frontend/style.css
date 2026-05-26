@@ -522,17 +522,14 @@ body {
    SCREEN 1: DASHBOARD
    ============================================================ */
 .hero-card {
-  width: 90%; max-width: 556px;
-  margin: 41px auto;
+  width: 90%;
+  max-width: 556px;
+  margin: auto;
   text-align: center;
-  padding: 45px 38px;
+  padding: 25px 45px;
   border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
-  
-  
-
-  margin: auto;
 }
 
 .hero-card::before {
@@ -566,9 +563,9 @@ body {
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: 2.24rem;
+  font-size: 2.9rem;
   line-height: 1.2;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
   font-weight: 400;
 }
 
@@ -576,15 +573,15 @@ body {
   background: var(--cell-bg);
   border: 1.5px solid var(--cell-border);
   border-radius: var(--radius-md);
-  padding: 17px 20px;
-  margin-bottom: 27px;
+  padding: 14px 20px;
+  margin-bottom: 15px;
   text-align: left;
-  font-size: 0.86rem;
+  font-size: 1.15rem;
 }
 
 .dashboard-status-card .bold-text {
-  font-size: 0.95rem;
-  margin-bottom: 4px;
+  font-size: 1.3rem;
+  margin-bottom: 6px;
 }
 
 .dashboard-actions {
@@ -592,7 +589,7 @@ body {
   gap: 14px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 27px;
+  margin-bottom: 15px;
 }
 
 .hero-decor {
@@ -600,7 +597,7 @@ body {
   justify-content: center;
   gap: 1.25rem;
   font-size: 2rem;
-  margin-top: 8px;
+  margin-top: 2px;
 }
 
 .decor-item {
@@ -921,7 +918,7 @@ body {
   cursor: pointer;
   transition: all var(--transition-bounce);
   font-weight: 900 !important;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+  text-shadow: none;
   padding: 0.5rem 6px;
   position: relative;
   overflow: hidden;
@@ -946,7 +943,6 @@ body {
 
 .board-cell.has-q {
   border-color: rgba(244, 196, 48, 0.38);
-  background: rgba(244, 196, 48, 0.05);
 }
 
 .board-cell.has-q::after {
@@ -1235,7 +1231,7 @@ body {
   cursor: pointer;
   transition: all var(--transition-bounce);
   font-weight: 900 !important;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+  text-shadow: none;
   transition: all var(--transition-bounce);
   padding: 0.75rem 8px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
@@ -1382,7 +1378,6 @@ body {
 
 
 #screen-winner {
-  zoom: 0.88;
   justify-content: center;
   align-items: center;
 }
@@ -1677,29 +1672,34 @@ body {
 /* Fill-in-the-blank */
 .fill-container {
   display: flex;
-  gap: 12px;
-  max-width: 540px;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 800px;
   margin: 0 auto;
   width: 100%;
 }
 
-.fill-container input[type="text"] {
-  flex: 1;
-  background: var(--input-bg);
-  border: 2px solid var(--input-border);
-  color: var(--input-color);
-  padding: 1.8rem 2rem;
-  font-size: 1.87rem;
-  font-family: var(--font-body);
+.fill-container input[type="text"],
+#modal-fill-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid var(--color-gold-light);
+  padding: 1.1rem 2rem;
+  font-size: 1.4rem;
+  font-family: inherit;
   font-weight: 700;
-  border-radius: var(--radius-sm);
-  transition: border-color var(--transition-fast);
+  border-radius: 50px;
+  text-align: center;
+  transition: all var(--transition-fast);
 }
 
-.fill-container input:focus {
+.fill-container input[type="text"]:focus,
+#modal-fill-input:focus {
   outline: none;
   border-color: var(--color-gold);
-  box-shadow: 0 0 0 4px rgba(244, 196, 48, 0.15);
+  box-shadow: 0 0 12px rgba(244, 196, 48, 0.4);
 }
 
 /* Reveal panel */
@@ -2557,11 +2557,12 @@ body {
 /* Sidebar Content */
 .sidebar-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 0.8rem 1.1rem 2.2rem 1.1rem;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 12px;
 }
 
 /* Custom scrollbar for sidebar content */
@@ -2852,4 +2853,34 @@ body {
 /* Points Default Color */
 .qn-points-text {
   color: #000000;
+}
+
+details.control-panel-details summary::-webkit-details-marker { display: none; }
+details.control-panel-details[open] .details-icon { transform: rotate(0deg); }
+details.control-panel-details:not([open]) .details-icon { transform: rotate(-90deg); }
+.details-icon { transition: transform 0.2s; display: inline-block; }
+
+/* Compact control panel overrides to fit viewport on any resolution when collapsed */
+.left-sliding-sidebar .premium-controls-wrapper {
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.25rem;
+}
+.left-sliding-sidebar .sidebar-section {
+  gap: 6px;
+}
+.left-sliding-sidebar .sidebar-section-title {
+  padding-bottom: 4px;
+  margin: 0 0 2px 0;
+}
+.left-sliding-sidebar .sidebar-divider {
+  margin: 3px 0;
+}
+.left-sliding-sidebar .team-setup-grid {
+  gap: 8px !important;
+}
+.left-sliding-sidebar .team-setup-card {
+  padding: 8px !important;
+}
+.left-sliding-sidebar .typography-format-row {
+  margin-top: 6px !important;
 }

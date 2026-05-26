@@ -276,11 +276,22 @@ function showScreen(id) {
   if (id === 'winner') startRain();
   else stopConfetti();
 
+  // Toggle body overflow scrolling: enable on admin screen, disable on all other screens to prevent scrollbars caused by sub-pixel zoom rounding errors
+  if (id === 'admin') {
+    document.body.style.overflowY = 'auto';
+  } else {
+    document.body.style.overflowY = 'hidden';
+  }
+  
+  // Set html overflow to hidden as well for standard compliance
+  document.documentElement.style.overflow = id === 'admin' ? 'auto' : 'hidden';
+
   if (id === 'admin') {
     const isGameActive = (playState.phase === 'live' && playState.teams && playState.teams.length > 0);
     const btnResume = document.getElementById('btn-admin-resume');
     if (btnResume) {
-      btnResume.style.display = isGameActive ? 'inline-flex' : 'none';
+      btnResume.style.display = 'inline-flex';
+      btnResume.innerHTML = isGameActive ? '▶ Resume Game' : '▶ Start Game';
     }
   }
 
@@ -425,7 +436,7 @@ function fallbackSaveDB() {
 const defaultSettings = {
   subtractOnWrong: true,
   totalQuestions: 12,
-  displayMode: 'QUESTION_NUMBER',
+  displayMode: 'QUESTION_POINTS',
   timerDuration: 10,
   enableTimer: true,
   gridFont: 'none',
@@ -445,7 +456,7 @@ const defaultSettings = {
   gridQnColor: '#1e3a8a',
   gridQnColorDefault: true,
   gridTileColor: '#ffffff',
-  
+  gridTileColorDefault: true,
 };
 
 function hydrateControlCenter(settings) {
@@ -467,7 +478,15 @@ function hydrateControlCenter(settings) {
   if (qnColorDefaultEl) qnColorDefaultEl.checked = settings.gridQnColorDefault ?? true;
 
   const tileColorEl = document.getElementById('settings-grid-tile-color');
-  if (tileColorEl) tileColorEl.value = settings.gridTileColor || '#ffffff';
+  if (tileColorEl) {
+    tileColorEl.value = settings.gridTileColor || '#ffffff';
+    tileColorEl.disabled = settings.gridTileColorDefault ?? true;
+  }
+
+  const tileColorDefaultEl = document.getElementById('settings-grid-tile-color-default');
+  if (tileColorDefaultEl) {
+    tileColorDefaultEl.checked = settings.gridTileColorDefault ?? true;
+  }
 
 
   
@@ -481,7 +500,7 @@ function hydrateControlCenter(settings) {
   if (tbVisEl) tbVisEl.checked = settings.tiebreakerVisible ?? true;
   
   const displayModeEl = document.getElementById('settings-display-mode');
-  if (displayModeEl) displayModeEl.value = settings.displayMode ?? 'QUESTION_NUMBER';
+  if (displayModeEl) displayModeEl.value = settings.displayMode ?? 'QUESTION_POINTS';
   
   const timerDurationEl = document.getElementById('settings-timer-duration');
   if (timerDurationEl) timerDurationEl.value = settings.timerDuration ?? 10;
@@ -522,6 +541,10 @@ function loadSavedDB(parsed) {
       questions: (parsed.questions || []).map(q => {
         if (q.type === 'long' || q.type === 'long_answer') q.type = 'short_answer';
         if (q.questionType === 'long' || q.questionType === 'long_answer') q.questionType = 'short_answer';
+        if (q.qnIndex !== 'tiebreaker' && q.qnIndex !== undefined && q.qnIndex !== null) {
+          const parsedIdx = parseInt(q.qnIndex, 10);
+          if (!isNaN(parsedIdx)) q.qnIndex = parsedIdx;
+        }
         return q;
       }),
       teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
@@ -541,7 +564,7 @@ function loadSavedDB(parsed) {
     
     renderGameBoard();
     renderAdminGrid();
-    applyDynamicFont();
+    applySelectedFont();
   }
 }
 
@@ -550,18 +573,15 @@ function loadDB() {
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      loadSavedDB(parsed);
+      db.settings = { ...defaultSettings, ...parsed.settings };
     } catch (err) {
-      console.error('Failed to parse DB from localStorage', err);
       db.settings = { ...defaultSettings };
-      hydrateControlCenter(db.settings);
-      loadDefaultQuiz();
     }
   } else {
     db.settings = { ...defaultSettings };
-    hydrateControlCenter(db.settings);
-    loadDefaultQuiz();
   }
+  hydrateControlCenter(db.settings);
+  loadDefaultQuiz();
 }
 
 
@@ -586,15 +606,17 @@ function updateDashboardStatus() {
 
     // Check if the game is already active
     const adminResumeBtn = document.getElementById('btn-admin-resume');
-    if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended') {
+    const isGameActive = (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended');
+    if (isGameActive) {
       startBtn.innerHTML = '▶️ Resume Game';
-      if (adminResumeBtn) {
-        adminResumeBtn.style.display = 'inline-block';
-        adminResumeBtn.innerHTML = '▶️ Resume Game';
-      }
     } else {
       startBtn.innerHTML = '🎮 Start Game!';
-      if (adminResumeBtn) {
+    }
+    if (adminResumeBtn) {
+      if (playState.activeScreen === 'admin') {
+        adminResumeBtn.style.display = 'inline-flex';
+        adminResumeBtn.innerHTML = isGameActive ? '▶ Resume Game' : '▶ Start Game';
+      } else {
         adminResumeBtn.style.display = 'none';
       }
     }
@@ -805,7 +827,7 @@ function applyTheme(theme) {
 }
 
 function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 
@@ -854,17 +876,19 @@ function applySelectedFont() {
     `;
   }
 
-  const tileColor = db.settings.gridTileColor || '#ffffff';
-
-  css += `
-    .game-board-grid .game-cell-btn:not(.cell-answered):not(.cell-wrong):not(.cell-cancelled),
-    .admin-interactive-grid .board-cell,
-    #game-board-grid .game-cell-btn:not(.cell-answered):not(.cell-wrong):not(.cell-cancelled),
-    #admin-interactive-grid .board-cell {
-      background: ${tileColor} !important;
-      background-color: ${tileColor} !important;
-    }
-  `;
+  const useDefaultTileColor = db.settings.gridTileColorDefault !== false;
+  if (!useDefaultTileColor) {
+    const tileColor = db.settings.gridTileColor || '#ffffff';
+    css += `
+      .game-board-grid .game-cell-btn:not(.cell-answered):not(.cell-wrong):not(.cell-cancelled),
+      .admin-interactive-grid .board-cell,
+      #game-board-grid .game-cell-btn:not(.cell-answered):not(.cell-wrong):not(.cell-cancelled),
+      #admin-interactive-grid .board-cell {
+        background: ${tileColor} !important;
+        background-color: ${tileColor} !important;
+      }
+    `;
+  }
 
 
 
@@ -907,7 +931,14 @@ function renderAdminGrid() {
   document.documentElement.style.setProperty('--cols', cols);
 
   const qCountEl = document.getElementById('admin-q-count');
-  if (qCountEl) qCountEl.textContent = `Questions added: ${db.questions.filter(x => x.qnIndex !== 'tiebreaker').length}`;
+  if (qCountEl) qCountEl.textContent = `Questions added: ${db.questions.length}`;
+
+  const slotsCountEl = document.getElementById('slots-count-display');
+  if (slotsCountEl) {
+    const totalQ = db.settings.totalQuestions || 12;
+    const hasTB = db.settings.enableTieBreaker ? ' + 1 Tie Breaker' : '';
+    slotsCountEl.textContent = `${totalQ} Questions${hasTB}`;
+  }
 
   const questionsExcludingTB = db.questions.filter(x => x.qnIndex !== 'tiebreaker');
   const total = db.settings.totalQuestions;
@@ -1307,7 +1338,7 @@ function renderGameBoard() {
   }
 
   if (db.settings.enableTieBreaker) {
-    const validQuestions = db.questions.filter(x => typeof x.qnIndex === 'number' && x.qnIndex <= total);
+    const validQuestions = db.questions.filter(x => x.qnIndex !== 'tiebreaker' && !isNaN(parseInt(x.qnIndex, 10)) && parseInt(x.qnIndex, 10) <= total);
     let allAnswered = true;
     for (const q of validQuestions) {
       if (!playState.answeredCells[cellId(q.qnIndex)]) {
@@ -1327,8 +1358,10 @@ function renderGameBoard() {
       btn.style.gridColumn = '1 / -1';
       btn.style.justifySelf = 'center';
       btn.style.width = 'calc(50% - 5px)';
-      btn.style.borderColor = 'var(--color-gold)';
-      btn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.4)';
+      if (showTb) {
+        btn.style.borderColor = 'var(--color-gold)';
+        btn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.4)';
+      }
       
       let displayHtml = '<span class="qn-only-text">TIE BREAKER</span>';
       if (db.settings.displayMode === 'POINTS_ONLY' && tieQ) {
@@ -2090,7 +2123,7 @@ function showCustomConfirm(message, onConfirm, opts = {}) {
   overlay.style.position = 'fixed';
   overlay.style.inset = '0';
 
-  const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
   overlay.style.background = currentTheme === 'light' ? 'rgba(238, 243, 255, 0.7)' : 'rgba(0, 0, 0, 0.75)';
 
   overlay.style.backdropFilter = 'blur(12px)';
@@ -2490,7 +2523,7 @@ function checkGameOver() {
   
 
   const total = db.settings.totalQuestions;
-  const validQuestions = db.questions.filter(x => typeof x.qnIndex === 'number' && x.qnIndex <= total);
+  const validQuestions = db.questions.filter(x => x.qnIndex !== 'tiebreaker' && !isNaN(parseInt(x.qnIndex, 10)) && parseInt(x.qnIndex, 10) <= total);
   
   const allMainAnswered = validQuestions.length > 0 && validQuestions.every(q => {
     return !!playState.answeredCells[cellId(q.qnIndex)];
@@ -2783,7 +2816,24 @@ const btnAdminResume = document.getElementById('btn-admin-resume');
 if (btnAdminResume) {
   btnAdminResume.addEventListener('click', () => {
     playSound('open');
-    showScreen('game');
+    if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended') {
+      showScreen('game');
+    } else {
+      setupTeamsFromInputs();
+      resetPlayState();
+      playState.phase = 'live';
+      playState.gameState = 'IDLE';
+      const minutes = db.settings.timerDuration ?? 10;
+      gameTimerEndTime = Date.now() + minutes * 60 * 1000;
+      gameTimerAlertShown = false;
+      startGameTimer();
+      saveGameState();
+      updateGameStatusUI();
+      renderGameBoard();
+      updateTurnUI();
+      updateScoreUI();
+      showScreen('game');
+    }
   });
 }
 
@@ -2946,7 +2996,15 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
             gridTileColor: parsed.settings?.gridTileColor ?? '#ffffff',
             
           },
-          questions: parsed.questions || [],
+          questions: (parsed.questions || []).map(q => {
+            if (q.type === 'long' || q.type === 'long_answer') q.type = 'short_answer';
+            if (q.questionType === 'long' || q.questionType === 'long_answer') q.questionType = 'short_answer';
+            if (q.qnIndex !== 'tiebreaker' && q.qnIndex !== undefined && q.qnIndex !== null) {
+              const parsedIdx = parseInt(q.qnIndex, 10);
+              if (!isNaN(parsedIdx)) q.qnIndex = parsedIdx;
+            }
+            return q;
+          }),
           teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
             ? parsed.teams.slice(0, 2)
             : [...DEFAULT_TEAMS],
@@ -3372,7 +3430,7 @@ const savedTheme = localStorage.getItem('review_game_theme');
 if (savedTheme) {
   applyTheme(savedTheme);
 } else {
-  applyTheme('dark');
+  applyTheme('light');
 }
 
 // Load saved data
@@ -3481,6 +3539,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (fontColorDefEl) {
     fontColorDefEl.addEventListener('change', (e) => {
       db.settings.useDefaultFontColor = e.target.checked;
+      if (e.target.checked && fontColorEl) {
+        fontColorEl.value = '#000000';
+        db.settings.gridFontColor = '#000000';
+      }
       if (fontColorEl) fontColorEl.disabled = e.target.checked;
       saveDB();
       applySelectedFont();
@@ -3514,6 +3576,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (qnColorDefEl) {
     qnColorDefEl.addEventListener('change', (e) => {
       db.settings.useDefaultQnColor = e.target.checked;
+      if (e.target.checked && qnColorEl) {
+        qnColorEl.value = '#1e3a8a';
+        db.settings.gridQnColor = '#1e3a8a';
+      }
       if (qnColorEl) qnColorEl.disabled = e.target.checked;
       saveDB();
       applySelectedFont();
@@ -3529,6 +3595,20 @@ document.addEventListener('DOMContentLoaded', () => {
     tileColorEl.addEventListener('change', (e) => {
       db.settings.gridTileColor = e.target.value;
       saveDB();
+    });
+  }
+
+  const tileColorDefEl = document.getElementById('settings-grid-tile-color-default');
+  if (tileColorDefEl) {
+    tileColorDefEl.addEventListener('change', (e) => {
+      db.settings.gridTileColorDefault = e.target.checked;
+      if (e.target.checked && tileColorEl) {
+        tileColorEl.value = '#ffffff';
+        db.settings.gridTileColor = '#ffffff';
+      }
+      if (tileColorEl) tileColorEl.disabled = e.target.checked;
+      saveDB();
+      applySelectedFont();
     });
   }
 
@@ -3787,18 +3867,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Dynamic Scaling Engine
 function applyDynamicScaling() {
-  if (getFullscreenState()) {
-    document.body.style.zoom = 1;
-    return;
-  }
-  const screenW = window.screen.width || 1920;
-  const screenH = window.screen.height || 1080;
+  // Scale based on a baseline resolution of 1500x844 (instead of 1920x1080) to make all items on all screens larger and bolder
+  const baseW = 1500;
+  const baseH = 844;
 
-  // Base scale off inner size vs full screen resolution
-  const scaleX = window.innerWidth / screenW;
-  const scaleY = window.innerHeight / screenH;
+  const scaleX = window.innerWidth / baseW;
+  const scaleY = window.innerHeight / baseH;
 
-  // Use the smaller ratio so nothing gets clipped
+  // Use the smaller ratio so nothing gets clipped and it fits the viewport
   const scale = Math.min(scaleX, scaleY);
   document.body.style.zoom = scale;
 }
@@ -3807,3 +3883,28 @@ window.addEventListener('load', applyDynamicScaling);
 
 
 
+
+// Append UI disable toggles
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleDisable = (checkId, inputIds) => {
+    const checkbox = document.getElementById(checkId);
+    if (!checkbox) return;
+    checkbox.addEventListener('change', (e) => {
+      inputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.disabled = e.target.checked;
+      });
+    });
+    // Trigger initially
+    inputIds.forEach(id => {
+      const input = document.getElementById(id);
+      if (input) input.disabled = checkbox.checked;
+    });
+  };
+
+  toggleDisable('admin-team1-default', ['admin-team1-name', 'admin-team1-logo']);
+  toggleDisable('admin-team2-default', ['admin-team2-name', 'admin-team2-logo']);
+  toggleDisable('settings-grid-font-color-default', ['settings-grid-font-color']);
+  toggleDisable('settings-grid-qn-color-default', ['settings-grid-qn-color']);
+  toggleDisable('settings-grid-tile-color-default', ['settings-grid-tile-color']);
+});
