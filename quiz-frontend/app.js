@@ -2875,6 +2875,39 @@ document.getElementById('btn-fullscreen-toggle')?.addEventListener('click', () =
   toggleFullscreen();
 });
 
+let currentZoomLevel = parseFloat(localStorage.getItem('quiz_zoom_level') || '0');
+
+// Apply initial zoom level if in Electron
+if (window.electronAPI) {
+  window.electronAPI.setZoomLevel(currentZoomLevel);
+}
+
+document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
+  playSound('click');
+  if (currentZoomLevel < 3) {
+    currentZoomLevel += 0.5;
+    localStorage.setItem('quiz_zoom_level', currentZoomLevel);
+    if (window.electronAPI) {
+      window.electronAPI.setZoomLevel(currentZoomLevel);
+    } else {
+      applyDynamicScaling();
+    }
+  }
+});
+
+document.getElementById('btn-zoom-out')?.addEventListener('click', () => {
+  playSound('click');
+  if (currentZoomLevel > -3) {
+    currentZoomLevel -= 0.5;
+    localStorage.setItem('quiz_zoom_level', currentZoomLevel);
+    if (window.electronAPI) {
+      window.electronAPI.setZoomLevel(currentZoomLevel);
+    } else {
+      applyDynamicScaling();
+    }
+  }
+});
+
 const updateFullscreenIcon = () => {
   const icon = document.getElementById('fullscreen-icon');
   if (icon) {
@@ -4026,11 +4059,18 @@ function applyDynamicScaling() {
   const scaleY = window.innerHeight / baseH;
 
   // Use the smaller ratio so nothing gets clipped and it fits the viewport
-  const scale = Math.min(scaleX, scaleY);
+  let scale = Math.min(scaleX, scaleY);
+
+  // Apply zoom factor. In Electron, this prevents the native zoom from canceling the dynamic scale.
+  // In a standard browser, this applies the zoom directly.
+  const zoomFactor = Math.pow(1.2, currentZoomLevel);
+  scale = scale * zoomFactor;
+
   document.body.style.zoom = scale;
 }
 window.addEventListener('resize', applyDynamicScaling);
 window.addEventListener('load', applyDynamicScaling);
+applyDynamicScaling(); // Apply immediately
 
 
 

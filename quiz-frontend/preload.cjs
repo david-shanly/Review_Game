@@ -7,5 +7,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('fullscreen-changed', (event, isFS) => callback(isFS));
   },
   readDb: () => ipcRenderer.invoke('read-db'),
-  writeDb: (data) => ipcRenderer.invoke('write-db', data)
+  writeDb: (data) => ipcRenderer.invoke('write-db', data),
+  setZoomLevel: (level) => ipcRenderer.send('set-zoom-level', level)
 });

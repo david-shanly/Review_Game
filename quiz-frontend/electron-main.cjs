@@ -53,6 +53,14 @@ ipcMain.handle('is-fullscreen', (event) => {
   return win ? win.isFullScreen() : false;
 });
 
+// IPC handler to set webContents zoom level
+ipcMain.on('set-zoom-level', (event, level) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win && win.webContents) {
+    win.webContents.setZoomLevel(level);
+  }
+});
+
 // IPC handler to read DB from user data
 ipcMain.handle('read-db', () => {
   const dbPath = path.join(app.getPath('userData'), 'questions.json');
