@@ -3433,6 +3433,9 @@ if (savedTheme) {
   applyTheme('light');
 }
 
+// Clear active game state on startup/reload to ensure a new game always starts
+localStorage.removeItem('review_game_playstate');
+
 // Load saved data
 loadDB();
 loadGameState();
