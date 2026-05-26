@@ -1589,10 +1589,9 @@ function openQuestionModal(cId, q) {
   const turnStatus = document.getElementById('modal-turn-status');
   turnStatus.style.color = 'var(--color-gold)';
   turnStatus.style.borderColor = 'rgba(244,196,48,0.3)';
-  const activeTeam = playState.teams[playState.currentTeamIndex];
-  turnStatus.textContent = `${activeTeam.name.toUpperCase()} TURN`;
 
-  document.getElementById('modal-question-text').textContent = q.question;
+  const questionTextEl = document.getElementById('modal-question-text');
+  questionTextEl.textContent = q.question;
 
   const mcqContainer = document.getElementById('modal-mcq-container');
   const fillContainer = document.getElementById('modal-fill-container');
@@ -1606,9 +1605,8 @@ function openQuestionModal(cId, q) {
     btnShowCorrectAnswer.style.cursor = '';
   }
 
+  // Pre-initialize MCQ options if needed
   if ((q.questionType || q.type) === 'mcq') {
-    mcqContainer.classList.remove('hidden');
-    fillContainer.classList.add('hidden');
     const optBtns = document.querySelectorAll('.option-btn');
     const letters = ['A', 'B', 'C', 'D'];
     optBtns.forEach((btn, i) => {
@@ -1625,14 +1623,77 @@ function openQuestionModal(cId, q) {
       };
     });
   } else {
-    mcqContainer.classList.add('hidden');
-    fillContainer.classList.remove('hidden');
     const fillInput = document.getElementById('modal-fill-input');
     fillInput.value = '';
     fillInput.disabled = false;
     fillInput.style.cursor = '';
     fillInput.style.borderColor = '';
-    setTimeout(() => fillInput.focus(), 100);
+  }
+
+  const turnSelector = document.getElementById('tiebreaker-turn-selector');
+  const btnSubmit = document.getElementById('btn-modal-submit');
+  const btnPass = document.getElementById('btn-modal-pass');
+
+  if (cId === 'c-tiebreaker') {
+    // Hide standard question details until a team is selected
+    questionTextEl.style.display = 'none';
+    mcqContainer.classList.add('hidden');
+    fillContainer.classList.add('hidden');
+    turnStatus.textContent = 'AWAITING HAND-RAISE';
+
+    if (btnSubmit) btnSubmit.disabled = true;
+    if (btnPass) btnPass.style.display = 'none';
+
+    // Show hand-raise selection panel
+    turnSelector.classList.remove('hidden');
+    const buttonsGrid = document.getElementById('tiebreaker-selector-buttons');
+    buttonsGrid.innerHTML = '';
+
+    playState.teams.forEach((team, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'selector-team-btn';
+      btn.textContent = team.name;
+      btn.addEventListener('click', () => {
+        playSound('click');
+        playState.currentTeamIndex = idx;
+        turnStatus.textContent = `${team.name.toUpperCase()} TURN`;
+
+        // Hide selector, reveal question text and active submit button
+        turnSelector.classList.add('hidden');
+        questionTextEl.style.display = 'block';
+        if (btnSubmit) btnSubmit.disabled = false;
+
+        // Show proper question container
+        if ((q.questionType || q.type) === 'mcq') {
+          mcqContainer.classList.remove('hidden');
+        } else {
+          fillContainer.classList.remove('hidden');
+          const fillInput = document.getElementById('modal-fill-input');
+          setTimeout(() => fillInput.focus(), 100);
+        }
+      });
+      buttonsGrid.appendChild(btn);
+    });
+  } else {
+    // Normal question flow
+    turnSelector.classList.add('hidden');
+    questionTextEl.style.display = 'block';
+
+    const activeTeam = playState.teams[playState.currentTeamIndex];
+    turnStatus.textContent = `${activeTeam.name.toUpperCase()} TURN`;
+
+    if (btnSubmit) btnSubmit.disabled = false;
+    if (btnPass) btnPass.style.display = 'inline-flex';
+
+    if ((q.questionType || q.type) === 'mcq') {
+      mcqContainer.classList.remove('hidden');
+      fillContainer.classList.add('hidden');
+    } else {
+      mcqContainer.classList.add('hidden');
+      fillContainer.classList.remove('hidden');
+      const fillInput = document.getElementById('modal-fill-input');
+      setTimeout(() => fillInput.focus(), 100);
+    }
   }
 
   document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
@@ -1643,7 +1704,6 @@ function openQuestionModal(cId, q) {
     btnNext.style.display = 'none';
     btnNext.disabled = true;
   }
-  const btnSubmit = document.getElementById('btn-modal-submit');
   if (btnSubmit) btnSubmit.style.display = 'inline-flex';
 
   overlay.classList.add('open');
@@ -2367,7 +2427,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
     if (btnCancel) btnCancel.disabled = true;
 
     saveGameState();
-    if (playState.teamsAttemptedCount === 0) {
+    if (cId !== 'c-tiebreaker' && playState.teamsAttemptedCount === 0) {
       switchTurn();
     }
     renderGameBoard();
@@ -2389,61 +2449,135 @@ function showEmojiFeedback(isCorrect, q, callback) {
   } else {
     if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
 
-    let penalty = ptsToAward;
-    if (playState.teamsAttemptedCount === 0) {
-      penalty = Math.floor(ptsToAward * 0.5);
-    }
+    if (cId === 'c-tiebreaker') {
+      const isExhausted = playState.teamsAttemptedCount + 1 >= playState.teams.length;
 
-    const isExhausted = playState.teamsAttemptedCount + 1 >= playState.teams.length;
+      const finalizeWrongTiebreaker = () => {
+        // No points deducted for wrong tie-breaker
+        playState.teamsAttemptedCount++;
 
-    const finalizeWrong = () => {
-      applyScore(teamIndex, penalty, true, true);
-      updateScoreUI(); // Update all to reflect new scores
-      
-      playState.teamsAttemptedCount++;
-      
-      if (!isExhausted) {
-        playState.currentQuestionValue = ptsToAward - penalty;
-        transitionState('AWAITING_STEAL');
-        switchTurn();
-        saveGameState();
-        renderGameBoard();
-        renderAdminGrid();
-        startStealPhase();
+        if (!isExhausted) {
+          switchTurn();
+          
+          const nextTeam = playState.teams[playState.currentTeamIndex];
+          const turnStatus = document.getElementById('modal-turn-status');
+          turnStatus.textContent = `${nextTeam.name.toUpperCase()} TURN (PASS)`;
+          turnStatus.style.color = 'var(--color-gold)';
+          turnStatus.style.borderColor = 'rgba(244,196,48,0.3)';
+
+          // Reset question options/inputs for the second team
+          if ((q.questionType || q.type) === 'mcq') {
+            document.querySelectorAll('.option-btn').forEach(btn => {
+              btn.classList.remove('selected');
+              btn.disabled = false;
+            });
+          } else {
+            const fillInput = document.getElementById('modal-fill-input');
+            if (fillInput) {
+              fillInput.value = '';
+              fillInput.disabled = false;
+              fillInput.focus();
+            }
+          }
+          enableModalActionButtons();
+          saveGameState();
+          renderGameBoard();
+          renderAdminGrid();
+        } else {
+          // Exhausted - both teams got it wrong
+          transitionState('RESOLVED');
+          disableQuestionInputs();
+
+          playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
+
+          const turnStatus = document.getElementById('modal-turn-status');
+          turnStatus.textContent = "Incorrect Answer";
+          turnStatus.style.color = "var(--color-error)";
+          turnStatus.style.borderColor = "var(--color-error)";
+
+          const contentNode = document.querySelector('.modal-content');
+          contentNode.classList.remove('feedback-correct');
+          contentNode.classList.add('feedback-wrong');
+
+          document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+          document.getElementById('modal-reveal-panel').classList.remove('hidden');
+
+          playState.cancelLocked = true;
+          const btnCancel = document.getElementById('btn-modal-cancel');
+          if (btnCancel) btnCancel.disabled = true;
+
+          saveGameState();
+          renderGameBoard();
+          renderAdminGrid();
+          enableNextButton();
+        }
+      };
+
+      if (customWrongVideoSrc) {
+        playWrongAnswerVideo(customWrongVideoSrc, finalizeWrongTiebreaker);
       } else {
-        transitionState('RESOLVED');
-        disableQuestionInputs();
-
-        playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
-
-        const turnStatus = document.getElementById('modal-turn-status');
-        turnStatus.textContent = "Incorrect Answer";
-        turnStatus.style.color = "var(--color-error)";
-        turnStatus.style.borderColor = "var(--color-error)";
-
-        const contentNode = document.querySelector('.modal-content');
-        contentNode.classList.remove('feedback-correct');
-        contentNode.classList.add('feedback-wrong');
-
-        document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
-        document.getElementById('modal-reveal-panel').classList.remove('hidden');
-
-        playState.cancelLocked = true;
-        const btnCancel = document.getElementById('btn-modal-cancel');
-        if (btnCancel) btnCancel.disabled = true;
-
-        saveGameState();
-        renderGameBoard();
-        renderAdminGrid();
-        enableNextButton();
+        playSound('wrong');
+        showEmojiFeedback(false, q, finalizeWrongTiebreaker);
       }
-    };
 
-    if (customWrongVideoSrc) {
-      playWrongAnswerVideo(customWrongVideoSrc, finalizeWrong);
     } else {
-      playSound('wrong');
-      showEmojiFeedback(false, q, finalizeWrong);
+      // Normal question wrong answer logic
+      let penalty = ptsToAward;
+      if (playState.teamsAttemptedCount === 0) {
+        penalty = Math.floor(ptsToAward * 0.5);
+      }
+
+      const isExhausted = playState.teamsAttemptedCount + 1 >= playState.teams.length;
+
+      const finalizeWrong = () => {
+        applyScore(teamIndex, penalty, true, true);
+        updateScoreUI(); // Update all to reflect new scores
+        
+        playState.teamsAttemptedCount++;
+        
+        if (!isExhausted) {
+          playState.currentQuestionValue = ptsToAward - penalty;
+          transitionState('AWAITING_STEAL');
+          switchTurn();
+          saveGameState();
+          renderGameBoard();
+          renderAdminGrid();
+          startStealPhase();
+        } else {
+          transitionState('RESOLVED');
+          disableQuestionInputs();
+
+          playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
+
+          const turnStatus = document.getElementById('modal-turn-status');
+          turnStatus.textContent = "Incorrect Answer";
+          turnStatus.style.color = "var(--color-error)";
+          turnStatus.style.borderColor = "var(--color-error)";
+
+          const contentNode = document.querySelector('.modal-content');
+          contentNode.classList.remove('feedback-correct');
+          contentNode.classList.add('feedback-wrong');
+
+          document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+          document.getElementById('modal-reveal-panel').classList.remove('hidden');
+
+          playState.cancelLocked = true;
+          const btnCancel = document.getElementById('btn-modal-cancel');
+          if (btnCancel) btnCancel.disabled = true;
+
+          saveGameState();
+          renderGameBoard();
+          renderAdminGrid();
+          enableNextButton();
+        }
+      };
+
+      if (customWrongVideoSrc) {
+        playWrongAnswerVideo(customWrongVideoSrc, finalizeWrong);
+      } else {
+        playSound('wrong');
+        showEmojiFeedback(false, q, finalizeWrong);
+      }
     }
   }
 }
