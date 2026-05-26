@@ -2654,7 +2654,10 @@ function handlePass() {
 // GAME OVER CHECK
 // ============================================================
 function checkGameOver() {
-  
+  if (playState.answeredCells['c-tiebreaker']) {
+    endGame();
+    return;
+  }
 
   const total = db.settings.totalQuestions;
   const validQuestions = db.questions.filter(x => x.qnIndex !== 'tiebreaker' && !isNaN(parseInt(x.qnIndex, 10)) && parseInt(x.qnIndex, 10) <= total);
