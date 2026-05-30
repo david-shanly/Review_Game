@@ -3806,7 +3806,7 @@ details.control-panel-details summary::-webkit-details-marker { display: none; }
 }
 
 .modal-content:has(#modal-reveal-panel:not(.hidden)) .question-text {
-  font-size: clamp(1.5rem, 3.2vw, 2.3rem) !important;
+  font-size: 1.4rem !important;
   padding: 0.15rem 0 !important;
   line-height: 1.35 !important;
 }
