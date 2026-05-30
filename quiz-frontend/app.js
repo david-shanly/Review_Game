@@ -840,57 +840,10 @@ function loadGameState() {
         renderGameBoard();
         updateTurnUI();
 
-        // If there was an active screen or if we are in game/winner screens
-        if (playState.phase === 'ended') {
-          showScreen('winner');
-          endGame();
-        } else if (playState.phase === 'live') {
-          showScreen('game');
-          if (playState.teams && playState.teams.length > 0) {
-            startGameTimer();
-          }
-          // If a question was open, reopen it
-          if (playState.currentCellId && playState.currentQuestion && (playState.gameState === 'AWAITING_FIRST_ANSWER' || playState.gameState === 'AWAITING_STEAL')) {
-            const cId = playState.currentCellId;
-            const q = playState.currentQuestion;
-            const gState = playState.gameState;
-            const qVal = playState.currentQuestionValue;
-            const attempts = playState.teamsAttemptedCount;
-            const cLocked = playState.cancelLocked;
-
-            playState.gameState = 'IDLE';
-            openQuestionModal(cId, q);
-
-            playState.gameState = gState;
-            playState.currentQuestionValue = qVal;
-            playState.teamsAttemptedCount = attempts;
-            playState.cancelLocked = cLocked;
-
-            if (playState.gameState === 'AWAITING_STEAL') {
-              const stealPts = playState.currentQuestionValue;
-              document.getElementById('modal-points-display').textContent = `${stealPts} POINTS - STEAL`;
-
-              const turnStatus = document.getElementById('modal-turn-status');
-              const nextTeamIndex = playState.currentTeamIndex;
-              turnStatus.innerHTML = `❌ Wrong Answer<br><span style="font-size:0.8rem;">Passed to ${playState.teams[nextTeamIndex].name}</span>`;
-              turnStatus.style.color = "var(--color-error)";
-              turnStatus.style.borderColor = "var(--color-error)";
-
-              const passBtn = document.getElementById('btn-modal-pass');
-              if (passBtn) passBtn.style.display = 'none';
-            }
-
-            const btnCancel = document.getElementById('btn-modal-cancel');
-            if (btnCancel && cLocked) {
-              btnCancel.disabled = true;
-            }
-          } else {
-            // Clean up any stale modal/transitional states on load
-            playState.gameState = 'IDLE';
-            playState.currentCellId = null;
-            playState.currentQuestion = null;
-          }
-        }
+        // Clean up any stale modal/transitional states on load
+        playState.gameState = 'IDLE';
+        playState.currentCellId = null;
+        playState.currentQuestion = null;
       }
     } catch (e) {
       console.warn('Failed to load play state:', e);
@@ -3386,6 +3339,9 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
   playSound('open');
   if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended') {
     // Resume existing game
+    if (db.settings.enableTimer) {
+      startGameTimer();
+    }
     showScreen('game');
   } else {
     // Start fresh game
@@ -3422,6 +3378,9 @@ if (btnAdminResume) {
   btnAdminResume.addEventListener('click', () => {
     playSound('open');
     if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended') {
+      if (db.settings.enableTimer) {
+        startGameTimer();
+      }
       showScreen('game');
     } else {
       setupTeamsFromInputs();
@@ -3999,11 +3958,10 @@ async function initApp() {
   updateScoreUI();
   updateDashboardStatus();
 
-  // Only redirect to dashboard if the game hasn't ended and no active game is being restored/resumed
-  if (playState.phase !== 'ended' && (!playState.teams || playState.teams.length === 0)) {
-    playState.phase = 'live';
-    showScreen('dashboard');
-  }
+  // Always start on the dashboard screen upon loading or reloading the application
+  playState.phase = 'live';
+  showScreen('dashboard');
+
   parseEmojis(document.body);
 }
 
