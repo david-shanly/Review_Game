@@ -70,8 +70,8 @@
   --cell-hover-border: rgba(58, 134, 255, 0.45);
 
   /* Typography */
-  --font-display: 'Fredoka One', 'Nunito', sans-serif;
-  --font-body: 'Nunito', sans-serif;
+  --font-display: 'Fredoka One', 'Noto Sans', 'Noto Sans Malayalam', 'Noto Sans Devanagari', 'Nunito', sans-serif;
+  --font-body: 'Nunito', 'Noto Sans', 'Noto Sans Malayalam', 'Noto Sans Devanagari', sans-serif;
 
   /* Effects */
   --card-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);

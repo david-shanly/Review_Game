@@ -18,6 +18,24 @@ function assetPath(path) {
   return path;
 }
 
+function isUnicodeOtherLanguage(str) {
+  if (!str) return false;
+  for (let i = 0; i < str.length; i++) {
+    if (str.charCodeAt(i) > 255) return true;
+  }
+  return false;
+}
+
+function updateTextAndCheckUnicode(element, text) {
+  if (!element) return;
+  element.textContent = text;
+  if (isUnicodeOtherLanguage(text)) {
+    element.style.setProperty('font-family', '"Noto Sans", "Noto Sans Malayalam", "Noto Sans Devanagari", sans-serif', 'important');
+  } else {
+    element.style.removeProperty('font-family');
+  }
+}
+
 // Team colour palette (cycling)
 const TEAM_COLORS = [
   { bg: 'rgba(56,217,245,0.14)', border: 'rgba(56,217,245,0.45)', text: 'var(--color-team1)' },
@@ -1627,7 +1645,7 @@ function updateTurnUI() {
   const activeTeam = playState.teams[playState.currentTeamIndex];
   if (!activeTeam) return;
 
-  turnDisplay.textContent = activeTeam.name.toUpperCase();
+  updateTextAndCheckUnicode(turnDisplay, activeTeam.name.toUpperCase());
   turnDisplay.style.color = 'var(--color-gold)';
   stealBanner.classList.toggle('hidden', true); // removed steal state banner
 
@@ -1770,8 +1788,9 @@ function updateScoreUI(updatedTeamIndex = -1) {
         liveItem.style.setProperty('--team-border', color.border);
         liveItem.style.setProperty('--team-color', color.text);
 
+        const fontOverride = isUnicodeOtherLanguage(team.name) ? 'style="font-family: \'Noto Sans\', \'Noto Sans Malayalam\', \'Noto Sans Devanagari\', sans-serif !important;"' : '';
         liveItem.innerHTML = `
-          <span class="live-score-team-name">${team.name}</span>
+          <span class="live-score-team-name" ${fontOverride}>${team.name}</span>
           <span id="live-score-val-${i}" class="live-score-value">${team.score}</span>
         `;
         liveScoreContainer.appendChild(liveItem);
@@ -1780,7 +1799,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
       playState.teams.forEach((team, i) => {
         const valSpan = document.getElementById(`live-score-val-${i}`);
         const nameSpan = valSpan ? valSpan.previousElementSibling : null;
-        if (nameSpan) nameSpan.textContent = team.name;
+        if (nameSpan) updateTextAndCheckUnicode(nameSpan, team.name);
         if (valSpan) {
           const oldScore = parseInt(valSpan.textContent, 10) || 0;
           if (oldScore !== team.score) {
@@ -1927,7 +1946,7 @@ function openQuestionModal(cId, q) {
   turnStatus.style.borderColor = 'rgba(244,196,48,0.3)';
 
   const questionTextEl = document.getElementById('modal-question-text');
-  questionTextEl.textContent = q.question;
+  updateTextAndCheckUnicode(questionTextEl, q.question);
 
   const mcqContainer = document.getElementById('modal-mcq-container');
   const fillContainer = document.getElementById('modal-fill-container');
@@ -1950,7 +1969,10 @@ function openQuestionModal(cId, q) {
       btn.disabled = false;
       btn.style.cursor = '';
       btn.querySelector('.option-letter').textContent = letters[i];
-      btn.querySelector('.option-val').textContent = q.options ? q.options[i] : '';
+      const optValSpan = btn.querySelector('.option-val');
+      if (optValSpan) {
+        updateTextAndCheckUnicode(optValSpan, q.options ? q.options[i] : '');
+      }
       btn.onclick = () => {
         if (!canInteract() || !canAnswer()) return;
         document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
@@ -2032,7 +2054,7 @@ function openQuestionModal(cId, q) {
     }
   }
 
-  document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+  updateTextAndCheckUnicode(document.getElementById('modal-correct-answer-text'), q.correctAnswer || q.answer);
   if (contentNode) contentNode.classList.remove('feedback-correct', 'feedback-wrong');
   const btnNext = document.getElementById('btn-modal-next');
   if (btnNext) {
@@ -2727,7 +2749,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
       contentNode.classList.remove('feedback-wrong');
       contentNode.classList.add('feedback-correct');
 
-      document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+      updateTextAndCheckUnicode(document.getElementById('modal-correct-answer-text'), q.correctAnswer || q.answer);
       document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
       const turnStatus = document.getElementById('modal-turn-status');
@@ -3024,12 +3046,12 @@ function endGame() {
 
   if (tie) {
     document.getElementById('winner-badge').textContent = "IT'S A TIE! 🤝";
-    document.getElementById('winner-team-name').textContent = 'Perfectly Matched!';
-    document.getElementById('winner-subtitle').textContent = 'Both teams got an equal score! Good job!';
+    updateTextAndCheckUnicode(document.getElementById('winner-team-name'), 'Perfectly Matched!');
+    updateTextAndCheckUnicode(document.getElementById('winner-subtitle'), 'Both teams got an equal score! Good job!');
   } else {
     document.getElementById('winner-badge').textContent = 'CHAMPION! 🏆';
-    document.getElementById('winner-team-name').textContent = `${winner.name.toUpperCase()} WINS!`;
-    document.getElementById('winner-subtitle').textContent = `Congratulations to ${winner.name} on their incredible victory!`;
+    updateTextAndCheckUnicode(document.getElementById('winner-team-name'), `${winner.name.toUpperCase()} WINS!`);
+    updateTextAndCheckUnicode(document.getElementById('winner-subtitle'), `Congratulations to ${winner.name} on their incredible victory!`);
   }
 
   const standingsContainer = document.getElementById('winner-standings-container');
@@ -3044,9 +3066,10 @@ function endGame() {
         const medal = placeMedals[rank] || `${rank + 1}th Place`;
         const row = document.createElement('div');
         row.className = `standing-row ${rank === 0 ? 'first-place' : ''}`;
+        const fontOverride = isUnicodeOtherLanguage(team.name) ? 'style="font-family: \'Noto Sans\', \'Noto Sans Malayalam\', \'Noto Sans Devanagari\', sans-serif !important;"' : '';
         row.innerHTML = `
           <span class="standing-place">${medal}</span>
-          <span style="font-weight:800;">${team.name}</span>
+          <span style="font-weight:800;" ${fontOverride}>${team.name}</span>
           <span style="font-family:var(--font-display); font-size:1.2rem;">${team.score} pts</span>
         `;
         standingsContainer.appendChild(row);
