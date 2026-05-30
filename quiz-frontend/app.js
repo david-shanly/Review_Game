@@ -1156,18 +1156,39 @@ function renderAdminGrid() {
       }
 
       if (isPlayed) {
+        let symbol = '✔️';
+        let color = '#1e293b';
         if (answered.cancelled) {
-          labelEl.innerHTML = `❌<br><span style="color:var(--color-cancel); font-size: 0.8em;">${displayHtml}</span>`;
+          symbol = '❌';
+          color = 'var(--color-cancel)';
         } else if (answered.teamIndex === -1) {
+          symbol = '❌';
+          color = '#1e293b';
           cell.style.background = '#cbd5e1';
           cell.style.borderColor = '#475569';
-          labelEl.innerHTML = `❌<br><span style="color:#1e293b; font-size: 0.8em;">${displayHtml}</span>`;
         } else {
           const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
           cell.style.background = tColor.bg;
           cell.style.borderColor = tColor.border;
-          labelEl.innerHTML = `✔️<br><span style="color:${tColor.text}; font-size: 0.8em;">${displayHtml}</span>`;
+          color = tColor.text;
         }
+
+        let horizontalHtml = '';
+        if (q) {
+          if (db.settings.displayMode === 'POINTS_ONLY') {
+            horizontalHtml = `<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.85em;">${symbol} <span class="qn-points-text">(${q.points})</span></span>`;
+          } else if (db.settings.displayMode === 'QUESTION_ONLY') {
+            horizontalHtml = `<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.85em;">${symbol} <span class="qn-only-text">${qnLabel(qn)}</span></span>`;
+          } else {
+            horizontalHtml = `<div style="display: flex; flex-direction: column; align-items: center; gap: 1px;">
+              <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.85em;">${symbol} <span class="qn-only-text">${qnLabel(qn)}</span></span>
+              <span class="qn-points-text" style="font-size: 0.75em;">(${q.points})</span>
+            </div>`;
+          }
+        } else {
+          horizontalHtml = `<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.85em;">${symbol} <span class="qn-only-text">${qnLabel(qn)}</span></span>`;
+        }
+        labelEl.innerHTML = `<span style="color:${color}">${horizontalHtml}</span>`;
       } else {
         labelEl.innerHTML = displayHtml;
       }
@@ -1232,7 +1253,7 @@ function renderAdminGrid() {
     labelEl.className = 'cell-qn-label';
     labelEl.style.textAlign = 'center';
     labelEl.innerHTML = '<span class="qn-only-text">TB</span>';
-    if (tbPlayed) labelEl.innerHTML = `✔️<br><span class="qn-only-text" style="font-size:0.8em">TB</span>`;
+    if (tbPlayed) labelEl.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.8em;">✔️ <span class="qn-only-text">TB</span></span>`;
     cell.appendChild(labelEl);
 
     if (qTb) {
