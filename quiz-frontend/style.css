@@ -2544,8 +2544,8 @@ body {
 .left-sliding-sidebar {
   position: fixed;
   top: 0;
-  left: -420px;
-  width: 400px;
+  left: -500px;
+  width: min(480px, 90vw);
   bottom: 0;
   z-index: 2000;
   background: var(--panel-bg) !important;
