@@ -1,4 +1,4 @@
-name: Deploy VBS Quiz
+name: Deploy Review Game
 
 on:
   push:

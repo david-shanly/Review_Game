@@ -1,7 +1,7 @@
-# VBS Group C Quiz - Project Outline
+# Review Game Group C - Project Outline
 
 ## Overview
-An interactive, standalone Bible quiz game application designed for Vacation Bible School (VBS) children. The app features a competitive game board, a scoring system with customizable team names and logos, dynamic animations (confetti, score dropping), programmatic sound effects, and an admin panel for question management.
+An interactive, standalone Bible quiz game application designed for church kids. The app features a competitive game board, a scoring system with customizable team names and logos, dynamic animations (confetti, score dropping), programmatic sound effects, and an admin panel for question management.
 
 ## Tech Stack
 - **Frontend Core**: HTML5, CSS3 (Custom CSS variables, glassmorphism UI), Vanilla JavaScript (ES6 Modules).
@@ -32,7 +32,7 @@ Daniel Quiz/
 
 ### 1. Game State Management
 - Maintains state for teams, scores, active turn, current question, and answered cells.
-- Data is automatically saved and loaded to `localStorage` under the `vbs_quiz_db` key.
+- Data is automatically saved and loaded to `localStorage` under the `review_game_db` key.
 
 ### 2. UI Screens (Managed via DOM classes)
 - **Dashboard**: Start screen, verifies if quiz questions are loaded.
