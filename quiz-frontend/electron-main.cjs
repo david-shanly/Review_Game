@@ -8,7 +8,7 @@ function createWindow() {
     height: 800,
     minWidth: 800,
     minHeight: 600,
-    title: 'Review Game Group C - 2026',
+    title: 'Review Game',
     icon: path.join(__dirname, 'dist', 'logo.png'),
     webPreferences: {
       contextIsolation: true,

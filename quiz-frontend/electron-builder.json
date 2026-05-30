@@ -1,5 +1,5 @@
 {
-  "productName": "Review Game Group C - 2026",
+  "productName": "Review Game",
   "appId": "com.reviewgame.groupc",
   "directories": {
     "output": "dist-electron",

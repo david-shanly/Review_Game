@@ -278,8 +278,10 @@ function showScreen(id) {
 
   // Toggle body overflow scrolling: enable on admin screen, disable on all other screens to prevent scrollbars caused by sub-pixel zoom rounding errors
   if (id === 'admin') {
+    document.body.classList.add('admin-mode');
     document.body.style.overflowY = 'auto';
   } else {
+    document.body.classList.remove('admin-mode');
     document.body.style.overflowY = 'hidden';
   }
   
@@ -408,23 +410,16 @@ function saveDB() {
   }
   
   if (window.customDatabaseFileHandle) {
+    // User has an explicit custom DB file open — save to it
     saveDatabaseToFileHandle(window.customDatabaseFileHandle, db).catch(err => {
       console.error("Error saving to custom DB file handle", err);
       fallbackSaveDB();
     });
   } else {
-    // If default DB, send via POST to save-db endpoint
-    fetch('/api/save-db', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(db, null, 2)
-    }).then(res => {
-      if (!res.ok) throw new Error('Failed to save to /api/save-db');
-      fallbackSaveDB(); // Still save to localStorage just in case
-    }).catch(err => {
-      console.warn("Could not save to default_quiz.json (probably not in dev mode), falling back to localStorage", err);
-      fallbackSaveDB();
-    });
+    // Browser mode: always use localStorage as primary persistence.
+    // We do NOT POST to /api/save-db because that would overwrite the
+    // factory-default default_quiz.json with runtime state.
+    fallbackSaveDB();
   }
 }
 
@@ -457,7 +452,48 @@ const defaultSettings = {
   gridQnColorDefault: true,
   gridTileColor: '#ffffff',
   gridTileColorDefault: true,
+  categories: [],
 };
+
+function renderCategoryInputs() {
+  const container = document.getElementById('settings-categories-inputs');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const cols = db.settings.gridCols || 4;
+  if (!db.settings.categories) {
+    db.settings.categories = [];
+  }
+
+  for (let c = 0; c < cols; c++) {
+    const group = document.createElement('div');
+    group.className = 'form-group';
+    group.style.marginBottom = '6px';
+
+    const label = document.createElement('label');
+    label.textContent = `Category ${c + 1}`;
+    label.style.fontSize = '0.75rem';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'modern-input';
+    input.style.fontSize = '0.85rem';
+    input.value = db.settings.categories[c] || `Category ${c + 1}`;
+    input.dataset.colIndex = c;
+
+    input.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.colIndex, 10);
+      db.settings.categories[idx] = e.target.value;
+      saveDB();
+      renderAdminGrid();
+      renderGameBoard();
+    });
+
+    group.appendChild(label);
+    group.appendChild(input);
+    container.appendChild(group);
+  }
+}
 
 function hydrateControlCenter(settings) {
   const gridFontEl = document.getElementById('settings-grid-font');
@@ -529,6 +565,8 @@ function hydrateControlCenter(settings) {
     const t2Name = document.getElementById('admin-team2-name');
     if (t2Name) t2Name.value = db.teams[1].name;
   }
+
+  renderCategoryInputs();
 }
 
 function loadSavedDB(parsed) {
@@ -536,7 +574,8 @@ function loadSavedDB(parsed) {
     db = {
       settings: {
         ...defaultSettings,
-        ...parsed.settings
+        ...parsed.settings,
+        categories: (parsed.settings && Array.isArray(parsed.settings.categories)) ? [...parsed.settings.categories] : []
       },
       questions: (parsed.questions || []).map(q => {
         if (q.type === 'long' || q.type === 'long_answer') q.type = 'short_answer';
@@ -557,6 +596,15 @@ function loadSavedDB(parsed) {
         })
         : [...DEFAULT_TEAMS],
     };
+
+    // Ensure totalQuestions covers the highest configured question index
+    const maxIdx = db.questions.reduce((max, q) => {
+      const idx = parseInt(q.qnIndex, 10);
+      return (!isNaN(idx) && idx > max) ? idx : max;
+    }, 0);
+    if (maxIdx > db.settings.totalQuestions) {
+      db.settings.totalQuestions = maxIdx;
+    }
     
     hydrateControlCenter(db.settings);
     
@@ -568,20 +616,101 @@ function loadSavedDB(parsed) {
   }
 }
 
-function loadDB() {
-  const stored = localStorage.getItem('review_game_db');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      db.settings = { ...defaultSettings, ...parsed.settings };
-    } catch (err) {
-      db.settings = { ...defaultSettings };
+async function loadDB() {
+  // ALWAYS load questions from default_quiz.json on startup.
+  // This is the authoritative source of truth for quiz content and guarantees
+  // the Daniel quiz is available every time the app opens.
+  // User preferences (settings, team names) are then overlaid from localStorage.
+  try {
+    const response = await fetch('default_quiz.json');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const defaultData = await response.json();
+
+    // Set questions from the JSON file (always)
+    db.questions = (defaultData.questions || []).map(q => {
+      if (q.type === 'long' || q.type === 'long_answer') q.type = 'short_answer';
+      if (q.questionType === 'long' || q.questionType === 'long_answer') q.questionType = 'short_answer';
+      if (q.qnIndex !== 'tiebreaker' && q.qnIndex !== undefined && q.qnIndex !== null) {
+        const idx = parseInt(q.qnIndex, 10);
+        if (!isNaN(idx)) q.qnIndex = idx;
+      }
+      return q;
+    });
+
+    // Start with JSON settings as the base
+    db.settings = {
+      ...defaultSettings,
+      ...(defaultData.settings || {}),
+      categories: (defaultData.settings && Array.isArray(defaultData.settings.categories))
+        ? [...defaultData.settings.categories] : []
+    };
+
+    // Set teams from JSON as the base
+    if (defaultData.teams && Array.isArray(defaultData.teams) && defaultData.teams.length >= 2) {
+      db.teams = defaultData.teams.slice(0, 2).map((t, i) => {
+        let teamObj = typeof t === 'string' ? { name: t, logo: DEFAULT_TEAMS[i].logo } : { ...t };
+        if (teamObj.useDefault === undefined) {
+          teamObj.useDefault = (teamObj.name === DEFAULT_TEAMS[i].name && (teamObj.logo === DEFAULT_TEAMS[i].logo || !teamObj.logo));
+        }
+        return teamObj;
+      });
+    } else {
+      db.teams = [...DEFAULT_TEAMS];
     }
-  } else {
-    db.settings = { ...defaultSettings };
+  } catch (err) {
+    console.error('Failed to load default_quiz.json, using hardcoded defaults:', err);
+    db.settings = { ...defaultSettings, categories: [] };
   }
+
+  // Overlay saved USER PREFERENCES from localStorage (settings + teams only, NOT questions)
+  // This preserves font, colour, and team name choices across sessions.
+  const saved = localStorage.getItem('review_game_db');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === 'object') {
+        // Merge settings (user's saved preferences win over defaults)
+        if (parsed.settings && typeof parsed.settings === 'object') {
+          db.settings = {
+            ...db.settings,
+            ...parsed.settings,
+            categories: Array.isArray(parsed.settings.categories)
+              ? [...parsed.settings.categories] : db.settings.categories
+          };
+        }
+        // Restore team names / logos if user customised them
+        if (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2) {
+          db.teams = parsed.teams.slice(0, 2).map((t, i) => {
+            let teamObj = typeof t === 'string' ? { name: t, logo: DEFAULT_TEAMS[i].logo } : { ...t };
+            if (teamObj.useDefault === undefined) {
+              teamObj.useDefault = (teamObj.name === DEFAULT_TEAMS[i].name && (teamObj.logo === DEFAULT_TEAMS[i].logo || !teamObj.logo));
+            }
+            return teamObj;
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Could not parse saved preferences from localStorage:', e);
+    }
+  }
+
+  if (!db.teams || !Array.isArray(db.teams) || db.teams.length < 2) {
+    db.teams = [...DEFAULT_TEAMS];
+  }
+
+  // Ensure totalQuestions covers the highest configured question index
+  const maxIdx = db.questions.reduce((max, q) => {
+    const idx = parseInt(q.qnIndex, 10);
+    return (!isNaN(idx) && idx > max) ? idx : max;
+  }, 0);
+  if (maxIdx > db.settings.totalQuestions) {
+    db.settings.totalQuestions = maxIdx;
+  }
+  
+  // Persist the merged state back to localStorage so it's ready for next session
+  fallbackSaveDB();
   hydrateControlCenter(db.settings);
-  loadDefaultQuiz();
+  applySelectedFont();
 }
 
 
@@ -656,7 +785,12 @@ function loadGameState() {
       if (parsed && typeof parsed === 'object') {
         playState.phase = parsed.phase === 'ended' ? 'ended' : 'live';
         playState.gameState = parsed.gameState ?? 'IDLE';
-        playState.teams = parsed.teams ?? [];
+        playState.teams = (parsed.teams ?? []).map(t => ({
+          ...t
+        }));
+        if (!playState.teams || playState.teams.length < 2) {
+          setupTeamsFromInputs();
+        }
         playState.currentTeamIndex = parsed.currentTeamIndex ?? 0;
         playState.currentQuestionValue = parsed.currentQuestionValue ?? 0;
         playState.teamsAttemptedCount = parsed.teamsAttemptedCount ?? 0;
@@ -719,6 +853,11 @@ function loadGameState() {
             if (btnCancel && cLocked) {
               btnCancel.disabled = true;
             }
+          } else {
+            // Clean up any stale modal/transitional states on load
+            playState.gameState = 'IDLE';
+            playState.currentCellId = null;
+            playState.currentQuestion = null;
           }
         }
       }
@@ -778,25 +917,37 @@ async function loadDefaultQuiz() {
     if (!response.ok) throw new Error('Network response was not ok');
     const defaultData = await response.json();
     
-    db.questions = defaultData.questions;
+    db.questions = defaultData.questions || [];
     
     if (defaultData.settings) {
-       db.settings.totalQuestions = defaultData.settings.totalQuestions;
-       db.settings.enableTieBreaker = defaultData.settings.enableTieBreaker;
+       db.settings = { ...defaultSettings, ...defaultData.settings, categories: (defaultData.settings.categories || []) };
+    }
+    if (defaultData.teams && Array.isArray(defaultData.teams) && defaultData.teams.length >= 2) {
+      db.teams = defaultData.teams.slice(0, 2).map((t, i) => {
+        let teamObj = typeof t === 'string' ? { name: t, logo: DEFAULT_TEAMS[i].logo } : t;
+        if (teamObj.useDefault === undefined) {
+          teamObj.useDefault = (teamObj.name === DEFAULT_TEAMS[i].name && (teamObj.logo === DEFAULT_TEAMS[i].logo || !teamObj.logo));
+        }
+        return teamObj;
+      });
     }
   } catch (err) {
     console.error("Failed to fetch default_quiz.json:", err);
   }
 
-  saveDB();
+  // Save only to localStorage — do NOT call saveDB() here as that would
+  // POST to /api/save-db and overwrite default_quiz.json with runtime state.
   fallbackSaveDB();
-  loadSavedDB(db);
+  hydrateControlCenter(db.settings);
+  applySelectedFont();
   
   playState.phase = 'live';
   playState.gameState = 'IDLE';
   resetPlayState();
   saveGameState();
   updateGameStatusUI();
+  renderAdminGrid();
+  renderGameBoard();
 
   triggerAlert('SYSTEM', 'Questions loaded!', 'gain');
   const statusDiv = document.getElementById('dashboard-status');
@@ -832,10 +983,18 @@ function toggleTheme() {
 }
 
 function applySelectedFont() {
-  const font = db.settings.gridFont || 'Fredoka One';
+  const sanitizeColor = (val, fallback) => {
+    if (typeof val !== 'string') return fallback;
+    const safePattern = /^#([0-9a-fA-F]{3,8})$|^(rgb|rgba|hsl|hsla)\([0-9a-fA-F%,\s\(\)\.\/\-\+]*\)$|^[a-zA-Z]+$/;
+    const trimmed = val.trim();
+    return safePattern.test(trimmed) ? trimmed : fallback;
+  };
+
+  const rawFont = db.settings.gridFont || 'Fredoka One';
+  const font = rawFont.replace(/[^a-zA-Z0-9\s"'\-]/g, '').trim();
   const applyAll = !!db.settings.applyFontToAll;
   const useDefaultColor = db.settings.useDefaultFontColor !== false; // Default to true!
-  const fontColor = db.settings.gridFontColor || '#ffffff';
+  const fontColor = sanitizeColor(db.settings.gridFontColor, '#ffffff');
   const fontBold = !!db.settings.gridFontBold;
 
   let styleEl = document.getElementById('dynamic-font-overrides');
@@ -847,26 +1006,34 @@ function applySelectedFont() {
 
   let css = '';
 
-  // 1. Font Family override
+  // 1. Font Family override — always include Noto Sans as final Unicode fallback
   if (font !== 'none') {
     css += `
       .board-cell, .game-cell-btn, .cell-qn, .cell-qn-label, .board-cell *, .game-cell-btn * {
-        font-family: "${font}", "Fredoka One", "Nunito", sans-serif !important;
+        font-family: "${font}", "Fredoka One", "Noto Sans", "Noto Sans Malayalam", "Noto Sans Devanagari", "Nunito", sans-serif !important;
+      }
+    `;
+  } else {
+    // Even in 'none' mode, ensure Noto Sans is available as Unicode fallback
+    css += `
+      .board-cell, .game-cell-btn, .cell-qn, .cell-qn-label, .board-cell *, .game-cell-btn * {
+        font-family: "Fredoka One", "Noto Sans", "Noto Sans Malayalam", "Noto Sans Devanagari", "Nunito", sans-serif !important;
       }
     `;
   }
 
-  // 2. Font Color override (applies STRICTLY to point labels when not default)
+  // 2. Font Color override — applies to BOTH qn-only-text and qn-points-text
+  //    so the game board matches the admin board color exactly
   if (!useDefaultColor) {
     css += `
-      .qn-points-text {
+      .qn-points-text, .qn-only-text {
         color: ${fontColor} !important;
       }
     `;
   }
 
   const useDefaultQnColor = db.settings.useDefaultQnColor !== false;
-  const qnFontColor = db.settings.gridQnColor || '#1e3a8a';
+  const qnFontColor = sanitizeColor(db.settings.gridQnColor, '#1e3a8a');
 
   if (!useDefaultQnColor) {
     css += `
@@ -878,7 +1045,7 @@ function applySelectedFont() {
 
   const useDefaultTileColor = db.settings.gridTileColorDefault !== false;
   if (!useDefaultTileColor) {
-    const tileColor = db.settings.gridTileColor || '#ffffff';
+    const tileColor = sanitizeColor(db.settings.gridTileColor, '#ffffff');
     css += `
       .game-board-grid .game-cell-btn:not(.cell-answered):not(.cell-wrong):not(.cell-cancelled),
       .admin-interactive-grid .board-cell,
@@ -941,13 +1108,11 @@ function renderAdminGrid() {
   }
 
   const questionsExcludingTB = db.questions.filter(x => x.qnIndex !== 'tiebreaker');
-  const total = db.settings.totalQuestions;
+  const total = db.settings.totalQuestions || 12;
   const baseRows = Math.ceil(total / cols);
   const rows = baseRows + (db.settings.enableTieBreaker ? 1 : 0);
   container.style.setProperty('--cols', cols);
   container.style.setProperty('--rows', rows);
-
-  // Column labels removed
 
   let qn = 1;
   for (let r = 0; r < baseRows; r++) {
@@ -1259,52 +1424,74 @@ function renderGameBoard() {
   const cols = db.settings.gridCols || 4;
   container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-  const total = db.settings.totalQuestions;
-  const baseRows = Math.ceil(total / cols);
-  const rows = baseRows + (db.settings.enableTieBreaker ? 1 : 0);
-  container.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+  const maxConfiguredIndex = db.questions.reduce((max, q) => {
+    const idx = parseInt(q.qnIndex, 10);
+    return (!isNaN(idx) && idx > max) ? idx : max;
+  }, 0);
+  const total = Math.max(1, maxConfiguredIndex);
+  const activeQuestions = db.questions
+    .filter(x => x.qnIndex !== 'tiebreaker' && !isNaN(parseInt(x.qnIndex, 10)) && parseInt(x.qnIndex, 10) <= total)
+    .sort((a, b) => a.qnIndex - b.qnIndex);
 
-  for (let qn = 1; qn <= total; qn++) {
-    const cId = cellId(qn);
-    const q = db.questions.find(x => x.qnIndex === qn);
+  const baseRows = Math.ceil(activeQuestions.length / cols);
+  
+  // Decide whether to show TB to correctly size rows
+  const tieQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
+  const validQuestions = activeQuestions;
+  let allAnswered = true;
+  for (const q of validQuestions) {
+    if (!playState.answeredCells[cellId(q.qnIndex)]) {
+      allAnswered = false;
+      break;
+    }
+  }
+  const isTied = (playState.teams.length > 1 && playState.teams[0].score === playState.teams[1].score);
+  const showTb = (allAnswered || playState.forceTieBreaker) && isTied;
+  const showTiebreakerCell = db.settings.enableTieBreaker && (showTb || db.settings.tiebreakerVisible !== false);
+
+  const rows = baseRows + (showTiebreakerCell ? 1 : 0);
+  container.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+  container.style.setProperty('--cols', cols);
+  container.style.setProperty('--rows', rows);
+
+  activeQuestions.forEach((q) => {
+    const cId = cellId(q.qnIndex);
     const btn = document.createElement('button');
     btn.dataset.cellId = cId;
-
-    btn.setAttribute('aria-label', qnLabel(qn));
+    btn.setAttribute('aria-label', qnLabel(q.qnIndex));
+    
+    // Match the admin cell font family, color, and weight EXACTLY
+    btn.style.fontFamily = db.settings.gridFont || 'var(--font-display)';
+    btn.style.color = db.settings.gridFontColor || 'var(--color-text-light)';
+    btn.style.fontWeight = db.settings.gridFontBold ? '900' : 'normal';
     const answered = playState.answeredCells[cId];
 
-    let displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span>`;
-    if (q) {
-      if (db.settings.displayMode === 'POINTS_ONLY') {
-        displayHtml = `(${q.points})`;
-      } else if (db.settings.displayMode === 'QUESTION_ONLY') {
-        displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span>`;
-      } else {
-        displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span><br><span class="qn-points-text" style="font-size:0.8em">(${q.points})</span>`;
-      }
+    let displayHtml = `<span class="qn-only-text">${qnLabel(q.qnIndex)}</span>`;
+    if (db.settings.displayMode === 'POINTS_ONLY') {
+      displayHtml = `(${q.points})`;
+    } else if (db.settings.displayMode === 'QUESTION_ONLY') {
+      displayHtml = `<span class="qn-only-text">${qnLabel(q.qnIndex)}</span>`;
+    } else {
+      displayHtml = `<span class="qn-only-text">${qnLabel(q.qnIndex)}</span><br><span class="qn-points-text" style="font-size:0.8em">(${q.points})</span>`;
     }
 
-    if (!q) {
-      btn.className = 'game-cell-btn';
-      btn.disabled = true;
-      btn.innerHTML = `<span class="cell-qn" style="opacity:0.2; font-size:1rem;">—</span>`;
-    } else if (answered && answered.cancelled) {
+    if (answered && answered.cancelled) {
       btn.className = 'game-cell-btn cell-cancelled';
       btn.disabled = true;
-      btn.innerHTML = `<span class="cell-qn" style="font-size:2.8rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+      btn.innerHTML = `<span class="cell-qn" style="font-size: 1.6em;">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
     } else if (answered) {
       btn.className = 'game-cell-btn cell-answered';
       btn.disabled = true;
       const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
       if (answered.teamIndex === -1) {
         btn.className = 'game-cell-btn cell-wrong';
-        btn.innerHTML = `<span class="cell-qn" style="font-size:2.8rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="font-size: 1.6em;">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
         btn.style.background = tColor.bg;
         btn.style.borderColor = tColor.border;
-        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size:2.8rem; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size: 1.6em; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
       }
     } else {
       btn.className = 'game-cell-btn';
@@ -1335,80 +1522,71 @@ function renderGameBoard() {
       });
     }
     container.appendChild(btn);
-  }
+  });
 
-  if (db.settings.enableTieBreaker) {
-    const validQuestions = db.questions.filter(x => x.qnIndex !== 'tiebreaker' && !isNaN(parseInt(x.qnIndex, 10)) && parseInt(x.qnIndex, 10) <= total);
-    let allAnswered = true;
-    for (const q of validQuestions) {
-      if (!playState.answeredCells[cellId(q.qnIndex)]) {
-        allAnswered = false;
-        break;
-      }
-    }
-    const isTied = (playState.teams.length > 1 && playState.teams[0].score === playState.teams[1].score);
+  if (showTiebreakerCell) {
+    const cId = 'c-tiebreaker';
+    const btn = document.createElement('button');
+    btn.dataset.cellId = cId;
+    btn.className = 'game-cell-btn';
+    btn.style.gridColumn = '1 / -1';
+    btn.style.justifySelf = 'center';
+    btn.style.width = 'calc(50% - 5px)';
     
-    const showTb = (allAnswered || playState.forceTieBreaker) && isTied;
-    if (validQuestions.length > 0 && (showTb || db.settings.tiebreakerVisible !== false)) {
-      const tieQ = db.questions.find(x => x.qnIndex === 'tiebreaker');
-      const cId = 'c-tiebreaker';
-      const btn = document.createElement('button');
-      btn.dataset.cellId = cId;
-      btn.className = 'game-cell-btn';
-      btn.style.gridColumn = '1 / -1';
-      btn.style.justifySelf = 'center';
-      btn.style.width = 'calc(50% - 5px)';
-      if (showTb) {
-        btn.style.borderColor = 'var(--color-gold)';
-        btn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.4)';
-      }
-      
-      let displayHtml = '<span class="qn-only-text">TIE BREAKER</span>';
-      if (db.settings.displayMode === 'POINTS_ONLY' && tieQ) {
-        displayHtml = `<span class="qn-points-text">(${tieQ.points})</span>`;
-      } else if (db.settings.displayMode !== 'QUESTION_ONLY' && tieQ) {
-        displayHtml = `<span class="qn-only-text">TIE BREAKER</span><br><span class="qn-points-text" style="font-size:0.8em">(${tieQ.points})</span>`;
-      }
-
-      const answered = playState.answeredCells[cId];
-      if (!tieQ) {
-        btn.disabled = true;
-        btn.innerHTML = `<span class="cell-qn" style="opacity:0.2; font-size:1rem;">—</span>`;
-      } else if (answered && answered.cancelled) {
-        btn.className = 'game-cell-btn cell-cancelled';
-        btn.disabled = true;
-        btn.innerHTML = `<span class="cell-qn" style="font-size:2.8rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
-      } else if (answered) {
-        btn.className = 'game-cell-btn cell-answered';
-        btn.disabled = true;
-        const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
-        if (answered.teamIndex === -1) {
-          btn.className = 'game-cell-btn cell-wrong';
-          btn.innerHTML = `<span class="cell-qn" style="font-size:2.8rem;">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
-        } else {
-          const team = playState.teams[answered.teamIndex];
-          const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
-          btn.style.background = tColor.bg;
-          btn.style.borderColor = tColor.border;
-          btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size:2.8rem; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
-        }
-      } else {
-        if (isTied) {
-          btn.innerHTML = `<span class="cell-qn" style="color:#1e3a8a; font-size:1.1rem; text-align:center; line-height:1.2;">${displayHtml}</span>`;
-          btn.addEventListener('click', () => {
-            if (!canInteract() || !canOpenCell()) return;
-            playSound('open');
-            openQuestionModal(cId, tieQ);
-          });
-        } else {
-          btn.disabled = true;
-          btn.style.opacity = '0.4';
-          btn.style.cursor = 'not-allowed';
-          btn.innerHTML = `<span class="cell-qn" style="color:#999; font-size:1.1rem; text-align:center; line-height:1.2;">🔒 ${displayHtml}</span>`;
-        }
-      }
-      container.appendChild(btn);
+    // Match the admin cell font family, color, and weight EXACTLY
+    btn.style.fontFamily = db.settings.gridFont || 'var(--font-display)';
+    btn.style.color = db.settings.gridFontColor || 'var(--color-text-light)';
+    btn.style.fontWeight = db.settings.gridFontBold ? '900' : 'normal';
+    if (showTb) {
+      btn.style.borderColor = 'var(--color-gold)';
+      btn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.4)';
     }
+    
+    let displayHtml = '<span class="qn-only-text">TIE BREAKER</span>';
+    if (db.settings.displayMode === 'POINTS_ONLY' && tieQ) {
+      displayHtml = `<span class="qn-points-text">(${tieQ.points})</span>`;
+    } else if (db.settings.displayMode !== 'QUESTION_ONLY' && tieQ) {
+      displayHtml = `<span class="qn-only-text">TIE BREAKER</span><br><span class="qn-points-text" style="font-size:0.8em">(${tieQ.points})</span>`;
+    }
+
+    const answered = playState.answeredCells[cId];
+    if (!tieQ) {
+      btn.disabled = true;
+      btn.innerHTML = `<span class="cell-qn" style="opacity:0.2; font-size:1rem;">—</span>`;
+    } else if (answered && answered.cancelled) {
+      btn.className = 'game-cell-btn cell-cancelled';
+      btn.disabled = true;
+      btn.innerHTML = `<span class="cell-qn" style="font-size: 1.6em;">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+    } else if (answered) {
+      btn.className = 'game-cell-btn cell-answered';
+      btn.disabled = true;
+      const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
+      if (answered.teamIndex === -1) {
+        btn.className = 'game-cell-btn cell-wrong';
+        btn.innerHTML = `<span class="cell-qn" style="font-size: 1.6em;">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+      } else {
+        const team = playState.teams[answered.teamIndex];
+        const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
+        btn.style.background = tColor.bg;
+        btn.style.borderColor = tColor.border;
+        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size: 1.6em; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+      }
+    } else {
+      if (isTied) {
+        btn.innerHTML = `<span class="cell-qn" style="color:#1e3a8a; font-size:1.1rem; text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.addEventListener('click', () => {
+          if (!canInteract() || !canOpenCell()) return;
+          playSound('open');
+          openQuestionModal(cId, tieQ);
+        });
+      } else {
+        btn.disabled = true;
+        btn.style.opacity = '0.4';
+        btn.style.cursor = 'not-allowed';
+        btn.innerHTML = `<span class="cell-qn" style="color:#999; font-size:1.1rem; text-align:center; line-height:1.2;">🔒 ${displayHtml}</span>`;
+      }
+    }
+    container.appendChild(btn);
   }
   applySelectedFont();
 }
@@ -1419,12 +1597,25 @@ function renderGameBoard() {
 function updateTurnUI() {
   const turnDisplay = document.getElementById('turn-display');
   const stealBanner = document.getElementById('steal-banner');
+  if (!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) {
+    setupTeamsFromInputs();
+  }
+  if (playState.currentTeamIndex >= playState.teams.length) {
+    playState.currentTeamIndex = 0;
+  }
   const activeTeam = playState.teams[playState.currentTeamIndex];
   if (!activeTeam) return;
 
   turnDisplay.textContent = activeTeam.name.toUpperCase();
   turnDisplay.style.color = 'var(--color-gold)';
   stealBanner.classList.toggle('hidden', true); // removed steal state banner
+
+  const announcer = document.querySelector('.turn-announcer');
+  if (announcer) {
+    announcer.classList.remove('announcer-switched');
+    void announcer.offsetWidth; // trigger reflow
+    announcer.classList.add('announcer-switched');
+  }
 
   const panels = document.querySelectorAll('.dynamic-team-panel');
   panels.forEach((panel, i) => {
@@ -1440,35 +1631,112 @@ function switchTurn() {
 // ============================================================
 // SCORE UI
 // ============================================================
-// ============================================================
-// SCORE DROP VISUAL FEEDBACK
-// ============================================================
+function animateValue(element, start, end, duration = 800) {
+  if (start === end) {
+    element.textContent = end;
+    return;
+  }
+  const range = end - start;
+  const startTime = performance.now();
+  
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // Easing out quadratic
+    const easeProgress = progress * (2 - progress);
+    const value = Math.round(start + range * easeProgress);
+    element.textContent = value;
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      element.textContent = end;
+    }
+  }
+  requestAnimationFrame(step);
+}
+
 function updateScoreUI(updatedTeamIndex = -1) {
   const container = document.getElementById('game-team-panels');
   if (!container) return;
-  container.innerHTML = '';
+
+  if (!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) {
+    setupTeamsFromInputs();
+  }
 
   const liveScoreContainer = document.getElementById('live-score-display');
+  const isGameActive = playState.teams && playState.teams.length > 0;
 
-  playState.teams.forEach((team, i) => {
-    const color = TEAM_COLORS[i % TEAM_COLORS.length];
-    const isActive = playState.currentTeamIndex === i;
-    const panel = document.createElement('div');
-    panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''}`;
-    panel.style.borderColor = isActive ? 'var(--color-gold)' : color.border;
+  // In-place update of score elements inside sidebar setup cards
+  const t1ScoreInput = document.getElementById('admin-team1-score');
+  const t2ScoreInput = document.getElementById('admin-team2-score');
 
-    const logoSrc = assetPath(team.logo || (team.name === 'Lion' ? 'lion.png' : 'lioness.png'));
-    panel.innerHTML = `
-      <img src="${logoSrc}" class="team-logo-circular" alt="${team.name}" />
-      <div class="team-details">
-        <span class="team-label">${team.name}</span>
-        <span id="score-team-${i}" class="team-score" style="color:${color.text};">${team.score}</span>
-      </div>
-    `;
-    container.appendChild(panel);
-  });
+  if (t1ScoreInput) {
+    t1ScoreInput.disabled = !isGameActive;
+    t1ScoreInput.placeholder = isGameActive ? "Adjust points" : "No active game";
+    if (isGameActive && document.activeElement !== t1ScoreInput) {
+      t1ScoreInput.value = playState.teams[0].score;
+    } else if (!isGameActive) {
+      t1ScoreInput.value = '';
+    }
+  }
 
-  // Re-render or update live score display
+  if (t2ScoreInput) {
+    t2ScoreInput.disabled = !isGameActive;
+    t2ScoreInput.placeholder = isGameActive ? "Adjust points" : "No active game";
+    if (isGameActive && document.activeElement !== t2ScoreInput) {
+      t2ScoreInput.value = playState.teams[1].score;
+    } else if (!isGameActive) {
+      t2ScoreInput.value = '';
+    }
+  }
+
+  // If children count matches playState.teams.length, update in-place to avoid recreation
+  if (container.children.length === playState.teams.length) {
+    playState.teams.forEach((team, i) => {
+      const color = TEAM_COLORS[i % TEAM_COLORS.length];
+      const isActive = playState.currentTeamIndex === i;
+      const panel = container.children[i];
+      
+      // Update active turn classes
+      panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''}`;
+      panel.style.borderColor = isActive ? 'var(--color-gold)' : color.border;
+      
+      // Animate score changes
+      const scoreSpan = document.getElementById(`score-team-${i}`);
+      if (scoreSpan) {
+        const startScore = parseInt(scoreSpan.textContent, 10) || 0;
+        if (startScore !== team.score) {
+          animateValue(scoreSpan, startScore, team.score, 800);
+        }
+      }
+    });
+  } else {
+    // Rebuild grid panels
+    container.innerHTML = '';
+    playState.teams.forEach((team, i) => {
+      const color = TEAM_COLORS[i % TEAM_COLORS.length];
+      const isActive = playState.currentTeamIndex === i;
+      const panel = document.createElement('div');
+      panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''}`;
+      panel.style.borderColor = isActive ? 'var(--color-gold)' : color.border;
+
+      const logoSrc = assetPath(team.logo || (team.name === 'Lion' ? 'lion.png' : 'lioness.png'));
+      const defaultEmoji = TEAM_ICONS[i % TEAM_ICONS.length] || '🦁';
+      panel.innerHTML = `
+        <div class="team-logo-container" style="position: relative; width: 5.2rem; height: 5.2rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+          <img src="${logoSrc}" class="team-logo-circular" alt="${team.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+          <span class="team-logo-fallback" style="display: none; font-size: 2.6rem; line-height: 1; align-items: center; justify-content: center; background: ${color.bg}; border: 2px solid ${color.border}; border-radius: 50%; width: 100%; height: 100%;">${defaultEmoji}</span>
+        </div>
+        <div class="team-details">
+          <span class="team-label">${team.name}</span>
+          <span id="score-team-${i}" class="team-score" style="color:${color.text};">${team.score}</span>
+        </div>
+      `;
+      container.appendChild(panel);
+    });
+  }
+
+  // Handle live score display
   if (liveScoreContainer) {
     if (liveScoreContainer.children.length !== playState.teams.length) {
       liveScoreContainer.innerHTML = '';
@@ -1493,13 +1761,12 @@ function updateScoreUI(updatedTeamIndex = -1) {
         const nameSpan = valSpan ? valSpan.previousElementSibling : null;
         if (nameSpan) nameSpan.textContent = team.name;
         if (valSpan) {
-          const oldScore = parseInt(valSpan.textContent, 10);
-          valSpan.textContent = team.score;
-
-          if (i === updatedTeamIndex || oldScore !== team.score) {
+          const oldScore = parseInt(valSpan.textContent, 10) || 0;
+          if (oldScore !== team.score) {
+            animateValue(valSpan, oldScore, team.score, 800);
+            
             const liveItem = document.getElementById(`live-score-item-${i}`);
             if (liveItem) {
-              // Apply live score animation queue protection (force reflow)
               liveItem.classList.remove('score-updated');
               void liveItem.offsetWidth;
               liveItem.classList.add('score-updated');
@@ -1517,6 +1784,10 @@ function renderSidebarLeaderboard() {
   const list = document.getElementById('sidebar-leaderboard-list');
   if (!list) return;
   list.innerHTML = '';
+
+  if (!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) {
+    setupTeamsFromInputs();
+  }
 
   const sorted = playState.teams
     .map((t, idx) => ({ ...t, index: idx }))
@@ -1562,10 +1833,18 @@ function enableModalActionButtons() {
   if (btnSubmit) btnSubmit.disabled = false;
 
   const q = playState.currentQuestion;
-  const canPass = q && (playState.teamsAttemptedCount < playState.teams.length - 1);
+  const isTiebreaker = playState.currentCellId === 'c-tiebreaker';
+  const canPass = q && !isTiebreaker && (playState.teamsAttemptedCount < playState.teams.length - 1);
+
   if (btnPass) {
-    btnPass.style.display = canPass ? 'inline-flex' : 'none';
-    btnPass.disabled = !canPass;
+    if (canPass) {
+      btnPass.style.display = 'inline-flex';
+      btnPass.disabled = false;
+      btnPass.innerHTML = `⏭️ PASS`;
+    } else {
+      btnPass.style.display = 'none';
+      btnPass.disabled = true;
+    }
   }
 
   if (btnCancel) {
@@ -1573,11 +1852,40 @@ function enableModalActionButtons() {
   }
 }
 
+// Helper to perform smooth transition when correct answer is revealed
+function revealCorrectAnswerPanel(revealCallback) {
+  const contentNode = document.querySelector('.modal-content');
+  if (!contentNode) {
+    revealCallback();
+    return;
+  }
+
+  // 1. Measure starting dimensions of the modal before reveal
+  const beforeHeight = contentNode.getBoundingClientRect().height;
+  const beforeWidth = contentNode.getBoundingClientRect().width;
+
+  // 2. Lock the height and width to the starting value
+  contentNode.style.height = beforeHeight + 'px';
+  contentNode.style.width = beforeWidth + 'px';
+  contentNode.style.transition = 'none';
+
+  // 3. Perform the actual reveal DOM updates
+  revealCallback();
+}
+
 // ============================================================
 // QUESTION MODAL
 // ============================================================
 function openQuestionModal(cId, q) {
   if (!transitionState('QUESTION_LOADING')) return;
+
+  const contentNode = document.querySelector('.modal-content');
+  if (contentNode) {
+    contentNode.style.height = '';
+    contentNode.style.width = '';
+    contentNode.style.transition = '';
+  }
+
   playState.currentCellId = cId;
   playState.currentQuestion = q;
   playState.currentQuestionValue = q.points;
@@ -1704,8 +2012,7 @@ function openQuestionModal(cId, q) {
   }
 
   document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
-  const contentNode = document.querySelector('.modal-content');
-  contentNode.classList.remove('feedback-correct', 'feedback-wrong');
+  if (contentNode) contentNode.classList.remove('feedback-correct', 'feedback-wrong');
   const btnNext = document.getElementById('btn-modal-next');
   if (btnNext) {
     btnNext.style.display = 'none';
@@ -1716,10 +2023,17 @@ function openQuestionModal(cId, q) {
   overlay.classList.add('open');
 
   transitionState('AWAITING_FIRST_ANSWER');
+  enableModalActionButtons();
 }
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
+  const contentNode = document.querySelector('.modal-content');
+  if (contentNode) {
+    contentNode.style.height = '';
+    contentNode.style.width = '';
+    contentNode.style.transition = '';
+  }
   playState.currentCellId = null;
   playState.currentQuestion = null;
   playState.currentQuestionValue = 0;
@@ -1799,20 +2113,10 @@ async function playWrongAnswerVideo(videoSrc, onClosed) {
   overlay.style.backdropFilter = 'blur(12px)';
 
   const videoContainer = document.createElement('div');
-  videoContainer.style.position = 'relative';
-  videoContainer.style.maxWidth = '85%';
-  videoContainer.style.maxHeight = '75%';
-  videoContainer.style.borderRadius = '24px';
-  videoContainer.style.overflow = 'hidden';
-  videoContainer.style.border = '6px solid #ff4d4d';
-  videoContainer.style.boxShadow = '0 0 50px rgba(255, 77, 77, 0.6)';
-  videoContainer.style.background = '#000';
+  videoContainer.className = 'feedback-video-container wrong';
 
   const video = document.createElement('video');
   video.src = finalSrc;
-  video.style.width = '100%';
-  video.style.height = '100%';
-  video.style.display = 'block';
   video.autoplay = true;
   video.controls = false;
 
@@ -1912,20 +2216,10 @@ async function playCorrectAnswerVideo(videoSrc, onClosed) {
   overlay.style.backdropFilter = 'blur(12px)';
 
   const videoContainer = document.createElement('div');
-  videoContainer.style.position = 'relative';
-  videoContainer.style.maxWidth = '85%';
-  videoContainer.style.maxHeight = '75%';
-  videoContainer.style.borderRadius = '24px';
-  videoContainer.style.overflow = 'hidden';
-  videoContainer.style.border = '6px solid var(--color-success)';
-  videoContainer.style.boxShadow = '0 0 50px rgba(74, 222, 128, 0.6)';
-  videoContainer.style.background = '#000';
+  videoContainer.className = 'feedback-video-container correct';
 
   const video = document.createElement('video');
   video.src = finalSrc;
-  video.style.width = '100%';
-  video.style.height = '100%';
-  video.style.display = 'block';
   video.autoplay = true;
   video.controls = false;
 
@@ -2017,20 +2311,10 @@ async function playWinnerScreenVideo(onClosed) {
   overlay.style.backdropFilter = 'blur(12px)';
 
   const videoContainer = document.createElement('div');
-  videoContainer.style.position = 'relative';
-  videoContainer.style.maxWidth = '85%';
-  videoContainer.style.maxHeight = '75%';
-  videoContainer.style.borderRadius = '24px';
-  videoContainer.style.overflow = 'hidden';
-  videoContainer.style.border = '6px solid var(--color-gold)';
-  videoContainer.style.boxShadow = '0 0 50px rgba(244, 196, 48, 0.6)';
-  videoContainer.style.background = '#000';
+  videoContainer.className = 'feedback-video-container winner';
 
   const video = document.createElement('video');
   video.src = finalSrc;
-  video.style.width = '100%';
-  video.style.height = '100%';
-  video.style.display = 'block';
   video.autoplay = true;
   video.controls = false;
 
@@ -2417,29 +2701,31 @@ function showEmojiFeedback(isCorrect, q, callback) {
       playState.stats[teamIndex].attempts++;
     }
 
-    const contentNode = document.querySelector('.modal-content');
-    contentNode.classList.remove('feedback-wrong');
-    contentNode.classList.add('feedback-correct');
+    revealCorrectAnswerPanel(() => {
+      const contentNode = document.querySelector('.modal-content');
+      contentNode.classList.remove('feedback-wrong');
+      contentNode.classList.add('feedback-correct');
 
-    document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
-    document.getElementById('modal-reveal-panel').classList.remove('hidden');
+      document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+      document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
-    const turnStatus = document.getElementById('modal-turn-status');
-    turnStatus.textContent = "Correct Answer!";
-    turnStatus.style.color = "var(--color-success)";
-    turnStatus.style.borderColor = "var(--color-success)";
+      const turnStatus = document.getElementById('modal-turn-status');
+      turnStatus.textContent = "Correct Answer!";
+      turnStatus.style.color = "var(--color-success)";
+      turnStatus.style.borderColor = "var(--color-success)";
 
-    playState.cancelLocked = true;
-    const btnCancel = document.getElementById('btn-modal-cancel');
-    if (btnCancel) btnCancel.disabled = true;
+      playState.cancelLocked = true;
+      const btnCancel = document.getElementById('btn-modal-cancel');
+      if (btnCancel) btnCancel.disabled = true;
 
-    saveGameState();
-    if (cId !== 'c-tiebreaker' && playState.teamsAttemptedCount === 0) {
-      switchTurn();
-    }
-    renderGameBoard();
-    renderAdminGrid();
-    enableNextButton();
+      saveGameState();
+      if (cId !== 'c-tiebreaker' && playState.teamsAttemptedCount === 0) {
+        switchTurn();
+      }
+      renderGameBoard();
+      renderAdminGrid();
+      enableNextButton();
+    });
   };
 
   if (isCorrect) {
@@ -2497,26 +2783,28 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
           playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
 
-          const turnStatus = document.getElementById('modal-turn-status');
-          turnStatus.textContent = "Incorrect Answer";
-          turnStatus.style.color = "var(--color-error)";
-          turnStatus.style.borderColor = "var(--color-error)";
+          revealCorrectAnswerPanel(() => {
+            const turnStatus = document.getElementById('modal-turn-status');
+            turnStatus.textContent = "Incorrect Answer";
+            turnStatus.style.color = "var(--color-error)";
+            turnStatus.style.borderColor = "var(--color-error)";
 
-          const contentNode = document.querySelector('.modal-content');
-          contentNode.classList.remove('feedback-correct');
-          contentNode.classList.add('feedback-wrong');
+            const contentNode = document.querySelector('.modal-content');
+            contentNode.classList.remove('feedback-correct');
+            contentNode.classList.add('feedback-wrong');
 
-          document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
-          document.getElementById('modal-reveal-panel').classList.remove('hidden');
+            document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+            document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
-          playState.cancelLocked = true;
-          const btnCancel = document.getElementById('btn-modal-cancel');
-          if (btnCancel) btnCancel.disabled = true;
+            playState.cancelLocked = true;
+            const btnCancel = document.getElementById('btn-modal-cancel');
+            if (btnCancel) btnCancel.disabled = true;
 
-          saveGameState();
-          renderGameBoard();
-          renderAdminGrid();
-          enableNextButton();
+            saveGameState();
+            renderGameBoard();
+            renderAdminGrid();
+            enableNextButton();
+          });
         }
       };
 
@@ -2556,26 +2844,28 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
           playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
 
-          const turnStatus = document.getElementById('modal-turn-status');
-          turnStatus.textContent = "Incorrect Answer";
-          turnStatus.style.color = "var(--color-error)";
-          turnStatus.style.borderColor = "var(--color-error)";
+          revealCorrectAnswerPanel(() => {
+            const turnStatus = document.getElementById('modal-turn-status');
+            turnStatus.textContent = "Incorrect Answer";
+            turnStatus.style.color = "var(--color-error)";
+            turnStatus.style.borderColor = "var(--color-error)";
 
-          const contentNode = document.querySelector('.modal-content');
-          contentNode.classList.remove('feedback-correct');
-          contentNode.classList.add('feedback-wrong');
+            const contentNode = document.querySelector('.modal-content');
+            contentNode.classList.remove('feedback-correct');
+            contentNode.classList.add('feedback-wrong');
 
-          document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
-          document.getElementById('modal-reveal-panel').classList.remove('hidden');
+            document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+            document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
-          playState.cancelLocked = true;
-          const btnCancel = document.getElementById('btn-modal-cancel');
-          if (btnCancel) btnCancel.disabled = true;
+            playState.cancelLocked = true;
+            const btnCancel = document.getElementById('btn-modal-cancel');
+            if (btnCancel) btnCancel.disabled = true;
 
-          saveGameState();
-          renderGameBoard();
-          renderAdminGrid();
-          enableNextButton();
+            saveGameState();
+            renderGameBoard();
+            renderAdminGrid();
+            enableNextButton();
+          });
         }
       };
 
@@ -2626,6 +2916,7 @@ function handlePass() {
   if (!canAnswer()) return;
   const q = playState.currentQuestion;
   if (!q || playState.teamsAttemptedCount >= playState.teams.length - 1) return;
+
   playSound('pass');
 
   playState.teamsAttemptedCount++;
@@ -2666,7 +2957,11 @@ function checkGameOver() {
     return;
   }
 
-  const total = db.settings.totalQuestions;
+  const maxConfiguredIndex = db.questions.reduce((max, q) => {
+    const idx = parseInt(q.qnIndex, 10);
+    return (!isNaN(idx) && idx > max) ? idx : max;
+  }, 0);
+  const total = Math.max(1, maxConfiguredIndex);
   const validQuestions = db.questions.filter(x => x.qnIndex !== 'tiebreaker' && !isNaN(parseInt(x.qnIndex, 10)) && parseInt(x.qnIndex, 10) <= total);
   
   const allMainAnswered = validQuestions.length > 0 && validQuestions.every(q => {
@@ -2692,6 +2987,9 @@ function checkGameOver() {
 
 function endGame() {
   clearGameTimer();
+  if (!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) {
+    setupTeamsFromInputs();
+  }
   const sorted = playState.teams
     .map((t, idx) => ({ ...t, index: idx }))
     .sort((a, b) => b.score - a.score);
@@ -2771,7 +3069,8 @@ function endGame() {
 // TEAMS SETUP
 // ============================================================
 function setupTeamsFromInputs() {
-  playState.teams = db.teams.slice(0, 2).map((t, idx) => {
+  let sourceTeams = (db.teams && Array.isArray(db.teams) && db.teams.length >= 2) ? db.teams : DEFAULT_TEAMS;
+  playState.teams = sourceTeams.slice(0, 2).map((t, idx) => {
     const isDef = !!t.useDefault;
     const defaultName = idx === 0 ? 'Lion' : 'Lioness';
     const defaultLogo = idx === 0 ? 'lion.png' : 'lioness.png';
@@ -2781,6 +3080,16 @@ function setupTeamsFromInputs() {
       score: 0
     };
   });
+
+  if (!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) {
+    playState.teams = DEFAULT_TEAMS.map((t, idx) => ({
+      name: t.name,
+      logo: t.logo,
+      score: 0,
+      passesUsed: 0
+    }));
+  }
+
   playState.stats = {};
   playState.teams.forEach((t, i) => {
     playState.stats[i] = { correct: 0, attempts: 0 };
@@ -2795,6 +3104,8 @@ function resetPlayState() {
   playState.answeredCells = {};
   playState.currentCellId = null;
   playState.currentQuestion = null;
+  playState.gameState = 'IDLE';
+  playState.phase = 'live';
   playState.teams.forEach((t, i) => {
     playState.stats[i] = { correct: 0, attempts: 0 };
   });
@@ -2877,7 +3188,32 @@ document.getElementById('btn-fullscreen-toggle')?.addEventListener('click', () =
 
 let currentZoomLevel = parseFloat(localStorage.getItem('quiz_zoom_level') || '0');
 
-// Apply initial zoom level if in Electron
+function updateZoomDisplay() {
+  const display = document.getElementById('zoom-level-display');
+  if (!display) return;
+  
+  const mappings = {
+    '3': '200%',
+    '2.5': '175%',
+    '2': '150%',
+    '1.5': '133%',
+    '1': '120%',
+    '0.5': '110%',
+    '0': '100%',
+    '-0.5': '90%',
+    '-1': '80%',
+    '-1.5': '67%',
+    '-2': '50%',
+    '-2.5': '33%',
+    '-3': '25%'
+  };
+  
+  const key = currentZoomLevel.toString();
+  display.textContent = mappings[key] || `${Math.round(Math.pow(1.2, currentZoomLevel) * 100)}%`;
+}
+
+// Apply initial zoom level
+updateZoomDisplay();
 if (window.electronAPI) {
   window.electronAPI.setZoomLevel(currentZoomLevel);
 }
@@ -2887,6 +3223,7 @@ document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
   if (currentZoomLevel < 3) {
     currentZoomLevel += 0.5;
     localStorage.setItem('quiz_zoom_level', currentZoomLevel);
+    updateZoomDisplay();
     if (window.electronAPI) {
       window.electronAPI.setZoomLevel(currentZoomLevel);
     } else {
@@ -2900,6 +3237,7 @@ document.getElementById('btn-zoom-out')?.addEventListener('click', () => {
   if (currentZoomLevel > -3) {
     currentZoomLevel -= 0.5;
     localStorage.setItem('quiz_zoom_level', currentZoomLevel);
+    updateZoomDisplay();
     if (window.electronAPI) {
       window.electronAPI.setZoomLevel(currentZoomLevel);
     } else {
@@ -2912,7 +3250,11 @@ const updateFullscreenIcon = () => {
   const icon = document.getElementById('fullscreen-icon');
   if (icon) {
     const isFS = getFullscreenState();
-    icon.src = isFS ? 'exit_fullscreen.png' : 'fullscreen.png';
+    if (isFS) {
+      icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6m10-6h-6v6M4 10h6V4m10 6h-6V4"/></svg>`;
+    } else {
+      icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`;
+    }
   }
 };
 
@@ -2931,6 +3273,9 @@ document.getElementById('btn-go-admin-float')?.addEventListener('click', () => {
 // Control Center hamburger settings button (only inside Admin screen, left side)
 document.getElementById('btn-hamburger-menu')?.addEventListener('click', () => {
   playSound('click');
+  if (document.body.classList.contains('admin-mode')) {
+    document.body.classList.remove('sidebar-closed');
+  }
 
   // Slide open the sidebar Control Center from the left side
   document.getElementById('left-sliding-sidebar')?.classList.add('open');
@@ -2940,17 +3285,18 @@ document.getElementById('btn-hamburger-menu')?.addEventListener('click', () => {
 // Close Sidebar listeners
 document.getElementById('btn-close-sidebar')?.addEventListener('click', () => {
   playSound('click');
-
-document.getElementById('btn-admin-save-db')?.addEventListener('click', () => {
-  playSound('click');
-  document.getElementById('btn-export-json').click();
-});
+  if (document.body.classList.contains('admin-mode')) {
+    document.body.classList.add('sidebar-closed');
+  }
   document.getElementById('left-sliding-sidebar')?.classList.remove('open');
   document.getElementById('sidebar-backdrop')?.classList.remove('show');
 });
 
 document.getElementById('sidebar-backdrop')?.addEventListener('click', () => {
   playSound('click');
+  if (document.body.classList.contains('admin-mode')) {
+    document.body.classList.add('sidebar-closed');
+  }
   document.getElementById('left-sliding-sidebar')?.classList.remove('open');
   document.getElementById('sidebar-backdrop')?.classList.remove('show');
 });
@@ -3144,6 +3490,7 @@ document.getElementById('btn-export-json').addEventListener('click', async () =>
 });
 
 // Import JSON
+// Import JSON
 document.getElementById('import-json-file').addEventListener('click', async (e) => {
   if (window.showOpenFilePicker) {
     e.preventDefault(); // Stop default file input behavior
@@ -3157,91 +3504,35 @@ document.getElementById('import-json-file').addEventListener('click', async (e) 
       
       const parsed = JSON.parse(text);
       if (parsed && typeof parsed === 'object') {
-        db = {
-          settings: {
-            subtractOnWrong: parsed.settings?.subtractOnWrong ?? true,
-            totalQuestions: parsed.settings?.totalQuestions ?? 12,
-            displayMode: parsed.settings?.displayMode ?? 'QUESTION_POINTS',
-            
-            gridFont: parsed.settings?.gridFont ?? 'none',
-            
-            playVideoFeedback: parsed.settings?.playVideoFeedback ?? false,
-            playEmojiFeedback: parsed.settings?.playEmojiFeedback !== false,
-            enableCustomPerQuestionEmoji: parsed.settings?.enableCustomPerQuestionEmoji ?? true,
-            emojiMode: parsed.settings?.emojiMode ?? 'random',
-            positiveEmojis: parsed.settings?.positiveEmojis ?? '👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏',
-            negativeEmojis: parsed.settings?.negativeEmojis ?? '😢,😭,🤦,📉,💔,🙈,😬',
-            useCustomFeedbackVideos: parsed.settings?.useCustomFeedbackVideos ?? false,
-            gridFontColor: parsed.settings?.gridFontColor ?? '#000000',
-            gridFontBold: parsed.settings?.gridFontBold ?? false,
-            gridTileColor: parsed.settings?.gridTileColor ?? '#ffffff',
-            
-          },
-          questions: (parsed.questions || []).map(q => {
-            if (q.type === 'long' || q.type === 'long_answer') q.type = 'short_answer';
-            if (q.questionType === 'long' || q.questionType === 'long_answer') q.questionType = 'short_answer';
-            if (q.qnIndex !== 'tiebreaker' && q.qnIndex !== undefined && q.qnIndex !== null) {
-              const parsedIdx = parseInt(q.qnIndex, 10);
-              if (!isNaN(parsedIdx)) q.qnIndex = parsedIdx;
-            }
-            return q;
-          }),
-          teams: (parsed.teams && Array.isArray(parsed.teams) && parsed.teams.length >= 2)
-            ? parsed.teams.slice(0, 2)
-            : [...DEFAULT_TEAMS],
-        };
+        loadSavedDB(parsed);
         saveDB();
-        
-        document.getElementById('settings-total-questions').value = db.settings.totalQuestions;
-        const colsEl = document.getElementById('settings-columns');
-        if (colsEl) colsEl.value = db.settings.gridCols || 4;
-        document.getElementById('settings-display-mode').value = db.settings.displayMode;
-        const timerEl = document.getElementById('settings-timer-duration');
-        if (timerEl) timerEl.value = db.settings.timerDuration ?? 10;
-        const fontEl = document.getElementById('settings-grid-font');
-        if (fontEl) fontEl.value = db.settings.gridFont ?? 'Fredoka One';
-        const fontColorEl = document.getElementById('settings-grid-font-color');
-        if (fontColorEl) fontColorEl.value = db.settings.gridFontColor ?? '#000000';
-        const applyAllEl = document.getElementById('settings-font-apply-all');
-        if (applyAllEl) applyAllEl.checked = !!db.settings.applyFontToAll;
-        const videoFeedbackEl = document.getElementById('settings-play-video-feedback');
-        if (videoFeedbackEl) {
-          videoFeedbackEl.checked = !!db.settings.playVideoFeedback;
-          document.getElementById('video-feedback-options').style.display = videoFeedbackEl.checked ? 'flex' : 'none';
-        }
-        const customFeedbackEl = document.getElementById('settings-use-custom-feedback');
-        if (customFeedbackEl) {
-          customFeedbackEl.checked = !!db.settings.useCustomFeedbackVideos;
-          document.getElementById('custom-video-uploads').style.display = customFeedbackEl.checked ? 'flex' : 'none';
-        }
+        triggerAlert("SYSTEM", "Quiz Database imported successfully!", "gain");
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Invalid JSON file.', err);
+        triggerAlert("SYSTEM", "Error importing quiz JSON file.", "lose");
+      }
+    }
+  }
+});
 
-        const emojiFeedbackEl = document.getElementById('settings-play-emoji-feedback');
-        if (emojiFeedbackEl) {
-          emojiFeedbackEl.checked = db.settings.playEmojiFeedback !== false;
-          const emojiOpts = document.getElementById('emoji-feedback-options');
-          if (emojiOpts) emojiOpts.style.display = emojiFeedbackEl.checked ? 'flex' : 'none';
-        }
-        
-        const emojiModeEl = document.getElementById('settings-emoji-mode');
-        if (emojiModeEl) emojiModeEl.value = db.settings.emojiMode || 'random';
-        
-        if (customEmojiEl) {
-          customEmojiEl.checked = db.settings.enableCustomPerQuestionEmoji ?? true;
-          toggleQuestionEditorEmojiInputs();
-        }
-        
-        const posEmojiEl = document.getElementById('settings-positive-emojis');
-        if (posEmojiEl) posEmojiEl.value = db.settings.positiveEmojis || '👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏';
-        
-        const negEmojiEl = document.getElementById('settings-negative-emojis');
-        if (negEmojiEl) negEmojiEl.value = db.settings.negativeEmojis || '😢,😭,🤦,📉,💔,🙈,😬';
+document.getElementById('import-json-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-        applySelectedFont();
-        renderAdminGrid();
-        renderGameBoard();
+  const reader = new FileReader();
+  reader.onload = function (ev) {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (parsed && typeof parsed === 'object') {
+        loadSavedDB(parsed);
+        saveDB();
+        triggerAlert("SYSTEM", "Quiz Database imported successfully!", "gain");
       }
     } catch (err) {
       console.error('Invalid JSON file.', err);
+      triggerAlert("SYSTEM", "Error importing quiz JSON file.", "lose");
     }
   };
   reader.readAsText(file);
@@ -3374,6 +3665,14 @@ document.getElementById('question-form').addEventListener('submit', async e => {
   if (existIdx !== -1) db.questions[existIdx] = qObj;
   else db.questions.push(qObj);
 
+  // Auto-adjust total questions if a higher index is saved
+  const qNum = parseInt(qnIndex, 10);
+  if (!isNaN(qNum) && qNum > db.settings.totalQuestions) {
+    db.settings.totalQuestions = qNum;
+    const totInput = document.getElementById('settings-total-questions');
+    if (totInput) totInput.value = qNum;
+  }
+
   saveDB();
   closeQuestionEditor();
   selectedAdminCellId = null;
@@ -3414,7 +3713,6 @@ if (btnShowCorrectAnswer) {
     if (fillInput) {
       fillInput.value = q.correctAnswer || q.answer;
       fillInput.focus();
-      fillInput.select();
 
       // Trigger reveal-highlight animation
       fillInput.classList.remove('reveal-highlight');
@@ -3614,18 +3912,30 @@ if (savedTheme) {
   applyTheme('light');
 }
 
-// Clear active game state on startup/reload to ensure a new game always starts
-localStorage.removeItem('review_game_playstate');
+// Load saved data asynchronously — runs after full DOM is ready
+async function initApp() {
+  await loadDB();
+  loadGameState();
+  renderAdminGrid();
+  renderGameBoard();
+  updateScoreUI();
+  updateDashboardStatus();
 
-// Load saved data
-loadDB();
-loadGameState();
-renderAdminGrid();
-updateScoreUI();
+  // Only redirect to dashboard if the game hasn't ended and no active game is being restored/resumed
+  if (playState.phase !== 'ended' && (!playState.teams || playState.teams.length === 0)) {
+    playState.phase = 'live';
+    showScreen('dashboard');
+  }
+}
 
-if (playState.phase !== 'ended') {
-  playState.phase = 'live';
-  showScreen('dashboard');
+// Wait for DOM to be fully ready before calling initApp so every
+// getElementById call inside it (dashboard-status, btn-start-game, etc.)
+// is guaranteed to succeed.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => initApp());
+} else {
+  // DOM already parsed (e.g. script loaded late or hot-reloaded by Vite)
+  initApp();
 }
 
 // Admin Settings Listeners
@@ -3649,10 +3959,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isNaN(val) || val < 1) val = 1;
       db.settings.gridCols = val;
       saveDB();
+      renderCategoryInputs();
       renderAdminGrid();
       renderGameBoard();
     });
   }
+
+
 
 
   const modeEl = document.getElementById('settings-display-mode');
@@ -3712,6 +4025,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const fontColorEl = document.getElementById('settings-grid-font-color');
   if (fontColorEl) {
+    fontColorEl.addEventListener('input', (e) => {
+      db.settings.gridFontColor = e.target.value;
+      applySelectedFont();
+    });
     fontColorEl.addEventListener('change', (e) => {
       db.settings.gridFontColor = e.target.value;
       saveDB();
@@ -3880,21 +4197,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // File Upload Handlers for Custom Feedback Videos
-  const handleFeedbackVideoUpload = async (type, file) => {
+  const handleFeedbackVideoUpload = (type, file) => {
     if (!file) return;
-    try {
-      const buffer = await file.arrayBuffer();
-      const base64Str = btoa(new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
-      const mime = file.type || 'video/mp4';
-      const dataUri = `data:${mime};base64,${base64Str}`;
-      await saveVideoToIndexedDB(`feedback-${type}`, dataUri);
-      document.getElementById(`status-feedback-${type}`).textContent = `Custom video saved! (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
-      document.getElementById(`btn-clear-feedback-${type}`).style.display = 'inline-block';
-      triggerAlert('SYSTEM', `Custom ${type} video saved successfully!`, 'gain');
-    } catch (err) {
-      console.error('Failed to read/save feedback video', err);
-      triggerAlert('SYSTEM', 'Error saving custom video. File might be too large.', 'lose');
-    }
+    document.getElementById(`status-feedback-${type}`).textContent = "Saving custom video...";
+    
+    const reader = new FileReader();
+    reader.onload = async function (ev) {
+      try {
+        const dataUri = ev.target.result;
+        await saveVideoToIndexedDB(`feedback-${type}`, dataUri);
+        document.getElementById(`status-feedback-${type}`).textContent = `Custom video saved! (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
+        document.getElementById(`btn-clear-feedback-${type}`).style.display = 'inline-block';
+        triggerAlert('SYSTEM', `Custom ${type} video saved successfully!`, 'gain');
+      } catch (err) {
+        console.error('Failed to save feedback video', err);
+        document.getElementById(`status-feedback-${type}`).textContent = 'Error saving video';
+        triggerAlert('SYSTEM', 'Error saving custom video. File might be too large.', 'lose');
+      }
+    };
+    reader.onerror = function () {
+      document.getElementById(`status-feedback-${type}`).textContent = 'Error reading video';
+      triggerAlert('SYSTEM', 'Error reading video file.', 'lose');
+    };
+    reader.readAsDataURL(file);
   };
 
   ['correct', 'wrong', 'winner'].forEach(type => {
@@ -4061,10 +4386,19 @@ function applyDynamicScaling() {
   // Use the smaller ratio so nothing gets clipped and it fits the viewport
   let scale = Math.min(scaleX, scaleY);
 
-  // Apply zoom factor. In Electron, this prevents the native zoom from canceling the dynamic scale.
-  // In a standard browser, this applies the zoom directly.
   const zoomFactor = Math.pow(1.2, currentZoomLevel);
-  scale = scale * zoomFactor;
+
+  if (window.electronAPI) {
+    // In Electron, Electron native zoom handles currentZoomLevel and changes dpr automatically.
+    // We multiply by dpr to let native zoom scale the app correctly without fighting.
+    const dpr = window.devicePixelRatio || 1;
+    scale = scale * dpr;
+  } else {
+    // In standard browsers, we scale pure layout using the zoomFactor.
+    // We do NOT multiply by dpr here because standard browsers automatically scale the layout
+    // for OS display scaling (DPI), and multiplying by dpr would cause double-scaling (cutoffs).
+    scale = scale * zoomFactor;
+  }
 
   document.body.style.zoom = scale;
 }
@@ -4098,4 +4432,23 @@ document.addEventListener('DOMContentLoaded', () => {
   toggleDisable('settings-grid-font-color-default', ['settings-grid-font-color']);
   toggleDisable('settings-grid-qn-color-default', ['settings-grid-qn-color']);
   toggleDisable('settings-grid-tile-color-default', ['settings-grid-tile-color']);
+
+  // Score Adjustment input listeners for live game corrections
+  document.getElementById('admin-team1-score')?.addEventListener('input', e => {
+    if (playState.teams && playState.teams[0]) {
+      const val = parseInt(e.target.value, 10);
+      playState.teams[0].score = isNaN(val) ? 0 : val;
+      saveGameState();
+      updateScoreUI();
+    }
+  });
+
+  document.getElementById('admin-team2-score')?.addEventListener('input', e => {
+    if (playState.teams && playState.teams[1]) {
+      const val = parseInt(e.target.value, 10);
+      playState.teams[1].score = isNaN(val) ? 0 : val;
+      saveGameState();
+      updateScoreUI();
+    }
+  });
 });

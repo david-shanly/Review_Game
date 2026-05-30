@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description"
-    content="Review Game Group C - 2026 — An interactive Bible quiz game for church kids. Fun, competitive, and child-friendly!">
-  <title>Review Game Group C - 2026</title>
+    content="Review Game — An interactive Bible quiz game for church kids. Fun, competitive, and child-friendly!">
+  <title>Review Game</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap"
@@ -14,6 +14,8 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;600;700;800&family=Montserrat:wght@400;700;900&family=Outfit:wght@400;600;700;900&display=swap"
     rel="stylesheet">
+  <!-- Unicode / Indic script fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -27,13 +29,12 @@
     <!-- ===== HEADER ===== -->
     <header class="app-header">
       <div style="display: flex; align-items: center; gap: 10px;">
-        <button id="btn-hamburger-menu" class="btn btn-icon btn-admin-float" title="Open Settings"
-          aria-label="Open Settings" style="font-size: 1.4rem;">
-          ☰
-        </button>
         <div class="logo-container">
-          <img src="logo.png" alt="Logo" class="logo-icon" />
-          <h1 class="logo-text">Review Game <span class="logo-accent">Group C - 2026</span></h1>
+          <div class="logo-icon-container" style="display: flex; align-items: center; justify-content: center; position: relative;">
+            <img src="logo.png" alt="Logo" class="logo-icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+            <span class="logo-fallback" style="display: none; font-size: 1.8rem; line-height: 1;">📖</span>
+          </div>
+          <h1 class="logo-text">Review Game</h1>
         </div>
       </div>
       <div class="header-actions">
@@ -49,16 +50,23 @@
         <button id="btn-zoom-out" class="btn btn-icon" title="Zoom Out" aria-label="Zoom Out" style="font-weight: bold; font-size: 1.2rem;">
           -
         </button>
+        <span id="zoom-level-display" style="font-size: 0.95rem; font-weight: 800; min-width: 52px; text-align: center; color: var(--color-text-light); user-select: none; display: inline-block;">100%</span>
         <button id="btn-zoom-in" class="btn btn-icon" title="Zoom In" aria-label="Zoom In" style="font-weight: bold; font-size: 1.2rem;">
           +
         </button>
-        <button id="btn-fullscreen-toggle" class="btn btn-icon" title="Toggle Fullscreen"
-          aria-label="Toggle Fullscreen">
-          <img id="fullscreen-icon" src="fullscreen.png" alt="Fullscreen"
-            style="width: 1.5rem; height: 1.5rem; object-fit: contain; pointer-events: none;" />
+        <button id="btn-fullscreen-toggle" class="btn btn-icon" title="Toggle Fullscreen" aria-label="Toggle Fullscreen" style="display: inline-flex; align-items: center; justify-content: center;">
+          <span id="fullscreen-icon" style="display: inline-flex; pointer-events: none; width: 24px; height: 24px; color: var(--color-text-light);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+          </span>
         </button>
         <button id="btn-go-admin-float" class="btn btn-icon" title="Admin Panel" aria-label="Admin Panel">
           ⚙️
+        </button>
+        <button id="btn-hamburger-menu" class="btn btn-icon btn-admin-float" title="Open Settings"
+          aria-label="Open Settings" style="font-size: 1.4rem;">
+          ☰
         </button>
       </div>
     </header>
@@ -71,10 +79,11 @@
            ======================================== -->
       <section id="screen-dashboard" class="screen active">
         <div class="hero-card glass-panel">
-          <div class="hero-stars"><img src="logo.png" alt="Quiz Logo"
-              style="width: 7.5rem; height: 7.5rem; object-fit: contain; border-radius: 50%;" /></div>
-          <h2 class="hero-title" style="margin-bottom: 0;">Review Game <span class="gold-text">Group C - 2026</span>
-          </h2>
+          <div class="hero-stars" style="display: flex; justify-content: center; align-items: center; min-height: 7.5rem;">
+            <img src="logo.png" alt="Quiz Logo" style="width: 7.5rem; height: 7.5rem; object-fit: contain; border-radius: 50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="logo-fallback-hero" style="display: none; width: 7.5rem; height: 7.5rem; border-radius: 50%; background: rgba(244, 196, 48, 0.15); border: 3px solid var(--color-gold); align-items: center; justify-content: center; font-size: 4rem;">📖</div>
+          </div>
+          <h2 class="hero-title" style="margin-bottom: 0;">Review Game</h2>
           <p style="text-align:center; font-size:1.2rem; color:var(--color-gold); margin:0 0 10px 0; font-weight:600;">
             26-05-2026</p>
 
@@ -307,49 +316,51 @@
           </div>
         </div>
 
-        <!-- Tie-Breaker Hand Raise Active Team Selector -->
-        <div id="tiebreaker-turn-selector" class="tiebreaker-turn-selector hidden">
-          <div class="selector-title">🖐️ Who raised their hand first?</div>
-          <div id="tiebreaker-selector-buttons" class="selector-buttons-grid"></div>
-        </div>
+        <div class="modal-body">
+          <!-- Tie-Breaker Hand Raise Active Team Selector -->
+          <div id="tiebreaker-turn-selector" class="tiebreaker-turn-selector hidden">
+            <div class="selector-title">🖐️ Who raised their hand first?</div>
+            <div id="tiebreaker-selector-buttons" class="selector-buttons-grid"></div>
+          </div>
 
-        <div id="modal-question-text" class="question-text">
-          Question goes here...
-        </div>
+          <div id="modal-question-text" class="question-text">
+            Question goes here...
+          </div>
 
-        <!-- MCQ Options -->
-        <div id="modal-mcq-container" class="mcq-options-grid hidden">
-          <button class="option-btn" data-index="0">
-            <span class="option-letter">A</span>
-            <span class="option-val">Option A</span>
-          </button>
-          <button class="option-btn" data-index="1">
-            <span class="option-letter">B</span>
-            <span class="option-val">Option B</span>
-          </button>
-          <button class="option-btn" data-index="2">
-            <span class="option-letter">C</span>
-            <span class="option-val">Option C</span>
-          </button>
-          <button class="option-btn" data-index="3">
-            <span class="option-letter">D</span>
-            <span class="option-val">Option D</span>
-          </button>
-        </div>
+          <!-- MCQ Options -->
+          <div id="modal-mcq-container" class="mcq-options-grid hidden">
+            <button class="option-btn" data-index="0">
+              <span class="option-letter">A</span>
+              <span class="option-val">Option A</span>
+            </button>
+            <button class="option-btn" data-index="1">
+              <span class="option-letter">B</span>
+              <span class="option-val">Option B</span>
+            </button>
+            <button class="option-btn" data-index="2">
+              <span class="option-letter">C</span>
+              <span class="option-val">Option C</span>
+            </button>
+            <button class="option-btn" data-index="3">
+              <span class="option-letter">D</span>
+              <span class="option-val">Option D</span>
+            </button>
+          </div>
 
-        <!-- Fill-in-the-blank -->
-        <div id="modal-fill-container" class="fill-container">
-          <input type="text" id="modal-fill-input" placeholder="Type answer here..." autocomplete="off">
-          <button id="btn-show-correct-answer" type="button" class="btn btn-secondary btn-show-correct-answer"
-            style="width: 100%;">
-            Correct Answer
-          </button>
-        </div>
+          <!-- Fill-in-the-blank -->
+          <div id="modal-fill-container" class="fill-container">
+            <input type="text" id="modal-fill-input" placeholder="Type answer here..." autocomplete="off">
+            <button id="btn-show-correct-answer" type="button" class="btn btn-secondary btn-show-correct-answer"
+              style="width: 100%;">
+              Correct Answer
+            </button>
+          </div>
 
-        <!-- Correct Answer Reveal -->
-        <div id="modal-reveal-panel" class="reveal-panel hidden">
-          <div class="reveal-title">CORRECT ANSWER</div>
-          <div id="modal-correct-answer-text" class="reveal-value gold-text">Answer</div>
+          <!-- Correct Answer Reveal -->
+          <div id="modal-reveal-panel" class="reveal-panel hidden">
+            <div class="reveal-title">CORRECT ANSWER</div>
+            <div id="modal-correct-answer-text" class="reveal-value gold-text">Answer</div>
+          </div>
         </div>
 
         <!-- Submit / Pass / Cancel Buttons -->
@@ -365,331 +376,352 @@
       </div>
     </div>
 
+    <!-- ===== SLIDING LEFT SIDEBAR ===== -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+    <aside id="left-sliding-sidebar" class="left-sliding-sidebar glass-panel">
+      <div class="sidebar-header">
+        <h3 class="sidebar-title">⚙️ Control Center</h3>
+        <button id="btn-close-sidebar" class="btn-close-sidebar" title="Close Panel">✕</button>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- Section 0: Teams Setup (Moved) -->
+        <div class="sidebar-section">
+          <details class="control-panel-details premium-accordion-card">
+            <summary>
+              <span>👥 Teams Setup</span>
+              <span class="details-icon">▼</span>
+            </summary>
+            <div class="premium-controls-wrapper">
+              <div class="team-setup-grid">
+                <!-- Team 1 Card -->
+                <div class="team-setup-card" id="team1-setup-card">
+                  <div class="team-setup-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="team-setup-badge team1-badge">TEAM 1</span>
+                    <label class="custom-switch-label team1-switch" style="margin: 0; width: auto; gap: 6px;">
+                      <input type="checkbox" id="admin-team1-default" class="custom-switch-checkbox" checked>
+                      <span class="custom-switch-track"></span>
+                      <span class="custom-switch-text" style="font-size: 0.7rem; font-weight: 700;">Default</span>
+                    </label>
+                  </div>
+                  
+                  <div class="form-group" style="margin-bottom: 8px;">
+                    <label for="admin-team1-name">Name</label>
+                    <input type="text" id="admin-team1-name" value="Lion" class="team-setup-input" autocomplete="off" disabled>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 8px;">
+                    <label for="admin-team1-logo">Custom Logo</label>
+                    <input type="file" id="admin-team1-logo" accept="image/*" class="team-setup-file" style="font-size: 0.75rem; margin-bottom: 8px;" disabled>
+                  </div>
+
+                  <div class="team-score-adjust-container" style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+                    <label for="admin-team1-score" style="color: var(--color-gold); font-weight: bold;">Score Adjustment</label>
+                    <input type="number" id="admin-team1-score" class="team-setup-input" placeholder="No active game" disabled>
+                  </div>
+                </div>
+
+                <!-- Team 2 Card -->
+                <div class="team-setup-card" id="team2-setup-card">
+                  <div class="team-setup-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="team-setup-badge team2-badge">TEAM 2</span>
+                    <label class="custom-switch-label team2-switch" style="margin: 0; width: auto; gap: 6px;">
+                      <input type="checkbox" id="admin-team2-default" class="custom-switch-checkbox" checked>
+                      <span class="custom-switch-track"></span>
+                      <span class="custom-switch-text" style="font-size: 0.7rem; font-weight: 700;">Default</span>
+                    </label>
+                  </div>
+                  
+                  <div class="form-group" style="margin-bottom: 8px;">
+                    <label for="admin-team2-name">Name</label>
+                    <input type="text" id="admin-team2-name" value="Lioness" class="team-setup-input" autocomplete="off" disabled>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 8px;">
+                    <label for="admin-team2-logo">Custom Logo</label>
+                    <input type="file" id="admin-team2-logo" accept="image/*" class="team-setup-file" style="font-size: 0.75rem; margin-bottom: 8px;" disabled>
+                  </div>
+
+                  <div class="team-score-adjust-container" style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+                    <label for="admin-team2-score" style="color: var(--color-gold); font-weight: bold;">Score Adjustment</label>
+                    <input type="number" id="admin-team2-score" class="team-setup-input" placeholder="No active game" disabled>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+        <hr class="sidebar-divider">
+
+        <!-- Section 1: Grid Typography -->
+        <div class="sidebar-section">
+          <details class="control-panel-details premium-accordion-card">
+            <summary>
+              <span>🎨 Grid Typography</span>
+              <span class="details-icon">▼</span>
+            </summary>
+            <div class="premium-controls-wrapper">
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label for="settings-grid-font">Grid Font Style</label>
+                <select id="settings-grid-font" class="modern-select">
+                  <optgroup label="— Latin / Default —">
+                    <option value="none">None (System Default)</option>
+                    <option value="Fredoka One">Fredoka One (Default)</option>
+                    <option value="Inter">Inter (Modern Sans)</option>
+                    <option value="Outfit">Outfit (Geometric Sans)</option>
+                    <option value="Montserrat">Montserrat (Stylish Bold)</option>
+                    <option value="Cinzel">Cinzel (Classic / Serif)</option>
+                    <option value="Georgia">Georgia (Traditional Serif)</option>
+                    <option value="Arial">Arial (Standard Sans)</option>
+                    <option value="Comic Sans MS">Comic Sans (Playful)</option>
+                  </optgroup>
+                  <optgroup label="— Unicode / Multi-language —">
+                    <option value="Noto Sans">Noto Sans (Universal Unicode)</option>
+                    <option value="Noto Sans Malayalam">Noto Sans Malayalam (മലയാളം)</option>
+                    <option value="Noto Sans Devanagari">Noto Sans Devanagari (हिंदी)</option>
+                    <option value="Baloo 2">Baloo 2 (Hindi + Latin)</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <span class="typography-label">Point Label Formatting</span>
+              <div class="typography-format-row">
+                <div class="color-picker-wrapper" title="Choose Font Color">
+                  <input type="color" id="settings-grid-font-color" value="#000000" disabled>
+                </div>
+                <label class="custom-switch-label" style="margin: 0;">
+                  <input type="checkbox" id="settings-grid-font-color-default" class="custom-switch-checkbox" checked>
+                  <span class="custom-switch-track"></span>
+                  <span class="custom-switch-text">Default Black</span>
+                </label>
+              </div>
+
+              <span class="typography-label">Qn Label Formatting</span>
+              <div class="typography-format-row">
+                <div class="color-picker-wrapper" title="Choose Qn Label Color">
+                  <input type="color" id="settings-grid-qn-color" value="#1e3a8a" disabled>
+                </div>
+                <label class="custom-switch-label" style="margin: 0;">
+                  <input type="checkbox" id="settings-grid-qn-color-default" class="custom-switch-checkbox" checked>
+                  <span class="custom-switch-track"></span>
+                  <span class="custom-switch-text">Default Navy Blue</span>
+                </label>
+              </div>
+
+              <span class="typography-label">Tile Background Color</span>
+              <div class="typography-format-row">
+                <div class="color-picker-wrapper" title="Choose Tile Background Color">
+                  <input type="color" id="settings-grid-tile-color" value="#ffffff" disabled>
+                </div>
+                <label class="custom-switch-label" style="margin: 0;">
+                  <input type="checkbox" id="settings-grid-tile-color-default" class="custom-switch-checkbox" checked>
+                  <span class="custom-switch-track"></span>
+                  <span class="custom-switch-text">Default White</span>
+                </label>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <hr class="sidebar-divider">
+
+        <!-- Section 2: Advanced Utilities -->
+        <div class="sidebar-section">
+          <details class="control-panel-details premium-accordion-card">
+            <summary>
+              <span>🔧 Advanced Utilities</span>
+              <span class="details-icon">▼</span>
+            </summary>
+            <div class="premium-controls-wrapper" style="display: flex; flex-direction: column; gap: 10px;">
+              <!-- Row 1: Game Rules -->
+              <details class="control-panel-details premium-accordion-card" style="margin-bottom: 0 !important;">
+                <summary style="padding: 10px 14px !important; font-size: 0.88rem !important; border-bottom: none !important;">
+                  <span>⚖️ Game Rules</span>
+                  <span class="details-icon">▼</span>
+                </summary>
+                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.2) !important; padding: 10px 12px !important;">
+                  <label class="custom-switch-label">
+                    <input type="checkbox" id="settings-enable-tiebreaker" class="custom-switch-checkbox">
+                    <span class="custom-switch-track"></span>
+                    <span class="custom-switch-text">Enable Tie Breaker</span>
+                  </label>
+                  <label class="custom-switch-label">
+                    <input type="checkbox" id="settings-tiebreaker-visible" class="custom-switch-checkbox" checked>
+                    <span class="custom-switch-track"></span>
+                    <span class="custom-switch-text">Tie Breaker Visible</span>
+                  </label>
+                  <div class="form-group" style="margin-top: 10px;">
+                    <label for="settings-display-mode">Grid Display Mode</label>
+                    <select id="settings-display-mode" class="modern-select">
+                      <option value="QUESTION_POINTS" selected>Question + Points</option>
+                      <option value="QUESTION_ONLY">Question Only</option>
+                      <option value="POINTS_ONLY">Points Only</option>
+                    </select>
+                  </div>
+                </div>
+              </details>
+
+              <!-- Row 2: Layout -->
+              <details class="control-panel-details premium-accordion-card" style="margin-bottom: 0 !important;">
+                <summary style="padding: 10px 14px !important; font-size: 0.88rem !important; border-bottom: none !important;">
+                  <span>📏 Layout</span>
+                  <span class="details-icon">▼</span>
+                </summary>
+                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.2) !important; padding: 10px 12px !important;">
+                  <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                      <label for="settings-total-questions">Questions</label>
+                      <input type="number" id="settings-total-questions" class="modern-input" value="12" min="1" max="100">
+                    </div>
+                    <div style="flex: 1;">
+                      <label for="settings-columns">Columns</label>
+                      <input type="number" id="settings-columns" class="modern-input" value="4" min="1" max="10">
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <!-- Category Names Drawer -->
+              <details class="control-panel-details premium-accordion-card" style="margin-bottom: 0 !important;">
+                <summary style="padding: 10px 14px !important; font-size: 0.88rem !important; border-bottom: none !important;">
+                  <span>🏷️ Category Names</span>
+                  <span class="details-icon">▼</span>
+                </summary>
+                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.2) !important; padding: 10px 12px !important;">
+                  <div id="settings-categories-inputs" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                </div>
+              </details>
+
+              <!-- Row 3: Feedback Systems -->
+              <details class="control-panel-details premium-accordion-card" style="margin-bottom: 0 !important;">
+                <summary style="padding: 10px 14px !important; font-size: 0.88rem !important; border-bottom: none !important;">
+                  <span>✨ Feedback Systems</span>
+                  <span class="details-icon">▼</span>
+                </summary>
+                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.2) !important; padding: 10px 12px !important;">
+                  <label class="custom-switch-label">
+                    <input type="checkbox" id="settings-play-emoji-feedback" class="custom-switch-checkbox" checked>
+                    <span class="custom-switch-track"></span>
+                    <span class="custom-switch-text">Use Emoji Feedback</span>
+                  </label>
+
+                  <div id="emoji-feedback-options" style="margin-left: 10px; margin-top: 8px; flex-direction: column; gap: 8px; display: flex; border-left: 2px solid rgba(244, 196, 48, 0.2); padding-left: 8px;">
+                    <label class="custom-switch-label">
+                      <input type="checkbox" id="settings-enable-custom-emoji" class="custom-switch-checkbox" checked>
+                      <span class="custom-switch-track" style="width: 32px; height: 18px; border-radius: 9px;"></span>
+                      <span class="custom-switch-text" style="font-size: 0.7rem;">Custom Emoji per Qn</span>
+                    </label>
+                    <div class="form-group">
+                      <label for="settings-emoji-mode" style="font-size: 0.7rem;">Global Emoji Mode</label>
+                      <select id="settings-emoji-mode" class="modern-select" style="padding: 6px 10px;">
+                        <option value="random">Random</option>
+                        <option value="sequential">Sequential</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="settings-positive-emojis" style="font-size: 0.7rem;">✅ Correct Emojis</label>
+                      <input type="text" id="settings-positive-emojis" class="modern-input" value="👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏" style="padding: 6px 10px;">
+                    </div>
+                    <div class="form-group">
+                      <label for="settings-negative-emojis" style="font-size: 0.7rem;">❌ Wrong Emojis</label>
+                      <input type="text" id="settings-negative-emojis" class="modern-input" value="😢,😭,🤦,📉,💔,🙈,😬" style="padding: 6px 10px;">
+                    </div>
+                  </div>
+
+                  <label class="custom-switch-label" style="margin-top: 10px;">
+                    <input type="checkbox" id="settings-play-video-feedback" class="custom-switch-checkbox">
+                    <span class="custom-switch-track"></span>
+                    <span class="custom-switch-text">Use Video Feedback</span>
+                  </label>
+
+                  <div id="video-feedback-options" style="display: none; margin-left: 10px; margin-top: 8px; flex-direction: column; gap: 8px; border-left: 2px solid rgba(244, 196, 48, 0.2); padding-left: 8px;">
+                    <label class="custom-switch-label">
+                      <input type="checkbox" id="settings-use-custom-feedback" class="custom-switch-checkbox">
+                      <span class="custom-switch-track" style="width: 32px; height: 18px; border-radius: 9px;"></span>
+                      <span class="custom-switch-text" style="font-size: 0.7rem;">Use Custom Videos</span>
+                    </label>
+
+                    <div id="custom-video-uploads" style="display: none; flex-direction: column; gap: 8px; padding-left: 4px;">
+                      <div>
+                        <label style="font-size: 0.7rem; color: var(--color-text-muted); margin-bottom: 2px;">✅ Correct Answer Video</label>
+                        <input type="file" id="upload-feedback-correct" accept="video/mp4,video/webm,video/ogg" style="display: none;">
+                        <div style="display: flex; gap: 6px; margin-top: 2px;">
+                          <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="document.getElementById('upload-feedback-correct').click()">Choose File</button>
+                          <button type="button" id="btn-clear-feedback-correct" class="btn btn-danger" style="display: none; padding: 4px 8px; font-size: 0.7rem;">Clear</button>
+                        </div>
+                        <div id="status-feedback-correct" style="font-size: 0.65rem; color: var(--color-text-muted); margin-top: 2px;">No video selected</div>
+                      </div>
+
+                      <div>
+                        <label style="font-size: 0.7rem; color: var(--color-text-muted); margin-bottom: 2px;">❌ Wrong Answer Video</label>
+                        <input type="file" id="upload-feedback-wrong" accept="video/mp4,video/webm,video/ogg" style="display: none;">
+                        <div style="display: flex; gap: 6px; margin-top: 2px;">
+                          <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="document.getElementById('upload-feedback-wrong').click()">Choose File</button>
+                          <button type="button" id="btn-clear-feedback-wrong" class="btn btn-danger" style="display: none; padding: 4px 8px; font-size: 0.7rem;">Clear</button>
+                        </div>
+                        <div id="status-feedback-wrong" style="font-size: 0.65rem; color: var(--color-text-muted); margin-top: 2px;">No video selected</div>
+                      </div>
+
+                      <div>
+                        <label style="font-size: 0.7rem; color: var(--color-text-muted); margin-bottom: 2px;">🏆 Winner Video</label>
+                        <input type="file" id="upload-feedback-winner" accept="video/mp4,video/webm,video/ogg" style="display: none;">
+                        <div style="display: flex; gap: 6px; margin-top: 2px;">
+                          <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="document.getElementById('upload-feedback-winner').click()">Choose File</button>
+                          <button type="button" id="btn-clear-feedback-winner" class="btn btn-danger" style="display: none; padding: 4px 8px; font-size: 0.7rem;">Clear</button>
+                        </div>
+                        <div id="status-feedback-winner" style="font-size: 0.65rem; color: var(--color-text-muted); margin-top: 2px;">No video selected</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </details>
+        </div>
+
+        <!-- Spacer to push Quiz Files & Danger Operations to the bottom -->
+        <div class="sidebar-spacer" style="flex: 1; min-height: 15px;"></div>
+
+        <hr class="sidebar-divider">
+
+        <!-- Section 3: Quiz Files -->
+        <div class="sidebar-section">
+          <h4 class="sidebar-section-title" style="font-size: 0.82rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">📂 Quiz Files</h4>
+          <div class="premium-controls-wrapper" style="background: transparent !important; padding: 0 !important;">
+            <div class="sidebar-btn-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <button id="btn-load-default" class="btn btn-secondary">📖 Defaults</button>
+              <button id="btn-export-json" class="btn btn-secondary">💾 Save DB</button>
+              <button id="btn-import-wrapper" class="btn btn-secondary" onclick="document.getElementById('import-json-file').click();">📥 Import</button>
+              <input type="file" id="import-json-file" accept=".json" style="display: none;">
+              <button id="btn-save-settings" class="btn btn-primary">💾 Save All</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Danger Operations -->
+        <div class="sidebar-section" style="margin-top: 10px;">
+          <h4 class="sidebar-section-title" style="font-size: 0.82rem; font-weight: 700; color: var(--color-error); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">⚠️ Danger Operations</h4>
+          <div class="premium-controls-wrapper danger-card">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button id="btn-reset-game" class="btn btn-secondary" style="border-color: rgba(255, 61, 61, 0.25) !important;">🔄 Reset Game</button>
+              <button id="btn-clear-db" class="btn btn-danger">🗑️ Clear DB</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
   </div>
 
+  <!-- ===== FOOTER ===== -->
   <footer class="app-footer-text">
-    &copy; 2026 Review Game Group C
+    &copy; 2026 Review Game
   </footer>
 
   <!-- Global Countdown Overlay -->
   <div id="countdown-overlay" class="countdown-overlay hidden">
     <div class="countdown-number">3</div>
   </div>
-
-  <!-- ===== SLIDING LEFT SIDEBAR ===== -->
-  <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
-  <aside id="left-sliding-sidebar" class="left-sliding-sidebar glass-panel">
-    <div class="sidebar-header">
-      <h3 class="sidebar-title">⚙️ Control Center</h3>
-      <button id="btn-close-sidebar" class="btn-close-sidebar" title="Close Panel">✕</button>
-    </div>
-
-    <div class="sidebar-content">
-      <!-- Section 0: Teams Setup (Moved) -->
-      <div class="sidebar-section">
-        <details class="control-panel-details">
-          <summary class="sidebar-section-title"
-            style="cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-            👥 Teams Setup
-            <span class="details-icon">▼</span>
-          </summary>
-          <div class="premium-controls-wrapper" style="margin-top: 10px;">
-            <div class="team-setup-grid" style="display: flex; flex-direction: column; gap: 14px;">
-              <!-- Team 1 Card -->
-              <div class="team-setup-card" id="team1-setup-card"
-                style="padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--cell-border);">
-                <div class="team-setup-header"
-                  style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <span class="team-setup-badge team1-badge">TEAM 1</span>
-                  <div class="form-group-checkbox" style="margin: 0; display: flex; align-items: center; gap: 4px;">
-                    <input type="checkbox" id="admin-team1-default"
-                      style="margin: 0; width: 14px; height: 14px; cursor: pointer;" checked>
-                    <label for="admin-team1-default"
-                      style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); cursor: pointer; margin: 0; user-select: none;">Default</label>
-                  </div>
-                </div>
-                <label for="admin-team1-name" class="team-setup-label"
-                  style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Name</label>
-                <input type="text" id="admin-team1-name" value="Lion" class="team-setup-input" autocomplete="off"
-                  style="padding: 8px 12px; font-size: 0.85rem; margin-bottom: 8px;" disabled>
-
-                <label for="admin-team1-logo" class="team-setup-label"
-                  style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Custom
-                  Logo</label>
-                <input type="file" id="admin-team1-logo" accept="image/*" class="team-setup-file"
-                  style="font-size: 0.75rem;" disabled>
-              </div>
-
-              <!-- Team 2 Card -->
-              <div class="team-setup-card" id="team2-setup-card"
-                style="padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--cell-border);">
-                <div class="team-setup-header"
-                  style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <span class="team-setup-badge team2-badge">TEAM 2</span>
-                  <div class="form-group-checkbox" style="margin: 0; display: flex; align-items: center; gap: 4px;">
-                    <input type="checkbox" id="admin-team2-default"
-                      style="margin: 0; width: 14px; height: 14px; cursor: pointer;" checked>
-                    <label for="admin-team2-default"
-                      style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); cursor: pointer; margin: 0; user-select: none;">Default</label>
-                  </div>
-                </div>
-                <label for="admin-team2-name" class="team-setup-label"
-                  style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Name</label>
-                <input type="text" id="admin-team2-name" value="Lioness" class="team-setup-input" autocomplete="off"
-                  style="padding: 8px 12px; font-size: 0.85rem; margin-bottom: 8px;" disabled>
-
-                <label for="admin-team2-logo" class="team-setup-label"
-                  style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px; display: block;">Custom
-                  Logo</label>
-                <input type="file" id="admin-team2-logo" accept="image/*" class="team-setup-file"
-                  style="font-size: 0.75rem;" disabled>
-              </div>
-            </div>
-          </div>
-        </details>
-      </div>
-      <hr class="sidebar-divider">
-
-
-
-      <!-- Section 1: Grid Typography -->
-      <div class="sidebar-section">
-        <details class="control-panel-details">
-          <summary class="sidebar-section-title"
-            style="cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-            🎨 Grid Typography
-            <span class="details-icon">▼</span>
-          </summary>
-          <div class="premium-controls-wrapper" style="margin-top: 10px;">
-            <div class="form-group" style="margin-bottom: 12px;">
-              <label for="settings-grid-font">Grid Font Style</label>
-              <select id="settings-grid-font" class="modern-select">
-                <option value="none">None (System Default)</option>
-                <option value="none">Fredoka One (Default)</option>
-                <option value="Inter">Inter (Modern Sans)</option>
-                <option value="Outfit">Outfit (Geometric Sans)</option>
-                <option value="Montserrat">Montserrat (Stylish Bold)</option>
-                <option value="Cinzel">Cinzel (Classic / Serif)</option>
-                <option value="Georgia">Georgia (Traditional Serif)</option>
-                <option value="Arial">Arial (Standard Sans)</option>
-                <option value="Comic Sans MS">Comic Sans (Playful)</option>
-              </select>
-            </div>
-
-            <label>Point Label Formatting</label>
-            <div class="typography-format-row">
-              <div class="color-picker-wrapper" title="Choose Font Color">
-                <input type="color" id="settings-grid-font-color" value="#000000" disabled>
-              </div>
-              <div class="form-group-checkbox default-color-toggle">
-                <input type="checkbox" id="settings-grid-font-color-default" checked>
-                <label for="settings-grid-font-color-default">Default Black</label>
-              </div>
-            </div>
-
-            <label style="margin-top: 12px; display: block;">Qn Label Formatting</label>
-            <div class="typography-format-row">
-              <div class="color-picker-wrapper" title="Choose Qn Label Color">
-                <input type="color" id="settings-grid-qn-color" value="#1e3a8a" disabled>
-              </div>
-              <div class="form-group-checkbox default-color-toggle">
-                <input type="checkbox" id="settings-grid-qn-color-default" checked>
-                <label for="settings-grid-qn-color-default">Default Navy Blue</label>
-              </div>
-            </div>
-
-            <label style="margin-top: 12px; display: block;">Tile Background Color</label>
-            <div class="typography-format-row">
-              <div class="color-picker-wrapper" title="Choose Tile Background Color">
-                <input type="color" id="settings-grid-tile-color" value="#ffffff" disabled>
-              </div>
-              <div class="form-group-checkbox default-color-toggle">
-                <input type="checkbox" id="settings-grid-tile-color-default" checked>
-                <label for="settings-grid-tile-color-default">Default White</label>
-              </div>
-            </div>
-          </div>
-        </details>
-      </div>
-
-      <hr class="sidebar-divider">
-
-      <!-- Section 2: Advanced Utilities -->
-      <div class="sidebar-section">
-        <details class="control-panel-details">
-          <summary class="sidebar-section-title" style="cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-            🔧 Advanced Utilities
-            <span class="details-icon">▼</span>
-          </summary>
-          <div class="collapsible-content" style="margin-top: 10px; display: flex; flex-direction: column; gap: 14px;">
-            <!-- Row 1: Game Rules -->
-            <details class="control-panel-details">
-              <summary class="premium-controls-wrapper" style="cursor: pointer; list-style: none; padding-bottom: 12px;">
-                <div class="sidebar-row-header" style="display: flex; justify-content: space-between; align-items: center;">
-                  ⚖️ Game Rules
-                  <span class="details-icon">▼</span>
-                </div>
-              </summary>
-              <div class="premium-controls-wrapper" style="margin-top: -12px; padding-top: 0; border-top: none;">
-                <div class="form-group-checkbox" style="margin-top: 8px;">
-                  <input type="checkbox" id="settings-enable-tiebreaker">
-                  <label for="settings-enable-tiebreaker">Enable Tie Breaker (if tied at end)</label>
-                </div>
-                <div class="form-group-checkbox" style="margin-top: 4px; margin-left: 24px;">
-                  <input type="checkbox" id="settings-tiebreaker-visible" checked>
-                  <label for="settings-tiebreaker-visible">Make Tie Breaker always visible</label>
-                </div>
-                <div class="form-group" style="margin-top: 12px;">
-                  <label for="settings-display-mode">Grid Display Mode</label>
-                  <select id="settings-display-mode" class="modern-select">
-                    <option value="QUESTION_POINTS" selected>Question + Points</option>
-                    <option value="QUESTION_ONLY">Question Only</option>
-                    <option value="POINTS_ONLY">Points Only</option>
-                  </select>
-                </div>
-              </div>
-            </details>
-
-            <!-- Row 2: Layout & Timer -->
-            <details class="control-panel-details">
-              <summary class="premium-controls-wrapper" style="cursor: pointer; list-style: none; padding-bottom: 12px;">
-                <div class="sidebar-row-header" style="display: flex; justify-content: space-between; align-items: center;">
-                  📏 Layout & Timer
-                  <span class="details-icon">▼</span>
-                </div>
-              </summary>
-              <div class="premium-controls-wrapper" style="margin-top: -12px; padding-top: 0; border-top: none;">
-                <div class="form-group" style="margin-top: 12px; display: flex; gap: 12px;">
-                  <div style="flex: 1;">
-                    <label for="settings-total-questions">Questions</label>
-                    <input type="number" id="settings-total-questions" class="modern-input" value="12" min="1" max="100">
-                  </div>
-                  <div style="flex: 1;">
-                    <label for="settings-columns">Columns</label>
-                    <input type="number" id="settings-columns" class="modern-input" value="4" min="1" max="10">
-                  </div>
-                </div>
-              </div>
-            </details>
-
-            <!-- Row 3: Feedback Systems -->
-            <details class="control-panel-details">
-              <summary class="premium-controls-wrapper" style="cursor: pointer; list-style: none; padding-bottom: 12px;">
-                <div class="sidebar-row-header" style="display: flex; justify-content: space-between; align-items: center;">
-                  ✨ Feedback Systems
-                  <span class="details-icon">▼</span>
-                </div>
-              </summary>
-              <div class="premium-controls-wrapper" style="margin-top: -12px; padding-top: 0; border-top: none;">
-                <div class="form-group-checkbox" style="margin-top: 10px;">
-                  <input type="checkbox" id="settings-play-emoji-feedback" checked>
-                  <label for="settings-play-emoji-feedback" style="font-weight: 800;">Use Emoji Feedback</label>
-                </div>
-
-                <div id="emoji-feedback-options" style="margin-left: 20px; margin-top: 8px; flex-direction: column; gap: 10px; display: flex;">
-                  <div class="form-group-checkbox" style="margin-bottom: 8px;">
-                    <input type="checkbox" id="settings-enable-custom-emoji" checked>
-                    <label for="settings-enable-custom-emoji" style="font-size: 0.75rem;">Enable Custom Emoji per Question</label>
-                  </div>
-                  <div class="form-group">
-                    <label for="settings-emoji-mode" style="font-size: 0.75rem;">Global Emoji Mode</label>
-                    <select id="settings-emoji-mode" class="modern-select">
-                      <option value="random">Random</option>
-                      <option value="sequential">Sequential</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label for="settings-positive-emojis" style="font-size: 0.75rem;">✅ Correct Emojis (comma-separated)</label>
-                    <input type="text" id="settings-positive-emojis" class="modern-input" value="👏,🎉,🌟,🙌,🏆,🤩,👍,👌,😊,👏">
-                  </div>
-                  <div class="form-group">
-                    <label for="settings-negative-emojis" style="font-size: 0.75rem;">❌ Wrong Emojis (comma-separated)</label>
-                    <input type="text" id="settings-negative-emojis" class="modern-input" value="😢,😭,🤦,📉,💔,🙈,😬">
-                  </div>
-                </div>
-
-                <div class="form-group-checkbox" style="margin-top: 12px;">
-                  <input type="checkbox" id="settings-play-video-feedback">
-                  <label for="settings-play-video-feedback" style="font-weight: 800;">Use Video Feedback</label>
-                </div>
-
-                <div id="video-feedback-options" style="display: none; margin-left: 20px; margin-top: 8px; flex-direction: column; gap: 10px;">
-                  <div class="form-group-checkbox" style="margin: 0;">
-                    <input type="checkbox" id="settings-use-custom-feedback">
-                    <label for="settings-use-custom-feedback" style="font-size: 0.75rem;">Use Custom Videos (Uncheck for defaults)</label>
-                  </div>
-
-                  <div id="custom-video-uploads" style="display: none; flex-direction: column; gap: 8px; padding-left: 8px; border-left: 2px solid var(--panel-border-active);">
-                    <div>
-                      <label style="font-size: 0.75rem; color: var(--color-text-muted);">✅ Correct Answer Video</label>
-                      <input type="file" id="upload-feedback-correct" accept="video/mp4,video/webm,video/ogg" style="display: none;">
-                      <div style="display: flex; gap: 6px; margin-top: 4px;">
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="document.getElementById('upload-feedback-correct').click()">Choose File</button>
-                        <button type="button" id="btn-clear-feedback-correct" class="btn btn-danger" style="display: none; padding: 4px 8px; font-size: 0.7rem;">Clear</button>
-                      </div>
-                      <div id="status-feedback-correct" style="font-size: 0.65rem; color: var(--color-text-muted); margin-top: 2px;">No video selected</div>
-                    </div>
-
-                    <div>
-                      <label style="font-size: 0.75rem; color: var(--color-text-muted);">❌ Wrong Answer Video</label>
-                      <input type="file" id="upload-feedback-wrong" accept="video/mp4,video/webm,video/ogg" style="display: none;">
-                      <div style="display: flex; gap: 6px; margin-top: 4px;">
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="document.getElementById('upload-feedback-wrong').click()">Choose File</button>
-                        <button type="button" id="btn-clear-feedback-wrong" class="btn btn-danger" style="display: none; padding: 4px 8px; font-size: 0.7rem;">Clear</button>
-                      </div>
-                      <div id="status-feedback-wrong" style="font-size: 0.65rem; color: var(--color-text-muted); margin-top: 2px;">No video selected</div>
-                    </div>
-
-                    <div>
-                      <label style="font-size: 0.75rem; color: var(--color-text-muted);">🏆 Winner Video</label>
-                      <input type="file" id="upload-feedback-winner" accept="video/mp4,video/webm,video/ogg" style="display: none;">
-                      <div style="display: flex; gap: 6px; margin-top: 4px;">
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.7rem;" onclick="document.getElementById('upload-feedback-winner').click()">Choose File</button>
-                        <button type="button" id="btn-clear-feedback-winner" class="btn btn-danger" style="display: none; padding: 4px 8px; font-size: 0.7rem;">Clear</button>
-                      </div>
-                      <div id="status-feedback-winner" style="font-size: 0.65rem; color: var(--color-text-muted); margin-top: 2px;">No video selected</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </details>
-          </div>
-        </details>
-      </div>
-
-      <!-- Spacer to push Quiz Files & Danger Operations to the bottom -->
-      <div class="sidebar-spacer" style="flex: 1; min-height: 15px;"></div>
-
-      <hr class="sidebar-divider">
-
-      <!-- Section 3: Quiz Files -->
-      <div class="sidebar-section">
-        <h4 class="sidebar-section-title">📂 Quiz Files</h4>
-        <div class="premium-controls-wrapper">
-          <div class="sidebar-btn-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <button id="btn-load-default" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">📖 Defaults</button>
-            <button id="btn-export-json" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">💾 Save DB</button>
-            <button id="btn-import-wrapper" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;" onclick="document.getElementById('import-json-file').click();">📥 Import</button>
-            <input type="file" id="import-json-file" accept=".json" style="display: none;">
-            <button id="btn-save-settings" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700; border-radius: 8px;">💾 Save All Changes</button>
-          </div>
-        </div>
-      </div>
-
-      <hr class="sidebar-divider">
-
-      <!-- Section 4: Danger Operations -->
-      <div class="sidebar-section">
-        <h4 class="sidebar-section-title" style="color: var(--color-error);">⚠️ Danger Operations</h4>
-        <div class="premium-controls-wrapper danger-card">
-          <div style="display: flex; flex-direction: column; gap: 8px;">
-            <button id="btn-reset-game" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700; border-color: rgba(255, 61, 61, 0.3);">🔄 Reset Active Game</button>
-            <button id="btn-clear-db" class="btn btn-danger" style="padding: 8px 12px; font-size: 0.8rem; font-weight:700;">🗑️ Clear All Questions</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside>
 
   <script type="module" src="app.js"></script>
 </body>
