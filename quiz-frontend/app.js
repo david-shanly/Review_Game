@@ -1,5 +1,5 @@
 /* ==========================================================================
-   REVIEW GAME GROUP C - 2026 — COMPLETE GAME LOGIC
+   REVIEW GAME - 2026 — COMPLETE GAME LOGIC
    Refined & production-ready
    ========================================================================== */
 

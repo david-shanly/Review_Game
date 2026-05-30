@@ -1,10 +1,11 @@
-# Review Game Group C - Project Outline
+# Review Game - Project Outline
 
 ## Overview
-An interactive, standalone Bible quiz game application designed for church kids. The app features a competitive game board, a scoring system with customizable team names and logos, dynamic animations (confetti, score dropping), programmatic sound effects, and an admin panel for question management.
+An interactive, standalone Bible quiz game application designed for church kids. The app features a competitive game board, a scoring system with customizable team names and logos, dynamic animations (confetti, score dropping), programmatic sound effects, and an admin panel for question management. It integrates a 100% offline Twemoji parser to ensure that all emojis display identically across all platforms and devices, regardless of native font support or internet connection.
 
 ## Tech Stack
 - **Frontend Core**: HTML5, CSS3 (Custom CSS variables, glassmorphism UI), Vanilla JavaScript (ES6 Modules).
+- **Offline Emojis**: Twemoji API (locally hosted library + vector SVG assets).
 - **Audio & Animation**: Web Audio API (programmatic sound generation), HTML5 Canvas API (custom confetti particle engine).
 - **Build Tool**: Vite (bundling and local development server).
 - **Packaging (Optional)**: Electron & Electron-Builder (Windows desktop executable), Capacitor (Android app wrapping).
@@ -15,6 +16,9 @@ An interactive, standalone Bible quiz game application designed for church kids.
 Daniel Quiz/
 ├── quiz-frontend/
 │   ├── public/              # Static assets directly served by Vite
+│   │   ├── emojis/          # 36 Offline Twemoji SVG vector assets
+│   │   ├── sounds/          # Auxiliary programmatic audio assets
+│   │   ├── twemoji.min.js   # Local Twemoji parsing library
 │   │   ├── icon.png         # Main app logo
 │   │   ├── lion.png         # Default team 1 logo
 │   │   └── lioness.png      # Default team 2 logo
@@ -60,12 +64,12 @@ Daniel Quiz/
 - **Base Points**: Each question has a configurable point value (e.g., 100 points).
 - **First Attempt Correct**: The active team receives 100% of the question's point value.
 - **First Attempt Incorrect**: 
-  - If "Negative Scoring" is enabled in the Admin Panel, the active team loses 50% of the point value.
-  - The question immediately "Passes" to the opposing team.
+   - If "Negative Scoring" is enabled in the Admin Panel, the active team loses 50% of the point value.
+   - The question immediately "Passes" to the opposing team.
 - **Second Attempt Correct (Steal)**: The opposing team receives 50% of the question's point value.
 - **Second Attempt Incorrect (Failed Steal)**:
-  - If "Negative Scoring" is enabled, the opposing team also loses 50% of the point value.
-  - The question ends, the correct answer is revealed, and no points are awarded.
+   - If "Negative Scoring" is enabled, the opposing team also loses 50% of the point value.
+   - The question ends, the correct answer is revealed, and no points are awarded.
 - **Manual Pass / Cancel**: Bypasses the question with no penalty to either team.
 
 ### 5. Dynamic Theme Engine
@@ -76,6 +80,14 @@ Daniel Quiz/
 - Custom oscillators built with Web Audio API.
 - Generates sounds mathematically rather than relying on external mp3 files.
 - Sounds: `correct`, `wrong`, `cancel`, `pass`, `click`, `open`.
+
+### 7. Offline Twemoji Engine
+- Relies on a local script copy (`public/twemoji.min.js`) and pre-downloaded vector files (`public/emojis/*.svg`) to ensure rendering works 100% offline.
+- Triggered dynamically whenever the DOM changes or receives textual update streams.
+
+### 8. Unicode Support
+- Incorporates automatic detection of non-Latin languages.
+- Automatically overrides font styles using `Noto Sans`, `Noto Sans Malayalam`, and `Noto Sans Devanagari` fallback sequences to ensure correct script display.
 
 ## UI & Design Details
 The interface is built entirely using **Vanilla HTML and CSS3** without frontend frameworks. It employs a modern **Glassmorphism** aesthetic (`backdrop-filter: blur()`, semi-transparent panels, floating cards, soft drop shadows). 
@@ -124,9 +136,3 @@ When a grid cell is clicked on the Game Board:
 - Built entirely on a single HTML `<canvas id="confetti-canvas">`.
 - Implements a custom `ConfettiParticle` class with velocity (`vx`, `vy`), gravity (`0.14`), rotation (`rotSpeed`), and opacity fading for bursts. 
 - Uses `requestAnimationFrame` for a highly performant rendering loop that continuously clears and redraws particle rectangles.
-
-## Areas for Optimization (For AI/ChatGPT Refactoring)
-- **Code Organization**: `app.js` is quite large (1100+ lines); could be refactored into smaller, focused modules (e.g., `audio.js`, `ui.js`, `state.js`, `confetti.js`).
-- **State Reactivity**: Currently relies on manual DOM updates after state changes. Could implement a lightweight proxy-based reactive state or a custom event bus to decouple logic from the UI.
-- **CSS Architecture**: Consolidate redundant styles or extract reusable utility classes.
-- **Accessibility (a11y)**: Improve keyboard navigation, screen reader support (ARIA roles), and focus management within modals.

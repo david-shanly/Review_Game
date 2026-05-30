@@ -1,11 +1,11 @@
 {
-  "name": "review-game-group-c-2026",
+  "name": "review-game-2026",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "main": "electron-main.cjs",
-  "description": "Review Game Group C - 2026 — Interactive Bible quiz game for church kids",
-  "author": "Review Game Group C",
+  "description": "Review Game - 2026 — Interactive Bible quiz game for church kids",
+  "author": "Review Game",
   "scripts": {
     "start": "vite",
     "dev": "vite",
