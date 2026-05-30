@@ -3949,17 +3949,30 @@ if (savedTheme) {
   applyTheme('light');
 }
 
-// Load saved data asynchronously — runs after full DOM is ready
 async function initApp() {
   await loadDB();
-  loadGameState();
+
+  // Clear any existing active gameplay state on load/reload to always start fresh on the dashboard
+  localStorage.removeItem('review_game_playstate');
+
+  // Explicitly reset playState variables to default values
+  playState.phase = 'live';
+  playState.gameState = 'IDLE';
+  playState.teams = [];
+  playState.currentTeamIndex = 0;
+  playState.currentQuestionValue = 0;
+  playState.teamsAttemptedCount = 0;
+  playState.answeredCells = {};
+  playState.currentCellId = null;
+  playState.currentQuestion = null;
+  playState.stats = {};
+
   renderAdminGrid();
   renderGameBoard();
   updateScoreUI();
   updateDashboardStatus();
 
   // Always start on the dashboard screen upon loading or reloading the application
-  playState.phase = 'live';
   showScreen('dashboard');
 
   parseEmojis(document.body);
