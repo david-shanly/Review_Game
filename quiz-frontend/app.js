@@ -318,7 +318,7 @@ function showScreen(id) {
   document.documentElement.style.overflow = id === 'admin' ? 'auto' : 'hidden';
 
   if (id === 'admin') {
-    const isGameActive = (playState.phase === 'live' && playState.teams && playState.teams.length > 0);
+    const isGameActive = (playState.phase === 'live' && playState.teams && playState.teams.length > 0 && localStorage.getItem('review_game_playstate') !== null);
     const btnResume = document.getElementById('btn-admin-resume');
     if (btnResume) {
       btnResume.style.display = 'inline-flex';
@@ -764,7 +764,7 @@ function updateDashboardStatus() {
 
     // Check if the game is already active
     const adminResumeBtn = document.getElementById('btn-admin-resume');
-    const isGameActive = (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended');
+    const isGameActive = (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended' && localStorage.getItem('review_game_playstate') !== null);
     if (isGameActive) {
       startBtn.innerHTML = '▶️ Resume Game';
     } else {
@@ -1672,7 +1672,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
   }
 
   const liveScoreContainer = document.getElementById('live-score-display');
-  const isGameActive = playState.teams && playState.teams.length > 0;
+  const isGameActive = playState.teams && playState.teams.length > 0 && localStorage.getItem('review_game_playstate') !== null;
 
   // In-place update of score elements inside sidebar setup cards
   const t1ScoreInput = document.getElementById('admin-team1-score');
@@ -3337,7 +3337,7 @@ document.getElementById('sidebar-backdrop')?.addEventListener('click', () => {
 // ============================================================
 document.getElementById('btn-start-game').addEventListener('click', () => {
   playSound('open');
-  if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended') {
+  if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended' && localStorage.getItem('review_game_playstate') !== null) {
     // Resume existing game
     if (db.settings.enableTimer) {
       startGameTimer();
@@ -3377,7 +3377,7 @@ const btnAdminResume = document.getElementById('btn-admin-resume');
 if (btnAdminResume) {
   btnAdminResume.addEventListener('click', () => {
     playSound('open');
-    if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended') {
+    if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended' && localStorage.getItem('review_game_playstate') !== null) {
       if (db.settings.enableTimer) {
         startGameTimer();
       }
