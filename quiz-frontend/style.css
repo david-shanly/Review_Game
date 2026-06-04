@@ -1315,7 +1315,7 @@ body {
 
 .game-cell-btn.cell-cancelled .cell-qn {
   color: var(--color-cancel);
-  font-size: clamp(3rem, calc(var(--row-height, 10vh) * 0.48), 5.5rem) !important;
+  font-size: clamp(2rem, calc(var(--row-height, 10vh) * 0.32), 3.5rem) !important;
 }
 
 /* Wrong answer cell state */
@@ -1330,7 +1330,7 @@ body {
 
 .game-cell-btn.cell-wrong .cell-qn {
   color: #334155 !important;
-  font-size: clamp(3rem, calc(var(--row-height, 10vh) * 0.48), 5.5rem) !important;
+  font-size: clamp(2rem, calc(var(--row-height, 10vh) * 0.32), 3.5rem) !important;
 }
 
 /* Answered cell */
@@ -1340,7 +1340,7 @@ body {
 }
 
 .game-cell-btn.cell-answered .cell-qn {
-  font-size: clamp(3rem, calc(var(--row-height, 10vh) * 0.48), 5.5rem) !important;
+  font-size: clamp(2rem, calc(var(--row-height, 10vh) * 0.32), 3.5rem) !important;
 }
 
 /* Ensure emoji images match the text checkmark height */
