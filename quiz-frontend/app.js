@@ -1949,9 +1949,10 @@ function adjustModalFontSizeToFit() {
   const testEl = document.getElementById('modal-question-text') || bodyNode.firstElementChild;
 
   // Decrease the scale factor until content fits within the locked container
-  // We check scrollHeight of both bodyNode and contentNode to make sure neither overflows
+  // We only check the scrollHeight of bodyNode with a 3px tolerance buffer to bypass
+  // sub-pixel rounding errors on the parent contentNode container.
   while (
-    (bodyNode.scrollHeight > bodyNode.clientHeight || contentNode.scrollHeight > contentNode.clientHeight) &&
+    bodyNode.scrollHeight > (bodyNode.clientHeight + 3) &&
     scaleFactor > 0.45 &&
     iterations < maxIterations
   ) {
