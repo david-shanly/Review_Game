@@ -1866,6 +1866,46 @@ function enableModalActionButtons() {
   }
 }
 
+let resizeHandler = null;
+
+function resetModalScaleAndStyles() {
+  const contentNode = document.querySelector('.modal-content');
+  if (contentNode) {
+    contentNode.style.height = '';
+    contentNode.style.width = '';
+    contentNode.style.transition = '';
+    contentNode.style.removeProperty('--reveal-scale');
+  }
+  if (resizeHandler) {
+    window.removeEventListener('resize', resizeHandler);
+    resizeHandler = null;
+  }
+}
+
+function adjustModalFontSizeToFit() {
+  const contentNode = document.querySelector('.modal-content');
+  const bodyNode = document.querySelector('.modal-body');
+  if (!contentNode || !bodyNode) return;
+
+  let scaleFactor = 1.0;
+  contentNode.style.setProperty('--reveal-scale', scaleFactor);
+
+  const maxIterations = 40;
+  let iterations = 0;
+
+  // Decrease the scale factor until content fits within the locked container
+  // We check scrollHeight of both bodyNode and contentNode to make sure neither overflows
+  while (
+    (bodyNode.scrollHeight > bodyNode.clientHeight || contentNode.scrollHeight > contentNode.clientHeight) &&
+    scaleFactor > 0.45 &&
+    iterations < maxIterations
+  ) {
+    scaleFactor -= 0.02;
+    contentNode.style.setProperty('--reveal-scale', scaleFactor);
+    iterations++;
+  }
+}
+
 // Helper to perform smooth transition when correct answer is revealed
 function revealCorrectAnswerPanel(revealCallback) {
   const contentNode = document.querySelector('.modal-content');
@@ -1874,46 +1914,29 @@ function revealCorrectAnswerPanel(revealCallback) {
     return;
   }
 
-  // 1. Measure starting dimensions of the modal before reveal
+  // 1. Reset any stale styling/listeners
+  resetModalScaleAndStyles();
+
+  // 2. Measure starting dimensions of the modal before reveal
   const beforeHeight = contentNode.getBoundingClientRect().height;
   const beforeWidth = contentNode.getBoundingClientRect().width;
 
-  // 2. Lock the height and width to the starting value
+  // 3. Lock the height and width to the starting value permanently in this state
   contentNode.style.height = beforeHeight + 'px';
   contentNode.style.width = beforeWidth + 'px';
   contentNode.style.transition = 'none';
 
-  // 3. Perform the actual reveal DOM updates
+  // 4. Perform the actual reveal DOM updates
   revealCallback();
 
-  // 4. Measure the target dimensions after reveal DOM updates
-  // Temporarily clear inline size constraints so the browser can calculate the natural target auto dimensions
-  contentNode.style.height = '';
-  contentNode.style.width = '';
+  // 5. Adjust font size inside the modal so all content fits perfectly
+  adjustModalFontSizeToFit();
 
-  const afterHeight = contentNode.getBoundingClientRect().height;
-  const afterWidth = contentNode.getBoundingClientRect().width;
-
-  // 5. Restore the starting dimensions immediately (without transition)
-  contentNode.style.height = beforeHeight + 'px';
-  contentNode.style.width = beforeWidth + 'px';
-
-  // Force reflow
-  contentNode.offsetHeight;
-
-  // 6. Apply smooth transition to target dimensions
-  contentNode.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
-  contentNode.style.height = afterHeight + 'px';
-  contentNode.style.width = afterWidth + 'px';
-
-  // 7. Clean up inline styles once the transition completes so the modal remains fully responsive
-  setTimeout(() => {
-    if (contentNode.style.height === afterHeight + 'px') {
-      contentNode.style.height = '';
-      contentNode.style.width = '';
-      contentNode.style.transition = '';
-    }
-  }, 360);
+  // 6. Listen to window resize so we can dynamically unlock / reset responsiveness if viewport changes
+  resizeHandler = () => {
+    resetModalScaleAndStyles();
+  };
+  window.addEventListener('resize', resizeHandler);
 }
 
 // ============================================================
@@ -1922,12 +1945,7 @@ function revealCorrectAnswerPanel(revealCallback) {
 function openQuestionModal(cId, q) {
   if (!transitionState('QUESTION_LOADING')) return;
 
-  const contentNode = document.querySelector('.modal-content');
-  if (contentNode) {
-    contentNode.style.height = '';
-    contentNode.style.width = '';
-    contentNode.style.transition = '';
-  }
+  resetModalScaleAndStyles();
 
   playState.currentCellId = cId;
   playState.currentQuestion = q;
@@ -2075,12 +2093,7 @@ function openQuestionModal(cId, q) {
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
-  const contentNode = document.querySelector('.modal-content');
-  if (contentNode) {
-    contentNode.style.height = '';
-    contentNode.style.width = '';
-    contentNode.style.transition = '';
-  }
+  resetModalScaleAndStyles();
   playState.currentCellId = null;
   playState.currentQuestion = null;
   playState.currentQuestionValue = 0;
