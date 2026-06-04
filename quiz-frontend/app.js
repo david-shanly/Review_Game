@@ -471,7 +471,7 @@ const defaultSettings = {
   gridFontColor: '#000000',
   gridFontBold: false,
   useDefaultFontColor: true,
-  gridCols: 4,
+  gridCols: 3,
   playEmojiFeedback: true,
   enableCustomPerQuestionEmoji: true,
   emojiMode: 'random',
