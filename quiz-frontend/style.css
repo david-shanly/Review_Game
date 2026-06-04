@@ -1537,13 +1537,14 @@ body {
 .modal-content {
   --reveal-scale: 1;
   margin: auto;
-  width: 92vw;
-  max-width: 92vw;
+  width: 96vw;
+  max-width: 96vw;
+  height: 92vh;
+  max-height: 92vh;
   padding: clamp(0.8rem, 2vh, 1.8rem);
   display: flex;
   flex-direction: column;
   gap: calc(clamp(0.5rem, 1.2vh, 1.1rem) * var(--reveal-scale, 1));
-  max-height: 90vh;
   overflow-y: auto;
   justify-content: space-between;
   background: var(--panel-bg);
