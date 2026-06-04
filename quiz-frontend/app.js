@@ -1905,164 +1905,6 @@ function enableModalActionButtons() {
   }
 }
 
-let resizeHandler = null;
-
-function resetModalScaleAndStyles() {
-  const contentNode = document.querySelector('.modal-content');
-  if (contentNode) {
-    contentNode.style.height = '';
-    contentNode.style.width = '';
-    contentNode.style.transition = '';
-    contentNode.style.removeProperty('--reveal-scale');
-  }
-
-  // Clean up inline styles of dynamically sized text elements
-  const questionText = document.getElementById('modal-question-text');
-  if (questionText) questionText.style.fontSize = '';
-
-  const answerText = document.getElementById('modal-correct-answer-text');
-  if (answerText) answerText.style.fontSize = '';
-
-  const revealTitle = document.querySelector('.reveal-panel .reveal-title');
-  if (revealTitle) revealTitle.style.fontSize = '';
-
-  document.querySelectorAll('.option-val').forEach(el => el.style.fontSize = '');
-  document.querySelectorAll('.option-letter').forEach(el => {
-    el.style.fontSize = '';
-    el.style.width = '';
-    el.style.height = '';
-  });
-
-  if (resizeHandler) {
-    window.removeEventListener('resize', resizeHandler);
-    resizeHandler = null;
-  }
-}
-
-function getAvailableSpace(textEl, containerEl) {
-  const style = window.getComputedStyle(containerEl);
-  const paddingLeft = parseFloat(style.paddingLeft) || 0;
-  const paddingRight = parseFloat(style.paddingRight) || 0;
-  const paddingTop = parseFloat(style.paddingTop) || 0;
-  const paddingBottom = parseFloat(style.paddingBottom) || 0;
-
-  let availableWidth = containerEl.clientWidth - paddingLeft - paddingRight;
-  let availableHeight = containerEl.clientHeight - paddingTop - paddingBottom;
-
-  // Subtract sibling elements' space if they are visible
-  for (const child of containerEl.children) {
-    if (child !== textEl && child.offsetParent !== null) {
-      const childStyle = window.getComputedStyle(child);
-      const childHeight = child.offsetHeight + (parseFloat(childStyle.marginTop) || 0) + (parseFloat(childStyle.marginBottom) || 0);
-      if (style.display === 'flex' && style.flexDirection !== 'column') {
-        const childWidth = child.offsetWidth + (parseFloat(childStyle.marginLeft) || 0) + (parseFloat(childStyle.marginRight) || 0);
-        const gap = parseFloat(style.gap) || 0;
-        availableWidth -= (childWidth + gap);
-      } else if (style.display === 'flex' && style.flexDirection === 'column') {
-        const gap = parseFloat(style.gap) || 0;
-        availableHeight -= (childHeight + gap);
-      } else {
-        availableHeight -= childHeight;
-      }
-    }
-  }
-
-  return {
-    width: Math.max(0, availableWidth),
-    height: Math.max(0, availableHeight)
-  };
-}
-
-function fitTextToContainer(textEl, containerEl, minSize = 16, maxSize = 72, targetOccupancy = 1.0) {
-  if (!textEl || !containerEl) return;
-
-  const space = getAvailableSpace(textEl, containerEl);
-  if (space.width <= 0 || space.height <= 0) return;
-
-  const targetWidth = space.width * targetOccupancy;
-  const targetHeight = space.height * targetOccupancy;
-
-  let low = minSize;
-  let high = maxSize;
-  let best = minSize;
-
-  while (low <= high) {
-    const mid = Math.floor((low + high) / 2);
-
-    textEl.style.fontSize = `${mid}px`;
-
-    // force layout
-    textEl.offsetHeight;
-
-    if (
-      textEl.scrollHeight <= targetHeight + 1 &&
-      textEl.scrollWidth <= targetWidth + 1
-    ) {
-      best = mid;
-      low = mid + 1;
-    } else {
-      high = mid - 1;
-    }
-  }
-
-  textEl.style.fontSize = `${best}px`;
-}
-
-function adjustModalFontSizeToFit() {
-  const overlay = document.getElementById('modal-overlay');
-  if (!overlay || !overlay.classList.contains('open')) return;
-
-  const contentNode = document.querySelector('.modal-content');
-  const bodyNode = document.querySelector('.modal-body');
-  if (!contentNode || !bodyNode) return;
-
-  // Force initial layout pass
-  bodyNode.offsetHeight;
-
-  // Defer if elements are not yet laid out (height is 0)
-  if (bodyNode.clientHeight === 0 || contentNode.clientHeight === 0) {
-    requestAnimationFrame(adjustModalFontSizeToFit);
-    return;
-  }
-
-  // 1. Fit Question Text (occupy 80%)
-  const questionText = document.getElementById('modal-question-text');
-  if (questionText) {
-    fitTextToContainer(questionText, questionText.parentElement, 20, 80, 0.80);
-  }
-
-  // 2. Fit Correct Answer Text (occupy 65%)
-  const answerText = document.getElementById('modal-correct-answer-text');
-  const revealPanel = document.getElementById('modal-reveal-panel');
-  if (answerText && revealPanel && !revealPanel.classList.contains('hidden')) {
-    fitTextToContainer(answerText, revealPanel, 20, 80, 0.65);
-    
-    // Scale sibling reveal title proportionally
-    const revealTitle = revealPanel.querySelector('.reveal-title');
-    if (revealTitle) {
-      const answerFontSize = parseFloat(answerText.style.fontSize) || 20;
-      revealTitle.style.fontSize = `${Math.max(12, answerFontSize * 0.4)}px`;
-    }
-  }
-
-  // 3. Fit Option Buttons (occupy 85%)
-  const mcqContainer = document.getElementById('modal-mcq-container');
-  if (mcqContainer && !mcqContainer.classList.contains('hidden')) {
-    document.querySelectorAll('.option-val').forEach(option => {
-      fitTextToContainer(option, option.parentElement, 14, 42, 0.85);
-      
-      // Scale option letter proportionally
-      const optionLetter = option.parentElement.querySelector('.option-letter');
-      if (optionLetter) {
-        const valFontSize = parseFloat(option.style.fontSize) || 16;
-        optionLetter.style.fontSize = `${Math.max(14, valFontSize * 1.1)}px`;
-        optionLetter.style.width = `${Math.max(30, valFontSize * 2.2)}px`;
-        optionLetter.style.height = `${Math.max(30, valFontSize * 2.2)}px`;
-      }
-    });
-  }
-}
-
 function adjustWinnerCardFontSizeToFit() {
   const winnerScreen = document.getElementById('screen-winner');
   const winnerCard = document.querySelector('.winner-card');
@@ -2106,48 +1948,12 @@ function adjustWinnerCardFontSizeToFit() {
   }
 }
 
-// Helper to perform smooth transition when correct answer is revealed
-function revealCorrectAnswerPanel(revealCallback) {
-  const contentNode = document.querySelector('.modal-content');
-  if (!contentNode) {
-    revealCallback();
-    return;
-  }
-
-  // 1. Reset any stale styling/listeners
-  resetModalScaleAndStyles();
-
-  // 2. Measure starting dimensions of the modal before reveal
-  const beforeHeight = contentNode.getBoundingClientRect().height;
-  const beforeWidth = contentNode.getBoundingClientRect().width;
-
-  // 3. Lock the height and width to the starting value permanently in this state
-  contentNode.style.height = beforeHeight + 'px';
-  contentNode.style.width = beforeWidth + 'px';
-  contentNode.style.transition = 'none';
-
-  // 4. Perform the actual reveal DOM updates
-  revealCallback();
-
-  // 5. Adjust font size inside the modal so all content fits perfectly
-  requestAnimationFrame(() => {
-    adjustModalFontSizeToFit();
-  });
-
-  // 6. Listen to window resize so we can dynamically unlock / reset responsiveness if viewport changes
-  resizeHandler = () => {
-    resetModalScaleAndStyles();
-  };
-  window.addEventListener('resize', resizeHandler);
-}
 
 // ============================================================
 // QUESTION MODAL
 // ============================================================
 function openQuestionModal(cId, q) {
   if (!transitionState('QUESTION_LOADING')) return;
-
-  resetModalScaleAndStyles();
 
   playState.currentCellId = cId;
   playState.currentQuestion = q;
@@ -2253,7 +2059,6 @@ function openQuestionModal(cId, q) {
           const fillInput = document.getElementById('modal-fill-input');
           setTimeout(() => fillInput.focus(), 100);
         }
-        adjustModalFontSizeToFit();
       });
       buttonsGrid.appendChild(btn);
     });
@@ -2293,14 +2098,10 @@ function openQuestionModal(cId, q) {
   transitionState('AWAITING_FIRST_ANSWER');
   enableModalActionButtons();
   parseEmojis(overlay);
-  
-  // Auto scale text to fit initial modal dimensions if it's too long
-  adjustModalFontSizeToFit();
 }
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
-  resetModalScaleAndStyles();
   playState.currentCellId = null;
   playState.currentQuestion = null;
   playState.currentQuestionValue = 0;
@@ -2969,32 +2770,32 @@ function showEmojiFeedback(isCorrect, q, callback) {
       playState.stats[teamIndex].attempts++;
     }
 
-    revealCorrectAnswerPanel(() => {
-      const contentNode = document.querySelector('.modal-content');
+    const contentNode = document.querySelector('.modal-content');
+    if (contentNode) {
       contentNode.classList.remove('feedback-wrong');
       contentNode.classList.add('feedback-correct');
+    }
 
-      updateTextAndCheckUnicode(document.getElementById('modal-correct-answer-text'), q.correctAnswer || q.answer);
-      document.getElementById('modal-reveal-panel').classList.remove('hidden');
+    updateTextAndCheckUnicode(document.getElementById('modal-correct-answer-text'), q.correctAnswer || q.answer);
+    document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
-      const turnStatus = document.getElementById('modal-turn-status');
-      turnStatus.textContent = "Correct Answer!";
-      turnStatus.style.color = "var(--color-success)";
-      turnStatus.style.borderColor = "var(--color-success)";
+    const turnStatus = document.getElementById('modal-turn-status');
+    turnStatus.textContent = "Correct Answer!";
+    turnStatus.style.color = "var(--color-success)";
+    turnStatus.style.borderColor = "var(--color-success)";
 
-      playState.cancelLocked = true;
-      const btnCancel = document.getElementById('btn-modal-cancel');
-      if (btnCancel) btnCancel.disabled = true;
+    playState.cancelLocked = true;
+    const btnCancel = document.getElementById('btn-modal-cancel');
+    if (btnCancel) btnCancel.disabled = true;
 
-      saveGameState();
-      if (cId !== 'c-tiebreaker' && playState.teamsAttemptedCount === 0) {
-        switchTurn();
-      }
-      renderGameBoard();
-      renderAdminGrid();
-      enableNextButton();
-      parseEmojis(document.getElementById('modal-overlay'));
-    });
+    saveGameState();
+    if (cId !== 'c-tiebreaker' && playState.teamsAttemptedCount === 0) {
+      switchTurn();
+    }
+    renderGameBoard();
+    renderAdminGrid();
+    enableNextButton();
+    parseEmojis(document.getElementById('modal-overlay'));
   };
 
   if (isCorrect) {
@@ -3052,29 +2853,29 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
           playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
 
-          revealCorrectAnswerPanel(() => {
-            const turnStatus = document.getElementById('modal-turn-status');
-            turnStatus.textContent = "Incorrect Answer";
-            turnStatus.style.color = "var(--color-error)";
-            turnStatus.style.borderColor = "var(--color-error)";
+          const turnStatus = document.getElementById('modal-turn-status');
+          turnStatus.textContent = "Incorrect Answer";
+          turnStatus.style.color = "var(--color-error)";
+          turnStatus.style.borderColor = "var(--color-error)";
 
-            const contentNode = document.querySelector('.modal-content');
+          const contentNode = document.querySelector('.modal-content');
+          if (contentNode) {
             contentNode.classList.remove('feedback-correct');
             contentNode.classList.add('feedback-wrong');
+          }
 
-            document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
-            document.getElementById('modal-reveal-panel').classList.remove('hidden');
+          document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+          document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
-            playState.cancelLocked = true;
-            const btnCancel = document.getElementById('btn-modal-cancel');
-            if (btnCancel) btnCancel.disabled = true;
+          playState.cancelLocked = true;
+          const btnCancel = document.getElementById('btn-modal-cancel');
+          if (btnCancel) btnCancel.disabled = true;
 
-            saveGameState();
-            renderGameBoard();
-            renderAdminGrid();
-            enableNextButton();
-            parseEmojis(document.getElementById('modal-overlay'));
-          });
+          saveGameState();
+          renderGameBoard();
+          renderAdminGrid();
+          enableNextButton();
+          parseEmojis(document.getElementById('modal-overlay'));
         }
       };
 
@@ -3114,29 +2915,29 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
           playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
 
-          revealCorrectAnswerPanel(() => {
-            const turnStatus = document.getElementById('modal-turn-status');
-            turnStatus.textContent = "Incorrect Answer";
-            turnStatus.style.color = "var(--color-error)";
-            turnStatus.style.borderColor = "var(--color-error)";
+          const turnStatus = document.getElementById('modal-turn-status');
+          turnStatus.textContent = "Incorrect Answer";
+          turnStatus.style.color = "var(--color-error)";
+          turnStatus.style.borderColor = "var(--color-error)";
 
-            const contentNode = document.querySelector('.modal-content');
+          const contentNode = document.querySelector('.modal-content');
+          if (contentNode) {
             contentNode.classList.remove('feedback-correct');
             contentNode.classList.add('feedback-wrong');
+          }
 
-            document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
-            document.getElementById('modal-reveal-panel').classList.remove('hidden');
+          document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+          document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
-            playState.cancelLocked = true;
-            const btnCancel = document.getElementById('btn-modal-cancel');
-            if (btnCancel) btnCancel.disabled = true;
+          playState.cancelLocked = true;
+          const btnCancel = document.getElementById('btn-modal-cancel');
+          if (btnCancel) btnCancel.disabled = true;
 
-            saveGameState();
-            renderGameBoard();
-            renderAdminGrid();
-            enableNextButton();
-            parseEmojis(document.getElementById('modal-overlay'));
-          });
+          saveGameState();
+          renderGameBoard();
+          renderAdminGrid();
+          enableNextButton();
+          parseEmojis(document.getElementById('modal-overlay'));
         }
       };
 

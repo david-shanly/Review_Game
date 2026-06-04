@@ -317,53 +317,49 @@
           </div>
         </div>
 
-        <div class="modal-body">
-          <!-- Tie-Breaker Hand Raise Active Team Selector -->
-          <div id="tiebreaker-turn-selector" class="tiebreaker-turn-selector hidden">
-            <div class="selector-title">🖐️ Who raised their hand first?</div>
-            <div id="tiebreaker-selector-buttons" class="selector-buttons-grid"></div>
-          </div>
+        <!-- Tie-Breaker Hand Raise Active Team Selector -->
+        <div id="tiebreaker-turn-selector" class="tiebreaker-turn-selector hidden">
+          <div class="selector-title">🖐️ Who raised their hand first?</div>
+          <div id="tiebreaker-selector-buttons" class="selector-buttons-grid"></div>
+        </div>
 
-          <div class="question-panel">
-            <div id="modal-question-text" class="question-text">
-              Question goes here...
-            </div>
-          </div>
+        <div id="modal-question-text" class="question-text">
+          Question goes here...
+        </div>
 
-          <!-- MCQ Options -->
-          <div id="modal-mcq-container" class="mcq-options-grid hidden">
-            <button class="option-btn" data-index="0">
-              <span class="option-letter">A</span>
-              <span class="option-val">Option A</span>
-            </button>
-            <button class="option-btn" data-index="1">
-              <span class="option-letter">B</span>
-              <span class="option-val">Option B</span>
-            </button>
-            <button class="option-btn" data-index="2">
-              <span class="option-letter">C</span>
-              <span class="option-val">Option C</span>
-            </button>
-            <button class="option-btn" data-index="3">
-              <span class="option-letter">D</span>
-              <span class="option-val">Option D</span>
-            </button>
-          </div>
+        <!-- MCQ Options -->
+        <div id="modal-mcq-container" class="mcq-options-grid hidden">
+          <button class="option-btn" data-index="0">
+            <span class="option-letter">A</span>
+            <span class="option-val">Option A</span>
+          </button>
+          <button class="option-btn" data-index="1">
+            <span class="option-letter">B</span>
+            <span class="option-val">Option B</span>
+          </button>
+          <button class="option-btn" data-index="2">
+            <span class="option-letter">C</span>
+            <span class="option-val">Option C</span>
+          </button>
+          <button class="option-btn" data-index="3">
+            <span class="option-letter">D</span>
+            <span class="option-val">Option D</span>
+          </button>
+        </div>
 
-          <!-- Fill-in-the-blank -->
-          <div id="modal-fill-container" class="fill-container">
-            <input type="text" id="modal-fill-input" placeholder="Type answer here..." autocomplete="off">
-            <button id="btn-show-correct-answer" type="button" class="btn btn-secondary btn-show-correct-answer"
-              style="width: 100%;">
-              Correct Answer
-            </button>
-          </div>
+        <!-- Fill-in-the-blank -->
+        <div id="modal-fill-container" class="fill-container">
+          <input type="text" id="modal-fill-input" placeholder="Type answer here..." autocomplete="off">
+          <button id="btn-show-correct-answer" type="button" class="btn btn-secondary btn-show-correct-answer"
+            style="width: 100%;">
+            Correct Answer
+          </button>
+        </div>
 
-          <!-- Correct Answer Reveal -->
-          <div id="modal-reveal-panel" class="reveal-panel hidden">
-            <div class="reveal-title">CORRECT ANSWER</div>
-            <div id="modal-correct-answer-text" class="reveal-value gold-text">Answer</div>
-          </div>
+        <!-- Correct Answer Reveal -->
+        <div id="modal-reveal-panel" class="reveal-panel hidden">
+          <div class="reveal-title">CORRECT ANSWER</div>
+          <div id="modal-correct-answer-text" class="reveal-value gold-text">Answer</div>
         </div>
 
         <!-- Submit / Pass / Cancel Buttons -->
