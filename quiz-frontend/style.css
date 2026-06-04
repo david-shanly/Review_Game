@@ -1403,17 +1403,17 @@ body {
 
 .winner-card {
   width: 90%;
-  max-width: min(594px, 85vw);
+  max-width: min(624px, 89vw);
   margin: clamp(12px, 2vh, 24px) auto;
   text-align: center;
-  padding: clamp(24px, 4vh, 50px) clamp(20px, 4vw, 43px);
+  padding: clamp(25px, 4.2vh, 53px) clamp(21px, 4.2vw, 45px);
   border-radius: var(--radius-lg);
 }
 
 /* Tie – bigger, more dramatic card */
 .winner-card.winner-card-tie {
-  max-width: min(700px, 90vw);
-  padding: clamp(30px, 5vh, 60px) clamp(24px, 5vw, 50px);
+  max-width: min(735px, 95vw);
+  padding: clamp(32px, 5.3vh, 63px) clamp(25px, 5.3vw, 53px);
 }
 .winner-card-tie .winner-trophy { font-size: clamp(4rem, 8vh, 6.5rem); }
 .winner-card-tie .winner-team-name { font-size: clamp(2rem, 5vw, 3.4rem); }
@@ -1421,8 +1421,8 @@ body {
 
 /* Win – compact, focused card */
 .winner-card.winner-card-win {
-  max-width: min(520px, 80vw);
-  padding: clamp(20px, 3.5vh, 40px) clamp(18px, 3.5vw, 35px);
+  max-width: min(546px, 84vw);
+  padding: clamp(21px, 3.7vh, 42px) clamp(19px, 3.7vw, 37px);
 }
 .winner-card-win .winner-trophy { font-size: clamp(3rem, 6vh, 4.5rem); }
 .winner-card-win .winner-team-name { font-size: clamp(1.6rem, 4vw, 2.4rem); }
