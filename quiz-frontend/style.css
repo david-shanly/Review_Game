@@ -1402,35 +1402,36 @@ body {
 }
 
 .winner-card {
+  --winner-scale: 1;
   width: 90%;
-  max-width: min(624px, 89vw);
-  margin: clamp(12px, 2vh, 24px) auto;
+  max-width: calc(min(624px, 89vw) * var(--winner-scale, 1));
+  margin: calc(clamp(12px, 2vh, 24px) * var(--winner-scale, 1)) auto;
   text-align: center;
-  padding: clamp(25px, 4.2vh, 53px) clamp(21px, 4.2vw, 45px);
+  padding: calc(clamp(25px, 4.2vh, 53px) * var(--winner-scale, 1)) calc(clamp(21px, 4.2vw, 45px) * var(--winner-scale, 1));
   border-radius: var(--radius-lg);
 }
 
 /* Tie – bigger, more dramatic card */
 .winner-card.winner-card-tie {
-  max-width: min(735px, 95vw);
-  padding: clamp(32px, 5.3vh, 63px) clamp(25px, 5.3vw, 53px);
+  max-width: calc(min(735px, 95vw) * var(--winner-scale, 1));
+  padding: calc(clamp(32px, 5.3vh, 63px) * var(--winner-scale, 1)) calc(clamp(25px, 5.3vw, 53px) * var(--winner-scale, 1));
 }
-.winner-card-tie .winner-trophy { font-size: clamp(4rem, 8vh, 6.5rem); }
-.winner-card-tie .winner-team-name { font-size: clamp(2rem, 5vw, 3.4rem); }
-.winner-card-tie .winner-badge { font-size: clamp(0.8rem, 1.5vw, 1rem); letter-spacing: 3.5px; padding: 8px 24px; }
+.winner-card-tie .winner-trophy { font-size: calc(clamp(4rem, 8vh, 6.5rem) * var(--winner-scale, 1)); }
+.winner-card-tie .winner-team-name { font-size: calc(clamp(2rem, 5vw, 3.4rem) * var(--winner-scale, 1)); }
+.winner-card-tie .winner-badge { font-size: calc(clamp(0.8rem, 1.5vw, 1rem) * var(--winner-scale, 1)); letter-spacing: calc(3.5px * var(--winner-scale, 1)); padding: calc(8px * var(--winner-scale, 1)) calc(24px * var(--winner-scale, 1)); }
 
 /* Win – compact, focused card */
 .winner-card.winner-card-win {
-  max-width: min(546px, 84vw);
-  padding: clamp(21px, 3.7vh, 42px) clamp(19px, 3.7vw, 37px);
+  max-width: calc(min(546px, 84vw) * var(--winner-scale, 1));
+  padding: calc(clamp(21px, 3.7vh, 42px) * var(--winner-scale, 1)) calc(clamp(19px, 3.7vw, 37px) * var(--winner-scale, 1));
 }
-.winner-card-win .winner-trophy { font-size: clamp(3rem, 6vh, 4.5rem); }
-.winner-card-win .winner-team-name { font-size: clamp(1.6rem, 4vw, 2.4rem); }
+.winner-card-win .winner-trophy { font-size: calc(clamp(3rem, 6vh, 4.5rem) * var(--winner-scale, 1)); }
+.winner-card-win .winner-team-name { font-size: calc(clamp(1.6rem, 4vw, 2.4rem) * var(--winner-scale, 1)); }
 
 .winner-trophy {
-  font-size: clamp(3.5rem, 7vh, 4.95rem);
+  font-size: calc(clamp(3.5rem, 7vh, 4.95rem) * var(--winner-scale, 1));
   animation: trophyBounce 1.2s ease infinite alternate;
-  margin-bottom: clamp(6px, 1.5vh, 11px);
+  margin-bottom: calc(clamp(6px, 1.5vh, 11px) * var(--winner-scale, 1));
   display: block;
 }
 
@@ -1449,40 +1450,40 @@ body {
   background: linear-gradient(135deg, var(--color-gold), var(--color-gold-dark));
   color: #0A0A0A;
   font-family: var(--font-display);
-  font-size: clamp(0.7rem, 1.2vw, 0.81rem);
-  letter-spacing: 2.7px;
-  padding: 6px 20px;
+  font-size: calc(clamp(0.7rem, 1.2vw, 0.81rem) * var(--winner-scale, 1));
+  letter-spacing: calc(2.7px * var(--winner-scale, 1));
+  padding: calc(6px * var(--winner-scale, 1)) calc(20px * var(--winner-scale, 1));
   border-radius: var(--radius-pill);
-  margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+  margin-bottom: calc(clamp(0.5rem, 1.5vh, 1rem) * var(--winner-scale, 1));
 }
 
 .winner-team-name {
   font-family: var(--font-display);
-  font-size: clamp(1.8rem, 4.5vw, 2.7rem);
-  margin-bottom: clamp(8px, 1.5vh, 13px);
+  font-size: calc(clamp(1.8rem, 4.5vw, 2.7rem) * var(--winner-scale, 1));
+  margin-bottom: calc(clamp(8px, 1.5vh, 13px) * var(--winner-scale, 1));
   font-weight: 400;
 }
 
 .hero-subtitle {
   color: var(--color-text-muted);
-  font-size: clamp(0.8rem, 1.3vw, 0.95rem);
-  margin-bottom: clamp(12px, 2.5vh, 25px);
+  font-size: calc(clamp(0.8rem, 1.3vw, 0.95rem) * var(--winner-scale, 1));
+  margin-bottom: calc(clamp(12px, 2.5vh, 25px) * var(--winner-scale, 1));
   line-height: 1.6;
 }
 
 .winner-standings-container {
   display: flex;
   flex-direction: column;
-  gap: clamp(5px, 1vh, 9px);
-  max-width: 396px;
-  margin: clamp(10px, 2vh, 20px) auto clamp(12px, 2.5vh, 25px) auto;
+  gap: calc(clamp(5px, 1vh, 9px) * var(--winner-scale, 1));
+  max-width: calc(396px * var(--winner-scale, 1));
+  margin: calc(clamp(10px, 2vh, 20px) * var(--winner-scale, 1)) auto calc(clamp(12px, 2.5vh, 25px) * var(--winner-scale, 1)) auto;
 }
 
 .standing-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: clamp(8px, 1.5vh, 12.5px) clamp(12px, 2vw, 20px);
+  padding: calc(clamp(8px, 1.5vh, 12.5px) * var(--winner-scale, 1)) calc(clamp(12px, 2vw, 20px) * var(--winner-scale, 1));
   background: var(--cell-bg);
   border: 1.5px solid var(--cell-border);
   border-radius: var(--radius-sm);
@@ -1491,25 +1492,25 @@ body {
 .standing-row.first-place {
   border-color: var(--color-gold);
   background: rgba(244, 196, 48, 0.07);
-  font-size: 0.99rem;
+  font-size: calc(0.99rem * var(--winner-scale, 1));
 }
 
 .standing-place {
   font-family: var(--font-display);
-  font-size: clamp(0.75rem, 1.5vw, 0.9rem);
-  margin-right: 11px;
+  font-size: calc(clamp(0.75rem, 1.5vw, 0.9rem) * var(--winner-scale, 1));
+  margin-right: calc(11px * var(--winner-scale, 1));
 }
 
 .winner-stats {
-  font-size: clamp(0.75rem, 1.2vw, 0.83rem);
+  font-size: calc(clamp(0.75rem, 1.2vw, 0.83rem) * var(--winner-scale, 1));
   color: var(--color-text-muted);
-  margin-bottom: clamp(12px, 2.5vh, 25px);
+  margin-bottom: calc(clamp(12px, 2.5vh, 25px) * var(--winner-scale, 1));
   line-height: 1.9;
 }
 
 .winner-actions {
   display: flex;
-  gap: clamp(8px, 1.5vw, 14px);
+  gap: calc(clamp(8px, 1.5vw, 14px) * var(--winner-scale, 1));
   justify-content: center;
   flex-wrap: wrap;
 }

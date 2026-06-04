@@ -1883,9 +1883,18 @@ function resetModalScaleAndStyles() {
 }
 
 function adjustModalFontSizeToFit() {
+  const overlay = document.getElementById('modal-overlay');
+  if (!overlay || !overlay.classList.contains('open')) return;
+
   const contentNode = document.querySelector('.modal-content');
   const bodyNode = document.querySelector('.modal-body');
   if (!contentNode || !bodyNode) return;
+
+  // Defer if elements are not yet laid out (height is 0)
+  if (bodyNode.clientHeight === 0 || contentNode.clientHeight === 0) {
+    requestAnimationFrame(adjustModalFontSizeToFit);
+    return;
+  }
 
   let scaleFactor = 1.0;
   contentNode.style.setProperty('--reveal-scale', scaleFactor);
@@ -1902,6 +1911,37 @@ function adjustModalFontSizeToFit() {
   ) {
     scaleFactor -= 0.02;
     contentNode.style.setProperty('--reveal-scale', scaleFactor);
+    iterations++;
+  }
+}
+
+function adjustWinnerCardFontSizeToFit() {
+  const winnerScreen = document.getElementById('screen-winner');
+  const winnerCard = document.querySelector('.winner-card');
+  if (!winnerScreen || !winnerCard || !winnerScreen.classList.contains('active')) return;
+
+  // Defer if elements are not yet laid out (height is 0)
+  if (winnerScreen.clientHeight === 0 || winnerCard.clientHeight === 0) {
+    requestAnimationFrame(adjustWinnerCardFontSizeToFit);
+    return;
+  }
+
+  let scaleFactor = 1.0;
+  winnerCard.style.setProperty('--winner-scale', scaleFactor);
+
+  const maxIterations = 40;
+  let iterations = 0;
+  const paddingBuffer = 40; // leaving a small buffer
+
+  // Decrease the scale factor until content fits within the winner screen container
+  while (
+    (winnerCard.scrollHeight > (winnerScreen.clientHeight - paddingBuffer) ||
+     winnerCard.scrollWidth > (winnerScreen.clientWidth - paddingBuffer)) &&
+    scaleFactor > 0.45 &&
+    iterations < maxIterations
+  ) {
+    scaleFactor -= 0.02;
+    winnerCard.style.setProperty('--winner-scale', scaleFactor);
     iterations++;
   }
 }
@@ -3126,6 +3166,7 @@ function endGame() {
       saveGameState();
       updateDashboardStatus();
       showScreen('winner');
+      adjustWinnerCardFontSizeToFit();
     });
   } else {
     playSound('correct');
@@ -3133,6 +3174,7 @@ function endGame() {
     saveGameState();
     updateDashboardStatus();
     showScreen('winner');
+    adjustWinnerCardFontSizeToFit();
   }
   const winnerScreen = document.getElementById('screen-winner');
   if (winnerScreen) {
@@ -4497,6 +4539,10 @@ function applyDynamicScaling() {
   }
 
   document.body.style.zoom = scale;
+
+  if (typeof playState !== 'undefined' && playState.activeScreen === 'winner') {
+    adjustWinnerCardFontSizeToFit();
+  }
 }
 window.addEventListener('resize', applyDynamicScaling);
 window.addEventListener('load', applyDynamicScaling);

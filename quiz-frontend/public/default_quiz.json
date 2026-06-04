@@ -1,7 +1,7 @@
 {
   "settings": {
     "subtractOnWrong": true,
-    "totalQuestions": 20,
+    "totalQuestions": 12,
     "displayMode": "QUESTION_POINTS",
     "timerDuration": 10,
     "enableTimer": true,
@@ -13,7 +13,7 @@
     "gridFontColor": "#000000",
     "gridFontBold": false,
     "useDefaultFontColor": true,
-    "gridCols": 5,
+    "gridCols": 4,
     "playEmojiFeedback": true,
     "enableCustomPerQuestionEmoji": true,
     "emojiMode": "random",
@@ -167,96 +167,6 @@
       "question": "What choices did Daniel and his friends make in Babylon, and what was the result?",
       "options": [],
       "answer": "They chose to stay faithful to God, refused to defile themselves, and God blessed them with wisdom, health, and promotion in the kingdom.",
-      "points": 500
-    },
-    {
-      "id": "q13",
-      "qnIndex": 13,
-      "type": "mcq",
-      "questionType": "mcq",
-      "question": "Which kingdom conquered Jerusalem and took Daniel captive?",
-      "options": [
-        "Egypt",
-        "Assyria",
-        "Babylon",
-        "Persia"
-      ],
-      "answer": "Babylon",
-      "points": 200
-    },
-    {
-      "id": "q14",
-      "qnIndex": 14,
-      "type": "mcq",
-      "questionType": "mcq",
-      "question": "What names were given to Daniel's three friends in Babylon?",
-      "options": [
-        "Shadrach, Meshach, and Abednego",
-        "Shem, Ham, and Japheth",
-        "Abraham, Isaac, and Jacob",
-        "Peter, James, and John"
-      ],
-      "answer": "Shadrach, Meshach, and Abednego",
-      "points": 200
-    },
-    {
-      "id": "q15",
-      "qnIndex": 15,
-      "type": "fill_blank",
-      "questionType": "fill_blank",
-      "question": "Daniel resolved that he would not _______ himself with the royal food and wine.",
-      "options": [],
-      "answer": "defile",
-      "points": 300
-    },
-    {
-      "id": "q16",
-      "qnIndex": 16,
-      "type": "fill_blank",
-      "questionType": "fill_blank",
-      "question": "After ten days of eating vegetables and drinking water, Daniel and his friends looked _______ than the others.",
-      "options": [],
-      "answer": "healthier",
-      "points": 300
-    },
-    {
-      "id": "q17",
-      "qnIndex": 17,
-      "type": "fill_blank",
-      "questionType": "fill_blank",
-      "question": "God gave Daniel the unique ability to understand and interpret _______ and visions.",
-      "options": [],
-      "answer": "dreams",
-      "points": 300
-    },
-    {
-      "id": "q18",
-      "qnIndex": 18,
-      "type": "short_answer",
-      "questionType": "short_answer",
-      "question": "What did King Nebuchadnezzar do to test the wisdom of all the young men after their training?",
-      "options": [],
-      "answer": "He questioned them and found Daniel and his friends ten times better than all the magicians and enchanters in his kingdom.",
-      "points": 500
-    },
-    {
-      "id": "q19",
-      "qnIndex": 19,
-      "type": "short_answer",
-      "questionType": "short_answer",
-      "question": "What did Daniel ask the guard (Melzar) to give them to eat and drink instead of the king's food?",
-      "options": [],
-      "answer": "Vegetables to eat and water to drink for ten days.",
-      "points": 500
-    },
-    {
-      "id": "q20",
-      "qnIndex": 20,
-      "type": "short_answer",
-      "questionType": "short_answer",
-      "question": "What Babylonian name was given to Daniel by the chief official?",
-      "options": [],
-      "answer": "Belteshazzar",
       "points": 500
     },
     {
