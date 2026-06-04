@@ -1929,6 +1929,9 @@ function adjustModalFontSizeToFit() {
   const bodyNode = document.querySelector('.modal-body');
   if (!contentNode || !bodyNode) return;
 
+  // Force initial layout pass
+  bodyNode.offsetHeight;
+
   // Defer if elements are not yet laid out (height is 0)
   if (bodyNode.clientHeight === 0 || contentNode.clientHeight === 0) {
     requestAnimationFrame(adjustModalFontSizeToFit);
@@ -1938,8 +1941,12 @@ function adjustModalFontSizeToFit() {
   let scaleFactor = 1.0;
   contentNode.style.setProperty('--reveal-scale', scaleFactor);
 
+  // Force reflow for the reset scale factor
+  bodyNode.offsetHeight;
+
   const maxIterations = 40;
   let iterations = 0;
+  const testEl = document.getElementById('modal-question-text') || bodyNode.firstElementChild;
 
   // Decrease the scale factor until content fits within the locked container
   // We check scrollHeight of both bodyNode and contentNode to make sure neither overflows
@@ -1950,6 +1957,11 @@ function adjustModalFontSizeToFit() {
   ) {
     scaleFactor -= 0.02;
     contentNode.style.setProperty('--reveal-scale', scaleFactor);
+    
+    // Force layout update inside the loop so the scrollHeight updates synchronously
+    if (testEl) testEl.offsetHeight;
+    bodyNode.offsetHeight;
+    
     iterations++;
   }
 }
@@ -1958,6 +1970,9 @@ function adjustWinnerCardFontSizeToFit() {
   const winnerScreen = document.getElementById('screen-winner');
   const winnerCard = document.querySelector('.winner-card');
   if (!winnerScreen || !winnerCard || !winnerScreen.classList.contains('active')) return;
+
+  // Force initial layout pass
+  winnerCard.offsetHeight;
 
   // Defer if elements are not yet laid out (height is 0)
   if (winnerScreen.clientHeight === 0 || winnerCard.clientHeight === 0) {
@@ -1968,9 +1983,13 @@ function adjustWinnerCardFontSizeToFit() {
   let scaleFactor = 1.0;
   winnerCard.style.setProperty('--winner-scale', scaleFactor);
 
+  // Force reflow for the reset scale factor
+  winnerCard.offsetHeight;
+
   const maxIterations = 40;
   let iterations = 0;
   const paddingBuffer = 40; // leaving a small buffer
+  const testEl = document.getElementById('winner-team-name') || winnerCard.firstElementChild;
 
   // Decrease the scale factor until content fits within the winner screen container
   while (
@@ -1981,6 +2000,11 @@ function adjustWinnerCardFontSizeToFit() {
   ) {
     scaleFactor -= 0.02;
     winnerCard.style.setProperty('--winner-scale', scaleFactor);
+    
+    // Force layout update inside the loop so the scrollHeight updates synchronously
+    if (testEl) testEl.offsetHeight;
+    winnerCard.offsetHeight;
+    
     iterations++;
   }
 }
@@ -2009,7 +2033,9 @@ function revealCorrectAnswerPanel(revealCallback) {
   revealCallback();
 
   // 5. Adjust font size inside the modal so all content fits perfectly
-  adjustModalFontSizeToFit();
+  requestAnimationFrame(() => {
+    adjustModalFontSizeToFit();
+  });
 
   // 6. Listen to window resize so we can dynamically unlock / reset responsiveness if viewport changes
   resizeHandler = () => {
