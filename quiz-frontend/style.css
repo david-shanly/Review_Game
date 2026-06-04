@@ -1534,13 +1534,14 @@ body {
 }
 
 .modal-content {
+  --reveal-scale: 1;
   margin: auto;
   width: 92vw;
   max-width: 92vw;
   padding: clamp(0.8rem, 2vh, 1.8rem);
   display: flex;
   flex-direction: column;
-  gap: clamp(0.5rem, 1.2vh, 1.1rem);
+  gap: calc(clamp(0.5rem, 1.2vh, 1.1rem) * var(--reveal-scale, 1));
   max-height: 90vh;
   overflow-y: auto;
   justify-content: space-between;
@@ -1554,7 +1555,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 1.5rem;
+  gap: calc(1.5rem * var(--reveal-scale, 1));
   min-height: 0;
   overflow-y: auto;
   padding: 1rem 0;
@@ -1664,12 +1665,12 @@ body {
 
 .question-text {
   font-family: var(--font-body);
-  font-size: 2.95rem;
+  font-size: calc(clamp(1.4rem, 2.5vw, 2.1rem) * var(--reveal-scale, 1));
   font-weight: 700;
-  line-height: 1.45;
+  line-height: 1.35;
   color: var(--color-text-light);
   text-align: center;
-  padding: 0.5rem 0;
+  padding: calc(0.4rem * var(--reveal-scale, 1)) 0;
 }
 
 /* MCQ Options Grid */
@@ -1682,13 +1683,13 @@ body {
 .option-btn {
   display: flex;
   align-items: center;
-  gap: 21px;
-  padding: clamp(0.8rem, 2.5vh, 1.8rem) clamp(1rem, 2vw, 2rem);background: var(--cell-bg);
+  gap: calc(21px * var(--reveal-scale, 1));
+  padding: calc(clamp(0.8rem, 2.5vh, 1.8rem) * var(--reveal-scale, 1)) calc(clamp(1rem, 2vw, 2rem) * var(--reveal-scale, 1));background: var(--cell-bg);
   border: 2px solid var(--cell-border);
   border-radius: var(--radius-sm);
   color: var(--color-text-light);
   font-family: var(--font-body);
-  font-size: clamp(1rem, 1vw + 1.5vh, 1.87rem);
+  font-size: calc(clamp(1rem, 1vw + 1.5vh, 1.87rem) * var(--reveal-scale, 1));
   font-weight: 700;
   cursor: pointer;
   transition: all var(--transition-bounce);
@@ -1712,13 +1713,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 57px;
-  height: 57px;
+  width: calc(57px * var(--reveal-scale, 1));
+  height: calc(57px * var(--reveal-scale, 1));
   border-radius: 50%;
   background: rgba(244, 196, 48, 0.18);
   color: var(--color-gold);
   font-family: var(--font-display);
-  font-size: 1.87rem;
+  font-size: calc(1.87rem * var(--reveal-scale, 1));
   flex-shrink: 0;
 }
 
@@ -1743,8 +1744,8 @@ body {
   background: #ffffff !important;
   color: #000000 !important;
   border: 2px solid var(--color-gold-light);
-  padding: 1.1rem 2rem;
-  font-size: 1.4rem;
+  padding: calc(1.1rem * var(--reveal-scale, 1)) calc(2rem * var(--reveal-scale, 1));
+  font-size: calc(1.4rem * var(--reveal-scale, 1));
   font-family: inherit;
   font-weight: 700;
   border-radius: 50px;

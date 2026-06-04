@@ -2050,6 +2050,7 @@ function openQuestionModal(cId, q) {
           const fillInput = document.getElementById('modal-fill-input');
           setTimeout(() => fillInput.focus(), 100);
         }
+        adjustModalFontSizeToFit();
       });
       buttonsGrid.appendChild(btn);
     });
@@ -2089,6 +2090,9 @@ function openQuestionModal(cId, q) {
   transitionState('AWAITING_FIRST_ANSWER');
   enableModalActionButtons();
   parseEmojis(overlay);
+  
+  // Auto scale text to fit initial modal dimensions if it's too long
+  adjustModalFontSizeToFit();
 }
 
 function closeModal() {
