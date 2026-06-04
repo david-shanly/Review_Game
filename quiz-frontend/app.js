@@ -1995,6 +1995,7 @@ function openQuestionModal(cId, q) {
   playState.cancelLocked = false;
 
   const overlay = document.getElementById('modal-overlay');
+  const contentNode = document.querySelector('.modal-content');
   enableModalActionButtons();
   document.getElementById('modal-steal-label').classList.toggle('hidden', true);
 
