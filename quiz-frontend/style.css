@@ -15,14 +15,14 @@
   --bg-gradient: linear-gradient(145deg, #030814 0%, #081229 40%, #0b1a3e 70%, #040a17 100%);
   --panel-bg: rgba(8, 16, 40, 0.85);
   --panel-border: rgba(255, 255, 255, 0.09);
-  --panel-border-active: rgba(58, 134, 255, 0.55);
+  --panel-border-active: rgba(244, 196, 48, 0.55);
   --header-bg: rgba(7, 17, 43, 0.92);
-  --header-border: rgba(58, 134, 255, 0.15);
+  --header-border: rgba(244, 196, 48, 0.15);
 
-  /* Brand colors (Theme Accent - Blue Overrides) */
-  --color-gold: #3a86ff;
-  --color-gold-dark: #0077b6;
-  --color-gold-light: #90e0ef;
+  /* Brand colors (Theme Accent - Gold) */
+  --color-gold: #F4C430;
+  --color-gold-dark: #C9A100;
+  --color-gold-light: #FDE88A;
 
   /* Team colors */
   --color-team1: #38D9F5;
@@ -66,8 +66,8 @@
   /* Cells */
   --cell-bg: rgba(255, 255, 255, 0.03);
   --cell-border: rgba(255, 255, 255, 0.08);
-  --cell-hover-bg: rgba(58, 134, 255, 0.08);
-  --cell-hover-border: rgba(58, 134, 255, 0.45);
+  --cell-hover-bg: rgba(244, 196, 48, 0.08);
+  --cell-hover-border: rgba(244, 196, 48, 0.45);
 
   /* Typography */
   --font-display: 'Fredoka One', 'Noto Sans', 'Noto Sans Malayalam', 'Noto Sans Devanagari', 'Nunito', sans-serif;
@@ -75,7 +75,7 @@
 
   /* Effects */
   --card-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
-  --glow-gold: 0 0 24px rgba(58, 134, 255, 0.35);
+  --glow-gold: 0 0 24px rgba(244, 196, 48, 0.35);
   --radius-sm: 1.5rem;
   --radius-md: 2.25rem;
   --radius-lg: 3rem;
@@ -111,14 +111,14 @@
   --bg-gradient: linear-gradient(145deg, #E4ECFF 0%, #F0F5FF 50%, #FAFCFF 100%);
   --panel-bg: rgba(255, 255, 255, 0.92);
   --panel-border: rgba(0, 0, 0, 0.08);
-  --panel-border-active: rgba(2, 132, 199, 0.5);
+  --panel-border-active: rgba(180, 130, 0, 0.5);
   --header-bg: rgba(255, 255, 255, 0.95);
-  --header-border: rgba(2, 132, 199, 0.25);
+  --header-border: rgba(244, 196, 48, 0.25);
 
-  /* Theme Brand Colors (Configured as vibrant sky/ocean blue) */
-  --color-gold: #0284C7;
-  --color-gold-dark: #0369a1;
-  --color-gold-light: #38bdf8;
+  /* Theme Brand Colors (Configured as vibrant gold) */
+  --color-gold: #C8900A;
+  --color-gold-dark: #9A6E08;
+  --color-gold-light: #F4C430;
 
   --color-team1: #0284C7;
   --color-team1-bg: rgba(2, 132, 199, 0.09);
