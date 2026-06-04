@@ -3834,6 +3834,15 @@ img.emoji {
   white-space: nowrap;
 }
 
+/* Answered / cancelled / wrong cell symbols size override (makes cross/tick bigger) */
+.game-cell-btn.cell-answered .cell-qn,
+.game-cell-btn.cell-cancelled .cell-qn,
+.game-cell-btn.cell-wrong .cell-qn {
+  font-size: clamp(1.8rem, calc(28vh / var(--rows, 5)), 2.8rem) !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
 
 
 
