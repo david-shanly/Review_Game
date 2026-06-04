@@ -482,6 +482,7 @@ const defaultSettings = {
   gridTileColor: '#ffffff',
   gridTileColorDefault: true,
   categories: [],
+  showCategories: true,
 };
 
 function renderCategoryInputs() {
@@ -527,17 +528,23 @@ function renderCategoryInputs() {
 function renderCategoryHeaders() {
   const cols = db.settings.gridCols || 4;
   const categories = db.settings.categories || [];
+  const showCats = db.settings.showCategories ?? true;
 
   // Update Game Board categories
   const gameCatContainer = document.getElementById('game-board-categories');
   if (gameCatContainer) {
     gameCatContainer.innerHTML = '';
     gameCatContainer.style.setProperty('--cols', cols);
-    for (let c = 0; c < cols; c++) {
-      const cell = document.createElement('div');
-      cell.className = 'category-label-cell';
-      cell.textContent = categories[c] || `Category ${c + 1}`;
-      gameCatContainer.appendChild(cell);
+    if (!showCats) {
+      gameCatContainer.style.setProperty('display', 'none', 'important');
+    } else {
+      gameCatContainer.style.removeProperty('display');
+      for (let c = 0; c < cols; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'category-label-cell';
+        cell.textContent = categories[c] || `Category ${c + 1}`;
+        gameCatContainer.appendChild(cell);
+      }
     }
   }
 
@@ -546,11 +553,16 @@ function renderCategoryHeaders() {
   if (adminCatContainer) {
     adminCatContainer.innerHTML = '';
     adminCatContainer.style.setProperty('--cols', cols);
-    for (let c = 0; c < cols; c++) {
-      const cell = document.createElement('div');
-      cell.className = 'category-label-cell';
-      cell.textContent = categories[c] || `Category ${c + 1}`;
-      adminCatContainer.appendChild(cell);
+    if (!showCats) {
+      adminCatContainer.style.setProperty('display', 'none', 'important');
+    } else {
+      adminCatContainer.style.removeProperty('display');
+      for (let c = 0; c < cols; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'category-label-cell';
+        cell.textContent = categories[c] || `Category ${c + 1}`;
+        adminCatContainer.appendChild(cell);
+      }
     }
   }
 }
@@ -624,6 +636,9 @@ function hydrateControlCenter(settings) {
   
   const customFeedbackEl = document.getElementById('settings-use-custom-feedback');
   if (customFeedbackEl) customFeedbackEl.checked = settings.useCustomFeedbackVideos ?? false;
+
+  const showCategoriesEl = document.getElementById('settings-show-categories');
+  if (showCategoriesEl) showCategoriesEl.checked = settings.showCategories ?? true;
 
   if (db.teams && db.teams.length >= 2) {
     const t1Name = document.getElementById('admin-team1-name');
@@ -4253,6 +4268,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       saveDB();
+    });
+  }
+
+  const showCategoriesEl = document.getElementById('settings-show-categories');
+  if (showCategoriesEl) {
+    showCategoriesEl.addEventListener('change', (e) => {
+      db.settings.showCategories = e.target.checked;
+      saveDB();
+      renderCategoryHeaders();
     });
   }
 
