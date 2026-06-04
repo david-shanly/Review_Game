@@ -1938,13 +1938,13 @@ function adjustModalFontSizeToFit() {
     return;
   }
 
-  let scaleFactor = 1.0;
+  let scaleFactor = 1.8;
   contentNode.style.setProperty('--reveal-scale', scaleFactor);
 
   // Force reflow for the reset scale factor
   bodyNode.offsetHeight;
 
-  const maxIterations = 40;
+  const maxIterations = 80;
   let iterations = 0;
   const testEl = document.getElementById('modal-question-text') || bodyNode.firstElementChild;
 
