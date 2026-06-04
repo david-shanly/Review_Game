@@ -1915,6 +1915,24 @@ function resetModalScaleAndStyles() {
     contentNode.style.transition = '';
     contentNode.style.removeProperty('--reveal-scale');
   }
+
+  // Clean up inline styles of dynamically sized text elements
+  const questionText = document.getElementById('modal-question-text');
+  if (questionText) questionText.style.fontSize = '';
+
+  const answerText = document.getElementById('modal-correct-answer-text');
+  if (answerText) answerText.style.fontSize = '';
+
+  const revealTitle = document.querySelector('.reveal-panel .reveal-title');
+  if (revealTitle) revealTitle.style.fontSize = '';
+
+  document.querySelectorAll('.option-val').forEach(el => el.style.fontSize = '');
+  document.querySelectorAll('.option-letter').forEach(el => {
+    el.style.fontSize = '';
+    el.style.width = '';
+    el.style.height = '';
+  });
+
   if (resizeHandler) {
     window.removeEventListener('resize', resizeHandler);
     resizeHandler = null;
@@ -1955,11 +1973,14 @@ function getAvailableSpace(textEl, containerEl) {
   };
 }
 
-function fitTextToContainer(textEl, containerEl, minSize = 16, maxSize = 72) {
+function fitTextToContainer(textEl, containerEl, minSize = 16, maxSize = 72, targetOccupancy = 1.0) {
   if (!textEl || !containerEl) return;
 
   const space = getAvailableSpace(textEl, containerEl);
   if (space.width <= 0 || space.height <= 0) return;
+
+  const targetWidth = space.width * targetOccupancy;
+  const targetHeight = space.height * targetOccupancy;
 
   let low = minSize;
   let high = maxSize;
@@ -1974,8 +1995,8 @@ function fitTextToContainer(textEl, containerEl, minSize = 16, maxSize = 72) {
     textEl.offsetHeight;
 
     if (
-      textEl.scrollHeight <= space.height + 1 &&
-      textEl.scrollWidth <= space.width + 1
+      textEl.scrollHeight <= targetHeight + 1 &&
+      textEl.scrollWidth <= targetWidth + 1
     ) {
       best = mid;
       low = mid + 1;
@@ -2004,24 +2025,40 @@ function adjustModalFontSizeToFit() {
     return;
   }
 
-  // 1. Fit Question Text
+  // 1. Fit Question Text (occupy 80%)
   const questionText = document.getElementById('modal-question-text');
   if (questionText) {
-    fitTextToContainer(questionText, questionText.parentElement, 20, 80);
+    fitTextToContainer(questionText, questionText.parentElement, 20, 80, 0.80);
   }
 
-  // 2. Fit Correct Answer Text
+  // 2. Fit Correct Answer Text (occupy 65%)
   const answerText = document.getElementById('modal-correct-answer-text');
   const revealPanel = document.getElementById('modal-reveal-panel');
   if (answerText && revealPanel && !revealPanel.classList.contains('hidden')) {
-    fitTextToContainer(answerText, revealPanel, 20, 80);
+    fitTextToContainer(answerText, revealPanel, 20, 80, 0.65);
+    
+    // Scale sibling reveal title proportionally
+    const revealTitle = revealPanel.querySelector('.reveal-title');
+    if (revealTitle) {
+      const answerFontSize = parseFloat(answerText.style.fontSize) || 20;
+      revealTitle.style.fontSize = `${Math.max(12, answerFontSize * 0.4)}px`;
+    }
   }
 
-  // 3. Fit Option Buttons
+  // 3. Fit Option Buttons (occupy 85%)
   const mcqContainer = document.getElementById('modal-mcq-container');
   if (mcqContainer && !mcqContainer.classList.contains('hidden')) {
     document.querySelectorAll('.option-val').forEach(option => {
-      fitTextToContainer(option, option.parentElement, 14, 42);
+      fitTextToContainer(option, option.parentElement, 14, 42, 0.85);
+      
+      // Scale option letter proportionally
+      const optionLetter = option.parentElement.querySelector('.option-letter');
+      if (optionLetter) {
+        const valFontSize = parseFloat(option.style.fontSize) || 16;
+        optionLetter.style.fontSize = `${Math.max(14, valFontSize * 1.1)}px`;
+        optionLetter.style.width = `${Math.max(30, valFontSize * 2.2)}px`;
+        optionLetter.style.height = `${Math.max(30, valFontSize * 2.2)}px`;
+      }
     });
   }
 }
