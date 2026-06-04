@@ -3908,6 +3908,34 @@ img.emoji {
   display: inline-block;
 }
 
+/* Category Headers styling */
+.game-board-categories-header {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)) !important;
+  gap: 0.625rem;
+  width: 100%;
+  margin-bottom: 0.25rem;
+  padding: 0.25rem 0;
+  box-sizing: border-box;
+}
+
+.category-label-cell {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--color-gold);
+  text-shadow: 0 0 8px rgba(244, 196, 48, 0.25);
+  padding: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-content:has(#modal-reveal-panel:not(.hidden)) .modal-body {
+  justify-content: space-between !important;
+}
+
 
 
 

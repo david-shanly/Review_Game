@@ -524,12 +524,49 @@ function renderCategoryInputs() {
   }
 }
 
+function renderCategoryHeaders() {
+  const cols = db.settings.gridCols || 4;
+  const categories = db.settings.categories || [];
+
+  // Update Game Board categories
+  const gameCatContainer = document.getElementById('game-board-categories');
+  if (gameCatContainer) {
+    gameCatContainer.innerHTML = '';
+    gameCatContainer.style.setProperty('--cols', cols);
+    for (let c = 0; c < cols; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'category-label-cell';
+      cell.textContent = categories[c] || `Category ${c + 1}`;
+      gameCatContainer.appendChild(cell);
+    }
+  }
+
+  // Update Admin grid categories
+  const adminCatContainer = document.getElementById('admin-categories');
+  if (adminCatContainer) {
+    adminCatContainer.innerHTML = '';
+    adminCatContainer.style.setProperty('--cols', cols);
+    for (let c = 0; c < cols; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'category-label-cell';
+      cell.textContent = categories[c] || `Category ${c + 1}`;
+      adminCatContainer.appendChild(cell);
+    }
+  }
+}
+
 function hydrateControlCenter(settings) {
   const gridFontEl = document.getElementById('settings-grid-font');
   if (gridFontEl) gridFontEl.value = settings.gridFont ?? 'Fredoka One';
   
   const fontColorEl = document.getElementById('settings-grid-font-color');
   if (fontColorEl) fontColorEl.value = settings.gridFontColor ?? '#000000';
+
+  const totalQuestionsEl = document.getElementById('settings-total-questions');
+  if (totalQuestionsEl) totalQuestionsEl.value = settings.totalQuestions ?? 12;
+
+  const colsEl = document.getElementById('settings-columns');
+  if (colsEl) colsEl.value = settings.gridCols ?? 4;
   
 
   
@@ -1076,6 +1113,7 @@ function getTypeLabel(type) {
 }
 
 function renderAdminGrid() {
+  renderCategoryHeaders();
   const container = document.getElementById('admin-interactive-grid');
   container.innerHTML = '';
   const cols = db.settings.gridCols || 4;
@@ -1426,6 +1464,7 @@ function setMCQRequired(req) {
 // GAME BOARD
 // ============================================================
 function renderGameBoard() {
+  renderCategoryHeaders();
   const container = document.getElementById('game-board-grid');
   container.innerHTML = '';
   const cols = db.settings.gridCols || 4;
