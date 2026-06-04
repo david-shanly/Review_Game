@@ -1921,6 +1921,72 @@ function resetModalScaleAndStyles() {
   }
 }
 
+function getAvailableSpace(textEl, containerEl) {
+  const style = window.getComputedStyle(containerEl);
+  const paddingLeft = parseFloat(style.paddingLeft) || 0;
+  const paddingRight = parseFloat(style.paddingRight) || 0;
+  const paddingTop = parseFloat(style.paddingTop) || 0;
+  const paddingBottom = parseFloat(style.paddingBottom) || 0;
+
+  let availableWidth = containerEl.clientWidth - paddingLeft - paddingRight;
+  let availableHeight = containerEl.clientHeight - paddingTop - paddingBottom;
+
+  // Subtract sibling elements' space if they are visible
+  for (const child of containerEl.children) {
+    if (child !== textEl && child.offsetParent !== null) {
+      const childStyle = window.getComputedStyle(child);
+      const childHeight = child.offsetHeight + (parseFloat(childStyle.marginTop) || 0) + (parseFloat(childStyle.marginBottom) || 0);
+      if (style.display === 'flex' && style.flexDirection !== 'column') {
+        const childWidth = child.offsetWidth + (parseFloat(childStyle.marginLeft) || 0) + (parseFloat(childStyle.marginRight) || 0);
+        const gap = parseFloat(style.gap) || 0;
+        availableWidth -= (childWidth + gap);
+      } else if (style.display === 'flex' && style.flexDirection === 'column') {
+        const gap = parseFloat(style.gap) || 0;
+        availableHeight -= (childHeight + gap);
+      } else {
+        availableHeight -= childHeight;
+      }
+    }
+  }
+
+  return {
+    width: Math.max(0, availableWidth),
+    height: Math.max(0, availableHeight)
+  };
+}
+
+function fitTextToContainer(textEl, containerEl, minSize = 16, maxSize = 72) {
+  if (!textEl || !containerEl) return;
+
+  const space = getAvailableSpace(textEl, containerEl);
+  if (space.width <= 0 || space.height <= 0) return;
+
+  let low = minSize;
+  let high = maxSize;
+  let best = minSize;
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+
+    textEl.style.fontSize = `${mid}px`;
+
+    // force layout
+    textEl.offsetHeight;
+
+    if (
+      textEl.scrollHeight <= space.height + 1 &&
+      textEl.scrollWidth <= space.width + 1
+    ) {
+      best = mid;
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+
+  textEl.style.fontSize = `${best}px`;
+}
+
 function adjustModalFontSizeToFit() {
   const overlay = document.getElementById('modal-overlay');
   if (!overlay || !overlay.classList.contains('open')) return;
@@ -1938,32 +2004,25 @@ function adjustModalFontSizeToFit() {
     return;
   }
 
-  let scaleFactor = 1.4;
-  contentNode.style.setProperty('--reveal-scale', scaleFactor);
+  // 1. Fit Question Text
+  const questionText = document.getElementById('modal-question-text');
+  if (questionText) {
+    fitTextToContainer(questionText, questionText.parentElement, 20, 80);
+  }
 
-  // Force reflow for the reset scale factor
-  bodyNode.offsetHeight;
+  // 2. Fit Correct Answer Text
+  const answerText = document.getElementById('modal-correct-answer-text');
+  const revealPanel = document.getElementById('modal-reveal-panel');
+  if (answerText && revealPanel && !revealPanel.classList.contains('hidden')) {
+    fitTextToContainer(answerText, revealPanel, 20, 80);
+  }
 
-  const maxIterations = 60;
-  let iterations = 0;
-  const testEl = document.getElementById('modal-question-text') || bodyNode.firstElementChild;
-
-  // Decrease the scale factor until content fits within the locked container
-  // We only check the scrollHeight of bodyNode with a 3px tolerance buffer to bypass
-  // sub-pixel rounding errors on the parent contentNode container.
-  while (
-    bodyNode.scrollHeight > (bodyNode.clientHeight + 3) &&
-    scaleFactor > 0.45 &&
-    iterations < maxIterations
-  ) {
-    scaleFactor -= 0.02;
-    contentNode.style.setProperty('--reveal-scale', scaleFactor);
-    
-    // Force layout update inside the loop so the scrollHeight updates synchronously
-    if (testEl) testEl.offsetHeight;
-    bodyNode.offsetHeight;
-    
-    iterations++;
+  // 3. Fit Option Buttons
+  const mcqContainer = document.getElementById('modal-mcq-container');
+  if (mcqContainer && !mcqContainer.classList.contains('hidden')) {
+    document.querySelectorAll('.option-val').forEach(option => {
+      fitTextToContainer(option, option.parentElement, 14, 42);
+    });
   }
 }
 
