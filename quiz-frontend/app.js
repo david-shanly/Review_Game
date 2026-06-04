@@ -1885,6 +1885,35 @@ function revealCorrectAnswerPanel(revealCallback) {
 
   // 3. Perform the actual reveal DOM updates
   revealCallback();
+
+  // 4. Measure the target dimensions after reveal DOM updates
+  // Temporarily clear inline size constraints so the browser can calculate the natural target auto dimensions
+  contentNode.style.height = '';
+  contentNode.style.width = '';
+
+  const afterHeight = contentNode.getBoundingClientRect().height;
+  const afterWidth = contentNode.getBoundingClientRect().width;
+
+  // 5. Restore the starting dimensions immediately (without transition)
+  contentNode.style.height = beforeHeight + 'px';
+  contentNode.style.width = beforeWidth + 'px';
+
+  // Force reflow
+  contentNode.offsetHeight;
+
+  // 6. Apply smooth transition to target dimensions
+  contentNode.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+  contentNode.style.height = afterHeight + 'px';
+  contentNode.style.width = afterWidth + 'px';
+
+  // 7. Clean up inline styles once the transition completes so the modal remains fully responsive
+  setTimeout(() => {
+    if (contentNode.style.height === afterHeight + 'px') {
+      contentNode.style.height = '';
+      contentNode.style.width = '';
+      contentNode.style.transition = '';
+    }
+  }, 360);
 }
 
 // ============================================================
