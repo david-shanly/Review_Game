@@ -23,10 +23,12 @@
     "gridQnColorDefault": true,
     "gridTileColor": "#ffffff",
     "gridTileColorDefault": true,
+    "categories": [],
+    "showCategories": false,
+    "showLeaderboard": true,
     "useDefaultQnColor": true,
     "enablePassLimit": true,
-    "passLimit": 2,
-    "categories": []
+    "passLimit": 2
   },
   "questions": [
     {
@@ -183,11 +185,13 @@
   "teams": [
     {
       "name": "Boy",
-      "logo": "boy.png"
+      "logo": "boy.png",
+      "useDefault": true
     },
     {
       "name": "Girl",
-      "logo": "girl.png"
+      "logo": "girl.png",
+      "useDefault": true
     }
   ]
 }

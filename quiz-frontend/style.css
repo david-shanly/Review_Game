@@ -3919,6 +3919,14 @@ img.emoji {
   white-space: nowrap;
 }
 
+/* Leaderboard display toggling styles */
+.game-layout-container.hide-leaderboard {
+  grid-template-columns: 1fr !important;
+}
+.game-layout-container.hide-leaderboard .game-leaderboard-sidebar {
+  display: none !important;
+}
+
 
 
 

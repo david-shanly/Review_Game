@@ -467,6 +467,7 @@ const defaultSettings = {
   applyFontToAll: false,
   playVideoFeedback: false,
   enableTieBreaker: true,
+  tiebreakerVisible: true,
   useCustomFeedbackVideos: false,
   gridFontColor: '#000000',
   gridFontBold: false,
@@ -483,6 +484,7 @@ const defaultSettings = {
   gridTileColorDefault: true,
   categories: [],
   showCategories: false,
+  showLeaderboard: true,
 };
 
 function renderCategoryInputs() {
@@ -643,6 +645,9 @@ function hydrateControlCenter(settings) {
 
   const showCategoriesEl = document.getElementById('settings-show-categories');
   if (showCategoriesEl) showCategoriesEl.checked = settings.showCategories ?? false;
+
+  const showLeaderboardEl = document.getElementById('settings-show-leaderboard');
+  if (showLeaderboardEl) showLeaderboardEl.checked = settings.showLeaderboard ?? true;
 
   if (db.teams && db.teams.length >= 2) {
     const t1Name = document.getElementById('admin-team1-name');
@@ -1490,6 +1495,11 @@ function setMCQRequired(req) {
 // ============================================================
 function renderGameBoard() {
   renderCategoryHeaders();
+  const layoutContainer = document.querySelector('.game-layout-container');
+  if (layoutContainer) {
+    const showLb = db.settings.showLeaderboard !== false;
+    layoutContainer.classList.toggle('hide-leaderboard', !showLb);
+  }
   const container = document.getElementById('game-board-grid');
   container.innerHTML = '';
   const cols = db.settings.gridCols || 4;
@@ -4104,6 +4114,34 @@ document.addEventListener('DOMContentLoaded', () => {
       saveDB();
       renderCategoryInputs();
       renderAdminGrid();
+      renderGameBoard();
+    });
+  }
+
+  const showLeaderboardEl = document.getElementById('settings-show-leaderboard');
+  if (showLeaderboardEl) {
+    showLeaderboardEl.addEventListener('change', (e) => {
+      db.settings.showLeaderboard = e.target.checked;
+      saveDB();
+      renderGameBoard();
+    });
+  }
+
+  const tieBreakerEl = document.getElementById('settings-enable-tiebreaker');
+  if (tieBreakerEl) {
+    tieBreakerEl.addEventListener('change', (e) => {
+      db.settings.enableTieBreaker = e.target.checked;
+      saveDB();
+      renderAdminGrid();
+      renderGameBoard();
+    });
+  }
+
+  const tbVisEl = document.getElementById('settings-tiebreaker-visible');
+  if (tbVisEl) {
+    tbVisEl.addEventListener('change', (e) => {
+      db.settings.tiebreakerVisible = e.target.checked;
+      saveDB();
       renderGameBoard();
     });
   }
