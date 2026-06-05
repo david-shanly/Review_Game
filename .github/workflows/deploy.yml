@@ -70,3 +70,44 @@ jobs:
         with:
           name: review-game-windows-setup
           path: quiz-frontend/dist-electron/*.exe
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: quiz-frontend
+        run: npm install
+
+      - name: Build Web App
+        working-directory: quiz-frontend
+        run: npm run build
+
+      - name: Sync Capacitor
+        working-directory: quiz-frontend
+        run: npx cap sync
+
+      - name: Build Android APK
+        working-directory: quiz-frontend/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-game-android-apk
+          path: quiz-frontend/android/app/build/outputs/apk/debug/app-debug.apk
