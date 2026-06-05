@@ -482,7 +482,7 @@ const defaultSettings = {
   gridTileColor: '#ffffff',
   gridTileColorDefault: true,
   categories: [],
-  showCategories: true,
+  showCategories: false,
 };
 
 function renderCategoryInputs() {
@@ -490,7 +490,7 @@ function renderCategoryInputs() {
   if (!container) return;
   container.innerHTML = '';
 
-  const showCats = db.settings.showCategories ?? true;
+  const showCats = db.settings.showCategories ?? false;
   container.style.display = showCats ? 'flex' : 'none';
   if (!showCats) return;
 
@@ -532,7 +532,7 @@ function renderCategoryInputs() {
 function renderCategoryHeaders() {
   const cols = db.settings.gridCols || 4;
   const categories = db.settings.categories || [];
-  const showCats = db.settings.showCategories ?? true;
+  const showCats = db.settings.showCategories ?? false;
 
   // Update Game Board categories
   const gameCatContainer = document.getElementById('game-board-categories');
@@ -642,7 +642,7 @@ function hydrateControlCenter(settings) {
   if (customFeedbackEl) customFeedbackEl.checked = settings.useCustomFeedbackVideos ?? false;
 
   const showCategoriesEl = document.getElementById('settings-show-categories');
-  if (showCategoriesEl) showCategoriesEl.checked = settings.showCategories ?? true;
+  if (showCategoriesEl) showCategoriesEl.checked = settings.showCategories ?? false;
 
   if (db.teams && db.teams.length >= 2) {
     const t1Name = document.getElementById('admin-team1-name');
