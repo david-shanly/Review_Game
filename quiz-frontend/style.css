@@ -1595,10 +1595,12 @@ body {
 
 .modal-content {
   margin: auto;
-  width: 85vw;
-  max-width: 1200px;
+  width: fit-content;
+  min-width: 70vw;
+  max-width: 85vw;
   height: auto; /* Allow height to fit content dynamically */
-  max-height: 90vh; /* Lock height to a maximum of 90vh */
+  max-height: 94vh; /* Lock height to a maximum of 94vh */
+  min-height: 70vh;
   padding: clamp(0.75rem, 2vh, 1.75rem); /* Responsive padding */
   display: flex;
   flex-direction: column;
@@ -2714,23 +2716,6 @@ body {
 .sidebar-content::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.15);
 }
-  gap: 12px;
-}
-
-/* Custom scrollbar for sidebar content */
-.sidebar-content::-webkit-scrollbar {
-  width: 6px;
-}
-.sidebar-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-.sidebar-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-pill);
-}
-.sidebar-content::-webkit-scrollbar-thumb:hover {
-  background: var(--color-control-accent);
-}
 
 .sidebar-section {
   display: flex;
@@ -3292,10 +3277,11 @@ body {
 
   /* Desktop-specific modal overlays constraints */
   .modal-content {
-    width: 60vw !important;
-    max-width: 60vw !important;
-    max-height: 96vh !important;
-    min-height: unset !important;
+    width: fit-content !important;
+    min-width: 65vw !important;
+    max-width: 75vw !important;
+    max-height: 94vh !important;
+    min-height: 78vh !important;
     padding: clamp(1.8rem, 4vh, 3.2rem) !important;
   }
 }
