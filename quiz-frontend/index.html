@@ -379,7 +379,8 @@
     <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
     <aside id="left-sliding-sidebar" class="left-sliding-sidebar glass-panel">
       <div class="sidebar-header">
-        <h3 class="sidebar-title">⚙️ Control Center</h3>
+        <div class="sidebar-logo-circle">⚙️</div>
+        <h3 class="sidebar-title">Control Center</h3>
         <button id="btn-close-sidebar" class="btn-close-sidebar" title="Close Panel">✕</button>
       </div>
 
@@ -414,8 +415,8 @@
                     <input type="file" id="admin-team1-logo" accept="image/*" class="team-setup-file" style="font-size: 0.9rem; margin-bottom: 8px;" disabled>
                   </div>
 
-                  <div class="team-score-adjust-container" style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
-                    <label for="admin-team1-score" style="color: var(--color-gold); font-weight: bold;">Score Adjustment</label>
+                  <div class="team-score-adjust-container" style="margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 10px;">
+                    <label for="admin-team1-score" style="color: #2563eb; font-weight: bold;">Score Adjustment</label>
                     <input type="number" id="admin-team1-score" class="team-setup-input" placeholder="No active game" disabled>
                   </div>
                 </div>
@@ -441,8 +442,8 @@
                     <input type="file" id="admin-team2-logo" accept="image/*" class="team-setup-file" style="font-size: 0.9rem; margin-bottom: 8px;" disabled>
                   </div>
 
-                  <div class="team-score-adjust-container" style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
-                    <label for="admin-team2-score" style="color: var(--color-gold); font-weight: bold;">Score Adjustment</label>
+                  <div class="team-score-adjust-container" style="margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 10px;">
+                    <label for="admin-team2-score" style="color: #2563eb; font-weight: bold;">Score Adjustment</label>
                     <input type="number" id="admin-team2-score" class="team-setup-input" placeholder="No active game" disabled>
                   </div>
                 </div>
@@ -538,7 +539,7 @@
                   <span>⚖️ Game Rules</span>
                   <span class="details-icon">▼</span>
                 </summary>
-                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.2) !important; padding: 10px 12px !important;">
+                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.03) !important; padding: 10px 12px !important;">
                   <label class="custom-switch-label">
                     <input type="checkbox" id="settings-enable-tiebreaker" class="custom-switch-checkbox">
                     <span class="custom-switch-track"></span>
@@ -566,7 +567,7 @@
                   <span>📏 Layout</span>
                   <span class="details-icon">▼</span>
                 </summary>
-                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.2) !important; padding: 10px 12px !important;">
+                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.03) !important; padding: 10px 12px !important;">
                   <div class="form-group" style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
                       <label for="settings-total-questions">Questions</label>
@@ -586,7 +587,7 @@
                   <span>🏷️ Category Names</span>
                   <span class="details-icon">▼</span>
                 </summary>
-                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.2) !important; padding: 10px 12px !important;">
+                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.03) !important; padding: 10px 12px !important;">
                   <label class="custom-switch-label" style="margin-bottom: 10px;">
                     <input type="checkbox" id="settings-show-categories" class="custom-switch-checkbox" checked>
                     <span class="custom-switch-track"></span>
@@ -602,14 +603,14 @@
                   <span>✨ Feedback Systems</span>
                   <span class="details-icon">▼</span>
                 </summary>
-                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.2) !important; padding: 10px 12px !important;">
+                <div class="premium-controls-wrapper" style="background: rgba(0, 0, 0, 0.03) !important; padding: 10px 12px !important;">
                   <label class="custom-switch-label">
                     <input type="checkbox" id="settings-play-emoji-feedback" class="custom-switch-checkbox" checked>
                     <span class="custom-switch-track"></span>
                     <span class="custom-switch-text">Use Emoji Feedback</span>
                   </label>
 
-                  <div id="emoji-feedback-options" style="margin-left: 10px; margin-top: 8px; flex-direction: column; gap: 8px; display: flex; border-left: 2px solid rgba(244, 196, 48, 0.2); padding-left: 8px;">
+                  <div id="emoji-feedback-options" style="margin-left: 10px; margin-top: 8px; flex-direction: column; gap: 8px; display: flex; border-left: 2px solid rgba(37, 99, 235, 0.15); padding-left: 8px;">
                     <label class="custom-switch-label">
                       <input type="checkbox" id="settings-enable-custom-emoji" class="custom-switch-checkbox" checked>
                       <span class="custom-switch-track" style="width: 32px; height: 18px; border-radius: 9px;"></span>
@@ -638,7 +639,7 @@
                     <span class="custom-switch-text">Use Video Feedback</span>
                   </label>
 
-                  <div id="video-feedback-options" style="display: none; margin-left: 10px; margin-top: 8px; flex-direction: column; gap: 8px; border-left: 2px solid rgba(244, 196, 48, 0.2); padding-left: 8px;">
+                  <div id="video-feedback-options" style="display: none; margin-left: 10px; margin-top: 8px; flex-direction: column; gap: 8px; border-left: 2px solid rgba(37, 99, 235, 0.15); padding-left: 8px;">
                     <label class="custom-switch-label">
                       <input type="checkbox" id="settings-use-custom-feedback" class="custom-switch-checkbox">
                       <span class="custom-switch-track" style="width: 32px; height: 18px; border-radius: 9px;"></span>
