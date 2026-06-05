@@ -927,7 +927,7 @@ body {
   flex-direction: column;
   justify-content: stretch;
   align-items: stretch;
-  padding: 0.25rem;
+  padding: clamp(8px, 1.2vh, 16px);
   background: var(--cell-bg);
   border-radius: var(--radius-md);
   border: 1.5px solid var(--cell-border);
@@ -1258,7 +1258,7 @@ body {
   min-height: 0;
   flex: 1;
   flex-direction: column;
-  padding: 0.25rem;
+  padding: clamp(8px, 1.2vh, 16px);
   background: var(--cell-bg);
   border-radius: var(--radius-md);
   border: 1.5px solid var(--cell-border);
