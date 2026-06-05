@@ -3658,7 +3658,7 @@ document.getElementById('btn-save-settings')?.addEventListener('click', () => {
   playSound('click');
   saveDB();
 
-  // Save to default_quiz.json on local server and trigger Git commit & push
+  // Save to default_quiz.json on local server
   fetch('/api/save-db', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -3667,11 +3667,7 @@ document.getElementById('btn-save-settings')?.addEventListener('click', () => {
   .then(res => res.json())
   .then(data => {
     if (data.success) {
-      if (data.gitSuccess) {
-        triggerAlert('SYSTEM', 'Saved to default quiz DB and updated in GitHub!', 'gain');
-      } else {
-        triggerAlert('SYSTEM', 'Saved locally, but Git push failed: ' + (data.error || 'unknown error'), 'lose');
-      }
+      triggerAlert('SYSTEM', 'Saved to default quiz database!', 'gain');
     } else {
       triggerAlert('SYSTEM', 'Failed to save to server database file.', 'lose');
     }
