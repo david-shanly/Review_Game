@@ -3657,6 +3657,29 @@ document.getElementById('import-json-file').addEventListener('change', (e) => {
 document.getElementById('btn-save-settings')?.addEventListener('click', () => {
   playSound('click');
   saveDB();
+
+  // Save to default_quiz.json on local server and trigger Git commit & push
+  fetch('/api/save-db', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(db, null, 2)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      if (data.gitSuccess) {
+        triggerAlert('SYSTEM', 'Saved to default quiz DB and updated in GitHub!', 'gain');
+      } else {
+        triggerAlert('SYSTEM', 'Saved locally, but Git push failed: ' + (data.error || 'unknown error'), 'lose');
+      }
+    } else {
+      triggerAlert('SYSTEM', 'Failed to save to server database file.', 'lose');
+    }
+  })
+  .catch(err => {
+    console.error('Failed to post to save-db:', err);
+    triggerAlert('SYSTEM', 'Failed to save to default quiz database.', 'lose');
+  });
   
   let revived = false;
   if (playState && playState.answeredCells) {
@@ -3674,9 +3697,6 @@ document.getElementById('btn-save-settings')?.addEventListener('click', () => {
 
   if (revived) {
     saveGameState();
-    triggerAlert('SYSTEM', 'Cancelled questions revived and preferences saved!', 'gain');
-  } else {
-    triggerAlert('SYSTEM', 'Preferences saved and loaded into game!', 'gain');
   }
 });
 
