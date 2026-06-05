@@ -1561,10 +1561,10 @@ body {
 
 .modal-content {
   margin: auto;
-  width: 92vw;
+  width: 85vw;
   max-width: 1200px;
-  height: 92vh; /* Lock height relative to viewport height */
-  max-height: 92vh;
+  height: 85vh; /* Lock height relative to viewport height */
+  max-height: 85vh;
   padding: clamp(1rem, 2.2vh, 2rem); /* Dynamic vh-based padding */
   display: flex;
   flex-direction: column;
