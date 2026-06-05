@@ -490,6 +490,10 @@ function renderCategoryInputs() {
   if (!container) return;
   container.innerHTML = '';
 
+  const showCats = db.settings.showCategories ?? true;
+  container.style.display = showCats ? 'flex' : 'none';
+  if (!showCats) return;
+
   const cols = db.settings.gridCols || 4;
   if (!db.settings.categories) {
     db.settings.categories = [];
@@ -4276,6 +4280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showCategoriesEl.addEventListener('change', (e) => {
       db.settings.showCategories = e.target.checked;
       saveDB();
+      renderCategoryInputs();
       renderCategoryHeaders();
     });
   }
