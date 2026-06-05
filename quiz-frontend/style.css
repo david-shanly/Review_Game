@@ -545,10 +545,18 @@ body {
   max-width: 556px;
   margin: auto;
   text-align: center;
-  padding: 25px 45px;
+  padding: clamp(16px, 3.5vh, 32px) clamp(20px, 4.5vw, 45px) !important;
   border-radius: var(--radius-lg);
   position: relative;
-  overflow: hidden;
+  
+  /* Dynamic Height & Squish protection */
+  height: auto !important;
+  max-height: calc(100vh - 150px) !important; /* Mindful of app header & footer */
+  overflow-y: auto !important;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  gap: clamp(0.8rem, 2.2vh, 1.6rem) !important;
 }
 
 .hero-card::before {
@@ -560,10 +568,18 @@ body {
 }
 
 .hero-stars {
-  font-size: 1.29rem;
-  margin-bottom: 14px;
-  letter-spacing: 6.9px;
-  animation: starSpin 4s linear infinite;
+  min-height: 0 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0 !important;
+}
+
+.hero-stars img, .logo-fallback-hero {
+  width: clamp(4.5rem, 9.5vh, 7.5rem) !important;
+  height: clamp(4.5rem, 9.5vh, 7.5rem) !important;
+  object-fit: contain;
+  transition: all 0.3s ease;
 }
 
 @keyframes starSpin {
@@ -582,20 +598,22 @@ body {
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: 2.9rem;
+  font-size: clamp(1.8rem, 4.2vh, 2.9rem) !important;
   line-height: 1.2;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0 !important; /* Managed by gap */
   font-weight: 400;
+  flex-shrink: 0;
 }
 
 .dashboard-status-card {
   background: var(--cell-bg);
   border: 1.5px solid var(--cell-border);
   border-radius: var(--radius-md);
-  padding: 14px 20px;
-  margin-bottom: 15px;
+  padding: clamp(8px, 1.5vh, 14px) clamp(12px, 2.5vw, 20px) !important;
+  margin-bottom: 0 !important; /* Managed by gap */
   text-align: left;
-  font-size: 1.15rem;
+  font-size: clamp(0.9rem, 1.8vh, 1.15rem) !important;
+  flex-shrink: 0;
 }
 
 .dashboard-status-card .bold-text {
@@ -614,9 +632,10 @@ body {
 .hero-decor {
   display: flex;
   justify-content: center;
-  gap: 1.25rem;
-  font-size: 2rem;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  font-size: clamp(1.4rem, 3vh, 2rem) !important;
   margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .decor-item {
@@ -1432,8 +1451,17 @@ body {
   max-width: calc(min(624px, 89vw) * var(--winner-scale, 1));
   margin: calc(clamp(12px, 2vh, 24px) * var(--winner-scale, 1)) auto;
   text-align: center;
-  padding: calc(clamp(25px, 4.2vh, 53px) * var(--winner-scale, 1)) calc(clamp(21px, 4.2vw, 45px) * var(--winner-scale, 1));
+  padding: calc(clamp(16px, 3vh, 53px) * var(--winner-scale, 1)) calc(clamp(21px, 4.2vw, 45px) * var(--winner-scale, 1)) !important;
   border-radius: var(--radius-lg);
+  
+  /* Dynamic Height & Squish protection */
+  height: auto !important;
+  max-height: calc(100vh - 150px) !important; /* Mindful of app header & footer */
+  overflow-y: auto !important;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  gap: calc(clamp(0.6rem, 1.8vh, 1.5rem) * var(--winner-scale, 1)) !important;
 }
 
 /* Tie – bigger, more dramatic card */
@@ -1454,10 +1482,11 @@ body {
 .winner-card-win .winner-team-name { font-size: calc(clamp(1.6rem, 4vw, 2.4rem) * var(--winner-scale, 1)); }
 
 .winner-trophy {
-  font-size: calc(clamp(3.5rem, 7vh, 4.95rem) * var(--winner-scale, 1));
+  font-size: calc(clamp(2.5rem, 5vh, 4.95rem) * var(--winner-scale, 1)) !important;
   animation: trophyBounce 1.2s ease infinite alternate;
-  margin-bottom: calc(clamp(6px, 1.5vh, 11px) * var(--winner-scale, 1));
+  margin-bottom: 0 !important;
   display: block;
+  flex-shrink: 0;
 }
 
 @keyframes trophyBounce {
@@ -1475,33 +1504,37 @@ body {
   background: linear-gradient(135deg, var(--color-gold), var(--color-gold-dark));
   color: #0A0A0A;
   font-family: var(--font-display);
-  font-size: calc(clamp(0.7rem, 1.2vw, 0.81rem) * var(--winner-scale, 1));
+  font-size: calc(clamp(0.7rem, 1.2vh, 0.81rem) * var(--winner-scale, 1)) !important;
   letter-spacing: calc(2.7px * var(--winner-scale, 1));
-  padding: calc(6px * var(--winner-scale, 1)) calc(20px * var(--winner-scale, 1));
+  padding: calc(clamp(4px, 0.8vh, 8px) * var(--winner-scale, 1)) calc(clamp(12px, 2.5vw, 24px) * var(--winner-scale, 1)) !important;
   border-radius: var(--radius-pill);
-  margin-bottom: calc(clamp(0.5rem, 1.5vh, 1rem) * var(--winner-scale, 1));
+  margin-bottom: 0 !important;
+  flex-shrink: 0;
 }
 
 .winner-team-name {
   font-family: var(--font-display);
-  font-size: calc(clamp(1.8rem, 4.5vw, 2.7rem) * var(--winner-scale, 1));
-  margin-bottom: calc(clamp(8px, 1.5vh, 13px) * var(--winner-scale, 1));
+  font-size: calc(clamp(1.4rem, 3.8vh, 2.7rem) * var(--winner-scale, 1)) !important;
+  margin-bottom: 0 !important;
   font-weight: 400;
+  flex-shrink: 0;
 }
 
 .hero-subtitle {
   color: var(--color-text-muted);
-  font-size: calc(clamp(0.8rem, 1.3vw, 0.95rem) * var(--winner-scale, 1));
-  margin-bottom: calc(clamp(12px, 2.5vh, 25px) * var(--winner-scale, 1));
+  font-size: calc(clamp(0.75rem, 1.2vw, 0.95rem) * var(--winner-scale, 1));
+  margin-bottom: 0 !important;
   line-height: 1.6;
+  flex-shrink: 0;
 }
 
 .winner-standings-container {
   display: flex;
   flex-direction: column;
-  gap: calc(clamp(5px, 1vh, 9px) * var(--winner-scale, 1));
+  gap: calc(clamp(4px, 0.8vh, 9px) * var(--winner-scale, 1)) !important;
   max-width: calc(396px * var(--winner-scale, 1));
-  margin: calc(clamp(10px, 2vh, 20px) * var(--winner-scale, 1)) auto calc(clamp(12px, 2.5vh, 25px) * var(--winner-scale, 1)) auto;
+  margin: 0 auto !important;
+  width: 100%;
 }
 
 .standing-row {
@@ -1900,12 +1933,12 @@ body {
   }
 
   .hero-card {
-    padding: 36px 22px;
-    margin: 24px auto;
+    padding: clamp(12px, 3vh, 24px) clamp(16px, 4vw, 32px) !important;
+    margin: auto !important;
   }
 
   .hero-title {
-    font-size: 2rem;
+    font-size: clamp(1.6rem, 3.8vh, 2.2rem) !important;
   }
 
   .question-text {
@@ -3083,7 +3116,7 @@ body {
 
   .hero-card,
   .winner-card {
-    max-height: calc(100vh - 160px) !important;
+    max-height: calc(100vh - 150px) !important;
     overflow-y: auto !important;
     margin: auto !important;
   }
@@ -3317,7 +3350,7 @@ body {
 
   /* Mobile height safety limits to prevent clipping */
   .hero-card, .winner-card {
-    max-height: calc(100vh - 160px) !important;
+    max-height: calc(100vh - 150px) !important;
     overflow-y: auto !important;
   }
 }
