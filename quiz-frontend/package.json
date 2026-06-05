@@ -18,14 +18,14 @@
     "cap:sync": "vite build && npx cap sync",
     "cap:android": "vite build && npx cap sync && npx cap open android"
   },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  },
   "devDependencies": {
     "electron": "^36.9.5",
     "electron-builder": "^26.8.1",
     "vite": "^8.0.12"
-  },
-  "optionalDependencies": {
-    "@capacitor/android": "^6.0.0",
-    "@capacitor/cli": "^6.0.0",
-    "@capacitor/core": "^6.0.0"
   }
 }
