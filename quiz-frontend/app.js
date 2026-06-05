@@ -691,6 +691,7 @@ function loadSavedDB(parsed) {
       db.settings.totalQuestions = maxIdx;
     }
     
+    db.settings.showCategories = false;
     hydrateControlCenter(db.settings);
     
     document.documentElement.style.setProperty('--cols', 4);
@@ -791,6 +792,9 @@ async function loadDB() {
   if (maxIdx > db.settings.totalQuestions) {
     db.settings.totalQuestions = maxIdx;
   }
+  
+  // Ensure category showing is defaulted to off state when loaded
+  db.settings.showCategories = false;
   
   // Persist the merged state back to localStorage so it's ready for next session
   fallbackSaveDB();
@@ -974,6 +978,8 @@ async function loadDefaultQuiz() {
   } catch (err) {
     console.error("Failed to fetch default_quiz.json:", err);
   }
+
+  db.settings.showCategories = false;
 
   // Save only to localStorage — do NOT call saveDB() here as that would
   // POST to /api/save-db and overwrite default_quiz.json with runtime state.
