@@ -7,8 +7,8 @@
 // CONSTANTS
 // ============================================================
 const DEFAULT_TEAMS = [
-  { name: 'Lion', logo: 'lion.png' },
-  { name: 'Lioness', logo: 'lioness.png' }
+  { name: 'Boy', logo: 'boy.png' },
+  { name: 'Girl', logo: 'girl.png' }
 ];
 
 function assetPath(path) {
@@ -57,7 +57,7 @@ const TEAM_COLORS = [
   { bg: 'rgba(244,114,182,0.14)', border: 'rgba(244,114,182,0.45)', text: 'var(--color-team6)' },
 ];
 
-const TEAM_ICONS = ['⚔️', '🌸', '🦁', '👑', '🔥', '💎'];
+const TEAM_ICONS = ['👦', '👧', '🦁', '👑', '🔥', '💎'];
 
 // ============================================================
 // STATE
@@ -1786,7 +1786,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
       panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''}`;
       panel.style.borderColor = isActive ? 'var(--color-gold)' : color.border;
 
-      const logoSrc = assetPath(team.logo || (team.name === 'Lion' ? 'lion.png' : 'lioness.png'));
+      const logoSrc = assetPath(team.logo || (team.name === 'Boy' ? 'boy.png' : 'girl.png'));
       const defaultEmoji = TEAM_ICONS[i % TEAM_ICONS.length] || '🦁';
       panel.innerHTML = `
         <div class="team-logo-container" style="position: relative; width: 5.2rem; height: 5.2rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
@@ -3172,8 +3172,8 @@ function setupTeamsFromInputs() {
   let sourceTeams = (db.teams && Array.isArray(db.teams) && db.teams.length >= 2) ? db.teams : DEFAULT_TEAMS;
   playState.teams = sourceTeams.slice(0, 2).map((t, idx) => {
     const isDef = !!t.useDefault;
-    const defaultName = idx === 0 ? 'Lion' : 'Lioness';
-    const defaultLogo = idx === 0 ? 'lion.png' : 'lioness.png';
+    const defaultName = idx === 0 ? 'Boy' : 'Girl';
+    const defaultLogo = idx === 0 ? 'boy.png' : 'girl.png';
     return {
       name: isDef ? defaultName : (t.name || defaultName),
       logo: isDef ? defaultLogo : (t.logo || defaultLogo),
@@ -3558,8 +3558,8 @@ const setupDefaultTeamToggle = (teamIdx, defaultCheckboxId, nameInputId, logoInp
   });
 };
 
-setupDefaultTeamToggle(0, 'admin-team1-default', 'admin-team1-name', 'admin-team1-logo', 'Lion', 'lion.png');
-setupDefaultTeamToggle(1, 'admin-team2-default', 'admin-team2-name', 'admin-team2-logo', 'Lioness', 'lioness.png');
+setupDefaultTeamToggle(0, 'admin-team1-default', 'admin-team1-name', 'admin-team1-logo', 'Boy', 'boy.png');
+setupDefaultTeamToggle(1, 'admin-team2-default', 'admin-team2-name', 'admin-team2-logo', 'Girl', 'girl.png');
 
 async function saveDatabaseToFileHandle(handle, data) {
   const writable = await handle.createWritable();

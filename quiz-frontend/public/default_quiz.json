@@ -182,12 +182,12 @@
   ],
   "teams": [
     {
-      "name": "Lion",
-      "logo": "lion.png"
+      "name": "Boy",
+      "logo": "boy.png"
     },
     {
-      "name": "Lioness",
-      "logo": "lioness.png"
+      "name": "Girl",
+      "logo": "girl.png"
     }
   ]
 }
