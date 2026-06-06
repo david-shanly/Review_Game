@@ -927,7 +927,7 @@ body {
   flex-direction: column;
   justify-content: stretch;
   align-items: stretch;
-  padding: clamp(8px, 1.2vh, 16px);
+  padding: clamp(8px, 1.5vh, 16px);
   background: var(--cell-bg);
   border-radius: var(--radius-md);
   border: 1.5px solid var(--cell-border);
@@ -1258,7 +1258,7 @@ body {
   min-height: 0;
   flex: 1;
   flex-direction: column;
-  padding: clamp(8px, 1.2vh, 16px);
+  padding: clamp(8px, 1.5vh, 16px);
   background: var(--cell-bg);
   border-radius: var(--radius-md);
   border: 1.5px solid var(--cell-border);
@@ -3185,7 +3185,7 @@ body {
     min-height: 0;
     display: grid;
     /* Mathematically precise row height based on container height minus gap spaces */
-    --row-height: calc((100cqh - (var(--rows, 5) - 1) * 0.625rem) / var(--rows, 5));
+    --row-height: calc((100cqh - (var(--rows, 5) - 1) * 0.625rem - 2 * clamp(8px, 1.5vh, 16px)) / var(--rows, 5));
     --cell-font-size: clamp(0.65rem, calc(var(--row-height) * 0.2), 1.5rem);
     --cell-padding: clamp(0.1rem, calc(var(--row-height) * 0.08), 0.5rem);
   }
