@@ -3430,8 +3430,11 @@ function showQuestionContent(cId, q) {
 }
 
 function fitModalText() {
-  const modal = document.querySelector('#modal-overlay .modal-content');
-  if (!modal) return;
+  const overlay = document.getElementById('modal-overlay');
+  if (!overlay || !overlay.classList.contains('open')) return;
+
+  const modal = overlay.querySelector('.modal-content');
+  if (!modal || modal.clientHeight === 0) return;
 
   const questionText = document.getElementById('modal-question-text');
   const optionBtns = document.querySelectorAll('#modal-overlay .option-btn');
@@ -3459,10 +3462,18 @@ function fitModalText() {
 
   let scale = 1.0;
   const minScale = 0.45; // Keep basic legibility
-  const step = 0.03;
+  const step = 0.02;
 
-  // Reduce font size progressively while the content height overflows the available modal height
-  while (modal.scrollHeight > modal.clientHeight && scale > minScale) {
+  // Helper check for any overflow (overall or container-level)
+  const hasOverflow = () => {
+    if (modal.scrollHeight > modal.clientHeight) return true;
+    if (questionText && questionText.scrollHeight > questionText.clientHeight) return true;
+    if (revealPanel && !revealPanel.classList.contains('hidden') && revealPanel.scrollHeight > revealPanel.clientHeight) return true;
+    return false;
+  };
+
+  // Reduce font size progressively while any content overflows
+  while (hasOverflow() && scale > minScale) {
     scale -= step;
     if (questionText && qBase) {
       questionText.style.fontSize = `${qBase * scale}px`;
