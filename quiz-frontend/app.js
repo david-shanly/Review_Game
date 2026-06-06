@@ -3397,6 +3397,60 @@ function handleQuestionTimeout() {
   }
 }
 
+function adjustModalTextSizes() {
+  const overlay = document.getElementById('modal-overlay');
+  if (!overlay || !overlay.classList.contains('open')) return;
+
+  // 1. Adjust question text
+  const questionTextEl = document.getElementById('modal-question-text');
+  if (questionTextEl && questionTextEl.style.display !== 'none') {
+    questionTextEl.style.fontSize = '';
+    const maxFont = 2.9;
+    const minFont = 1.1;
+    let currentRem = maxFont;
+    questionTextEl.style.fontSize = `${currentRem}rem`;
+
+    let loop = 0;
+    while (questionTextEl.scrollHeight > questionTextEl.clientHeight + 2 && currentRem > minFont && loop < 50) {
+      currentRem -= 0.05;
+      questionTextEl.style.fontSize = `${currentRem}rem`;
+      loop++;
+    }
+  }
+
+  // 2. Adjust correct answer reveal panel text
+  const revealPanel = document.getElementById('modal-reveal-panel');
+  const valueEl = document.getElementById('modal-correct-answer-text');
+  if (revealPanel && !revealPanel.classList.contains('hidden') && valueEl) {
+    valueEl.style.fontSize = '';
+    const maxFont = 2.1;
+    const minFont = 0.95;
+    let currentRem = maxFont;
+    valueEl.style.fontSize = `${currentRem}rem`;
+
+    let loop = 0;
+    while (revealPanel.scrollHeight > revealPanel.clientHeight + 2 && currentRem > minFont && loop < 50) {
+      currentRem -= 0.05;
+      valueEl.style.fontSize = `${currentRem}rem`;
+      loop++;
+    }
+  }
+}
+
+function showRevealPanel(answerText) {
+  const panel = document.getElementById('modal-reveal-panel');
+  const txtEl = document.getElementById('modal-correct-answer-text');
+  if (panel && txtEl) {
+    updateTextAndCheckUnicode(txtEl, answerText);
+    panel.classList.remove('hidden');
+    setTimeout(adjustModalTextSizes, 50);
+  }
+}
+
+window.addEventListener('resize', () => {
+  adjustModalTextSizes();
+});
+
 // ============================================================
 // QUESTION MODAL
 // ============================================================
@@ -3508,6 +3562,8 @@ function showQuestionContent(cId, q) {
       btnFreePass.classList.add('hidden');
     }
   }
+
+  setTimeout(adjustModalTextSizes, 50);
 }
 
 function openQuestionModal(cId, q) {
@@ -4544,8 +4600,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
       contentNode.classList.add('feedback-correct');
     }
 
-    updateTextAndCheckUnicode(document.getElementById('modal-correct-answer-text'), q.correctAnswer || q.answer);
-    document.getElementById('modal-reveal-panel').classList.remove('hidden');
+    showRevealPanel(q.correctAnswer || q.answer);
 
     const turnStatus = document.getElementById('modal-turn-status');
     turnStatus.textContent = "Correct Answer!";
@@ -4632,8 +4687,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
             contentNode.classList.add('feedback-wrong');
           }
 
-          document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
-          document.getElementById('modal-reveal-panel').classList.remove('hidden');
+          showRevealPanel(q.correctAnswer || q.answer);
 
           playState.cancelLocked = true;
           const btnCancel = document.getElementById('btn-modal-cancel');
@@ -4699,8 +4753,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
             contentNode.classList.add('feedback-wrong');
           }
 
-          document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
-          document.getElementById('modal-reveal-panel').classList.remove('hidden');
+          showRevealPanel(q.correctAnswer || q.answer);
 
           playState.cancelLocked = true;
           const btnCancel = document.getElementById('btn-modal-cancel');
@@ -5890,9 +5943,7 @@ document.getElementById('btn-modal-free-pass').addEventListener('click', () => {
 
   playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
 
-  const correctTextEl = document.getElementById('modal-correct-answer-text');
-  updateTextAndCheckUnicode(correctTextEl, q.correctAnswer || q.answer);
-  document.getElementById('modal-reveal-panel').classList.remove('hidden');
+  showRevealPanel(q.correctAnswer || q.answer);
 
   const turnStatus = document.getElementById('modal-turn-status');
   turnStatus.textContent = "Free Pass Used!";

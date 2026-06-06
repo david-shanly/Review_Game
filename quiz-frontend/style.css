@@ -1710,11 +1710,6 @@ body {
   padding: 0.5rem 0;
   overflow-y: auto; /* Fallback for very long questions */
   max-height: 40vh; /* Prevent question text from growing too large */
-  scrollbar-width: none;  /* Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
-}
-.question-text::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
 }
 
 /* MCQ Options Grid */
@@ -1819,11 +1814,6 @@ body {
   animation: revealIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   overflow-y: auto; /* Fallback for very long answers */
   max-height: 25vh; /* Keep answer reveal compact */
-  scrollbar-width: none;  /* Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
-}
-.reveal-panel::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
 }
 
 @keyframes revealIn {
@@ -2721,6 +2711,26 @@ body {
 }
 .sidebar-content::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.15);
+}
+
+/* Custom slim scrollbars for question-text and reveal-panel */
+.question-text::-webkit-scrollbar,
+.reveal-panel::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.question-text::-webkit-scrollbar-track,
+.reveal-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.question-text::-webkit-scrollbar-thumb,
+.reveal-panel::-webkit-scrollbar-thumb {
+  background: rgba(244, 196, 48, 0.25);
+  border-radius: 3px;
+}
+.question-text::-webkit-scrollbar-thumb:hover,
+.reveal-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 196, 48, 0.55);
 }
 
 .sidebar-section {
