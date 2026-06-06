@@ -1866,7 +1866,15 @@ function hydrateControlCenter(settings) {
   if (powerupModeEl) powerupModeEl.value = settings.powerupMode ?? 'random';
   
   const powerupCountEl = document.getElementById('settings-powerup-count');
-  if (powerupCountEl) powerupCountEl.value = settings.randomPowerupsCount ?? 3;
+  if (powerupCountEl) {
+    const totalQuestions = settings.totalQuestions ?? 12;
+    powerupCountEl.max = totalQuestions;
+    if ((settings.randomPowerupsCount ?? 3) > totalQuestions) {
+      settings.randomPowerupsCount = totalQuestions;
+      saveDB();
+    }
+    powerupCountEl.value = settings.randomPowerupsCount ?? 3;
+  }
 
   const powerupCountGroup = document.getElementById('powerup-count-group');
   if (powerupCountGroup) {
@@ -6118,6 +6126,20 @@ document.addEventListener('DOMContentLoaded', () => {
       let val = parseInt(e.target.value, 10);
       if (isNaN(val) || val < 1) val = 1;
       db.settings.totalQuestions = val;
+
+      // Update max on random powerup count and clamp it if needed
+      const countEl = document.getElementById('settings-powerup-count');
+      if (countEl) {
+        countEl.max = val;
+        let pVal = parseInt(countEl.value, 10);
+        if (isNaN(pVal) || pVal < 0) pVal = 0;
+        if (pVal > val) {
+          pVal = val;
+          countEl.value = pVal;
+          db.settings.randomPowerupsCount = pVal;
+        }
+      }
+
       saveDB();
       renderAdminGrid();
       renderGameBoard();
@@ -6194,7 +6216,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (powerupCountEl) {
     powerupCountEl.addEventListener('change', (e) => {
       let val = parseInt(e.target.value, 10);
+      const maxAllowed = db.settings.totalQuestions || 12;
       if (isNaN(val) || val < 0) val = 0;
+      if (val > maxAllowed) {
+        val = maxAllowed;
+        powerupCountEl.value = val;
+      }
       db.settings.randomPowerupsCount = val;
       saveDB();
     });
