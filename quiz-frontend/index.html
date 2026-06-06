@@ -62,6 +62,9 @@
             </svg>
           </span>
         </button>
+        <button id="btn-about-toggle" class="btn btn-icon" title="About & Help Guide" aria-label="About Guide">
+          <span>ℹ️</span>
+        </button>
         <button id="btn-go-admin-float" class="btn btn-icon" title="Admin Panel" aria-label="Admin Panel">
           ⚙️
         </button>
@@ -92,9 +95,14 @@
               questions.</p>
           </div>
 
-          <div class="dashboard-actions">
-            <button id="btn-start-game" class="btn btn-primary btn-start-big" disabled>
+
+
+          <div class="dashboard-actions" style="display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; width: 100%; max-width: 320px; margin: 20px auto 0 auto;">
+            <button id="btn-start-game" class="btn btn-primary btn-start-big" disabled style="width: 100%;">
               🎮 Start Game!
+            </button>
+            <button id="btn-start-practice" class="btn btn-secondary btn-start-big" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+              🏠 Practice Mode
             </button>
           </div>
 
@@ -167,6 +175,18 @@
                 <div class="form-group">
                   <label for="q-points">Points</label>
                   <input type="number" id="q-points" class="modern-input" value="100" min="0" step="10" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="q-powerup">Hidden Power-up Card</label>
+                  <select id="q-powerup" class="modern-select" style="padding: 6px 10px; width: 100%;">
+                    <option value="none">None</option>
+                    <option value="double_points">🌟 Double Points</option>
+                    <option value="steal_shield">🛡️ Steal Shield</option>
+                    <option value="fifty_fifty">🤝 50/50 Help</option>
+                    <option value="extra_time">⏱️ Extra Time</option>
+                    <option value="free_pass">🎟️ Free Pass</option>
+                  </select>
                 </div>
                 <div class="form-group">
                   <input type="text" id="q-text" class="modern-input" placeholder="Enter your question here..."
@@ -295,9 +315,11 @@
 
           <div id="winner-stats" class="winner-stats"></div>
 
-          <div class="winner-actions">
-            <button id="btn-play-again" class="btn btn-primary btn-large">🔁 Play Again</button>
-            <button id="btn-winner-home" class="btn btn-secondary btn-large">🏠 Home</button>
+          <div class="winner-actions" style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 15px;">
+            <div style="display: flex; gap: 10px; width: 100%;">
+              <button id="btn-play-again" class="btn btn-primary btn-large" style="flex: 1;">🔁 Play Again</button>
+              <button id="btn-winner-home" class="btn btn-secondary btn-large" style="flex: 1;">🏠 Home</button>
+            </div>
           </div>
         </div>
       </section>
@@ -315,6 +337,29 @@
             <span id="modal-points-display" class="badge">Points</span>
             <span id="modal-turn-status" class="modal-turn-status">TEAM'S TURN</span>
           </div>
+        </div>
+
+        <!-- Per-question Timer Progress Bar -->
+        <div id="modal-timer-container" class="modal-timer-container hidden" style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 8px 0; overflow: hidden;">
+          <div id="modal-timer-bar" class="modal-timer-bar" style="width: 100%; height: 100%; background-color: var(--color-success); transition: width 0.1s linear, background-color 0.3s ease;"></div>
+        </div>
+
+        <!-- Power-up Reveal Panel -->
+        <div id="powerup-reveal-panel" class="powerup-reveal-panel hidden" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; width: 100%;">
+          <div class="powerup-card-wrapper" style="perspective: 1000px; width: 280px; height: 200px;">
+            <div class="powerup-card" id="powerup-card" style="width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;">
+              <div class="powerup-card-face powerup-card-front" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(0,0,0,0.35); border: 3px solid rgba(244,196,48,0.4); background: linear-gradient(135deg, #07112b, #0d1b3e);">
+                <div class="powerup-card-gift" style="font-size: 3.5rem; margin-bottom: 8px; animation: float 2s ease-in-out infinite;">🎁</div>
+                <div class="powerup-card-title" style="font-family: var(--font-display); font-size: 1.15rem; color: var(--color-gold); letter-spacing: 1px;">MYSTERY BOX...</div>
+              </div>
+              <div class="powerup-card-face powerup-card-back" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(0,0,0,0.35); border: 3px solid rgba(244,196,48,0.4); background: linear-gradient(135deg, #1e1b4b, #311042); transform: rotateY(180deg);">
+                <div class="powerup-card-icon" id="powerup-reveal-icon" style="font-size: 3rem; margin-bottom: 4px;">🌟</div>
+                <div class="powerup-card-name" id="powerup-reveal-name" style="font-family: var(--font-display); font-size: 1.25rem; font-weight: bold; color: var(--color-gold); margin-bottom: 4px; text-shadow: 0 0 10px rgba(244, 196, 48, 0.4);">DOUBLE POINTS</div>
+                <div class="powerup-card-desc" id="powerup-reveal-desc" style="font-size: 0.8rem; color: #cbd5e1; text-align: center; max-width: 95%; line-height: 1.2;">Doubles the points for this question!</div>
+              </div>
+            </div>
+          </div>
+          <button id="btn-powerup-continue" class="btn btn-primary btn-large" style="margin-top: 15px; width: 200px;">🎮 Start Question</button>
         </div>
 
         <!-- Tie-Breaker Hand Raise Active Team Selector -->
@@ -365,6 +410,8 @@
         <!-- Submit / Pass / Cancel Buttons -->
         <div class="modal-footer">
           <button id="btn-modal-cancel" class="btn btn-cancel">❌ Cancel Question</button>
+          <button id="btn-modal-fifty-fifty" class="btn btn-secondary hidden" style="background: rgba(167, 139, 250, 0.18); border-color: rgba(167, 139, 250, 0.45); color: var(--color-team4); display: inline-flex; align-items: center; justify-content: center; gap: 6px;">🤝 50/50</button>
+          <button id="btn-modal-free-pass" class="btn btn-secondary hidden" style="background: rgba(251, 165, 116, 0.18); border-color: rgba(251, 165, 116, 0.45); color: var(--color-team5); display: inline-flex; align-items: center; justify-content: center; gap: 6px;">🎟️ Free Pass</button>
           <div class="modal-footer-right">
             <button id="btn-modal-pass" class="btn btn-secondary">⏭️ PASS</button>
             <button id="btn-modal-submit" class="btn btn-primary">✅ SUBMIT</button>
@@ -372,6 +419,62 @@
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- ===== ABOUT & HELP MODAL ===== -->
+    <div id="about-overlay" class="modal-overlay">
+      <div class="modal-content glass-panel animate-zoom">
+        <div class="modal-header">
+          <h2 style="font-family: var(--font-display); font-size: 1.8rem; color: var(--color-gold); display: flex; align-items: center; gap: 8px; margin: 0;">ℹ️ About & How to Play</h2>
+          <button id="btn-about-close" class="btn btn-icon" style="margin-left: auto; font-size: 1.5rem; background: transparent; border: none; color: var(--color-text-light); cursor: pointer;">&times;</button>
+        </div>
+        <div class="about-modal-body" style="flex: 1; overflow-y: auto; padding: 10px 5px; color: var(--color-text-light); line-height: 1.6; font-size: 0.95rem; display: flex; flex-direction: column; gap: 20px;">
+          <div style="background: rgba(255, 255, 255, 0.04); padding: 15px; border-radius: var(--radius-sm); border: 1px solid var(--cell-border);">
+            <h3 style="color: var(--color-gold); font-family: var(--font-display); font-size: 1.25rem; margin-bottom: 8px; margin-top: 0;">🌟 Welcome to the Bible Quiz Review Game!</h3>
+            <p>This interactive, team-based quiz game is designed to help church kids review Bible stories, characters, and verses. Built with rich audio synthesis, rolling animations, hidden power-ups, and pre-made templates, it is perfect for classroom activities and Sunday school!</p>
+          </div>
+
+          <div class="about-grid-wrapper" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Column 1: For Players -->
+            <div style="background: rgba(56, 217, 245, 0.05); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(56, 217, 245, 0.25);">
+              <h4 style="color: var(--color-team1); font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 8px; margin-top: 0;">🎮 How to Play (For Teams)</h4>
+              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0;">
+                <li><strong>Form Teams</strong>: Choose team names and pick cartoon animal avatars in the settings.</li>
+                <li><strong>Select a Tile</strong>: Teams take turns selecting tiles from the game board.</li>
+                <li><strong>Answer Questions</strong>: Answer before the countdown timer bar runs out!</li>
+                <li><strong>Pass & Steal</strong>: If you aren't sure, you can pass to let other teams steal the points. Be careful—wrong answers lose half the points value!</li>
+              </ul>
+            </div>
+
+            <!-- Column 2: Power-ups -->
+            <div style="background: rgba(244, 196, 48, 0.05); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(244, 196, 48, 0.25);">
+              <h4 style="color: var(--color-gold); font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 8px; margin-top: 0;">🎁 Hidden Power-up Tiles</h4>
+              <p style="margin-bottom: 8px; font-size: 0.9rem; margin-top: 0;">Special modifiers are randomly hidden behind cells at start:</p>
+              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; margin: 0;">
+                <li>🌟 <strong>Double Points</strong>: Doubles the value of the question!</li>
+                <li>🛡️ <strong>Steal Shield</strong>: Blocks the other team from stealing points if you answer incorrectly.</li>
+                <li>🤝 <strong>50/50 Help</strong>: Removes two wrong options (MCQ only).</li>
+                <li>⏱️ <strong>Extra Time</strong>: Adds +15 seconds to the question countdown timer.</li>
+                <li>🎟️ <strong>Free Pass</strong>: Skip the question with no penalty and keep your turn!</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Section 3: For Teachers -->
+          <div style="background: rgba(167, 139, 250, 0.05); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(167, 139, 250, 0.25);">
+            <h4 style="color: var(--color-team4); font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 8px; margin-top: 0;">🛠️ Teacher Tools & Customization</h4>
+            <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0;">
+              <li><strong>Select Presets</strong>: Instantly load Bible Story presets like Noah's Ark, David & Goliath, Miracles of Jesus, Moses, Joseph, Daniel, or Jonah.</li>
+              <li><strong>Interactive Grid Editing</strong>: Enter the Admin Panel, select any cell, and use the Question Editor to modify questions and answers individually.</li>
+              <li><strong>Spreadsheet Import</strong>: Click the 📥 <strong>Download CSV Template</strong> button to download a spreadsheet template. Open it in Excel, enter your custom questions, and upload it back using 📊 <strong>CSV</strong>.</li>
+              <li><strong>Single-Player Practice</strong>: Run in 🏠 <strong>Practice Mode</strong> on the dashboard for solo learning!</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-footer" style="justify-content: flex-end;">
+          <button id="btn-about-ok" class="btn btn-primary" style="width: 120px;">👍 Got It!</button>
+        </div>
       </div>
     </div>
 
@@ -409,6 +512,11 @@
                     <label for="admin-team1-name">Name</label>
                     <input type="text" id="admin-team1-name" value="Boy" class="team-setup-input" autocomplete="off" disabled>
                   </div>
+                  
+                  <div class="form-group" style="margin-bottom: 8px;">
+                    <label style="font-size: 0.75rem; font-weight: 700; margin-bottom: 4px; display: block;">Choose Avatar</label>
+                    <div class="avatar-emoji-picker" id="team1-avatar-picker" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 4px; background: rgba(0,0,0,0.15); border-radius: 6px; border: 1px solid var(--panel-border-active);"></div>
+                  </div>
 
                   <div class="form-group" style="margin-bottom: 8px;">
                     <label for="admin-team1-logo">Custom Logo</label>
@@ -435,6 +543,11 @@
                   <div class="form-group" style="margin-bottom: 8px;">
                     <label for="admin-team2-name">Name</label>
                     <input type="text" id="admin-team2-name" value="Girl" class="team-setup-input" autocomplete="off" disabled>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 8px;">
+                    <label style="font-size: 0.75rem; font-weight: 700; margin-bottom: 4px; display: block;">Choose Avatar</label>
+                    <div class="avatar-emoji-picker" id="team2-avatar-picker" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 4px; background: rgba(0,0,0,0.15); border-radius: 6px; border: 1px solid var(--panel-border-active);"></div>
                   </div>
 
                   <div class="form-group" style="margin-bottom: 8px;">
@@ -558,6 +671,22 @@
                       <option value="POINTS_ONLY">Points Only</option>
                     </select>
                   </div>
+                  <div class="form-group" style="margin-top: 10px;">
+                    <label for="settings-powerup-mode">Hidden Power-up Mode</label>
+                    <select id="settings-powerup-mode" class="modern-select">
+                      <option value="random" selected>🎲 Random (3 auto-assigned)</option>
+                      <option value="manual">✍️ Manual (per-question)</option>
+                    </select>
+                  </div>
+                  <label class="custom-switch-label" style="margin-top: 10px;">
+                    <input type="checkbox" id="settings-enable-question-timer" class="custom-switch-checkbox">
+                    <span class="custom-switch-track"></span>
+                    <span class="custom-switch-text">Enable Question Timer</span>
+                  </label>
+                  <div class="form-group" style="margin-top: 10px;" id="question-timer-duration-group">
+                    <label for="settings-question-timer-duration">Question Timer (seconds)</label>
+                    <input type="number" id="settings-question-timer-duration" class="modern-input" value="15" min="5" max="60">
+                  </div>
                 </div>
               </details>
 
@@ -575,7 +704,7 @@
                     </div>
                     <div style="flex: 1;">
                       <label for="settings-columns">Columns</label>
-                      <input type="number" id="settings-columns" class="modern-input" value="4" min="1" max="10">
+                      <input type="number" id="settings-columns" class="modern-input" value="3" min="1" max="10">
                     </div>
                   </div>
                   <label class="custom-switch-label" style="margin-top: 10px;">
@@ -697,13 +826,29 @@
         <!-- Section 3: Quiz Files -->
         <div class="sidebar-section">
           <h4 class="sidebar-section-title" style="font-size: 0.82rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">📂 Quiz Files</h4>
-          <div class="premium-controls-wrapper" style="background: transparent !important; padding: 0 !important;">
+          <div class="premium-controls-wrapper" style="background: transparent !important; padding: 0 !important; display: flex; flex-direction: column; gap: 8px;">
+            <div class="form-group" style="margin-bottom: 4px;">
+              <label for="settings-load-template" style="font-size: 0.75rem; color: var(--color-text-muted);">📚 Load Preset Story Template</label>
+              <select id="settings-load-template" class="modern-select" style="font-size: 0.85rem; padding: 6px 10px; width: 100%;">
+                <option value="" disabled selected>— Select Bible Story —</option>
+                <option value="noah">🛶 Noah's Ark</option>
+                <option value="david">👑 David and Goliath</option>
+                <option value="miracles">🍞 Miracles of Jesus</option>
+                <option value="exodus">🌊 Moses & The Exodus</option>
+                <option value="joseph">🌈 Joseph & His Dreams</option>
+                <option value="daniel">🦁 Daniel & The Lions' Den</option>
+                <option value="jonah">🐳 Jonah & The Great Fish</option>
+              </select>
+            </div>
             <div class="sidebar-btn-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
               <button id="btn-load-default" class="btn btn-secondary">📖 Defaults</button>
               <button id="btn-export-json" class="btn btn-secondary">💾 Save DB</button>
-              <button id="btn-import-wrapper" class="btn btn-secondary" onclick="document.getElementById('import-json-file').click();">📥 Import</button>
+              <button id="btn-import-wrapper" class="btn btn-secondary" onclick="document.getElementById('import-json-file').click();">📥 JSON</button>
               <input type="file" id="import-json-file" accept=".json" style="display: none;">
-              <button id="btn-save-settings" class="btn btn-primary">💾 Save All</button>
+              <button id="btn-import-csv" class="btn btn-secondary" onclick="document.getElementById('import-csv-file').click();">📊 CSV</button>
+              <input type="file" id="import-csv-file" accept=".csv" style="display: none;">
+              <button id="btn-download-csv-template" class="btn btn-secondary" style="grid-column: span 2; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 6px;">📥 Download CSV Template</button>
+              <button id="btn-save-settings" class="btn btn-primary" style="grid-column: span 2;">💾 Save All Settings</button>
             </div>
           </div>
         </div>

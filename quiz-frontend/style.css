@@ -1595,12 +1595,11 @@ body {
 
 .modal-content {
   margin: auto;
-  width: fit-content;
-  min-width: 70vw;
-  max-width: 85vw;
-  height: auto; /* Allow height to fit content dynamically */
-  max-height: 94vh; /* Lock height to a maximum of 94vh */
-  min-height: 70vh;
+  width: 80vw;
+  max-width: min(92vw, 1050px);
+  height: 80vh;
+  max-height: min(85vh, 780px);
+  min-height: min(80vh, 700px);
   padding: clamp(0.75rem, 2vh, 1.75rem); /* Responsive padding */
   display: flex;
   flex-direction: column;
@@ -3277,11 +3276,10 @@ body {
 
   /* Desktop-specific modal overlays constraints */
   .modal-content {
-    width: fit-content !important;
-    min-width: 65vw !important;
-    max-width: 75vw !important;
-    max-height: 94vh !important;
-    min-height: 78vh !important;
+    width: 80vw !important;
+    max-width: min(92vw, 1050px) !important;
+    max-height: min(85vh, 780px) !important;
+    min-height: min(80vh, 700px) !important;
     padding: clamp(1.8rem, 4vh, 3.2rem) !important;
   }
 }
@@ -3925,6 +3923,253 @@ img.emoji {
 }
 .game-layout-container.hide-leaderboard .game-leaderboard-sidebar {
   display: none !important;
+}
+
+/* ============================================================
+   UPGRADED FEATURES STYLING
+   ============================================================ */
+
+/* Team Avatar Picker */
+.avatar-emoji-picker {
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 4px !important;
+  padding: 4px !important;
+  background: rgba(0, 0, 0, 0.12) !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-sizing: border-box !important;
+}
+.avatar-emoji-btn {
+  background: transparent !important;
+  border: 2px solid transparent !important;
+  font-size: 1.4rem !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 2px !important;
+  transition: all 0.15s ease !important;
+}
+.avatar-emoji-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: scale(1.15) !important;
+}
+.avatar-emoji-btn.selected {
+  border-color: var(--color-gold) !important;
+  background: rgba(244, 196, 48, 0.15) !important;
+  box-shadow: 0 0 8px rgba(244, 196, 48, 0.3) !important;
+}
+.avatar-emoji-btn:disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* Power-up Reveal Panel & Card Flip */
+.powerup-reveal-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 0;
+  width: 100%;
+}
+.powerup-card-wrapper {
+  perspective: 1000px;
+  width: 280px;
+  height: 200px;
+  margin: 10px 0;
+}
+.powerup-card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+}
+.powerup-card.flipped {
+  transform: rotateY(180deg);
+}
+.powerup-card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+  border: 3px solid rgba(244, 196, 48, 0.4);
+}
+.powerup-card-front {
+  background: linear-gradient(135deg, #07112b, #0d1b3e) !important;
+  color: #fff !important;
+}
+.powerup-card-back {
+  background: linear-gradient(135deg, #1e1b4b, #311042) !important;
+  color: #fff !important;
+  transform: rotateY(180deg);
+}
+.powerup-card-gift {
+  font-size: 3.5rem;
+  margin-bottom: 8px;
+  animation: float 2s ease-in-out infinite;
+}
+.powerup-card-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--color-gold);
+  letter-spacing: 1px;
+}
+.powerup-card-icon {
+  font-size: 3rem;
+  margin-bottom: 4px;
+}
+.powerup-card-name {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--color-gold);
+  margin-bottom: 4px;
+  text-shadow: 0 0 10px rgba(244, 196, 48, 0.4);
+}
+.powerup-card-desc {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  text-align: center;
+  max-width: 95%;
+  line-height: 1.2;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Printable Certificate Container */
+.print-certificate-container {
+  display: none;
+}
+@media print {
+  #app-container, .app-header, .app-footer-text, #modal-overlay, #countdown-overlay, .app-footer, .app-header * {
+    display: none !important;
+  }
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  .print-certificate-container {
+    display: block !important;
+    width: 297mm; /* A4 Landscape width */
+    height: 210mm; /* A4 Landscape height */
+    padding: 20px;
+    box-sizing: border-box;
+    page-break-inside: avoid;
+    margin: 0 auto;
+  }
+  .certificate-border {
+    border: 10px double #b45309 !important;
+    padding: 20px !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    background: #fff8f0 !important;
+    text-align: center !important;
+  }
+  .certificate-inner {
+    border: 2px solid #d97706 !important;
+    padding: 40px !important;
+    height: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  .certificate-crown {
+    font-size: 3.5rem !important;
+    margin-bottom: 15px !important;
+  }
+  .certificate-title {
+    font-family: 'Cinzel', 'Georgia', serif !important;
+    font-size: 2.5rem !important;
+    color: #92400e !important;
+    margin-bottom: 20px !important;
+    letter-spacing: 2px !important;
+  }
+  .certificate-presented {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 1.1rem !important;
+    color: #4b5563 !important;
+    margin-bottom: 10px !important;
+  }
+  .certificate-team-name {
+    font-family: 'Cinzel', 'Georgia', serif !important;
+    font-size: 3rem !important;
+    color: #b45309 !important;
+    margin-bottom: 15px !important;
+    text-transform: uppercase !important;
+    border-bottom: 2px solid #b45309 !important;
+    padding-bottom: 5px !important;
+    min-width: 300px !important;
+  }
+  .certificate-for {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 1.1rem !important;
+    color: #4b5563 !important;
+    margin-bottom: 10px !important;
+  }
+  .certificate-score {
+    font-family: 'Cinzel', 'Georgia', serif !important;
+    font-size: 2.2rem !important;
+    color: #1e3a8a !important;
+    margin-bottom: 25px !important;
+  }
+  .certificate-decor {
+    font-size: 2.2rem !important;
+    margin-bottom: 30px !important;
+  }
+  .certificate-footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 80% !important;
+    margin-top: auto !important;
+  }
+  .cert-date-col, .cert-sig-col {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 200px !important;
+  }
+  .cert-line {
+    border-top: 1.5px solid #4b5563 !important;
+    width: 100% !important;
+    margin-bottom: 5px !important;
+  }
+  .cert-date-col span, .cert-sig-col span {
+    font-size: 0.9rem !important;
+    color: #4b5563 !important;
+  }
+}
+
+/* About & How to Play Modal Responsiveness */
+@media (max-width: 768px) {
+  .about-grid-wrapper {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
 }
 
 

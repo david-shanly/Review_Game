@@ -59,6 +59,954 @@ const TEAM_COLORS = [
 
 const TEAM_ICONS = ['👦', '👧', '🦁', '👑', '🔥', '💎'];
 
+const BIBLE_TEMPLATES = {
+  noah: {
+    name: "Noah's Ark",
+    questions: [
+      {
+        id: "q1",
+        qnIndex: 1,
+        type: "mcq",
+        questionType: "mcq",
+        question: "How many of each clean animal did God tell Noah to bring onto the ark?",
+        options: ["2 (one pair)", "7 pairs", "12 pairs", "10 (five pairs)"],
+        answer: "7 pairs",
+        points: 200
+      },
+      {
+        id: "q2",
+        qnIndex: 2,
+        type: "mcq",
+        questionType: "mcq",
+        question: "What type of wood was the ark built from?",
+        options: ["Cedar wood", "Oak wood", "Gopher wood", "Olive wood"],
+        answer: "Gopher wood",
+        points: 200
+      },
+      {
+        id: "q3",
+        qnIndex: 3,
+        type: "mcq",
+        questionType: "mcq",
+        question: "How long did it rain during the Great Flood?",
+        options: ["7 days and nights", "30 days and nights", "40 days and nights", "100 days and nights"],
+        answer: "40 days and nights",
+        points: 200
+      },
+      {
+        id: "q4",
+        qnIndex: 4,
+        type: "mcq",
+        questionType: "mcq",
+        question: "What sign did God place in the sky as a promise never to flood the Earth again?",
+        options: ["A bright star", "A rainbow", "A glowing cloud", "A double sun"],
+        answer: "A rainbow",
+        points: 200
+      },
+      {
+        id: "q5",
+        qnIndex: 5,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Genesis 6:9 says 'Noah was a __________ man, perfect in his generations. Noah walked with God.'",
+        options: [],
+        answer: "just",
+        points: 300
+      },
+      {
+        id: "q6",
+        qnIndex: 6,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "The ark finally came to rest on the mountains of __________.",
+        options: [],
+        answer: "Ararat",
+        points: 300
+      },
+      {
+        id: "q7",
+        qnIndex: 7,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Noah sent out a __________ first, but it kept flying back and forth because there was water everywhere.",
+        options: [],
+        answer: "raven",
+        points: 300
+      },
+      {
+        id: "q8",
+        qnIndex: 8,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Noah knew the waters had receded when the dove returned with an __________ leaf in her mouth.",
+        options: [],
+        answer: "olive",
+        points: 300
+      },
+      {
+        id: "q9",
+        qnIndex: 9,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "Why did God decide to send the Great Flood upon the Earth?",
+        options: [],
+        answer: "Because the earth was filled with violence, and the wickedness of mankind was very great.",
+        points: 500
+      },
+      {
+        id: "q10",
+        qnIndex: 10,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "Who went into the ark with Noah?",
+        options: [],
+        answer: "Noah, his wife, his three sons (Shem, Ham, Japheth), and their wives.",
+        points: 500
+      },
+      {
+        id: "q11",
+        qnIndex: 11,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "How did Noah show gratitude to God after leaving the ark?",
+        options: [],
+        answer: "He built an altar to the LORD and offered burnt offerings of clean animals and birds.",
+        points: 500
+      },
+      {
+        id: "q12",
+        qnIndex: 12,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What covenant promise did God make to Noah and all living creatures?",
+        options: [],
+        answer: "That water would never again destroy all flesh, and there would never again be a flood to destroy the earth.",
+        points: 500
+      },
+      {
+        id: "tiebreaker",
+        qnIndex: "tiebreaker",
+        type: "tiebreaker",
+        questionType: "tiebreaker",
+        question: "How many doors did Noah's ark have?",
+        options: [],
+        answer: "One (in the side of the ark)",
+        points: 1000
+      }
+    ]
+  },
+  david: {
+    name: "David and Goliath",
+    questions: [
+      {
+        id: "q1",
+        qnIndex: 1,
+        type: "mcq",
+        questionType: "mcq",
+        question: "From what city did David come?",
+        options: ["Jerusalem", "Bethlehem", "Nazareth", "Jericho"],
+        answer: "Bethlehem",
+        points: 200
+      },
+      {
+        id: "q2",
+        qnIndex: 2,
+        type: "mcq",
+        questionType: "mcq",
+        question: "Which army did Goliath fight for?",
+        options: ["Philistines", "Amalekites", "Midianites", "Assyrians"],
+        answer: "Philistines",
+        points: 200
+      },
+      {
+        id: "q3",
+        qnIndex: 3,
+        type: "mcq",
+        questionType: "mcq",
+        question: "How many smooth stones did David pick from the stream?",
+        options: ["1 stone", "3 stones", "5 stones", "12 stones"],
+        answer: "5 stones",
+        points: 200
+      },
+      {
+        id: "q4",
+        qnIndex: 4,
+        type: "mcq",
+        questionType: "mcq",
+        question: "What did David use to defeat Goliath?",
+        options: ["King Saul's sword", "A bronze spear", "A sling and a stone", "A bow and arrow"],
+        answer: "A sling and a stone",
+        points: 200
+      },
+      {
+        id: "q5",
+        qnIndex: 5,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "1 Samuel 17:45 'You come to me with a sword... but I come to you in the name of the __________ of hosts.'",
+        options: [],
+        answer: "LORD",
+        points: 300
+      },
+      {
+        id: "q6",
+        qnIndex: 6,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "David's father was named __________, an Ephrathite of Bethlehem.",
+        options: [],
+        answer: "Jesse",
+        points: 300
+      },
+      {
+        id: "q7",
+        qnIndex: 7,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "David was the __________ of his brothers and was out keeping the sheep.",
+        options: [],
+        answer: "youngest",
+        points: 300
+      },
+      {
+        id: "q8",
+        qnIndex: 8,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Before fighting Goliath, David had killed a __________ and a bear to protect his flock.",
+        options: [],
+        answer: "lion",
+        points: 300
+      },
+      {
+        id: "q9",
+        qnIndex: 9,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "Why was David confident that he could defeat Goliath when Saul's army was terrified?",
+        options: [],
+        answer: "David trusted that the LORD, who delivered him from the lion and the bear, would deliver him from Goliath.",
+        points: 500
+      },
+      {
+        id: "q10",
+        qnIndex: 10,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "Why did David refuse to wear King Saul's armor to battle?",
+        options: [],
+        answer: "Because he was not used to them and had not tested them.",
+        points: 500
+      },
+      {
+        id: "q11",
+        qnIndex: 11,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "Where did David's stone strike Goliath?",
+        options: [],
+        answer: "Right in the forehead, causing Goliath to fall face down on the ground.",
+        points: 500
+      },
+      {
+        id: "q12",
+        qnIndex: 12,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What did Goliath say when he first saw David coming to fight him?",
+        options: [],
+        answer: "He disdained him because he was only a youth, and asked if he was a dog to come with sticks.",
+        points: 500
+      },
+      {
+        id: "tiebreaker",
+        qnIndex: "tiebreaker",
+        type: "tiebreaker",
+        questionType: "tiebreaker",
+        question: "Which tribe of Israel did David belong to?",
+        options: [],
+        answer: "Judah",
+        points: 1000
+      }
+    ]
+  },
+  miracles: {
+    name: "Miracles of Jesus",
+    questions: [
+      {
+        id: "q1",
+        qnIndex: 1,
+        type: "mcq",
+        questionType: "mcq",
+        question: "What was Jesus' very first miracle?",
+        options: ["Feeding the 5000", "Turning water into wine", "Healing a blind man", "Calming the storm"],
+        answer: "Turning water into wine",
+        points: 200
+      },
+      {
+        id: "q2",
+        qnIndex: 2,
+        type: "mcq",
+        questionType: "mcq",
+        question: "Where did Jesus turn water into wine?",
+        options: ["Jerusalem", "Cana of Galilee", "Capernaum", "Nazareth"],
+        answer: "Cana of Galilee",
+        points: 200
+      },
+      {
+        id: "q3",
+        qnIndex: 3,
+        type: "mcq",
+        questionType: "mcq",
+        question: "With what did Jesus feed the 5,000?",
+        options: ["5 loaves and 2 fish", "12 loaves and 5 fish", "7 loaves and a few small fish", "Manna from heaven"],
+        answer: "5 loaves and 2 fish",
+        points: 200
+      },
+      {
+        id: "q4",
+        qnIndex: 4,
+        type: "mcq",
+        questionType: "mcq",
+        question: "How did Jesus' disciples react when they saw Him walking on water?",
+        options: ["They cheered", "They thought He was a ghost and cried out in fear", "They jumped into the water", "They fell asleep"],
+        answer: "They thought He was a ghost and cried out in fear",
+        points: 200
+      },
+      {
+        id: "q5",
+        qnIndex: 5,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Jesus cried out with a loud voice, '__________, come forth!' and the dead man walked out of the tomb.",
+        options: [],
+        answer: "Lazarus",
+        points: 300
+      },
+      {
+        id: "q6",
+        qnIndex: 6,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "When the storm raged, Jesus stood up, rebuked the wind, and said, 'Peace, __________.'",
+        options: [],
+        answer: "be still",
+        points: 300
+      },
+      {
+        id: "q7",
+        qnIndex: 7,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "After feeding the 5,000, the disciples gathered up __________ baskets full of leftover fragments.",
+        options: [],
+        answer: "12",
+        points: 300
+      },
+      {
+        id: "q8",
+        qnIndex: 8,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "The disciple who attempted to walk on water towards Jesus was named __________.",
+        options: [],
+        answer: "Peter",
+        points: 300
+      },
+      {
+        id: "q9",
+        qnIndex: 9,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "How did Jesus heal the blind man in John chapter 9?",
+        options: [],
+        answer: "He spat on the ground, made clay with the saliva, anointed the man's eyes, and told him to wash in the Pool of Siloam.",
+        points: 500
+      },
+      {
+        id: "q10",
+        qnIndex: 10,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What happened when the woman with the flow of blood touched the hem of Jesus' garment?",
+        options: [],
+        answer: "She was instantly healed, and Jesus felt power go out from Him.",
+        points: 500
+      },
+      {
+        id: "q11",
+        qnIndex: 11,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "How did the four friends bring the paralyzed man to Jesus in a crowded house?",
+        options: [],
+        answer: "They went up on the roof, made an opening, and let down the bed on which the paralyzed man lay.",
+        points: 500
+      },
+      {
+        id: "q12",
+        qnIndex: 12,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "Why did Jesus perform miracles according to the Gospels?",
+        options: [],
+        answer: "To reveal His glory, show compassion to the hurting, and help people believe that He is the Son of God.",
+        points: 500
+      },
+      {
+        id: "tiebreaker",
+        qnIndex: "tiebreaker",
+        type: "tiebreaker",
+        questionType: "tiebreaker",
+        question: "How many days had Lazarus been in the tomb before Jesus raised him from the dead?",
+        options: [],
+        answer: "4 days",
+        points: 1000
+      }
+    ]
+  },
+  exodus: {
+    name: "Moses & The Exodus",
+    questions: [
+      {
+        id: "q1",
+        qnIndex: 1,
+        type: "mcq",
+        questionType: "mcq",
+        question: "What sea did God part through Moses to help the Israelites escape from the Egyptian army?",
+        options: ["Red Sea", "Dead Sea", "Galilee Sea", "Jordan River"],
+        answer: "Red Sea",
+        points: 200
+      },
+      {
+        id: "q2",
+        qnIndex: 2,
+        type: "mcq",
+        questionType: "mcq",
+        question: "In what form did God first speak to Moses in the wilderness of Midian?",
+        options: ["A burning bush", "A pillar of cloud", "A gentle whisper", "A golden tablet"],
+        answer: "A burning bush",
+        points: 200
+      },
+      {
+        id: "q3",
+        qnIndex: 3,
+        type: "mcq",
+        questionType: "mcq",
+        question: "How many plagues did God send upon Egypt before Pharaoh finally let the Israelites go?",
+        options: ["7 plagues", "10 plagues", "12 plagues", "3 plagues"],
+        answer: "10 plagues",
+        points: 200
+      },
+      {
+        id: "q4",
+        qnIndex: 4,
+        type: "mcq",
+        questionType: "mcq",
+        question: "What food did God miraculously provide from heaven every morning for the Israelites in the desert?",
+        options: ["Manna", "Honey cakes", "Figs", "Quail bread"],
+        answer: "Manna",
+        points: 200
+      },
+      {
+        id: "q5",
+        qnIndex: 5,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Moses' sister, who watched him float in a basket in the Nile River when he was a baby, was named __________.",
+        options: [],
+        answer: "Miriam",
+        points: 300
+      },
+      {
+        id: "q6",
+        qnIndex: 6,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "God gave Moses the Ten Commandments on Mount __________.",
+        options: [],
+        answer: "Sinai",
+        points: 300
+      },
+      {
+        id: "q7",
+        qnIndex: 7,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "To protect their firstborn from the last plague, the Israelites painted the blood of a __________ on their doorposts.",
+        options: [],
+        answer: "lamb",
+        points: 300
+      },
+      {
+        id: "q8",
+        qnIndex: 8,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Because Moses was slow of speech, God sent his brother __________ to speak for him.",
+        options: [],
+        answer: "Aaron",
+        points: 300
+      },
+      {
+        id: "q9",
+        qnIndex: 9,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What was the very first plague God sent upon Egypt?",
+        options: [],
+        answer: "Turning the Nile River water into blood.",
+        points: 500
+      },
+      {
+        id: "q10",
+        qnIndex: 10,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "How did God guide and lead the Israelites through the desert by day and by night?",
+        options: [],
+        answer: "By a pillar of cloud by day and a pillar of fire by night.",
+        points: 500
+      },
+      {
+        id: "q11",
+        qnIndex: 11,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "Why did Moses flee Egypt to live in the land of Midian as a shepherd?",
+        options: [],
+        answer: "Because he killed an Egyptian who was beating a Hebrew, and Pharaoh tried to execute him.",
+        points: 500
+      },
+      {
+        id: "q12",
+        qnIndex: 12,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What did Moses do to obtain water from the rock at Horeb when the people were thirsty?",
+        options: [],
+        answer: "He struck the rock with his staff as God commanded, and water came pouring out.",
+        points: 500
+      },
+      {
+        id: "tiebreaker",
+        qnIndex: "tiebreaker",
+        type: "tiebreaker",
+        questionType: "tiebreaker",
+        question: "How many years did the Israelites wander in the wilderness before entering the Promised Land?",
+        options: [],
+        answer: "40 years",
+        points: 1000
+      }
+    ]
+  },
+  joseph: {
+    name: "Joseph & His Dreams",
+    questions: [
+      {
+        id: "q1",
+        qnIndex: 1,
+        type: "mcq",
+        questionType: "mcq",
+        question: "What special gift did Jacob give to his favorite son Joseph?",
+        options: ["A golden ring", "A coat of many colors", "A silver cup", "A fine bow"],
+        answer: "A coat of many colors",
+        points: 200
+      },
+      {
+        id: "q2",
+        qnIndex: 2,
+        type: "mcq",
+        questionType: "mcq",
+        question: "How did Joseph's brothers get rid of him because they were jealous of his dreams?",
+        options: ["Sent him on a ship", "Sold him to Ishmaelites", "Left him in a desert", "Made him a shepherd"],
+        answer: "Sold him to Ishmaelites",
+        points: 200
+      },
+      {
+        id: "q3",
+        qnIndex: 3,
+        type: "mcq",
+        questionType: "mcq",
+        question: "What did Pharaoh's dream about seven fat cows and seven skinny cows mean?",
+        options: ["7 years of plenty followed by 7 years of famine", "7 years of war followed by 7 years of peace", "Pharaoh would have 7 sons", "A great storm would last 7 days"],
+        answer: "7 years of plenty followed by 7 years of famine",
+        points: 200
+      },
+      {
+        id: "q4",
+        qnIndex: 4,
+        type: "mcq",
+        questionType: "mcq",
+        question: "In whose house did Joseph work when he first arrived in Egypt as a slave?",
+        options: ["Pharaoh's palace", "Potiphar's house", "The prison warden's house", "The chief baker's house"],
+        answer: "Potiphar's house",
+        points: 200
+      },
+      {
+        id: "q5",
+        qnIndex: 5,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Joseph's youngest brother, whom he wanted his brothers to bring to Egypt, was named __________.",
+        options: [],
+        answer: "Benjamin",
+        points: 300
+      },
+      {
+        id: "q6",
+        qnIndex: 6,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Because he refused to do wrong, Joseph was falsely accused and thrown into __________.",
+        options: [],
+        answer: "prison",
+        points: 300
+      },
+      {
+        id: "q7",
+        qnIndex: 7,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "In prison, Joseph interpreted the dreams of Pharaoh's chief baker and chief __________.",
+        options: [],
+        answer: "butler",
+        points: 300
+      },
+      {
+        id: "q8",
+        qnIndex: 8,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Joseph's father, who wept when he thought Joseph was dead, was named __________.",
+        options: [],
+        answer: "Jacob",
+        points: 300
+      },
+      {
+        id: "q9",
+        qnIndex: 9,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What did Joseph tell his brothers when they feared he would take revenge on them in Egypt?",
+        options: [],
+        answer: "You meant evil against me, but God meant it for good to save many lives.",
+        points: 500
+      },
+      {
+        id: "q10",
+        qnIndex: 10,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "How did Joseph rise to become second-in-command over all of Egypt?",
+        options: [],
+        answer: "By interpreting Pharaoh's dreams and giving a wise plan to store food for the famine.",
+        points: 500
+      },
+      {
+        id: "q11",
+        qnIndex: 11,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What did Joseph hide in Benjamin's sack to test his brothers' honesty?",
+        options: [],
+        answer: "His personal silver cup.",
+        points: 500
+      },
+      {
+        id: "q12",
+        qnIndex: 12,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What was Joseph's first dream about that made his brothers angry?",
+        options: [],
+        answer: "His brothers' sheaves of grain bowing down to his sheaf.",
+        points: 500
+      },
+      {
+        id: "tiebreaker",
+        qnIndex: "tiebreaker",
+        type: "tiebreaker",
+        questionType: "tiebreaker",
+        question: "How many brothers did Joseph have in total?",
+        options: [],
+        answer: "11 brothers",
+        points: 1000
+      }
+    ]
+  },
+  daniel: {
+    name: "Daniel & The Lions' Den",
+    questions: [
+      {
+        id: "q1",
+        qnIndex: 1,
+        type: "mcq",
+        questionType: "mcq",
+        question: "Which empire captured Daniel and took him to Babylon?",
+        options: ["Egyptian Empire", "Babylonian Empire", "Roman Empire", "Greek Empire"],
+        answer: "Babylonian Empire",
+        points: 200
+      },
+      {
+        id: "q2",
+        qnIndex: 2,
+        type: "mcq",
+        questionType: "mcq",
+        question: "Why was Daniel thrown into the den of lions?",
+        options: ["For stealing from the king", "For praying to God instead of the king", "For refusing to fight in the army", "For interpreting a bad dream"],
+        answer: "For praying to God instead of the king",
+        points: 200
+      },
+      {
+        id: "q3",
+        qnIndex: 3,
+        type: "mcq",
+        questionType: "mcq",
+        question: "Who were Daniel's three friends who were thrown into the fiery furnace?",
+        options: ["Abraham, Isaac, and Jacob", "Shadrach, Meshach, and Abednego", "Peter, James, and John", "David, Jonathan, and Samuel"],
+        answer: "Shadrach, Meshach, and Abednego",
+        points: 200
+      },
+      {
+        id: "q4",
+        qnIndex: 4,
+        type: "mcq",
+        questionType: "mcq",
+        question: "How did Daniel survive the night in the lions' den?",
+        options: ["He fought the lions off", "God sent an angel to shut the lions' mouths", "The lions were not hungry", "He hid in a cave"],
+        answer: "God sent an angel to shut the lions' mouths",
+        points: 200
+      },
+      {
+        id: "q5",
+        qnIndex: 5,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "The Babylonian king who ordered Shadrach, Meshach, and Abednego into the furnace was __________.",
+        options: [],
+        answer: "Nebuchadnezzar",
+        points: 300
+      },
+      {
+        id: "q6",
+        qnIndex: 6,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "The Persian king who was very sad to throw Daniel to the lions was named __________.",
+        options: [],
+        answer: "Darius",
+        points: 300
+      },
+      {
+        id: "q7",
+        qnIndex: 7,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Daniel prayed to God in his room with the windows open toward the city of __________.",
+        options: [],
+        answer: "Jerusalem",
+        points: 300
+      },
+      {
+        id: "q8",
+        qnIndex: 8,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Daniel had the special ability from God to interpret dreams and understand mysterious __________ on the wall.",
+        options: [],
+        answer: "writing",
+        points: 300
+      },
+      {
+        id: "q9",
+        qnIndex: 9,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What diet did Daniel and his friends request in Babylon instead of the king's rich food?",
+        options: [],
+        answer: "Vegetables to eat and water to drink.",
+        points: 500
+      },
+      {
+        id: "q10",
+        qnIndex: 10,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What happened to the men who falsely accused Daniel and had him thrown to the lions?",
+        options: [],
+        answer: "They were thrown into the lions' den themselves and immediately destroyed.",
+        points: 500
+      },
+      {
+        id: "q11",
+        qnIndex: 11,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What did the king see when Shadrach, Meshach, and Abednego were in the fiery furnace?",
+        options: [],
+        answer: "Four men loose, walking in the fire unhurt, and the fourth looked like the Son of God.",
+        points: 500
+      },
+      {
+        id: "q12",
+        qnIndex: 12,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "Why did Daniel refuse to eat the Babylonian king's meat and wine?",
+        options: [],
+        answer: "Because he did not want to defile himself with foods that were offered to idols.",
+        points: 500
+      },
+      {
+        id: "tiebreaker",
+        qnIndex: "tiebreaker",
+        type: "tiebreaker",
+        questionType: "tiebreaker",
+        question: "How many times a day did Daniel pray to God on his knees?",
+        options: [],
+        answer: "Three times",
+        points: 1000
+      }
+    ]
+  },
+  jonah: {
+    name: "Jonah & The Great Fish",
+    questions: [
+      {
+        id: "q1",
+        qnIndex: 1,
+        type: "mcq",
+        questionType: "mcq",
+        question: "To which city did God command Jonah to go and preach?",
+        options: ["Nineveh", "Tarshish", "Joppa", "Babylon"],
+        answer: "Nineveh",
+        points: 200
+      },
+      {
+        id: "q2",
+        qnIndex: 2,
+        type: "mcq",
+        questionType: "mcq",
+        question: "Where did Jonah try to run away to instead of obeying God?",
+        options: ["Nineveh", "Tarshish", "Jerusalem", "Rome"],
+        answer: "Tarshish",
+        points: 200
+      },
+      {
+        id: "q3",
+        qnIndex: 3,
+        type: "mcq",
+        questionType: "mcq",
+        question: "How did the sailors find out that Jonah was the cause of the great storm?",
+        options: ["Jonah told them immediately", "They cast lots", "The captain had a dream", "The storm spoke to them"],
+        answer: "They cast lots",
+        points: 200
+      },
+      {
+        id: "q4",
+        qnIndex: 4,
+        type: "mcq",
+        questionType: "mcq",
+        question: "What happened immediately after the sailors threw Jonah into the sea?",
+        options: ["The storm grew worse", "The sea became calm", "The ship sank", "A giant wave hit the coast"],
+        answer: "The sea became calm",
+        points: 200
+      },
+      {
+        id: "q5",
+        qnIndex: 5,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "Jonah spent __________ days and nights inside the belly of the giant fish.",
+        options: [],
+        answer: "3",
+        points: 300
+      },
+      {
+        id: "q6",
+        qnIndex: 6,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "To escape from God's command, Jonah went down to the port city of __________ to board a ship.",
+        options: [],
+        answer: "Joppa",
+        points: 300
+      },
+      {
+        id: "q7",
+        qnIndex: 7,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "After Jonah preached, the people of Nineveh believed God and put on __________ to show they were sorry.",
+        options: [],
+        answer: "sackcloth",
+        points: 300
+      },
+      {
+        id: "q8",
+        qnIndex: 8,
+        type: "fill_blank",
+        questionType: "fill_blank",
+        question: "While Jonah sat outside the city waiting to see what would happen, God prepared a __________ plant to shade him.",
+        options: [],
+        answer: "gourd",
+        points: 300
+      },
+      {
+        id: "q9",
+        qnIndex: 9,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What did Jonah do while he was inside the belly of the great fish?",
+        options: [],
+        answer: "He prayed to the LORD his God from the belly of the fish.",
+        points: 500
+      },
+      {
+        id: "q10",
+        qnIndex: 10,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "How did Jonah get out of the great fish?",
+        options: [],
+        answer: "The LORD commanded the fish, and it vomited Jonah onto dry land.",
+        points: 500
+      },
+      {
+        id: "q11",
+        qnIndex: 11,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "Why did Jonah run away from preaching to the people of Nineveh?",
+        options: [],
+        answer: "Because he knew God is gracious and merciful, and would forgive them if they repented.",
+        points: 500
+      },
+      {
+        id: "q12",
+        qnIndex: 12,
+        type: "short_answer",
+        questionType: "short_answer",
+        question: "What did the king of Nineveh do when he heard Jonah's warning message?",
+        options: [],
+        answer: "He arose from his throne, laid aside his robe, covered himself with sackcloth, and sat in ashes.",
+        points: 500
+      },
+      {
+        id: "tiebreaker",
+        qnIndex: "tiebreaker",
+        type: "tiebreaker",
+        questionType: "tiebreaker",
+        question: "How many people in Nineveh did not know their right hand from their left hand, according to Jonah 4:11?",
+        options: [],
+        answer: "More than 120,000",
+        points: 1000
+      }
+    ]
+  }
+};
+
 // ============================================================
 // STATE
 // ============================================================
@@ -66,9 +1014,12 @@ let db = {
   settings: {
     subtractOnWrong: true,
     totalQuestions: 12,
+    gridCols: 3,
     displayMode: 'QUESTION_POINTS',
     timerDuration: 10,
     enableTimer: true,
+    enableQuestionTimer: true,
+    questionTimerDuration: 15,
     gridFont: 'none',
     applyFontToAll: false,
     playVideoFeedback: false,
@@ -84,6 +1035,10 @@ let db = {
 let gameTimerInterval = null;
 let gameTimerEndTime = null;
 let gameTimerAlertShown = false;
+
+let questionTimerInterval = null;
+let questionTimeLeft = 0;
+let questionTimerTotal = 15;
 
 function startGameTimer() {}
 
@@ -101,6 +1056,16 @@ let playState = {
   currentCellId: null,
   currentQuestion: null,
   stats: {},           // { teamIndex: { correct, attempts } }
+  powerups: {},
+  powerupUsed: {
+    fiftyFiftyUsed: false,
+    stealShieldActive: false,
+    doublePointsActive: false,
+    extraTimeActive: false,
+    freePassUsed: false,
+    revealedCells: {}
+  },
+  practiceMode: false,
 };
 
 let lastClickTime = 0;
@@ -158,19 +1123,280 @@ function playTone(freq, type, duration, gainVal, startDelay = 0) {
   osc.stop(now + duration + 0.05);
 }
 
+function playTrumpetNote(freq, start, duration, volume = 0.25) {
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const filter = audioCtx.createBiquadFilter();
+  const gain = audioCtx.createGain();
+  
+  osc1.type = 'sawtooth';
+  osc2.type = 'triangle';
+  
+  osc1.frequency.setValueAtTime(freq, start);
+  osc2.frequency.setValueAtTime(freq + 1.5, start); // detune
+  
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(300, start);
+  filter.frequency.exponentialRampToValueAtTime(1600, start + 0.08);
+  filter.frequency.exponentialRampToValueAtTime(900, start + duration);
+  
+  gain.gain.setValueAtTime(0.001, start);
+  gain.gain.linearRampToValueAtTime(volume, start + 0.03);
+  gain.gain.setValueAtTime(volume, start + duration - 0.05);
+  gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+  
+  osc1.connect(filter);
+  osc2.connect(filter);
+  filter.connect(gain);
+  gain.connect(audioCtx.destination);
+  
+  osc1.start(start);
+  osc2.start(start);
+  osc1.stop(start + duration + 0.05);
+  osc2.stop(start + duration + 0.05);
+}
+
+function playTrumpetFanfare() {
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  
+  // Triumphant arpeggio: C4, E4, G4, C5 (hold)
+  playTrumpetNote(261.63, now, 0.12, 0.15);
+  playTrumpetNote(329.63, now + 0.12, 0.12, 0.15);
+  playTrumpetNote(392.00, now + 0.24, 0.12, 0.15);
+  playTrumpetNote(523.25, now + 0.36, 0.5, 0.2);
+  
+  // Harmony on top
+  playTrumpetNote(659.25, now + 0.36, 0.5, 0.1);
+  playTrumpetNote(783.99, now + 0.36, 0.5, 0.08);
+}
+
+function playWompWompNote(freqStart, freqEnd, start, duration, volume = 0.25) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const filter = audioCtx.createBiquadFilter();
+  
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(freqStart, start);
+  osc.frequency.linearRampToValueAtTime(freqEnd, start + duration);
+  
+  // Frequency vibrato
+  const vibrato = audioCtx.createOscillator();
+  const vibratoGain = audioCtx.createGain();
+  vibrato.frequency.value = 8;
+  vibratoGain.gain.value = 10;
+  vibrato.connect(vibratoGain);
+  vibratoGain.connect(osc.frequency);
+  
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(freqStart * 1.5, start);
+  filter.frequency.linearRampToValueAtTime(freqEnd * 1.2, start + duration);
+  
+  gain.gain.setValueAtTime(0.001, start);
+  gain.gain.linearRampToValueAtTime(volume, start + 0.05);
+  gain.gain.setValueAtTime(volume, start + duration - 0.08);
+  gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+  
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(audioCtx.destination);
+  
+  vibrato.start(start);
+  osc.start(start);
+  vibrato.stop(start + duration + 0.05);
+  osc.stop(start + duration + 0.05);
+}
+
+function playWompWomp() {
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  
+  // Comic womp womp slides
+  playWompWompNote(349.23, 293.66, now, 0.32, 0.18);
+  playWompWompNote(329.63, 261.63, now + 0.35, 0.32, 0.18);
+  playWompWompNote(293.66, 220.00, now + 0.70, 0.32, 0.18);
+  playWompWompNote(220.00, 146.83, now + 1.05, 0.55, 0.22);
+}
+
+function playCymbalCrash(time) {
+  const duration = 1.8;
+  const bufferSize = audioCtx.sampleRate * duration;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  
+  const hpFilter = audioCtx.createBiquadFilter();
+  hpFilter.type = 'highpass';
+  hpFilter.frequency.setValueAtTime(4500, time);
+  
+  const gain = audioCtx.createGain();
+  gain.gain.setValueAtTime(0.12, time);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+  
+  source.connect(hpFilter);
+  hpFilter.connect(gain);
+  gain.connect(audioCtx.destination);
+  
+  source.start(time);
+  source.stop(time + duration);
+}
+
+function playSnareCrack(time) {
+  const osc = audioCtx.createOscillator();
+  const oscGain = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(180, time);
+  oscGain.gain.setValueAtTime(0.2, time);
+  oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+  
+  osc.connect(oscGain);
+  oscGain.connect(audioCtx.destination);
+  osc.start(time);
+  osc.stop(time + 0.16);
+  
+  const duration = 0.2;
+  const bufferSize = audioCtx.sampleRate * duration;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  
+  const bpFilter = audioCtx.createBiquadFilter();
+  bpFilter.type = 'bandpass';
+  bpFilter.frequency.setValueAtTime(1000, time);
+  
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.setValueAtTime(0.22, time);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+  
+  source.connect(bpFilter);
+  bpFilter.connect(noiseGain);
+  noiseGain.connect(audioCtx.destination);
+  
+  source.start(time);
+  source.stop(time + duration);
+}
+
+function playDrumroll(duration = 2.0) {
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  
+  const now = audioCtx.currentTime;
+  const bufferSize = audioCtx.sampleRate * duration;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  const noiseNode = audioCtx.createBufferSource();
+  noiseNode.buffer = buffer;
+  
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.setValueAtTime(200, now);
+  filter.Q.setValueAtTime(1.8, now);
+  
+  const hpFilter = audioCtx.createBiquadFilter();
+  hpFilter.type = 'highpass';
+  hpFilter.frequency.setValueAtTime(120, now);
+
+  const mainGain = audioCtx.createGain();
+  mainGain.gain.setValueAtTime(0.01, now);
+  mainGain.gain.linearRampToValueAtTime(0.16, now + 0.3);
+  mainGain.gain.setValueAtTime(0.16, now + duration - 0.2);
+  mainGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+  
+  const lfo = audioCtx.createOscillator();
+  lfo.type = 'triangle';
+  lfo.frequency.setValueAtTime(22, now); // hits per second
+  
+  const lfoGain = audioCtx.createGain();
+  lfoGain.gain.setValueAtTime(0.1, now);
+  
+  const ampMod = audioCtx.createGain();
+  ampMod.gain.setValueAtTime(0.1, now);
+  
+  lfo.connect(lfoGain);
+  lfoGain.connect(ampMod.gain);
+  
+  noiseNode.connect(filter);
+  filter.connect(hpFilter);
+  hpFilter.connect(ampMod);
+  ampMod.connect(mainGain);
+  mainGain.connect(audioCtx.destination);
+  
+  lfo.start(now);
+  noiseNode.start(now);
+  lfo.stop(now + duration);
+  noiseNode.stop(now + duration);
+  
+  const crashTime = now + duration - 0.15;
+  playCymbalCrash(crashTime);
+  playSnareCrack(crashTime);
+}
+
+function playPowerupChime() {
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  
+  // Magical sweep: C5 to C6
+  const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00];
+  notes.forEach((freq, idx) => {
+    const start = now + idx * 0.04;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, start);
+    
+    gain.gain.setValueAtTime(0.001, start);
+    gain.gain.linearRampToValueAtTime(0.12, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(start);
+    osc.stop(start + 0.3);
+  });
+}
+
+function playTickSound(isAlert = false) {
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(isAlert ? 1400 : 900, now);
+  
+  gain.gain.setValueAtTime(0.08, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+  
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + 0.05);
+}
 
 function playSound(name) {
   if (!soundEnabled) return;
   switch (name) {
     case 'correct':
-      playTone(523, 'triangle', 0.12, 0.4, 0);
-      playTone(659, 'triangle', 0.12, 0.4, 0.1);
-      playTone(784, 'triangle', 0.12, 0.4, 0.2);
-      playTone(1047, 'sine', 0.25, 0.35, 0.32);
+      playTrumpetFanfare();
       break;
     case 'wrong':
-      playTone(220, 'sawtooth', 0.18, 0.3, 0);
-      playTone(180, 'sawtooth', 0.18, 0.3, 0.2);
+      playWompWomp();
       break;
     case 'cancel':
       playTone(300, 'sawtooth', 0.12, 0.25, 0);
@@ -186,6 +1412,18 @@ function playSound(name) {
     case 'open':
       playTone(400, 'triangle', 0.08, 0.2, 0);
       playTone(600, 'triangle', 0.1, 0.2, 0.1);
+      break;
+    case 'powerup':
+      playPowerupChime();
+      break;
+    case 'tick':
+      playTickSound(false);
+      break;
+    case 'tick-alert':
+      playTickSound(true);
+      break;
+    case 'drumroll':
+      playDrumroll(2.2);
       break;
   }
 }
@@ -458,6 +1696,7 @@ function fallbackSaveDB() {
 }
 
 const defaultSettings = {
+  powerupMode: 'random',
   subtractOnWrong: true,
   totalQuestions: 12,
   displayMode: 'QUESTION_POINTS',
@@ -472,7 +1711,7 @@ const defaultSettings = {
   gridFontColor: '#000000',
   gridFontBold: false,
   useDefaultFontColor: true,
-  gridCols: 4,
+  gridCols: 3,
   playEmojiFeedback: true,
   enableCustomPerQuestionEmoji: true,
   emojiMode: 'random',
@@ -621,12 +1860,26 @@ function hydrateControlCenter(settings) {
   
   const displayModeEl = document.getElementById('settings-display-mode');
   if (displayModeEl) displayModeEl.value = settings.displayMode ?? 'QUESTION_POINTS';
+
+  const powerupModeEl = document.getElementById('settings-powerup-mode');
+  if (powerupModeEl) powerupModeEl.value = settings.powerupMode ?? 'random';
   
   const timerDurationEl = document.getElementById('settings-timer-duration');
   if (timerDurationEl) timerDurationEl.value = settings.timerDuration ?? 10;
   
   const enableTimerEl = document.getElementById('settings-enable-timer');
   if (enableTimerEl) enableTimerEl.checked = settings.enableTimer ?? true;
+  
+  const enableQuestionTimerEl = document.getElementById('settings-enable-question-timer');
+  if (enableQuestionTimerEl) enableQuestionTimerEl.checked = settings.enableQuestionTimer ?? true;
+  
+  const questionTimerDurationEl = document.getElementById('settings-question-timer-duration');
+  if (questionTimerDurationEl) questionTimerDurationEl.value = settings.questionTimerDuration ?? 15;
+
+  const qnTimerGroup = document.getElementById('question-timer-duration-group');
+  if (qnTimerGroup) {
+    qnTimerGroup.style.display = (settings.enableQuestionTimer ?? true) ? 'block' : 'none';
+  }
   
   const emojiFeedbackEl = document.getElementById('settings-play-emoji-feedback');
   if (emojiFeedbackEl) emojiFeedbackEl.checked = settings.playEmojiFeedback ?? true;
@@ -869,7 +2122,10 @@ function saveGameState() {
     stats: playState.stats,
     cancelLocked: playState.cancelLocked,
     timerEndTime: gameTimerEndTime,
-    timerAlertShown: gameTimerAlertShown
+    timerAlertShown: gameTimerAlertShown,
+    powerups: playState.powerups,
+    powerupUsed: playState.powerupUsed,
+    practiceMode: playState.practiceMode
   }));
 }
 
@@ -884,7 +2140,8 @@ function loadGameState() {
         playState.teams = (parsed.teams ?? []).map(t => ({
           ...t
         }));
-        if (!playState.teams || playState.teams.length < 2) {
+        const isPractice = parsed.practiceMode ?? false;
+        if ((!playState.teams || playState.teams.length < 2) && !isPractice) {
           setupTeamsFromInputs();
         }
         playState.currentTeamIndex = parsed.currentTeamIndex ?? 0;
@@ -895,6 +2152,16 @@ function loadGameState() {
         playState.currentQuestion = parsed.currentQuestion ?? null;
         playState.stats = parsed.stats ?? {};
         playState.cancelLocked = parsed.cancelLocked ?? false;
+        playState.powerups = parsed.powerups ?? {};
+        playState.powerupUsed = parsed.powerupUsed ?? {
+          fiftyFiftyUsed: false,
+          stealShieldActive: false,
+          doublePointsActive: false,
+          extraTimeActive: false,
+          freePassUsed: false,
+          revealedCells: {}
+        };
+        playState.practiceMode = parsed.practiceMode ?? false;
 
         gameTimerEndTime = parsed.timerEndTime ?? null;
         gameTimerAlertShown = parsed.timerAlertShown ?? false;
@@ -1383,6 +2650,9 @@ async function openQuestionEditor(qnIndex) {
   if (qEmojiCorrect) qEmojiCorrect.value = q ? (q.customCorrectEmoji || '') : '';
   if (qEmojiWrong) qEmojiWrong.value = q ? (q.customWrongEmoji || '') : '';
 
+  const qPowerupEl = document.getElementById('q-powerup');
+  if (qPowerupEl) qPowerupEl.value = q ? (q.powerup || 'none') : 'none';
+
   toggleQuestionEditorEmojiInputs();
 
   if (q) {
@@ -1679,7 +2949,7 @@ function renderGameBoard() {
 function updateTurnUI() {
   const turnDisplay = document.getElementById('turn-display');
   const stealBanner = document.getElementById('steal-banner');
-  if (!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) {
+  if ((!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) && !playState.practiceMode) {
     setupTeamsFromInputs();
   }
   if (playState.currentTeamIndex >= playState.teams.length) {
@@ -1720,6 +2990,7 @@ function animateValue(element, start, end, duration = 800) {
   }
   const range = end - start;
   const startTime = performance.now();
+  let lastValue = start;
   
   function step(now) {
     const elapsed = now - startTime;
@@ -1727,6 +2998,12 @@ function animateValue(element, start, end, duration = 800) {
     // Easing out quadratic
     const easeProgress = progress * (2 - progress);
     const value = Math.round(start + range * easeProgress);
+    
+    if (value !== lastValue) {
+      lastValue = value;
+      playTone(700, 'sine', 0.012, 0.06);
+    }
+    
     element.textContent = value;
     if (progress < 1) {
       requestAnimationFrame(step);
@@ -1741,7 +3018,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
   const container = document.getElementById('game-team-panels');
   if (!container) return;
 
-  if (!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) {
+  if ((!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) && !playState.practiceMode) {
     setupTeamsFromInputs();
   }
 
@@ -1755,7 +3032,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
   if (t1ScoreInput) {
     t1ScoreInput.disabled = !isGameActive;
     t1ScoreInput.placeholder = isGameActive ? "Adjust points" : "No active game";
-    if (isGameActive && document.activeElement !== t1ScoreInput) {
+    if (isGameActive && playState.teams[0] && document.activeElement !== t1ScoreInput) {
       t1ScoreInput.value = playState.teams[0].score;
     } else if (!isGameActive) {
       t1ScoreInput.value = '';
@@ -1765,7 +3042,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
   if (t2ScoreInput) {
     t2ScoreInput.disabled = !isGameActive;
     t2ScoreInput.placeholder = isGameActive ? "Adjust points" : "No active game";
-    if (isGameActive && document.activeElement !== t2ScoreInput) {
+    if (isGameActive && playState.teams[1] && document.activeElement !== t2ScoreInput) {
       t2ScoreInput.value = playState.teams[1].score;
     } else if (!isGameActive) {
       t2ScoreInput.value = '';
@@ -1782,6 +3059,34 @@ function updateScoreUI(updatedTeamIndex = -1) {
       // Update active turn classes
       panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''}`;
       panel.style.borderColor = isActive ? 'var(--color-gold)' : color.border;
+
+      const nameSpan = panel.querySelector('.team-label');
+      if (nameSpan && nameSpan.textContent !== team.name) {
+        updateTextAndCheckUnicode(nameSpan, team.name);
+      }
+
+      const logoSrc = assetPath(team.logo || (team.name === 'Boy' ? 'boy.png' : 'girl.png'));
+      const defaultEmoji = TEAM_ICONS[i % TEAM_ICONS.length] || '🦁';
+      const isEmoji = team.avatarType === 'emoji';
+
+      const img = panel.querySelector('.team-logo-circular');
+      const fallbackSpan = panel.querySelector('.team-logo-fallback');
+
+      if (img && fallbackSpan) {
+        if (isEmoji) {
+          img.style.display = 'none';
+          fallbackSpan.style.display = 'flex';
+          fallbackSpan.textContent = team.avatarVal;
+        } else {
+          img.style.display = 'block';
+          if (img.getAttribute('src') !== logoSrc) {
+            img.src = logoSrc;
+          }
+          fallbackSpan.style.display = 'none';
+          fallbackSpan.textContent = defaultEmoji;
+        }
+        parseEmojis(fallbackSpan);
+      }
       
       // Animate score changes
       const scoreSpan = document.getElementById(`score-team-${i}`);
@@ -1804,10 +3109,16 @@ function updateScoreUI(updatedTeamIndex = -1) {
 
       const logoSrc = assetPath(team.logo || (team.name === 'Boy' ? 'boy.png' : 'girl.png'));
       const defaultEmoji = TEAM_ICONS[i % TEAM_ICONS.length] || '🦁';
+      
+      const isEmoji = team.avatarType === 'emoji';
+      const imgDisplay = isEmoji ? 'none' : 'block';
+      const fallbackDisplay = isEmoji ? 'flex' : 'none';
+      const fallbackText = isEmoji ? team.avatarVal : defaultEmoji;
+
       panel.innerHTML = `
         <div class="team-logo-container" style="position: relative; width: 5.2rem; height: 5.2rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-          <img src="${logoSrc}" class="team-logo-circular" alt="${team.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
-          <span class="team-logo-fallback" style="display: none; font-size: 2.6rem; line-height: 1; align-items: center; justify-content: center; background: ${color.bg}; border: 2px solid ${color.border}; border-radius: 50%; width: 100%; height: 100%;">${defaultEmoji}</span>
+          <img src="${logoSrc}" class="team-logo-circular" alt="${team.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="display: ${imgDisplay}; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+          <span class="team-logo-fallback" style="display: ${fallbackDisplay}; font-size: 2.6rem; line-height: 1; align-items: center; justify-content: center; background: ${color.bg}; border: 2px solid ${color.border}; border-radius: 50%; width: 100%; height: 100%;">${fallbackText}</span>
         </div>
         <div class="team-details">
           <span class="team-label">${team.name}</span>
@@ -1872,7 +3183,7 @@ function renderSidebarLeaderboard() {
   if (!list) return;
   list.innerHTML = '';
 
-  if (!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) {
+  if ((!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) && !playState.practiceMode) {
     setupTeamsFromInputs();
   }
 
@@ -1987,75 +3298,101 @@ function adjustWinnerCardFontSizeToFit() {
 // ============================================================
 // QUESTION MODAL
 // ============================================================
-function openQuestionModal(cId, q) {
-  if (!transitionState('QUESTION_LOADING')) return;
+// ============================================================
+// QUESTION COUNTDOWN TIMER
+// ============================================================
+function startQuestionTimer() {
+  clearQuestionTimer();
+  if (db.settings.enableQuestionTimer === false) return;
 
-  playState.currentCellId = cId;
-  playState.currentQuestion = q;
-  playState.currentQuestionValue = q.points;
-  playState.teamsAttemptedCount = 0;
-  playState.originalTeamIndex = playState.currentTeamIndex;
-  playState.cancelLocked = false;
+  const timerContainer = document.getElementById('modal-timer-container');
+  if (timerContainer) timerContainer.classList.remove('hidden');
 
-  const overlay = document.getElementById('modal-overlay');
-  const contentNode = document.querySelector('.modal-content');
-  enableModalActionButtons();
-  document.getElementById('modal-steal-label').classList.toggle('hidden', true);
+  let duration = parseInt(db.settings.questionTimerDuration, 10) || 15;
+  if (playState.currentCellId && playState.powerups[playState.currentCellId] === 'extra_time') {
+    duration += 15;
+  }
+  questionTimeLeft = duration;
+  questionTimerTotal = duration;
 
-  const qnIndex = q.qnIndex || parseInt(cId.replace('qn', ''), 10);
-  document.getElementById('modal-cell-id').textContent = qnLabel(qnIndex);
-  document.getElementById('modal-points-display').textContent = `${q.points} POINTS`;
-
-  const turnStatus = document.getElementById('modal-turn-status');
-  turnStatus.style.color = 'var(--color-gold)';
-  turnStatus.style.borderColor = 'rgba(244,196,48,0.3)';
-
-  const questionTextEl = document.getElementById('modal-question-text');
-  updateTextAndCheckUnicode(questionTextEl, q.question);
-
-  const mcqContainer = document.getElementById('modal-mcq-container');
-  const fillContainer = document.getElementById('modal-fill-container');
-  const revealPanel = document.getElementById('modal-reveal-panel');
-  revealPanel.classList.add('hidden');
-
-  // Reset correct answer reveal button inside fill container
-  const btnShowCorrectAnswer = document.getElementById('btn-show-correct-answer');
-  if (btnShowCorrectAnswer) {
-    btnShowCorrectAnswer.disabled = false;
-    btnShowCorrectAnswer.style.cursor = '';
+  const timerBar = document.getElementById('modal-timer-bar');
+  if (timerBar) {
+    timerBar.style.width = '100%';
+    timerBar.style.backgroundColor = 'var(--color-success)';
   }
 
-  // Pre-initialize MCQ options if needed
-  if ((q.questionType || q.type) === 'mcq') {
-    const optBtns = document.querySelectorAll('.option-btn');
-    const letters = ['A', 'B', 'C', 'D'];
-    optBtns.forEach((btn, i) => {
-      btn.className = 'option-btn';
-      btn.disabled = false;
-      btn.style.cursor = '';
-      btn.querySelector('.option-letter').textContent = letters[i];
-      const optValSpan = btn.querySelector('.option-val');
-      if (optValSpan) {
-        updateTextAndCheckUnicode(optValSpan, q.options ? q.options[i] : '');
+  let lastTickSecond = Math.ceil(questionTimeLeft);
+  questionTimerInterval = setInterval(() => {
+    const overlay = document.getElementById('modal-overlay');
+    if (!overlay || !overlay.classList.contains('open') || playState.gameState === 'RESOLVED' || playState.gameState === 'IDLE') {
+      clearQuestionTimer();
+      return;
+    }
+
+    questionTimeLeft -= 0.1;
+    const pct = Math.max(0, (questionTimeLeft / questionTimerTotal) * 100);
+    
+    if (timerBar) {
+      timerBar.style.width = `${pct}%`;
+      if (pct < 33) {
+        timerBar.style.backgroundColor = 'var(--color-danger)';
+        timerBar.style.boxShadow = '0 0 10px var(--color-danger)';
+      } else if (pct < 66) {
+        timerBar.style.backgroundColor = 'var(--color-gold)';
+        timerBar.style.boxShadow = '0 0 10px var(--color-gold)';
+      } else {
+        timerBar.style.backgroundColor = 'var(--color-success)';
+        timerBar.style.boxShadow = '0 0 10px var(--color-success)';
       }
-      btn.onclick = () => {
-        if (!canInteract() || !canAnswer()) return;
-        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        playSound('click');
-      };
-    });
-  } else {
-    const fillInput = document.getElementById('modal-fill-input');
-    fillInput.value = '';
-    fillInput.disabled = false;
-    fillInput.style.cursor = '';
-    fillInput.style.borderColor = '';
-  }
+    }
 
+    const currentSecond = Math.ceil(questionTimeLeft);
+    if (currentSecond !== lastTickSecond && currentSecond >= 0) {
+      lastTickSecond = currentSecond;
+      if (currentSecond <= 5) {
+        playSound('tick-alert');
+      } else {
+        playSound('tick');
+      }
+    }
+
+    if (questionTimeLeft <= 0) {
+      clearQuestionTimer();
+      handleQuestionTimeout();
+    }
+  }, 100);
+}
+
+function clearQuestionTimer() {
+  if (questionTimerInterval) {
+    clearInterval(questionTimerInterval);
+    questionTimerInterval = null;
+  }
+  const timerContainer = document.getElementById('modal-timer-container');
+  if (timerContainer) timerContainer.classList.add('hidden');
+}
+
+function handleQuestionTimeout() {
+  if (!canAnswer()) return;
+  triggerAlert("TIMEOUT", "Time's up!", "lose");
+  submitAnswer(false);
+}
+
+// ============================================================
+// QUESTION MODAL
+// ============================================================
+function showQuestionContent(cId, q) {
   const turnSelector = document.getElementById('tiebreaker-turn-selector');
   const btnSubmit = document.getElementById('btn-modal-submit');
   const btnPass = document.getElementById('btn-modal-pass');
+  const questionTextEl = document.getElementById('modal-question-text');
+  const mcqContainer = document.getElementById('modal-mcq-container');
+  const fillContainer = document.getElementById('modal-fill-container');
+  const turnStatus = document.getElementById('modal-turn-status');
+  const footer = document.querySelector('.modal-footer');
+  
+  if (footer) footer.style.display = 'flex';
+  questionTextEl.style.display = 'block';
 
   if (cId === 'c-tiebreaker') {
     // Hide standard question details until a team is selected
@@ -2094,19 +3431,27 @@ function openQuestionModal(cId, q) {
           const fillInput = document.getElementById('modal-fill-input');
           setTimeout(() => fillInput.focus(), 100);
         }
+        
+        // Start timer when team selected in tiebreaker!
+        startQuestionTimer();
       });
       buttonsGrid.appendChild(btn);
     });
   } else {
     // Normal question flow
     turnSelector.classList.add('hidden');
-    questionTextEl.style.display = 'block';
-
+    
     const activeTeam = playState.teams[playState.currentTeamIndex];
     turnStatus.textContent = `${activeTeam.name.toUpperCase()} TURN`;
 
     if (btnSubmit) btnSubmit.disabled = false;
-    if (btnPass) btnPass.style.display = 'inline-flex';
+    
+    // Hide pass button if in Practice Mode
+    if (playState.practiceMode) {
+      if (btnPass) btnPass.style.display = 'none';
+    } else {
+      if (btnPass) btnPass.style.display = 'inline-flex';
+    }
 
     if ((q.questionType || q.type) === 'mcq') {
       mcqContainer.classList.remove('hidden');
@@ -2119,6 +3464,120 @@ function openQuestionModal(cId, q) {
     }
   }
 
+  // 50/50 Power-up button visibility
+  const btnFifty = document.getElementById('btn-modal-fifty-fifty');
+  if (btnFifty) {
+    if (playState.powerups[cId] === 'fifty_fifty' && (q.questionType || q.type) === 'mcq' && !playState.powerupUsed.fiftyFiftyUsed) {
+      btnFifty.classList.remove('hidden');
+      btnFifty.disabled = false;
+      btnFifty.style.opacity = '1';
+      btnFifty.style.cursor = 'pointer';
+    } else {
+      btnFifty.classList.add('hidden');
+    }
+  }
+
+  // Free Pass Power-up button visibility
+  const btnFreePass = document.getElementById('btn-modal-free-pass');
+  if (btnFreePass) {
+    if (playState.powerups[cId] === 'free_pass' && !playState.powerupUsed.freePassUsed) {
+      btnFreePass.classList.remove('hidden');
+      btnFreePass.disabled = false;
+      btnFreePass.style.opacity = '1';
+      btnFreePass.style.cursor = 'pointer';
+    } else {
+      btnFreePass.classList.add('hidden');
+    }
+  }
+}
+
+function openQuestionModal(cId, q) {
+  if (!transitionState('QUESTION_LOADING')) return;
+
+  playState.currentCellId = cId;
+  playState.currentQuestion = q;
+  playState.teamsAttemptedCount = 0;
+  playState.originalTeamIndex = playState.currentTeamIndex;
+  playState.cancelLocked = false;
+  
+  // Reset active powerups
+  playState.powerupUsed.doublePointsActive = false;
+  playState.powerupUsed.stealShieldActive = false;
+  playState.powerupUsed.fiftyFiftyUsed = false;
+  playState.powerupUsed.freePassUsed = false;
+
+  // Double Points Power-up modifier
+  if (cId !== 'c-tiebreaker' && playState.powerups[cId] === 'double_points') {
+    playState.currentQuestionValue = q.points * 2;
+    playState.powerupUsed.doublePointsActive = true;
+  } else {
+    playState.currentQuestionValue = q.points;
+  }
+
+  // Steal Shield Power-up modifier
+  if (cId !== 'c-tiebreaker' && playState.powerups[cId] === 'steal_shield') {
+    playState.powerupUsed.stealShieldActive = true;
+  }
+
+  const overlay = document.getElementById('modal-overlay');
+  const contentNode = document.querySelector('.modal-content');
+  enableModalActionButtons();
+  document.getElementById('modal-steal-label').classList.toggle('hidden', true);
+
+  const qnIndex = q.qnIndex || parseInt(cId.replace('qn', ''), 10);
+  document.getElementById('modal-cell-id').textContent = qnLabel(qnIndex);
+  document.getElementById('modal-points-display').textContent = `${playState.currentQuestionValue} POINTS`;
+
+  const turnStatus = document.getElementById('modal-turn-status');
+  turnStatus.style.color = 'var(--color-gold)';
+  turnStatus.style.borderColor = 'rgba(244,196,48,0.3)';
+
+  const questionTextEl = document.getElementById('modal-question-text');
+  updateTextAndCheckUnicode(questionTextEl, q.question);
+
+  const mcqContainer = document.getElementById('modal-mcq-container');
+  const fillContainer = document.getElementById('modal-fill-container');
+  const revealPanel = document.getElementById('modal-reveal-panel');
+  revealPanel.classList.add('hidden');
+
+  // Reset correct answer reveal button inside fill container
+  const btnShowCorrectAnswer = document.getElementById('btn-show-correct-answer');
+  if (btnShowCorrectAnswer) {
+    btnShowCorrectAnswer.disabled = false;
+    btnShowCorrectAnswer.style.cursor = '';
+  }
+
+  // Pre-initialize MCQ options if needed
+  if ((q.questionType || q.type) === 'mcq') {
+    const optBtns = document.querySelectorAll('.option-btn');
+    const letters = ['A', 'B', 'C', 'D'];
+    optBtns.forEach((btn, i) => {
+      btn.className = 'option-btn';
+      btn.disabled = false;
+      btn.style.cursor = '';
+      btn.style.opacity = '';
+      btn.classList.remove('disabled-fifty-fifty');
+      btn.querySelector('.option-letter').textContent = letters[i];
+      const optValSpan = btn.querySelector('.option-val');
+      if (optValSpan) {
+        updateTextAndCheckUnicode(optValSpan, q.options ? q.options[i] : '');
+      }
+      btn.onclick = () => {
+        if (!canInteract() || !canAnswer()) return;
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        playSound('click');
+      };
+    });
+  } else {
+    const fillInput = document.getElementById('modal-fill-input');
+    fillInput.value = '';
+    fillInput.disabled = false;
+    fillInput.style.cursor = '';
+    fillInput.style.borderColor = '';
+  }
+
+  const btnSubmit = document.getElementById('btn-modal-submit');
   updateTextAndCheckUnicode(document.getElementById('modal-correct-answer-text'), q.correctAnswer || q.answer);
   if (contentNode) contentNode.classList.remove('feedback-correct', 'feedback-wrong');
   const btnNext = document.getElementById('btn-modal-next');
@@ -2129,13 +3588,98 @@ function openQuestionModal(cId, q) {
   if (btnSubmit) btnSubmit.style.display = 'inline-flex';
 
   overlay.classList.add('open');
-
   transitionState('AWAITING_FIRST_ANSWER');
   enableModalActionButtons();
   parseEmojis(overlay);
+
+  // Check if we should reveal a hidden power-up first
+  const pType = playState.powerups[cId];
+  playState.powerupUsed.revealedCells = playState.powerupUsed.revealedCells || {};
+  
+  if (cId !== 'c-tiebreaker' && pType && !playState.powerupUsed.revealedCells[cId] && !playState.practiceMode) {
+    // Stage 1: Power-up Reveal Mode
+    const powerupPanel = document.getElementById('powerup-reveal-panel');
+    const card = document.getElementById('powerup-card');
+    const continueBtn = document.getElementById('btn-powerup-continue');
+    
+    // Hide standard elements
+    questionTextEl.style.display = 'none';
+    mcqContainer.classList.add('hidden');
+    fillContainer.classList.add('hidden');
+    document.getElementById('tiebreaker-turn-selector').classList.add('hidden');
+    const footer = document.querySelector('.modal-footer');
+    if (footer) footer.style.display = 'none';
+    
+    // Configure power-up face
+    const revealIcon = document.getElementById('powerup-reveal-icon');
+    const revealName = document.getElementById('powerup-reveal-name');
+    const revealDesc = document.getElementById('powerup-reveal-desc');
+    
+    card.classList.remove('flipped');
+    continueBtn.style.opacity = '0';
+    continueBtn.style.pointerEvents = 'none';
+    
+    if (pType === 'double_points') {
+      revealIcon.textContent = '🌟';
+      revealName.textContent = 'DOUBLE POINTS';
+      revealDesc.textContent = 'Doubles the points for this question! High stakes, double potential!';
+    } else if (pType === 'steal_shield') {
+      revealIcon.textContent = '🛡️';
+      revealName.textContent = 'STEAL SHIELD';
+      revealDesc.textContent = 'Prevents the opposing team from stealing if you get it wrong!';
+    } else if (pType === 'fifty_fifty') {
+      revealIcon.textContent = '🤝';
+      revealName.textContent = '50/50 HELP';
+      revealDesc.textContent = 'Adds a 50/50 button to remove two incorrect options!';
+    } else if (pType === 'extra_time') {
+      revealIcon.textContent = '⏱️';
+      revealName.textContent = 'EXTRA TIME';
+      revealDesc.textContent = 'Adds +15 seconds to the countdown timer for this question!';
+    } else if (pType === 'free_pass') {
+      revealIcon.textContent = '🎟️';
+      revealName.textContent = 'FREE PASS';
+      revealDesc.textContent = 'Skip this question with NO points penalty, and keep your turn!';
+    }
+    
+    parseEmojis(powerupPanel);
+    powerupPanel.classList.remove('hidden');
+    
+    setTimeout(() => {
+      card.classList.add('flipped');
+      playSound('powerup');
+    }, 700);
+    
+    setTimeout(() => {
+      continueBtn.style.opacity = '1';
+      continueBtn.style.pointerEvents = 'auto';
+      continueBtn.style.transition = 'opacity 0.4s ease';
+    }, 1500);
+
+    continueBtn.onclick = () => {
+      playSound('click');
+      powerupPanel.classList.add('hidden');
+      
+      // Stage 2: Question View
+      showQuestionContent(cId, q);
+      startQuestionTimer();
+      
+      playState.powerupUsed.revealedCells[cId] = true;
+      saveGameState();
+    };
+  } else {
+    // Direct Question Mode (no power-up or already revealed)
+    document.getElementById('powerup-reveal-panel').classList.add('hidden');
+    showQuestionContent(cId, q);
+    
+    // Normal timer start (unless it's tiebreaker where it starts after team selection)
+    if (cId !== 'c-tiebreaker') {
+      startQuestionTimer();
+    }
+  }
 }
 
 function closeModal() {
+  clearQuestionTimer();
   document.getElementById('modal-overlay').classList.remove('open');
   playState.currentCellId = null;
   playState.currentQuestion = null;
@@ -2153,6 +3697,7 @@ function cancelQuestion() {
   const cId = playState.currentCellId;
   if (!cId) return;
 
+  clearQuestionTimer();
   playSound('cancel');
   transitionState('RESOLVED');
   playState.answeredCells[cId] = { teamIndex: -2, pointsWon: 0, cancelled: true };
@@ -2542,6 +4087,174 @@ document.addEventListener('DOMContentLoaded', () => {
       checkGameOver();
     });
   }
+
+  const templateSelect = document.getElementById('settings-load-template');
+  if (templateSelect) {
+    templateSelect.addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (val) {
+        loadBibleStoryTemplate(val);
+        templateSelect.value = '';
+      }
+    });
+  }
+
+  const btnCsvTemplate = document.getElementById('btn-download-csv-template');
+  if (btnCsvTemplate) {
+    btnCsvTemplate.addEventListener('click', () => {
+      const csvContent = "Question Number,Type,Question,Answer,Option A,Option B,Option C,Option D,Points,Powerup\n" +
+                         "1,mcq,What did God use to make Eve?,A rib of Adam,A rib of Adam,Dust of the earth,A clay mold,A breath of life,200,double_points\n" +
+                         "2,fill_blank,David defeated Goliath using a stone and a __________.,sling,,,,300,free_pass\n" +
+                         "3,short_answer,Who was swallowed by a great fish?,Jonah,,,,500,none\n" +
+                         "Tiebreaker,tiebreaker,How many days did Jesus fast in the wilderness?,40 days,,,,1000,none";
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "bible_quiz_template.csv");
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      triggerAlert('SYSTEM', 'CSV Template downloaded! Open it in Excel.', 'gain');
+    });
+  }
+
+  const importCsvFile = document.getElementById('import-csv-file');
+  if (importCsvFile) {
+    importCsvFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const text = evt.target.result;
+          const csvData = parseCSV(text);
+          if (csvData.length <= 1) {
+            triggerAlert('SYSTEM', 'CSV file is empty or invalid', 'lose');
+            return;
+          }
+          
+          const parsedQuestions = [];
+          const headers = csvData[0].map(h => h.trim().toLowerCase());
+          
+          const typeIdx = headers.indexOf('type');
+          const questionIdx = headers.indexOf('question');
+          const answerIdx = headers.indexOf('answer');
+          const optAIdx = headers.indexOf('option a');
+          const optBIdx = headers.indexOf('option b');
+          const optCIdx = headers.indexOf('option c');
+          const optDIdx = headers.indexOf('option d');
+          const pointsIdx = headers.indexOf('points');
+          
+          const powerupIdx = headers.indexOf('powerup');
+          
+          let colOffset = 0;
+          if (typeIdx === -1) {
+            const firstCell = csvData[1] && csvData[1][0] ? csvData[1][0].trim() : '';
+            if (firstCell && (!isNaN(parseInt(firstCell, 10)) || firstCell.toLowerCase().includes('tie'))) {
+              colOffset = 1;
+            }
+          }
+
+          let indexCounter = 1;
+          for (let r = 1; r < csvData.length; r++) {
+            const row = csvData[r];
+            if (row.length < 2 || !row.some(val => val.trim() !== '')) continue;
+            
+            const rawType = (typeIdx !== -1 ? row[typeIdx] : row[0 + colOffset]) || 'mcq';
+            let type = rawType.trim().toLowerCase();
+            if (type.includes('tiebreaker')) type = 'tiebreaker';
+            else if (type.includes('mcq') || type.includes('multiple')) type = 'mcq';
+            else if (type.includes('blank') || type.includes('fill')) type = 'fill_blank';
+            else type = 'short_answer';
+            
+            const questionText = (questionIdx !== -1 ? row[questionIdx] : row[1 + colOffset]) || '';
+            const answerText = (answerIdx !== -1 ? row[answerIdx] : row[2 + colOffset]) || '';
+            const pointsVal = parseInt((pointsIdx !== -1 ? row[pointsIdx] : row[7 + colOffset]) || '100', 10) || 100;
+            
+            const powerupRaw = (powerupIdx !== -1 ? row[powerupIdx] : (row[8 + colOffset] || 'none')) || 'none';
+            let powerupVal = powerupRaw.trim().toLowerCase();
+            if (powerupVal.includes('double')) powerupVal = 'double_points';
+            else if (powerupVal.includes('shield') || powerupVal.includes('steal')) powerupVal = 'steal_shield';
+            else if (powerupVal.includes('fifty') || powerupVal.includes('50')) powerupVal = 'fifty_fifty';
+            else if (powerupVal.includes('time') || powerupVal.includes('extra')) powerupVal = 'extra_time';
+            else if (powerupVal.includes('free') || powerupVal.includes('pass')) powerupVal = 'free_pass';
+            else powerupVal = 'none';
+            
+            let options = [];
+            if (type === 'mcq') {
+              const optA = (optAIdx !== -1 ? row[optAIdx] : row[3 + colOffset]) || '';
+              const optB = (optBIdx !== -1 ? row[optBIdx] : row[4 + colOffset]) || '';
+              const optC = (optCIdx !== -1 ? row[optCIdx] : row[5 + colOffset]) || '';
+              const optD = (optDIdx !== -1 ? row[optDIdx] : row[6 + colOffset]) || '';
+              options = [optA.trim(), optB.trim(), optC.trim(), optD.trim()].filter(o => o !== '');
+            }
+            
+            const isTiebreaker = type === 'tiebreaker';
+            parsedQuestions.push({
+              id: isTiebreaker ? 'tiebreaker' : `q\${indexCounter}`,
+              qnIndex: isTiebreaker ? 'tiebreaker' : indexCounter,
+              type: type,
+              questionType: type,
+              question: questionText.trim(),
+              options: options,
+              answer: answerText.trim(),
+              points: pointsVal,
+              powerup: powerupVal
+            });
+            if (!isTiebreaker) indexCounter++;
+          }
+          
+          const hasTiebreaker = parsedQuestions.some(q => q.qnIndex === 'tiebreaker');
+          if (!hasTiebreaker) {
+            parsedQuestions.push({
+              id: "tiebreaker",
+              qnIndex: "tiebreaker",
+              type: "tiebreaker",
+              questionType: "tiebreaker",
+              question: "What is the reward God has promised to those who overcome temptation?",
+              options: [],
+              answer: "Crown of Life",
+              points: 1000
+            });
+          }
+          
+          db.questions = parsedQuestions;
+          db.settings.totalQuestions = parsedQuestions.filter(q => q.qnIndex !== 'tiebreaker').length;
+          db.settings.showCategories = false;
+          
+          fallbackSaveDB();
+          hydrateControlCenter(db.settings);
+          applySelectedFont();
+          
+          playState.phase = 'live';
+          playState.gameState = 'IDLE';
+          resetPlayState();
+          saveGameState();
+          updateGameStatusUI();
+          renderAdminGrid();
+          renderGameBoard();
+          updateScoreUI();
+          
+          triggerAlert('SYSTEM', `Imported \${parsedQuestions.length - 1} questions from CSV!`, 'gain');
+          
+          const statusDiv = document.getElementById('dashboard-status');
+          if (statusDiv) {
+            statusDiv.innerHTML = `<div class="bold-text" style="color:var(--color-success);">✅ CSV Imported successfully!</div>`;
+            setTimeout(updateDashboardStatus, 3000);
+          }
+          
+        } catch (err) {
+          console.error("Error reading CSV file:", err);
+          triggerAlert('SYSTEM', 'Failed to parse CSV file', 'lose');
+        }
+      };
+      reader.readAsText(file);
+      importCsvFile.value = '';
+    });
+  }
 });
 
 // ============================================================
@@ -2683,6 +4396,7 @@ function showCustomConfirm(message, onConfirm, opts = {}) {
 
 
 async function resolveAnswer(isCorrect) {
+  clearQuestionTimer();
   const q = playState.currentQuestion;
   if (!q || !canAnswer()) return;
 
@@ -2928,7 +4642,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
         penalty = Math.floor(ptsToAward * 0.5);
       }
 
-      const isExhausted = playState.teamsAttemptedCount + 1 >= playState.teams.length;
+      const isExhausted = playState.practiceMode || (playState.teamsAttemptedCount + 1 >= playState.teams.length) || playState.powerupUsed.stealShieldActive;
 
       const finalizeWrong = () => {
         applyScore(teamIndex, penalty, true, true);
@@ -2951,7 +4665,12 @@ function showEmojiFeedback(isCorrect, q, callback) {
           playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
 
           const turnStatus = document.getElementById('modal-turn-status');
-          turnStatus.textContent = "Incorrect Answer";
+          if (playState.powerupUsed.stealShieldActive && !playState.practiceMode) {
+            turnStatus.innerHTML = `❌ Incorrect Answer<br><span style="font-size:0.8rem; color:var(--color-gold);">🛡️ Steal Shield Active! Steal Blocked.</span>`;
+            parseEmojis(turnStatus);
+          } else {
+            turnStatus.textContent = "Incorrect Answer";
+          }
           turnStatus.style.color = "var(--color-error)";
           turnStatus.style.borderColor = "var(--color-error)";
 
@@ -3025,6 +4744,7 @@ function handlePass() {
   const q = playState.currentQuestion;
   if (!q || playState.teamsAttemptedCount >= playState.teams.length - 1) return;
 
+  clearQuestionTimer();
   playSound('pass');
 
   playState.teamsAttemptedCount++;
@@ -3055,6 +4775,7 @@ function handlePass() {
   enableModalActionButtons();
   updateScoreUI();
   updateTurnUI();
+  startQuestionTimer();
 }
 
 // ============================================================
@@ -3096,7 +4817,7 @@ function checkGameOver() {
 
 function endGame() {
   clearGameTimer();
-  if (!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) {
+  if ((!playState.teams || !Array.isArray(playState.teams) || playState.teams.length < 2) && !playState.practiceMode) {
     setupTeamsFromInputs();
   }
   const sorted = playState.teams
@@ -3105,6 +4826,8 @@ function endGame() {
 
   const winner = sorted[0];
   const tie = sorted.length > 1 && sorted[0].score === sorted[1].score;
+
+
 
   const winnerCard = document.querySelector('.winner-card');
   winnerCard.classList.remove('winner-card-tie', 'winner-card-win');
@@ -3193,6 +4916,8 @@ function setupTeamsFromInputs() {
     return {
       name: isDef ? defaultName : (t.name || defaultName),
       logo: isDef ? defaultLogo : (t.logo || defaultLogo),
+      avatarType: isDef ? 'default' : (t.avatarType || 'default'),
+      avatarVal: isDef ? '' : (t.avatarVal || ''),
       score: 0
     };
   });
@@ -3212,6 +4937,56 @@ function setupTeamsFromInputs() {
   });
 }
 
+function assignRandomPowerups() {
+  playState.powerups = {};
+  playState.powerupUsed = {
+    fiftyFiftyUsed: false,
+    stealShieldActive: false,
+    doublePointsActive: false,
+    extraTimeActive: false,
+    freePassUsed: false,
+    revealedCells: {}
+  };
+  
+  if (db.settings.powerupMode === 'manual') {
+    db.questions.forEach(q => {
+      if (q.powerup && q.powerup !== 'none') {
+        const qnId = cellId(q.qnIndex);
+        playState.powerups[qnId] = q.powerup;
+      }
+    });
+    console.log("Manual Power-ups assigned from questions:", playState.powerups);
+  } else {
+    // Choose random question cells from the available ones
+    const totalQns = db.settings.totalQuestions || 12;
+    const questionIndices = [];
+    for (let i = 1; i <= totalQns; i++) {
+      questionIndices.push(i);
+    }
+    
+    // Shuffle array
+    for (let i = questionIndices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [questionIndices[i], questionIndices[j]] = [questionIndices[j], questionIndices[i]];
+    }
+    
+    // Choose from all 5 power-ups and shuffle them
+    const powerupTypes = ['double_points', 'steal_shield', 'fifty_fifty', 'extra_time', 'free_pass'];
+    for (let i = powerupTypes.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [powerupTypes[i], powerupTypes[j]] = [powerupTypes[j], powerupTypes[i]];
+    }
+
+    // Take top 4 and assign different powerups
+    const numToAssign = Math.min(4, questionIndices.length, powerupTypes.length);
+    for (let k = 0; k < numToAssign; k++) {
+      const qnId = `qn${questionIndices[k]}`;
+      playState.powerups[qnId] = powerupTypes[k];
+    }
+    console.log("Random Power-ups assigned:", playState.powerups);
+  }
+}
+
 function resetPlayState() {
   playState.teams.forEach(t => { t.score = 0; });
   playState.currentTeamIndex = 0;
@@ -3225,6 +5000,142 @@ function resetPlayState() {
   playState.teams.forEach((t, i) => {
     playState.stats[i] = { correct: 0, attempts: 0 };
   });
+  assignRandomPowerups();
+}
+
+function renderAvatarPickers() {
+  const emojis = ['👦', '👧', '🦁', '🐑', '🕊️', '🐟', '🦅', '👑', '🔥', '💎'];
+  [0, 1].forEach(teamIdx => {
+    const pickerId = `team${teamIdx + 1}-avatar-picker`;
+    const container = document.getElementById(pickerId);
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const team = db.teams[teamIdx];
+    const currentAvatarVal = (team && team.avatarType === 'emoji') ? team.avatarVal : '';
+    
+    emojis.forEach(emoji => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `avatar-emoji-btn ${currentAvatarVal === emoji ? 'selected' : ''}`;
+      btn.textContent = emoji;
+      btn.addEventListener('click', () => {
+        playSound('click');
+        
+        // Clear default switch if it is checked
+        const defaultCheckboxId = `admin-team${teamIdx + 1}-default`;
+        const checkbox = document.getElementById(defaultCheckboxId);
+        if (checkbox && checkbox.checked) {
+          checkbox.checked = false;
+          db.teams[teamIdx].useDefault = false;
+          
+          const nameInputId = `admin-team${teamIdx + 1}-name`;
+          const logoInputId = `admin-team${teamIdx + 1}-logo`;
+          const nameInput = document.getElementById(nameInputId);
+          const logoInput = document.getElementById(logoInputId);
+          if (nameInput) nameInput.disabled = false;
+          if (logoInput) logoInput.disabled = false;
+        }
+        
+        db.teams[teamIdx].avatarType = 'emoji';
+        db.teams[teamIdx].avatarVal = emoji;
+        saveDB();
+        renderAvatarPickers();
+        
+        if (playState.teams[teamIdx]) {
+          playState.teams[teamIdx].avatarType = 'emoji';
+          playState.teams[teamIdx].avatarVal = emoji;
+          saveGameState();
+          updateScoreUI();
+        } else {
+          updateScoreUI();
+        }
+      });
+      container.appendChild(btn);
+    });
+    parseEmojis(container);
+  });
+}
+
+function loadBibleStoryTemplate(storyKey) {
+  const template = BIBLE_TEMPLATES[storyKey];
+  if (!template) return;
+  
+  db.questions = JSON.parse(JSON.stringify(template.questions));
+  db.settings.totalQuestions = db.questions.filter(q => q.qnIndex !== 'tiebreaker').length;
+  db.settings.showCategories = false;
+  
+  fallbackSaveDB();
+  hydrateControlCenter(db.settings);
+  applySelectedFont();
+  
+  playState.phase = 'live';
+  playState.gameState = 'IDLE';
+  resetPlayState();
+  saveGameState();
+  updateGameStatusUI();
+  renderAdminGrid();
+  renderGameBoard();
+  updateScoreUI();
+  
+  triggerAlert('SYSTEM', `${template.name} preset loaded!`, 'gain');
+  
+  const statusDiv = document.getElementById('dashboard-status');
+  if (statusDiv) {
+    statusDiv.innerHTML = `<div class="bold-text" style="color:var(--color-success);">✅ ${template.name} Loaded!</div>`;
+    setTimeout(updateDashboardStatus, 3000);
+  }
+}
+
+
+
+function parseCSV(text) {
+  const lines = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const nextChar = text[i + 1];
+    
+    if (inQuotes) {
+      if (char === '"') {
+        if (nextChar === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += char;
+      }
+    } else {
+      if (char === '"') {
+        inQuotes = true;
+      } else if (char === ',') {
+        row.push(field);
+        field = '';
+      } else if (char === '\\n' || char === '\\r') {
+        if (char === '\\r' && nextChar === '\\n') {
+          i++;
+        }
+        row.push(field);
+        lines.push(row);
+        row = [];
+        field = '';
+      } else {
+        field += char;
+      }
+    }
+  }
+  if (field || row.length > 0) {
+    row.push(field);
+  }
+  if (row.length > 0) {
+    lines.push(row);
+  }
+  return lines;
 }
 
 // ============================================================
@@ -3424,7 +5335,7 @@ document.getElementById('sidebar-backdrop')?.addEventListener('click', () => {
 // ============================================================
 document.getElementById('btn-start-game').addEventListener('click', () => {
   playSound('open');
-  if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended' && localStorage.getItem('review_game_playstate') !== null) {
+  if (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended' && localStorage.getItem('review_game_playstate') !== null && !playState.practiceMode) {
     // Resume existing game
     if (db.settings.enableTimer) {
       startGameTimer();
@@ -3432,8 +5343,10 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
     showScreen('game');
   } else {
     // Start fresh game
+    playState.practiceMode = false;
     setupTeamsFromInputs();
     resetPlayState();
+    playState.practiceMode = false;
     playState.phase = 'live';
     playState.gameState = 'IDLE';
     const minutes = db.settings.timerDuration ?? 10;
@@ -3447,6 +5360,24 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
     updateScoreUI();
     showScreen('game');
   }
+});
+
+document.getElementById('btn-start-practice').addEventListener('click', () => {
+  playSound('open');
+  playState.practiceMode = true;
+  playState.teams = [{ name: 'Practice Mode', logo: 'logo.png', avatarType: 'emoji', avatarVal: '🎓', score: 0 }];
+  resetPlayState();
+  playState.practiceMode = true;
+  playState.phase = 'live';
+  playState.gameState = 'IDLE';
+  
+  clearGameTimer();
+  saveGameState();
+  updateGameStatusUI();
+  renderGameBoard();
+  updateTurnUI();
+  updateScoreUI();
+  showScreen('game');
 });
 
 // ============================================================
@@ -3556,17 +5487,21 @@ const setupDefaultTeamToggle = (teamIdx, defaultCheckboxId, nameInputId, logoInp
       if (logoInput) logoInput.value = ''; // Reset file input selection
       db.teams[teamIdx].name = defaultName;
       db.teams[teamIdx].logo = defaultLogo;
+      db.teams[teamIdx].avatarType = 'default';
+      db.teams[teamIdx].avatarVal = '';
     } else {
       const currentVal = nameInput ? nameInput.value.trim() : '';
       db.teams[teamIdx].name = currentVal || defaultName;
-      // logo stays default until they upload a custom one or restore existing
     }
 
     saveDB();
+    renderAvatarPickers();
 
     if (playState.teams[teamIdx]) {
       playState.teams[teamIdx].name = db.teams[teamIdx].name;
       playState.teams[teamIdx].logo = db.teams[teamIdx].logo;
+      playState.teams[teamIdx].avatarType = db.teams[teamIdx].avatarType;
+      playState.teams[teamIdx].avatarVal = db.teams[teamIdx].avatarVal;
       saveGameState();
       updateScoreUI();
       updateTurnUI();
@@ -3789,6 +5724,8 @@ document.getElementById('question-form').addEventListener('submit', async e => {
 
   
 
+  const powerup = document.getElementById('q-powerup') ? document.getElementById('q-powerup').value : 'none';
+
   const existIdx = db.questions.findIndex(q => q.qnIndex === qnIndex);
   const qObj = {
     id: existIdx !== -1 ? db.questions[existIdx].id : Date.now(),
@@ -3798,7 +5735,8 @@ document.getElementById('question-form').addEventListener('submit', async e => {
     options,
     answer,
     points: pts,
-        customCorrectEmoji: document.getElementById('q-emoji-correct') ? document.getElementById('q-emoji-correct').value.trim() : '',
+    powerup,
+    customCorrectEmoji: document.getElementById('q-emoji-correct') ? document.getElementById('q-emoji-correct').value.trim() : '',
     customWrongEmoji: document.getElementById('q-emoji-wrong') ? document.getElementById('q-emoji-wrong').value.trim() : ''
   };
 
@@ -3881,6 +5819,77 @@ document.getElementById('btn-modal-pass').addEventListener('click', () => {
   if (!canInteract()) return;
   disableModalActionButtons();
   handlePass();
+});
+
+document.getElementById('btn-modal-fifty-fifty').addEventListener('click', () => {
+  if (!canInteract() || !canAnswer()) return;
+  const q = playState.currentQuestion;
+  if (!q || (q.questionType || q.type) !== 'mcq') return;
+
+  playSound('click');
+  playState.powerupUsed.fiftyFiftyUsed = true;
+  document.getElementById('btn-modal-fifty-fifty').disabled = true;
+  document.getElementById('btn-modal-fifty-fifty').style.opacity = '0.5';
+
+  const optBtns = Array.from(document.querySelectorAll('.option-btn'));
+  const correctBtn = optBtns.find(btn => {
+    const valSpan = btn.querySelector('.option-val');
+    return valSpan && valSpan.textContent === q.answer;
+  });
+
+  const incorrectBtns = optBtns.filter(btn => btn !== correctBtn);
+  for (let i = incorrectBtns.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [incorrectBtns[i], incorrectBtns[j]] = [incorrectBtns[j], incorrectBtns[i]];
+  }
+
+  incorrectBtns.slice(0, 2).forEach(btn => {
+    btn.disabled = true;
+    btn.style.opacity = '0.2';
+    btn.style.cursor = 'not-allowed';
+    btn.classList.add('disabled-fifty-fifty');
+  });
+
+  triggerAlert("POWER-UP", "50/50 Help! Two wrong options removed.", "gain");
+});
+
+document.getElementById('btn-modal-free-pass').addEventListener('click', () => {
+  if (!canInteract() || !canAnswer()) return;
+  const q = playState.currentQuestion;
+  const cId = playState.currentCellId;
+  if (!q || !cId) return;
+
+  playSound('pass');
+  playState.powerupUsed.freePassUsed = true;
+  document.getElementById('btn-modal-free-pass').disabled = true;
+  document.getElementById('btn-modal-free-pass').style.opacity = '0.5';
+
+  clearQuestionTimer();
+  transitionState('RESOLVED');
+  disableQuestionInputs();
+
+  playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
+
+  const correctTextEl = document.getElementById('modal-correct-answer-text');
+  updateTextAndCheckUnicode(correctTextEl, q.correctAnswer || q.answer);
+  document.getElementById('modal-reveal-panel').classList.remove('hidden');
+
+  const turnStatus = document.getElementById('modal-turn-status');
+  turnStatus.textContent = "Free Pass Used!";
+  turnStatus.style.color = "var(--color-team5)";
+  turnStatus.style.borderColor = "var(--color-team5)";
+
+  playState.cancelLocked = true;
+  const btnCancel = document.getElementById('btn-modal-cancel');
+  if (btnCancel) btnCancel.disabled = true;
+
+  saveGameState();
+  renderGameBoard();
+  renderAdminGrid();
+  enableNextButton();
+  parseEmojis(document.getElementById('modal-overlay'));
+
+  triggerAlert("POWER-UP", "Free Pass used! Question skipped, team turn kept.", "gain");
 });
 
 document.getElementById('btn-modal-submit').addEventListener('click', () => {
@@ -4074,6 +6083,7 @@ async function initApp() {
   renderGameBoard();
   updateScoreUI();
   updateDashboardStatus();
+  renderAvatarPickers();
 
   // Always start on the dashboard screen upon loading or reloading the application
   showScreen('dashboard');
@@ -4159,6 +6169,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const powerupModeEl = document.getElementById('settings-powerup-mode');
+  if (powerupModeEl) {
+    powerupModeEl.addEventListener('change', (e) => {
+      db.settings.powerupMode = e.target.value;
+      saveDB();
+    });
+  }
+
   const timerEl = document.getElementById('settings-timer-duration');
   if (timerEl) {
     timerEl.addEventListener('change', (e) => {
@@ -4184,6 +6202,26 @@ document.addEventListener('DOMContentLoaded', () => {
           startGameTimer();
         }
       }
+    });
+  }
+
+  const enableQuestionTimerEl = document.getElementById('settings-enable-question-timer');
+  if (enableQuestionTimerEl) {
+    enableQuestionTimerEl.addEventListener('change', (e) => {
+      db.settings.enableQuestionTimer = e.target.checked;
+      saveDB();
+      const group = document.getElementById('question-timer-duration-group');
+      if (group) group.style.display = e.target.checked ? 'block' : 'none';
+    });
+  }
+
+  const questionTimerDurationEl = document.getElementById('settings-question-timer-duration');
+  if (questionTimerDurationEl) {
+    questionTimerDurationEl.addEventListener('change', (e) => {
+      let val = parseInt(e.target.value, 10);
+      if (isNaN(val) || val < 5) val = 5;
+      db.settings.questionTimerDuration = val;
+      saveDB();
     });
   }
   const highContrastEl = document.getElementById('settings-high-contrast');
@@ -4646,4 +6684,35 @@ document.addEventListener('DOMContentLoaded', () => {
       updateScoreUI();
     }
   });
+
+  // About & Help modal toggle listeners
+  const btnAboutToggle = document.getElementById('btn-about-toggle');
+  const btnAboutClose = document.getElementById('btn-about-close');
+  const btnAboutOk = document.getElementById('btn-about-ok');
+  const aboutOverlay = document.getElementById('about-overlay');
+
+  if (btnAboutToggle && aboutOverlay) {
+    btnAboutToggle.addEventListener('click', () => {
+      aboutOverlay.classList.add('open');
+      playSound('click');
+    });
+  }
+
+  const closeAbout = () => {
+    if (aboutOverlay) {
+      aboutOverlay.classList.remove('open');
+      playSound('click');
+    }
+  };
+
+  if (btnAboutClose) btnAboutClose.addEventListener('click', closeAbout);
+  if (btnAboutOk) btnAboutOk.addEventListener('click', closeAbout);
+
+  if (aboutOverlay) {
+    aboutOverlay.addEventListener('click', (e) => {
+      if (e.target === aboutOverlay) {
+        closeAbout();
+      }
+    });
+  }
 });
