@@ -4567,15 +4567,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Dynamic Scaling Engine
 function applyDynamicScaling() {
-  // Scale based on a baseline resolution of 1500x844 (instead of 1920x1080) to make all items on all screens larger and bolder
-  const baseW = 1500;
-  const baseH = 844;
+  const isMobileLayout = window.innerWidth <= 900;
+  
+  let scale = 1.0;
+  if (!isMobileLayout) {
+    // Scale based on a baseline resolution of 1500x844 (instead of 1920x1080) to make all items on all screens larger and bolder
+    const baseW = 1500;
+    const baseH = 844;
 
-  const scaleX = window.innerWidth / baseW;
-  const scaleY = window.innerHeight / baseH;
+    const scaleX = window.innerWidth / baseW;
+    const scaleY = window.innerHeight / baseH;
 
-  // Use the smaller ratio so nothing gets clipped and it fits the viewport
-  let scale = Math.min(scaleX, scaleY);
+    // Use the smaller ratio so nothing gets clipped and it fits the viewport
+    scale = Math.min(scaleX, scaleY);
+  }
 
   const zoomFactor = Math.pow(1.2, currentZoomLevel);
 
