@@ -1015,6 +1015,8 @@ let db = {
     subtractOnWrong: true,
     totalQuestions: 12,
     gridCols: 4,
+    powerupMode: 'random',
+    randomPowerupsCount: 3,
     displayMode: 'QUESTION_POINTS',
     timerDuration: 10,
     enableTimer: true,
@@ -1697,6 +1699,7 @@ function fallbackSaveDB() {
 
 const defaultSettings = {
   powerupMode: 'random',
+  randomPowerupsCount: 3,
   subtractOnWrong: true,
   totalQuestions: 12,
   displayMode: 'QUESTION_POINTS',
@@ -1863,6 +1866,14 @@ function hydrateControlCenter(settings) {
 
   const powerupModeEl = document.getElementById('settings-powerup-mode');
   if (powerupModeEl) powerupModeEl.value = settings.powerupMode ?? 'random';
+  
+  const powerupCountEl = document.getElementById('settings-powerup-count');
+  if (powerupCountEl) powerupCountEl.value = settings.randomPowerupsCount ?? 3;
+
+  const powerupCountGroup = document.getElementById('powerup-count-group');
+  if (powerupCountGroup) {
+    powerupCountGroup.style.display = (settings.powerupMode ?? 'random') === 'random' ? 'block' : 'none';
+  }
   
   const timerDurationEl = document.getElementById('settings-timer-duration');
   if (timerDurationEl) timerDurationEl.value = settings.timerDuration ?? 10;
@@ -4977,11 +4988,12 @@ function assignRandomPowerups() {
       [powerupTypes[i], powerupTypes[j]] = [powerupTypes[j], powerupTypes[i]];
     }
 
-    // Take top 4 and assign different powerups
-    const numToAssign = Math.min(4, questionIndices.length, powerupTypes.length);
+    // Take configured random count and assign different powerups
+    const maxRandom = typeof db.settings.randomPowerupsCount === 'number' ? db.settings.randomPowerupsCount : 3;
+    const numToAssign = Math.min(maxRandom, questionIndices.length);
     for (let k = 0; k < numToAssign; k++) {
       const qnId = `qn${questionIndices[k]}`;
-      playState.powerups[qnId] = powerupTypes[k];
+      playState.powerups[qnId] = powerupTypes[k % powerupTypes.length];
     }
     console.log("Random Power-ups assigned:", playState.powerups);
   }
@@ -6173,6 +6185,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (powerupModeEl) {
     powerupModeEl.addEventListener('change', (e) => {
       db.settings.powerupMode = e.target.value;
+      const countGroup = document.getElementById('powerup-count-group');
+      if (countGroup) {
+        countGroup.style.display = e.target.value === 'random' ? 'block' : 'none';
+      }
+      saveDB();
+    });
+  }
+
+  const powerupCountEl = document.getElementById('settings-powerup-count');
+  if (powerupCountEl) {
+    powerupCountEl.addEventListener('change', (e) => {
+      let val = parseInt(e.target.value, 10);
+      if (isNaN(val) || val < 0) val = 0;
+      db.settings.randomPowerupsCount = val;
       saveDB();
     });
   }

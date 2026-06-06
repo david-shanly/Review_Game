@@ -14,6 +14,8 @@
     "gridFontBold": false,
     "useDefaultFontColor": true,
     "gridCols": 4,
+    "powerupMode": "random",
+    "randomPowerupsCount": 3,
     "playEmojiFeedback": true,
     "enableCustomPerQuestionEmoji": true,
     "emojiMode": "random",

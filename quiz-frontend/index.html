@@ -674,9 +674,13 @@
                   <div class="form-group" style="margin-top: 10px;">
                     <label for="settings-powerup-mode">Hidden Power-up Mode</label>
                     <select id="settings-powerup-mode" class="modern-select">
-                      <option value="random" selected>🎲 Random (3 auto-assigned)</option>
+                      <option value="random" selected>🎲 Random Mode</option>
                       <option value="manual">✍️ Manual (per-question)</option>
                     </select>
+                  </div>
+                  <div class="form-group" style="margin-top: 10px;" id="powerup-count-group">
+                    <label for="settings-powerup-count">Number of Random Power-ups</label>
+                    <input type="number" id="settings-powerup-count" class="modern-input" value="3" min="0" max="50">
                   </div>
                   <label class="custom-switch-label" style="margin-top: 10px;">
                     <input type="checkbox" id="settings-enable-question-timer" class="custom-switch-checkbox">
