@@ -3385,8 +3385,16 @@ function clearQuestionTimer() {
 
 function handleQuestionTimeout() {
   if (!canAnswer()) return;
-  triggerAlert("TIMEOUT", "Time's up!", "lose");
-  submitAnswer(false);
+  const q = playState.currentQuestion;
+  const isStealShield = playState.powerupUsed.stealShieldActive;
+  
+  if (q && !playState.practiceMode && playState.teamsAttemptedCount < playState.teams.length - 1 && !isStealShield) {
+    triggerAlert("TIMEOUT", "Time's up! Passing to next team...", "info");
+    handlePass();
+  } else {
+    triggerAlert("TIMEOUT", "Time's up!", "lose");
+    submitAnswer(false);
+  }
 }
 
 // ============================================================
