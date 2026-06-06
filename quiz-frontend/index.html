@@ -425,45 +425,64 @@
           <h2 style="font-family: var(--font-display); font-size: 1.8rem; color: var(--color-gold); display: flex; align-items: center; gap: 8px; margin: 0;">ℹ️ About & How to Play</h2>
           <button id="btn-about-close" class="btn btn-icon" style="margin-left: auto; font-size: 1.5rem; background: transparent; border: none; color: var(--color-text-light); cursor: pointer;">&times;</button>
         </div>
-        <div class="about-modal-body" style="flex: 1; overflow-y: auto; padding: 10px 5px; color: var(--color-text-light); line-height: 1.6; font-size: 0.95rem; display: flex; flex-direction: column; gap: 20px;">
-          <div style="background: rgba(255, 255, 255, 0.04); padding: 15px; border-radius: var(--radius-sm); border: 1px solid var(--cell-border);">
-            <h3 style="color: var(--color-gold); font-family: var(--font-display); font-size: 1.25rem; margin-bottom: 8px; margin-top: 0;">🌟 Welcome to the Bible Quiz Review Game!</h3>
-            <p>This interactive, team-based quiz game is designed to help church kids review Bible stories, characters, and verses. Built with rich audio synthesis, rolling animations, hidden power-ups, and pre-made templates, it is perfect for classroom activities and Sunday school!</p>
+        <div class="about-modal-body" style="flex: 1; overflow-y: auto; padding: 10px 10px; color: var(--color-text-light); line-height: 1.6; font-size: 0.95rem; display: flex; flex-direction: column; gap: 20px;">
+          <!-- Welcome Section -->
+          <div style="background: rgba(255, 255, 255, 0.03); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--cell-border); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);">
+            <h3 style="color: var(--color-gold); font-family: var(--font-display); font-size: 1.35rem; margin-bottom: 10px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🌟 Welcome to the Bible Quiz Review Game!</h3>
+            <p style="margin: 0; font-size: 0.98rem; color: rgba(255, 255, 255, 0.85);">
+              This interactive, classroom-style review game is designed to help church kids review Bible stories, characters, and verses. Built with custom audio synthesis, rolling animations, hidden power-ups, and robust template utilities, it is the perfect tool for classroom engagement, Sunday schools, and youth groups!
+            </p>
           </div>
 
+          <!-- Two-Column Grid for Rules and Power-ups -->
           <div class="about-grid-wrapper" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <!-- Column 1: For Players -->
-            <div style="background: rgba(56, 217, 245, 0.05); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(56, 217, 245, 0.25);">
-              <h4 style="color: var(--color-team1); font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 8px; margin-top: 0;">🎮 How to Play (For Teams)</h4>
-              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0;">
-                <li><strong>Form Teams</strong>: Choose team names and pick cartoon animal avatars in the settings.</li>
-                <li><strong>Select a Tile</strong>: Teams take turns selecting tiles from the game board.</li>
-                <li><strong>Answer Questions</strong>: Try your best to answer the questions correctly!</li>
-                <li><strong>Pass & Steal</strong>: If you aren't sure, you can pass to let other teams steal the points. Be careful—wrong answers lose half the points value!</li>
+            <!-- Column 1: Rules & Turn Flow -->
+            <div style="background: rgba(56, 217, 245, 0.04); padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(56, 217, 245, 0.18);">
+              <h4 style="color: var(--color-team1); font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 12px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🎮 Gameplay & Rules</h4>
+              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 10px; margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9);">
+                <li><strong>Team Setup</strong>: Configure custom names, upload custom logos, or choose cartoon animal avatars in the sidebar Control Center.</li>
+                <li><strong>Turn Selection</strong>: Teams take turns selecting question tiles from the interactive game board.</li>
+                <li><strong>Score Math</strong>: Answering correctly adds the full points value to the team's score. Wrong answers subtract half the question value (unless disabled in Settings).</li>
+                <li><strong>Steal System</strong>: If the active team gets it wrong or chooses to pass, the opposing team can attempt a steal. Correct steals award the points, while incorrect steals incur the standard wrong answer penalty.</li>
+                <li><strong>Tiebreaker</strong>: If scores are tied at the end, a designated tiebreaker question automatically resolves the winner.</li>
               </ul>
             </div>
 
             <!-- Column 2: Power-ups -->
-            <div style="background: rgba(244, 196, 48, 0.05); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(244, 196, 48, 0.25);">
-              <h4 style="color: var(--color-gold); font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 8px; margin-top: 0;">🎁 Hidden Power-up Tiles</h4>
-              <p style="margin-bottom: 8px; font-size: 0.9rem; margin-top: 0;">Special modifiers are randomly hidden behind cells at start:</p>
-              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; margin: 0;">
-                <li>🌟 <strong>Double Points</strong>: Doubles the value of the question!</li>
-                <li>🛡️ <strong>Steal Shield</strong>: Blocks the other team from stealing points if you answer incorrectly.</li>
-                <li>🤝 <strong>50/50 Help</strong>: Removes two wrong options (MCQ only).</li>
-                <li>🎟️ <strong>Free Pass</strong>: Skip the question with no penalty and keep your turn!</li>
+            <div style="background: rgba(244, 196, 48, 0.04); padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(244, 196, 48, 0.18);">
+              <h4 style="color: var(--color-gold); font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 12px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🎁 Hidden Power-ups</h4>
+              <p style="margin-bottom: 10px; font-size: 0.9rem; color: rgba(255, 255, 255, 0.85); margin-top: 0;">Special modifiers are randomly hidden beneath question cards. Revealing a power-up applies immediate benefits:</p>
+              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); margin: 0;">
+                <li>🌟 <strong>Double Points</strong>: Doubles the point value of the question, giving you a chance to leap ahead!</li>
+                <li>🛡️ <strong>Steal Shield</strong>: Protects your score! If you get the question wrong, the other team cannot steal the points.</li>
+                <li>🤝 <strong>50/50 Help</strong>: Discards two incorrect answers on Multiple Choice Questions (MCQ) to narrow down the choices.</li>
+                <li>🎟️ <strong>Free Pass</strong>: Lets you skip the question with zero penalty, keeping your turn intact to select another card.</li>
               </ul>
             </div>
           </div>
 
-          <!-- Section 3: For Teachers -->
-          <div style="background: rgba(167, 139, 250, 0.05); padding: 15px; border-radius: var(--radius-sm); border: 1px solid rgba(167, 139, 250, 0.25);">
-            <h4 style="color: var(--color-team4); font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 8px; margin-top: 0;">🛠️ Teacher Tools & Customization</h4>
-            <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0;">
-              <li><strong>Select Presets</strong>: Instantly load Bible Story presets like Noah's Ark, David & Goliath, Miracles of Jesus, Moses, Joseph, Daniel, or Jonah.</li>
-              <li><strong>Interactive Grid Editing</strong>: Enter the Admin Panel, select any cell, and use the Question Editor to modify questions and answers individually.</li>
-              <li><strong>Spreadsheet Import</strong>: Click the 📥 <strong>Download CSV Template</strong> button to download a spreadsheet template. Open it in Excel, enter your custom questions, and upload it back using 📊 <strong>CSV</strong>.</li>
-              <li><strong>Single-Player Practice</strong>: Run in 🏠 <strong>Practice Mode</strong> on the dashboard for solo learning!</li>
+          <!-- Section 3: Teacher Utilities -->
+          <div style="background: rgba(167, 139, 250, 0.04); padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(167, 139, 250, 0.18);">
+            <h4 style="color: var(--color-team4); font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 12px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🛠️ Teacher Customization Suite</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9);">
+              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0;">
+                <li><strong>Bible Story Presets</strong>: Instantly load custom 12-question quiz presets (+1 tiebreaker each) like Noah's Ark, David & Goliath, Miracles of Jesus, Moses, Joseph, Daniel, or Jonah.</li>
+                <li><strong>Interactive Editor</strong>: Customize questions, answers, MCQ options, points, and specific power-up types for individual cells inside the Admin Panel.</li>
+              </ul>
+              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0;">
+                <li><strong>Spreadsheet Import/Export</strong>: Download the CSV template, fill in questions in any editor (Excel, Google Sheets), and import it back to instantly rebuild the board.</li>
+                <li><strong>Aesthetic Controls</strong>: Tailor the board appearance with custom fonts, grid colors, and tile designs. Toggle High Contrast mode for enhanced legibility.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Section 4: Game Modes & Persistence -->
+          <div style="background: rgba(244, 63, 94, 0.04); padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(244, 63, 94, 0.18);">
+            <h4 style="color: #f43f5e; font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 12px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🏠 Game Modes & Local Persistence</h4>
+            <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.9);">
+              <li><strong>Practice Mode</strong>: Enable solo-learning mode on the dashboard to review questions independently without teams, score penalties, or turn limits.</li>
+              <li><strong>Local Storage Protection</strong>: All scores, active game states, and custom settings/questions are saved in the browser's local storage. A mid-game reload or power outage will never lose your quiz progress!</li>
+              <li><strong>Hall of Fame</strong>: Displays past winning teams, their scores, and correct answer statistics on the dashboard.</li>
             </ul>
           </div>
         </div>
