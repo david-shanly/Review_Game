@@ -1708,7 +1708,7 @@ body {
   color: var(--color-text-light);
   text-align: center;
   padding: 0.5rem 0;
-  overflow-y: auto; /* Fallback for very long questions */
+  overflow-y: hidden !important; /* Disallowed scrollbar, dynamic text-fitting system handles overflow */
   max-height: 40vh; /* Prevent question text from growing too large */
 }
 
@@ -1812,7 +1812,7 @@ body {
   border: 2px solid rgba(244, 196, 48, 0.3);
   border-radius: var(--radius-sm);
   animation: revealIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  overflow-y: auto; /* Fallback for very long answers */
+  overflow-y: hidden !important; /* Disallowed scrollbar, dynamic text-fitting system handles overflow */
   max-height: 25vh; /* Keep answer reveal compact */
 }
 

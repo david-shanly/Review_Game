@@ -3424,6 +3424,64 @@ function showQuestionContent(cId, q) {
       btnFreePass.classList.add('hidden');
     }
   }
+  
+  fitModalText();
+  requestAnimationFrame(fitModalText);
+}
+
+function fitModalText() {
+  const modal = document.querySelector('#modal-overlay .modal-content');
+  if (!modal) return;
+
+  const questionText = document.getElementById('modal-question-text');
+  const optionBtns = document.querySelectorAll('#modal-overlay .option-btn');
+  const revealPanel = document.getElementById('modal-reveal-panel');
+  const revealVal = document.getElementById('modal-correct-answer-text');
+
+  // Reset to default CSS values
+  if (questionText) questionText.style.fontSize = '';
+  optionBtns.forEach(btn => {
+    btn.style.fontSize = '';
+    const valSpan = btn.querySelector('.option-val');
+    if (valSpan) valSpan.style.fontSize = '';
+  });
+  if (revealPanel) revealPanel.style.fontSize = '';
+  if (revealVal) revealVal.style.fontSize = '';
+
+  // Get base computed pixel values
+  const qBase = questionText ? parseFloat(window.getComputedStyle(questionText).fontSize) : 0;
+  const optBases = Array.from(optionBtns).map(btn => {
+    const valSpan = btn.querySelector('.option-val');
+    return valSpan ? parseFloat(window.getComputedStyle(valSpan).fontSize) : parseFloat(window.getComputedStyle(btn).fontSize);
+  });
+  const revBase = revealPanel ? parseFloat(window.getComputedStyle(revealPanel).fontSize) : 0;
+  const revValBase = revealVal ? parseFloat(window.getComputedStyle(revealVal).fontSize) : 0;
+
+  let scale = 1.0;
+  const minScale = 0.45; // Keep basic legibility
+  const step = 0.03;
+
+  // Reduce font size progressively while the content height overflows the available modal height
+  while (modal.scrollHeight > modal.clientHeight && scale > minScale) {
+    scale -= step;
+    if (questionText && qBase) {
+      questionText.style.fontSize = `${qBase * scale}px`;
+    }
+    optionBtns.forEach((btn, idx) => {
+      const valSpan = btn.querySelector('.option-val');
+      if (valSpan && optBases[idx]) {
+        valSpan.style.fontSize = `${optBases[idx] * scale}px`;
+      } else if (optBases[idx]) {
+        btn.style.fontSize = `${optBases[idx] * scale}px`;
+      }
+    });
+    if (revealPanel && revBase) {
+      revealPanel.style.fontSize = `${revBase * scale}px`;
+    }
+    if (revealVal && revValBase) {
+      revealVal.style.fontSize = `${revValBase * scale}px`;
+    }
+  }
 }
 
 function openQuestionModal(cId, q) {
@@ -4462,6 +4520,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
     updateTextAndCheckUnicode(document.getElementById('modal-correct-answer-text'), q.correctAnswer || q.answer);
     document.getElementById('modal-reveal-panel').classList.remove('hidden');
+    fitModalText();
 
     const turnStatus = document.getElementById('modal-turn-status');
     turnStatus.textContent = "Correct Answer!";
@@ -4550,6 +4609,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
           document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
           document.getElementById('modal-reveal-panel').classList.remove('hidden');
+          fitModalText();
 
           playState.cancelLocked = true;
           const btnCancel = document.getElementById('btn-modal-cancel');
@@ -4617,6 +4677,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
           document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
           document.getElementById('modal-reveal-panel').classList.remove('hidden');
+          fitModalText();
 
           playState.cancelLocked = true;
           const btnCancel = document.getElementById('btn-modal-cancel');
@@ -5809,6 +5870,7 @@ document.getElementById('btn-modal-free-pass').addEventListener('click', () => {
   const correctTextEl = document.getElementById('modal-correct-answer-text');
   updateTextAndCheckUnicode(correctTextEl, q.correctAnswer || q.answer);
   document.getElementById('modal-reveal-panel').classList.remove('hidden');
+  fitModalText();
 
   const turnStatus = document.getElementById('modal-turn-status');
   turnStatus.textContent = "Free Pass Used!";
@@ -6565,6 +6627,11 @@ function applyDynamicScaling() {
 
   if (typeof playState !== 'undefined' && playState.activeScreen === 'winner') {
     adjustWinnerCardFontSizeToFit();
+  }
+  
+  const modalOverlay = document.getElementById('modal-overlay');
+  if (modalOverlay && modalOverlay.classList.contains('open')) {
+    fitModalText();
   }
 }
 window.addEventListener('resize', applyDynamicScaling);
