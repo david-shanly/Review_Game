@@ -1020,8 +1020,6 @@ let db = {
     displayMode: 'QUESTION_POINTS',
     timerDuration: 10,
     enableTimer: true,
-    enableQuestionTimer: true,
-    questionTimerDuration: 15,
     gridFont: 'none',
     applyFontToAll: false,
     playVideoFeedback: false,
@@ -1881,16 +1879,7 @@ function hydrateControlCenter(settings) {
   const enableTimerEl = document.getElementById('settings-enable-timer');
   if (enableTimerEl) enableTimerEl.checked = settings.enableTimer ?? true;
   
-  const enableQuestionTimerEl = document.getElementById('settings-enable-question-timer');
-  if (enableQuestionTimerEl) enableQuestionTimerEl.checked = settings.enableQuestionTimer ?? true;
-  
-  const questionTimerDurationEl = document.getElementById('settings-question-timer-duration');
-  if (questionTimerDurationEl) questionTimerDurationEl.value = settings.questionTimerDuration ?? 15;
 
-  const qnTimerGroup = document.getElementById('question-timer-duration-group');
-  if (qnTimerGroup) {
-    qnTimerGroup.style.display = (settings.enableQuestionTimer ?? true) ? 'block' : 'none';
-  }
   
   const emojiFeedbackEl = document.getElementById('settings-play-emoji-feedback');
   if (emojiFeedbackEl) emojiFeedbackEl.checked = settings.playEmojiFeedback ?? true;
@@ -3313,143 +3302,16 @@ function adjustWinnerCardFontSizeToFit() {
 // QUESTION COUNTDOWN TIMER
 // ============================================================
 function startQuestionTimer() {
-  clearQuestionTimer();
-  if (db.settings.enableQuestionTimer === false) return;
-
-  const timerContainer = document.getElementById('modal-timer-container');
-  if (timerContainer) timerContainer.classList.remove('hidden');
-
-  let duration = parseInt(db.settings.questionTimerDuration, 10) || 15;
-  if (playState.currentCellId && playState.powerups[playState.currentCellId] === 'extra_time') {
-    duration += 15;
-  }
-  questionTimeLeft = duration;
-  questionTimerTotal = duration;
-
-  const timerBar = document.getElementById('modal-timer-bar');
-  if (timerBar) {
-    timerBar.style.width = '100%';
-    timerBar.style.backgroundColor = 'var(--color-success)';
-  }
-
-  let lastTickSecond = Math.ceil(questionTimeLeft);
-  questionTimerInterval = setInterval(() => {
-    const overlay = document.getElementById('modal-overlay');
-    if (!overlay || !overlay.classList.contains('open') || playState.gameState === 'RESOLVED' || playState.gameState === 'IDLE') {
-      clearQuestionTimer();
-      return;
-    }
-
-    questionTimeLeft -= 0.1;
-    const pct = Math.max(0, (questionTimeLeft / questionTimerTotal) * 100);
-    
-    if (timerBar) {
-      timerBar.style.width = `${pct}%`;
-      if (pct < 33) {
-        timerBar.style.backgroundColor = 'var(--color-danger)';
-        timerBar.style.boxShadow = '0 0 10px var(--color-danger)';
-      } else if (pct < 66) {
-        timerBar.style.backgroundColor = 'var(--color-gold)';
-        timerBar.style.boxShadow = '0 0 10px var(--color-gold)';
-      } else {
-        timerBar.style.backgroundColor = 'var(--color-success)';
-        timerBar.style.boxShadow = '0 0 10px var(--color-success)';
-      }
-    }
-
-    const currentSecond = Math.ceil(questionTimeLeft);
-    if (currentSecond !== lastTickSecond && currentSecond >= 0) {
-      lastTickSecond = currentSecond;
-      if (currentSecond <= 5) {
-        playSound('tick-alert');
-      } else {
-        playSound('tick');
-      }
-    }
-
-    if (questionTimeLeft <= 0) {
-      clearQuestionTimer();
-      handleQuestionTimeout();
-    }
-  }, 100);
+  // Question timer disabled
 }
 
 function clearQuestionTimer() {
-  if (questionTimerInterval) {
-    clearInterval(questionTimerInterval);
-    questionTimerInterval = null;
-  }
-  const timerContainer = document.getElementById('modal-timer-container');
-  if (timerContainer) timerContainer.classList.add('hidden');
+  // Question timer disabled
 }
 
 function handleQuestionTimeout() {
-  if (!canAnswer()) return;
-  const q = playState.currentQuestion;
-  const isStealShield = playState.powerupUsed.stealShieldActive;
-  
-  if (q && !playState.practiceMode && playState.teamsAttemptedCount < playState.teams.length - 1 && !isStealShield) {
-    triggerAlert("TIMEOUT", "Time's up! Passing to next team...", "info");
-    handlePass();
-  } else {
-    triggerAlert("TIMEOUT", "Time's up!", "lose");
-    submitAnswer(false);
-  }
+  // Question timer disabled
 }
-
-function adjustModalTextSizes() {
-  const overlay = document.getElementById('modal-overlay');
-  if (!overlay || !overlay.classList.contains('open')) return;
-
-  // 1. Adjust question text
-  const questionTextEl = document.getElementById('modal-question-text');
-  if (questionTextEl && questionTextEl.style.display !== 'none') {
-    questionTextEl.style.fontSize = '';
-    const maxFont = 2.9;
-    const minFont = 1.1;
-    let currentRem = maxFont;
-    questionTextEl.style.fontSize = `${currentRem}rem`;
-
-    let loop = 0;
-    while (questionTextEl.scrollHeight > questionTextEl.clientHeight + 2 && currentRem > minFont && loop < 50) {
-      currentRem -= 0.05;
-      questionTextEl.style.fontSize = `${currentRem}rem`;
-      loop++;
-    }
-  }
-
-  // 2. Adjust correct answer reveal panel text
-  const revealPanel = document.getElementById('modal-reveal-panel');
-  const valueEl = document.getElementById('modal-correct-answer-text');
-  if (revealPanel && !revealPanel.classList.contains('hidden') && valueEl) {
-    valueEl.style.fontSize = '';
-    const maxFont = 2.1;
-    const minFont = 0.95;
-    let currentRem = maxFont;
-    valueEl.style.fontSize = `${currentRem}rem`;
-
-    let loop = 0;
-    while (revealPanel.scrollHeight > revealPanel.clientHeight + 2 && currentRem > minFont && loop < 50) {
-      currentRem -= 0.05;
-      valueEl.style.fontSize = `${currentRem}rem`;
-      loop++;
-    }
-  }
-}
-
-function showRevealPanel(answerText) {
-  const panel = document.getElementById('modal-reveal-panel');
-  const txtEl = document.getElementById('modal-correct-answer-text');
-  if (panel && txtEl) {
-    updateTextAndCheckUnicode(txtEl, answerText);
-    panel.classList.remove('hidden');
-    setTimeout(adjustModalTextSizes, 50);
-  }
-}
-
-window.addEventListener('resize', () => {
-  adjustModalTextSizes();
-});
 
 // ============================================================
 // QUESTION MODAL
@@ -3562,8 +3424,6 @@ function showQuestionContent(cId, q) {
       btnFreePass.classList.add('hidden');
     }
   }
-
-  setTimeout(adjustModalTextSizes, 50);
 }
 
 function openQuestionModal(cId, q) {
@@ -4600,7 +4460,8 @@ function showEmojiFeedback(isCorrect, q, callback) {
       contentNode.classList.add('feedback-correct');
     }
 
-    showRevealPanel(q.correctAnswer || q.answer);
+    updateTextAndCheckUnicode(document.getElementById('modal-correct-answer-text'), q.correctAnswer || q.answer);
+    document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
     const turnStatus = document.getElementById('modal-turn-status');
     turnStatus.textContent = "Correct Answer!";
@@ -4687,7 +4548,8 @@ function showEmojiFeedback(isCorrect, q, callback) {
             contentNode.classList.add('feedback-wrong');
           }
 
-          showRevealPanel(q.correctAnswer || q.answer);
+          document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+          document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
           playState.cancelLocked = true;
           const btnCancel = document.getElementById('btn-modal-cancel');
@@ -4753,7 +4615,8 @@ function showEmojiFeedback(isCorrect, q, callback) {
             contentNode.classList.add('feedback-wrong');
           }
 
-          showRevealPanel(q.correctAnswer || q.answer);
+          document.getElementById('modal-correct-answer-text').textContent = q.correctAnswer || q.answer;
+          document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
           playState.cancelLocked = true;
           const btnCancel = document.getElementById('btn-modal-cancel');
@@ -5042,8 +4905,8 @@ function assignRandomPowerups() {
       [questionIndices[i], questionIndices[j]] = [questionIndices[j], questionIndices[i]];
     }
     
-    // Choose from all 5 power-ups and shuffle them
-    const powerupTypes = ['double_points', 'steal_shield', 'fifty_fifty', 'extra_time', 'free_pass'];
+    // Choose from active power-ups and shuffle them
+    const powerupTypes = ['double_points', 'steal_shield', 'fifty_fifty', 'free_pass'];
     for (let i = powerupTypes.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [powerupTypes[i], powerupTypes[j]] = [powerupTypes[j], powerupTypes[i]];
@@ -5943,7 +5806,9 @@ document.getElementById('btn-modal-free-pass').addEventListener('click', () => {
 
   playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
 
-  showRevealPanel(q.correctAnswer || q.answer);
+  const correctTextEl = document.getElementById('modal-correct-answer-text');
+  updateTextAndCheckUnicode(correctTextEl, q.correctAnswer || q.answer);
+  document.getElementById('modal-reveal-panel').classList.remove('hidden');
 
   const turnStatus = document.getElementById('modal-turn-status');
   turnStatus.textContent = "Free Pass Used!";
@@ -6290,25 +6155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const enableQuestionTimerEl = document.getElementById('settings-enable-question-timer');
-  if (enableQuestionTimerEl) {
-    enableQuestionTimerEl.addEventListener('change', (e) => {
-      db.settings.enableQuestionTimer = e.target.checked;
-      saveDB();
-      const group = document.getElementById('question-timer-duration-group');
-      if (group) group.style.display = e.target.checked ? 'block' : 'none';
-    });
-  }
 
-  const questionTimerDurationEl = document.getElementById('settings-question-timer-duration');
-  if (questionTimerDurationEl) {
-    questionTimerDurationEl.addEventListener('change', (e) => {
-      let val = parseInt(e.target.value, 10);
-      if (isNaN(val) || val < 5) val = 5;
-      db.settings.questionTimerDuration = val;
-      saveDB();
-    });
-  }
   const highContrastEl = document.getElementById('settings-high-contrast');
   if (highContrastEl) {
     highContrastEl.addEventListener('change', (e) => {

@@ -184,7 +184,6 @@
                     <option value="double_points">🌟 Double Points</option>
                     <option value="steal_shield">🛡️ Steal Shield</option>
                     <option value="fifty_fifty">🤝 50/50 Help</option>
-                    <option value="extra_time">⏱️ Extra Time</option>
                     <option value="free_pass">🎟️ Free Pass</option>
                   </select>
                 </div>
@@ -339,10 +338,7 @@
           </div>
         </div>
 
-        <!-- Per-question Timer Progress Bar -->
-        <div id="modal-timer-container" class="modal-timer-container hidden" style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 8px 0; overflow: hidden;">
-          <div id="modal-timer-bar" class="modal-timer-bar" style="width: 100%; height: 100%; background-color: var(--color-success); transition: width 0.1s linear, background-color 0.3s ease;"></div>
-        </div>
+
 
         <!-- Power-up Reveal Panel -->
         <div id="powerup-reveal-panel" class="powerup-reveal-panel hidden" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; width: 100%;">
@@ -442,7 +438,7 @@
               <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0;">
                 <li><strong>Form Teams</strong>: Choose team names and pick cartoon animal avatars in the settings.</li>
                 <li><strong>Select a Tile</strong>: Teams take turns selecting tiles from the game board.</li>
-                <li><strong>Answer Questions</strong>: Answer before the countdown timer bar runs out!</li>
+                <li><strong>Answer Questions</strong>: Try your best to answer the questions correctly!</li>
                 <li><strong>Pass & Steal</strong>: If you aren't sure, you can pass to let other teams steal the points. Be careful—wrong answers lose half the points value!</li>
               </ul>
             </div>
@@ -455,7 +451,6 @@
                 <li>🌟 <strong>Double Points</strong>: Doubles the value of the question!</li>
                 <li>🛡️ <strong>Steal Shield</strong>: Blocks the other team from stealing points if you answer incorrectly.</li>
                 <li>🤝 <strong>50/50 Help</strong>: Removes two wrong options (MCQ only).</li>
-                <li>⏱️ <strong>Extra Time</strong>: Adds +15 seconds to the question countdown timer.</li>
                 <li>🎟️ <strong>Free Pass</strong>: Skip the question with no penalty and keep your turn!</li>
               </ul>
             </div>
@@ -682,17 +677,8 @@
                     <label for="settings-powerup-count">Number of Random Power-ups</label>
                     <input type="number" id="settings-powerup-count" class="modern-input" value="3" min="0" max="100">
                     <span style="font-size: 0.7rem; color: var(--color-text-muted); display: block; margin-top: 4px;">
-                      Capped at total questions. Cycles through the 5 types (Double Points, Steal Shield, 50/50, Extra Time, Free Pass) if count exceeds 5.
+                      Capped at total questions. Cycles through the 4 types (Double Points, Steal Shield, 50/50, Free Pass) if count exceeds 4.
                     </span>
-                  </div>
-                  <label class="custom-switch-label" style="margin-top: 10px;">
-                    <input type="checkbox" id="settings-enable-question-timer" class="custom-switch-checkbox">
-                    <span class="custom-switch-track"></span>
-                    <span class="custom-switch-text">Enable Question Timer</span>
-                  </label>
-                  <div class="form-group" style="margin-top: 10px;" id="question-timer-duration-group">
-                    <label for="settings-question-timer-duration">Question Timer (seconds)</label>
-                    <input type="number" id="settings-question-timer-duration" class="modern-input" value="15" min="5" max="60">
                   </div>
                 </div>
               </details>
