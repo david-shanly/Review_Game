@@ -1014,7 +1014,7 @@ let db = {
   settings: {
     subtractOnWrong: true,
     totalQuestions: 12,
-    gridCols: 3,
+    gridCols: 4,
     displayMode: 'QUESTION_POINTS',
     timerDuration: 10,
     enableTimer: true,
@@ -1711,7 +1711,7 @@ const defaultSettings = {
   gridFontColor: '#000000',
   gridFontBold: false,
   useDefaultFontColor: true,
-  gridCols: 3,
+  gridCols: 4,
   playEmojiFeedback: true,
   enableCustomPerQuestionEmoji: true,
   emojiMode: 'random',
