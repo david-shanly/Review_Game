@@ -3386,8 +3386,20 @@ body {
    ============================================================ */
 
 /* Details Summary Marker Reset */
-summary::-webkit-details-marker { display: none !important; }
-summary { list-style: none !important; list-style-type: none !important; }
+details summary::-webkit-details-marker,
+details summary::marker,
+summary::-webkit-details-marker,
+summary::marker {
+  display: none !important;
+  content: "" !important;
+  font-size: 0px !important;
+  width: 0px !important;
+  height: 0px !important;
+}
+summary {
+  list-style: none !important;
+  list-style-type: none !important;
+}
 .details-icon { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; }
 
 /* Premium Collapsible Accordion Card */
