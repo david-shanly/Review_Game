@@ -542,16 +542,16 @@ body {
    ============================================================ */
 .hero-card {
   width: 90%;
-  max-width: 556px;
+  max-width: 760px; /* Same max-width as the winner win card */
   margin: auto;
   text-align: center;
-  padding: clamp(16px, 3.5vh, 32px) clamp(20px, 4.5vw, 45px) !important;
+  padding: clamp(28px, 4.5vh, 55px) clamp(22px, 4.5vw, 45px) !important; /* Same padding as winner card */
   border-radius: var(--radius-lg);
   position: relative;
   
   /* Dynamic Height & Squish protection */
   height: auto !important;
-  max-height: calc(100vh - 150px) !important; /* Mindful of app header & footer */
+  max-height: calc(100vh - 130px) !important; /* Mindful of app header & footer */
   overflow-y: auto !important;
   display: flex;
   flex-direction: column;
@@ -1488,20 +1488,9 @@ body {
 
 .winner-trophy {
   font-size: calc(clamp(2.5rem, 5vh, 4.95rem) * var(--winner-scale, 1)) !important;
-  animation: trophyBounce 1.2s ease infinite alternate;
   margin-bottom: 0 !important;
   display: block;
   flex-shrink: 0;
-}
-
-@keyframes trophyBounce {
-  from {
-    transform: translateY(0) scale(1);
-  }
-
-  to {
-    transform: translateY(-12px) scale(1.1);
-  }
 }
 
 .winner-badge {
