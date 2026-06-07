@@ -1560,7 +1560,7 @@ function showScreen(id) {
     const btnResume = document.getElementById('btn-admin-resume');
     if (btnResume) {
       btnResume.style.display = 'inline-flex';
-      btnResume.innerHTML = isGameActive ? '▶ Resume Game' : '▶ Start Game';
+      btnResume.innerHTML = isGameActive ? 'Resume Game' : 'Start Game';
     }
   }
 
@@ -2110,7 +2110,7 @@ function updateDashboardStatus() {
         </div>
       </div>`;
     startBtn.disabled = false;
-    startBtn.innerHTML = '⚙️ Go to Admin Panel';
+    startBtn.innerHTML = 'Go to Admin Panel';
   } else {
     statusDiv.innerHTML = `
       <div class="card-inner-layout">
@@ -2134,14 +2134,14 @@ function updateDashboardStatus() {
     const adminResumeBtn = document.getElementById('btn-admin-resume');
     const isGameActive = (playState.teams && playState.teams.length > 0 && playState.phase !== 'ended' && localStorage.getItem('review_game_playstate') !== null);
     if (isGameActive) {
-      startBtn.innerHTML = '▶️ Resume Game';
+      startBtn.innerHTML = 'Resume Game';
     } else {
-      startBtn.innerHTML = '🎮 Start Game!';
+      startBtn.innerHTML = 'Start Game!';
     }
     if (adminResumeBtn) {
       if (playState.activeScreen === 'admin') {
         adminResumeBtn.style.display = 'inline-flex';
-        adminResumeBtn.innerHTML = isGameActive ? '▶ Resume Game' : '▶ Start Game';
+        adminResumeBtn.innerHTML = isGameActive ? 'Resume Game' : 'Start Game';
       } else {
         adminResumeBtn.style.display = 'none';
       }
@@ -3602,7 +3602,7 @@ function enableModalActionButtons() {
     if (canPass) {
       btnPass.style.display = 'inline-flex';
       btnPass.disabled = false;
-      btnPass.innerHTML = `⏭️ PASS`;
+      btnPass.innerHTML = `PASS`;
     } else {
       btnPass.style.display = 'none';
       btnPass.disabled = true;
