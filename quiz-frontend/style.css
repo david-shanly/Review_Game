@@ -5156,7 +5156,8 @@ img.emoji {
 .btn:not(.btn-icon) {
   position: relative !important;
   overflow: hidden !important;
-  padding-right: 1.85rem !important;
+  border-radius: 16px !important; /* Unified with cards and tiles */
+  padding-right: 2.2rem !important; /* Extra space to prevent text overlap */
 }
 
 /* Button corner ribbon base formatting */
@@ -5167,13 +5168,16 @@ img.emoji {
   color: white !important;
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 0.72rem; /* Optimized size for icons/emojis */
-  padding: 3px 6px;
-  border-top-left-radius: 6px;
+  font-size: 0.75rem; /* Clean rendering size for icon emojis */
+  padding: 4px 10px;
+  border-top-left-radius: 10px; /* Matching corner transition */
   line-height: 1;
   pointer-events: none;
   z-index: 10;
-  box-shadow: -1px -1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: -2px -2px 6px rgba(0, 0, 0, 0.05);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Specific button corner ribbon contents & background colors */
@@ -5338,6 +5342,114 @@ img.emoji {
 #btn-about-ok::after {
   content: "👍";
   background: #2563eb !important;
+}
+
+/* ============================================================
+   8. Team Setup Card Corner Ribbon Emojis
+   ============================================================ */
+.team-setup-card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+#team1-setup-card::after {
+  content: "👦";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #2563eb !important;
+  color: white !important;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-top-left-radius: 10px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: -2px -2px 6px rgba(0, 0, 0, 0.05);
+}
+
+#team2-setup-card::after {
+  content: "👧";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #db2777 !important;
+  color: white !important;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-top-left-radius: 10px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: -2px -2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================================
+   9. Control Center Nested Settings Accordions
+   ============================================================ */
+.premium-accordion-card:not(.outer-card-details) {
+  position: relative !important;
+}
+
+.premium-accordion-card:not(.outer-card-details) summary {
+  position: relative !important;
+  padding-right: 2.8rem !important; /* Make room for the ribbon icon */
+}
+
+.premium-accordion-card:not(.outer-card-details) summary::after {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: white !important;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-top-left-radius: 10px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: -2px -2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Game Rules (Blue) */
+.premium-controls-wrapper details:nth-of-type(1) summary::after {
+  content: "⚖️";
+  background: #2563eb !important;
+}
+
+/* Layout (Green) */
+.premium-controls-wrapper details:nth-of-type(2) summary::after {
+  content: "📐";
+  background: #16a34a !important;
+}
+
+/* Presets (Purple) */
+.premium-controls-wrapper details:nth-of-type(3) summary::after {
+  content: "📋";
+  background: #7c3aed !important;
+}
+
+/* CSV Import (Amber) */
+.premium-controls-wrapper details:nth-of-type(4) summary::after {
+  content: "📊";
+  background: #d97706 !important;
+}
+
+/* Database Operations (Red) */
+.premium-controls-wrapper details:nth-of-type(5) summary::after {
+  content: "⚙️";
+  background: #dc2626 !important;
+}
+
+/* Video Feedback (Slate) */
+.premium-controls-wrapper details:nth-of-type(6) summary::after {
+  content: "🎥";
+  background: #475569 !important;
 }
 
 
