@@ -2497,7 +2497,7 @@ function renderAdminGrid() {
       cell.style.fontWeight = db.settings.gridFontBold ? '900' : 'normal';
 
       if (isPlayed) {
-        const tColor = answered.teamIndex !== -1 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
+        const tColor = answered.teamIndex >= 0 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
         let emoji = '✔️';
         let detailText = 'Played';
         let detailColor = '#64748b';
@@ -2663,7 +2663,7 @@ function renderAdminGrid() {
 
     if (tbPlayed) {
       const answered = playState.answeredCells['c-tiebreaker'];
-      const tColor = answered.teamIndex !== -1 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
+      const tColor = answered.teamIndex >= 0 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
       let emoji = '✔️';
       let detailText = 'Played';
       let detailColor = '#64748b';
@@ -3018,7 +3018,7 @@ function renderGameBoard() {
     } else if (answered) {
       btn.className = `game-cell-btn cell-answered theme-row-${rowIndex % 5}`;
       btn.disabled = true;
-      const tColor = answered.teamIndex !== -1 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
+      const tColor = answered.teamIndex >= 0 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
       
       if (answered.teamIndex === -1) {
         btn.innerHTML = `
@@ -3167,7 +3167,7 @@ function renderGameBoard() {
     } else if (answered) {
       btn.className = 'game-cell-btn cell-answered tiebreaker-cell';
       btn.disabled = true;
-      const tColor = answered.teamIndex !== -1 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
+      const tColor = answered.teamIndex >= 0 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
       if (answered.teamIndex === -1) {
         btn.innerHTML = `
           <div class="card-inner-layout">
