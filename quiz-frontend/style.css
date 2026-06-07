@@ -1187,9 +1187,9 @@ body {
 /* Turn announcer */
 .turn-announcer {
   text-align: center;
-  padding: 14px 24px;
+  padding: 14px 16px;
   flex: 0 0 auto;
-  min-width: 190px;
+  min-width: 160px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1433,10 +1433,10 @@ body {
 .game-top-right-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   align-items: stretch;
   flex: 0 0 auto;
-  min-width: 190px;
+  width: 160px;
 }
 
 .game-controls {
@@ -1447,8 +1447,8 @@ body {
 
 .game-controls .btn {
   flex: 1;
-  padding: 8px 12px;
-  font-size: 0.9rem;
+  padding: 6px 8px;
+  font-size: 0.8rem;
   font-weight: 700;
   justify-content: center;
   white-space: nowrap;
