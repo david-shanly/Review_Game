@@ -2484,81 +2484,124 @@ function renderAdminGrid() {
       const isPlayed = !!(playState.teams && playState.teams.length > 0 && answered);
 
       const cell = document.createElement('div');
-      cell.className = `board-cell ${q ? 'has-q' : ''} ${selectedAdminCellId === cId ? 'selected-edit' : ''} ${isPlayed ? 'cell-played-locked' : ''}`;
+      cell.className = `board-cell theme-row-${rowIndex % 5} ${q ? 'has-q' : ''} ${selectedAdminCellId === cId ? 'selected-edit' : ''} ${isPlayed ? 'cell-played-locked' : ''}`;
       cell.dataset.cellId = cId;
       cell.setAttribute('role', 'button');
-      cell.setAttribute('aria-label', `${qnLabel(qn)}: ${q ? 'Edit question' : 'Add question'}`);
+      cell.setAttribute('aria-label', `${label}: ${q ? 'Edit question' : 'Add question'}`);
 
       cell.style.fontFamily = db.settings.gridFont || 'var(--font-display)';
       cell.style.color = db.settings.gridFontColor || 'var(--color-text-light)';
       cell.style.fontWeight = db.settings.gridFontBold ? '900' : 'normal';
 
-      const labelEl = document.createElement('span');
-      labelEl.className = 'cell-qn-label';
-      labelEl.style.textAlign = 'center';
-      let displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span>`;
-      if (q) {
-        if (db.settings.displayMode === 'POINTS_ONLY') displayHtml = `<span class="qn-points-text">(${q.points})</span>`;
-        else if (db.settings.displayMode === 'QUESTION_ONLY') displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span>`;
-        else displayHtml = `<span class="qn-only-text">${qnLabel(qn)}</span><br><span class="qn-points-text" style="font-size:0.8em">(${q.points})</span>`;
-      }
-
       if (isPlayed) {
-        let symbol = '✔️';
-        let color = '#1e293b';
+        const tColor = answered.teamIndex !== -1 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
+        let emoji = '✔️';
+        let detailText = 'Played';
+        let detailColor = '#64748b';
+        let ribbonColor = '#64748b';
+        let ribbonContent = '✔️';
+        let bgStyle = '';
+        let borderStyle = '';
+        
         if (answered.cancelled) {
-          symbol = '❌';
-          color = 'var(--color-cancel)';
+          emoji = '❌';
+          detailText = 'Cancelled';
+          detailColor = '#ef4444';
+          ribbonColor = '#ef4444';
+          ribbonContent = '❌';
         } else if (answered.teamIndex === -1) {
-          symbol = '❌';
-          color = '#1e293b';
-          cell.style.background = '#cbd5e1';
-          cell.style.borderColor = '#475569';
+          emoji = '❌';
+          detailText = 'Missed';
+          detailColor = '#ef4444';
+          ribbonColor = '#ef4444';
+          ribbonContent = '0';
         } else {
-          const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
-          cell.style.background = tColor.bg;
-          cell.style.borderColor = tColor.border;
-          color = tColor.text;
+          const team = playState.teams[answered.teamIndex];
+          detailText = team ? team.name : 'Correct';
+          detailColor = tColor ? tColor.text : '#10b981';
+          ribbonColor = tColor ? tColor.text : '#10b981';
+          ribbonContent = `+${q.points}`;
+          bgStyle = tColor ? tColor.bg : '';
+          borderStyle = tColor ? tColor.border : '';
         }
 
-        let horizontalHtml = '';
-        if (q) {
-          if (db.settings.displayMode === 'POINTS_ONLY') {
-            horizontalHtml = `<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.85em;">${symbol} <span class="qn-points-text">(${q.points})</span></span>`;
-          } else if (db.settings.displayMode === 'QUESTION_ONLY') {
-            horizontalHtml = `<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.85em;">${symbol} <span class="qn-only-text">${qnLabel(qn)}</span></span>`;
-          } else {
-            horizontalHtml = `<div style="display: flex; flex-direction: column; align-items: center; gap: 1px;">
-              <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.85em;">${symbol} <span class="qn-only-text">${qnLabel(qn)}</span></span>
-              <span class="qn-points-text" style="font-size: 0.75em;">(${q.points})</span>
-            </div>`;
-          }
-        } else {
-          horizontalHtml = `<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.85em;">${symbol} <span class="qn-only-text">${qnLabel(qn)}</span></span>`;
+        if (bgStyle) cell.style.background = bgStyle;
+        if (borderStyle) cell.style.borderColor = borderStyle;
+
+        cell.innerHTML = `
+          <div class="card-inner-layout">
+            <div class="card-left-icon">
+              <div class="card-outer-circle" style="border-color: ${ribbonColor};">
+                <div class="card-inner-circle" style="background: white;">
+                  <span class="card-emoji" style="color: ${detailColor};">${emoji}</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-right-details">
+              <span class="card-qn-title" style="color: #94a3b8;">${label}</span>
+              <span class="card-qn-points" style="color: ${detailColor}; font-weight: 800;">${detailText}</span>
+              <div class="cell-badges" style="margin-top: 6px; display: flex; gap: 4px;"></div>
+            </div>
+          </div>
+          <div class="card-corner-ribbon" style="background: ${ribbonColor};">${ribbonContent}</div>
+        `;
+        
+        const badgesContainer = cell.querySelector('.cell-badges');
+        if (q && badgesContainer) {
+          const typeBadge = document.createElement('span');
+          typeBadge.className = 'cell-info-tag type-tag';
+          typeBadge.textContent = q.type.toUpperCase();
+          badgesContainer.appendChild(typeBadge);
         }
-        labelEl.innerHTML = `<span style="color:${color}">${horizontalHtml}</span>`;
       } else {
-        labelEl.innerHTML = displayHtml;
-      }
-      cell.appendChild(labelEl);
+        let titleHtml = `<span class="card-qn-title">${label}</span>`;
+        let pointsHtml = q ? `<span class="card-qn-points">(${q.points})</span>` : `<span class="card-qn-points" style="color: #94a3b8; font-style: italic;">Empty</span>`;
+        
+        if (db.settings.displayMode === 'POINTS_ONLY' && q) {
+          titleHtml = `<span class="card-qn-title">(${q.points})</span>`;
+          pointsHtml = '';
+        } else if (db.settings.displayMode === 'QUESTION_ONLY') {
+          titleHtml = `<span class="card-qn-title">${label}</span>`;
+          pointsHtml = '';
+        }
 
-      const badges = document.createElement('div');
-      badges.className = 'cell-badges';
+        const cardEmoji = q ? '📝' : '➕';
+        const ribbonText = q ? q.points : '+';
+        const ribbonBg = q ? 'var(--theme-color)' : '#94a3b8';
 
-      if (q) {
-        const typeBadge = document.createElement('span');
-        typeBadge.className = 'cell-info-tag type-tag';
-        typeBadge.textContent = q.type.toUpperCase();
-        badges.appendChild(typeBadge);
+        cell.innerHTML = `
+          <div class="card-inner-layout">
+            <div class="card-left-icon">
+              <div class="card-outer-circle" style="${q ? '' : 'border-style: dashed; border-color: #cbd5e1;'}; border-color: var(--theme-color, #cbd5e1);">
+                <div class="card-inner-circle" style="${q ? '' : 'background: #f8fafc; border-color: #cbd5e1;'}">
+                  <span class="card-emoji" style="${q ? '' : 'color: #94a3b8; font-size: 1.3rem;'}">${cardEmoji}</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-right-details">
+              ${titleHtml}
+              ${pointsHtml}
+              <div class="cell-badges" style="margin-top: 6px; display: flex; gap: 4px;"></div>
+            </div>
+          </div>
+          <div class="card-corner-ribbon" style="background: ${ribbonBg};">${ribbonText}</div>
+        `;
+        
+        const badgesContainer = cell.querySelector('.cell-badges');
+        if (q && badgesContainer) {
+          const typeBadge = document.createElement('span');
+          typeBadge.className = 'cell-info-tag type-tag';
+          typeBadge.textContent = q.type.toUpperCase();
+          badgesContainer.appendChild(typeBadge);
+          
+          if (q.hasCustomCorrectVideo || q.hasCustomWrongVideo) {
+            const customBadge = document.createElement('span');
+            customBadge.className = 'cell-info-tag has-custom-tag';
+            customBadge.textContent = '★ Vid';
+            badgesContainer.appendChild(customBadge);
+          }
+        }
       }
-
-      if (q && (q.hasCustomCorrectVideo || q.hasCustomWrongVideo)) {
-        const customBadge = document.createElement('span');
-        customBadge.className = 'cell-info-tag has-custom-tag';
-        customBadge.textContent = '★ Cust. Vid';
-        badges.appendChild(customBadge);
-      }
-      cell.appendChild(badges);
 
       cell.addEventListener('click', () => {
         if (playState.phase === 'live') {
@@ -2581,13 +2624,10 @@ function renderAdminGrid() {
   if (db.settings.enableTieBreaker) {
     const qTb = db.questions.find(x => x.qnIndex === 'tiebreaker');
     const tbPlayed = !!(playState.teams && playState.teams.length > 0 && playState.answeredCells['c-tiebreaker']);
-    
-    // TB row label removed
 
     const cell = document.createElement('div');
-    cell.className = `board-cell ${qTb ? 'has-q' : ''} ${selectedAdminCellId === 'q-tiebreaker' ? 'selected-edit' : ''} ${tbPlayed ? 'cell-played-locked' : ''}`;
+    cell.className = `board-cell tiebreaker-cell ${qTb ? 'has-q' : ''} ${selectedAdminCellId === 'q-tiebreaker' ? 'selected-edit' : ''} ${tbPlayed ? 'cell-played-locked' : ''}`;
     
-    // mathematically center tiebreaker in a 4-col grid
     cell.style.gridColumn = '1 / -1';
     cell.style.justifySelf = 'center';
     cell.style.width = 'calc(50% - 5px)';
@@ -2597,21 +2637,114 @@ function renderAdminGrid() {
     cell.style.color = db.settings.gridFontColor || 'var(--color-text-light)';
     cell.style.fontWeight = db.settings.gridFontBold ? '900' : 'normal';
 
-    const labelEl = document.createElement('span');
-    labelEl.className = 'cell-qn-label';
-    labelEl.style.textAlign = 'center';
-    labelEl.innerHTML = '<span class="qn-only-text">TB</span>';
-    if (tbPlayed) labelEl.innerHTML = `<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.8em;">✔️ <span class="qn-only-text">TB</span></span>`;
-    cell.appendChild(labelEl);
+    // Set custom CSS properties for tiebreaker
+    cell.style.setProperty('--theme-color', '#d97706'); // Orange/Amber
+    cell.style.setProperty('--theme-border', '#f59e0b');
+    cell.style.setProperty('--theme-bg-tint', 'rgba(217, 119, 6, 0.07)');
+    cell.style.setProperty('--theme-glow', 'rgba(217, 119, 6, 0.15)');
 
-    if (qTb) {
-      const badges = document.createElement('div');
-      badges.className = 'cell-badges';
-      const typeBadge = document.createElement('span');
-      typeBadge.className = 'cell-info-tag type-tag';
-      typeBadge.textContent = qTb.type.toUpperCase();
-      badges.appendChild(typeBadge);
-      cell.appendChild(badges);
+    let titleHtml = '<span class="card-qn-title">TIE BREAKER</span>';
+    let pointsHtml = qTb ? `<span class="card-qn-points">(${qTb.points})</span>` : `<span class="card-qn-points" style="color: #94a3b8; font-style: italic;">Empty</span>`;
+    
+    if (db.settings.displayMode === 'POINTS_ONLY' && qTb) {
+      titleHtml = `<span class="card-qn-title">(${qTb.points})</span>`;
+      pointsHtml = '';
+    } else if (db.settings.displayMode === 'QUESTION_ONLY') {
+      titleHtml = '<span class="card-qn-title">TIE BREAKER</span>';
+      pointsHtml = '';
+    }
+
+    const cardEmoji = qTb ? '🔥' : '➕';
+    const ribbonText = qTb ? qTb.points : '+';
+    const ribbonBg = qTb ? 'var(--theme-color)' : '#94a3b8';
+
+    if (tbPlayed) {
+      const answered = playState.answeredCells['c-tiebreaker'];
+      const tColor = answered.teamIndex !== -1 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
+      let emoji = '✔️';
+      let detailText = 'Played';
+      let detailColor = '#64748b';
+      let ribbonColor = '#64748b';
+      let ribbonContent = '✔️';
+      let bgStyle = '';
+      let borderStyle = '';
+      
+      if (answered.cancelled) {
+        emoji = '❌';
+        detailText = 'Cancelled';
+        detailColor = '#ef4444';
+        ribbonColor = '#ef4444';
+        ribbonContent = '❌';
+      } else if (answered.teamIndex === -1) {
+        emoji = '❌';
+        detailText = 'Missed';
+        detailColor = '#ef4444';
+        ribbonColor = '#ef4444';
+        ribbonContent = '0';
+      } else {
+        const team = playState.teams[answered.teamIndex];
+        detailText = team ? team.name : 'Correct';
+        detailColor = tColor ? tColor.text : '#10b981';
+        ribbonColor = tColor ? tColor.text : '#10b981';
+        ribbonContent = `+${qTb.points}`;
+        bgStyle = tColor ? tColor.bg : '';
+        borderStyle = tColor ? tColor.border : '';
+      }
+
+      if (bgStyle) cell.style.background = bgStyle;
+      if (borderStyle) cell.style.borderColor = borderStyle;
+
+      cell.innerHTML = `
+        <div class="card-inner-layout">
+          <div class="card-left-icon">
+            <div class="card-outer-circle" style="border-color: ${ribbonColor};">
+              <div class="card-inner-circle" style="background: white;">
+                <span class="card-emoji" style="color: ${detailColor};">${emoji}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-right-details">
+            <span class="card-qn-title" style="color: #94a3b8;">TIE BREAKER</span>
+            <span class="card-qn-points" style="color: ${detailColor}; font-weight: 800;">${detailText}</span>
+            <div class="cell-badges" style="margin-top: 6px; display: flex; gap: 4px;"></div>
+          </div>
+        </div>
+        <div class="card-corner-ribbon" style="background: ${ribbonColor};">${ribbonContent}</div>
+      `;
+      
+      const badgesContainer = cell.querySelector('.cell-badges');
+      if (qTb && badgesContainer) {
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'cell-info-tag type-tag';
+        typeBadge.textContent = qTb.type.toUpperCase();
+        badgesContainer.appendChild(typeBadge);
+      }
+    } else {
+      cell.innerHTML = `
+        <div class="card-inner-layout">
+          <div class="card-left-icon">
+            <div class="card-outer-circle" style="${qTb ? '' : 'border-style: dashed; border-color: #cbd5e1;'}; border-color: var(--theme-color, #cbd5e1);">
+              <div class="card-inner-circle" style="${qTb ? '' : 'background: #f8fafc; border-color: #cbd5e1;'}">
+                <span class="card-emoji" style="${qTb ? '' : 'color: #94a3b8; font-size: 1.3rem;'}">${cardEmoji}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-right-details">
+            ${titleHtml}
+            ${pointsHtml}
+            <div class="cell-badges" style="margin-top: 6px; display: flex; gap: 4px;"></div>
+          </div>
+        </div>
+        <div class="card-corner-ribbon" style="background: ${ribbonBg};">${ribbonText}</div>
+      `;
+      
+      const badgesContainer = cell.querySelector('.cell-badges');
+      if (qTb && badgesContainer) {
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'cell-info-tag type-tag';
+        typeBadge.textContent = qTb.type.toUpperCase();
+        badgesContainer.appendChild(typeBadge);
+      }
     }
 
     cell.addEventListener('click', () => {
@@ -2847,36 +2980,105 @@ function renderGameBoard() {
     btn.style.fontWeight = db.settings.gridFontBold ? '900' : 'normal';
     const answered = playState.answeredCells[cId];
 
-    let displayHtml = `<span class="qn-only-text">${qnLabel(q.qnIndex)}</span>`;
+    const rowIndex = Math.floor((q.qnIndex - 1) / cols);
+    const label = qnLabel(q.qnIndex);
+    let titleHtml = `<span class="card-qn-title">${label}</span>`;
+    let pointsHtml = `<span class="card-qn-points">(${q.points})</span>`;
+    
     if (db.settings.displayMode === 'POINTS_ONLY') {
-      displayHtml = `(${q.points})`;
+      titleHtml = `<span class="card-qn-title">(${q.points})</span>`;
+      pointsHtml = '';
     } else if (db.settings.displayMode === 'QUESTION_ONLY') {
-      displayHtml = `<span class="qn-only-text">${qnLabel(q.qnIndex)}</span>`;
-    } else {
-      displayHtml = `<span class="qn-only-text">${qnLabel(q.qnIndex)}</span><br><span class="qn-points-text" style="font-size:0.8em">(${q.points})</span>`;
+      titleHtml = `<span class="card-qn-title">${label}</span>`;
+      pointsHtml = '';
     }
 
     if (answered && answered.cancelled) {
-      btn.className = 'game-cell-btn cell-cancelled';
+      btn.className = `game-cell-btn cell-cancelled theme-row-${rowIndex % 5}`;
       btn.disabled = true;
-      btn.innerHTML = `<span class="cell-qn" style="font-size: 1.6em;">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+      btn.innerHTML = `
+        <div class="card-inner-layout">
+          <div class="card-left-icon">
+            <div class="card-outer-circle" style="border-color: #64748b;">
+              <div class="card-inner-circle" style="background: #f1f5f9;">
+                <span class="card-emoji" style="filter: grayscale(1);">❌</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-right-details">
+            <span class="card-qn-title" style="color: #64748b; text-decoration: line-through;">${label}</span>
+            <span class="card-qn-points" style="color: #94a3b8;">Cancelled</span>
+          </div>
+        </div>
+        <div class="card-corner-ribbon" style="background: #64748b;">❌</div>
+      `;
     } else if (answered) {
-      btn.className = 'game-cell-btn cell-answered';
+      btn.className = `game-cell-btn cell-answered theme-row-${rowIndex % 5}`;
       btn.disabled = true;
       const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
+      
       if (answered.teamIndex === -1) {
-        btn.className = 'game-cell-btn cell-wrong';
-        btn.innerHTML = `<span class="cell-qn" style="font-size: 1.6em;">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.innerHTML = `
+          <div class="card-inner-layout">
+            <div class="card-left-icon">
+              <div class="card-outer-circle" style="border-color: #ef4444;">
+                <div class="card-inner-circle" style="background: #fef2f2;">
+                  <span class="card-emoji">❌</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-right-details">
+              <span class="card-qn-title" style="color: #94a3b8;">${label}</span>
+              <span class="card-qn-points" style="color: #ef4444; font-weight: 800;">Missed</span>
+            </div>
+          </div>
+          <div class="card-corner-ribbon" style="background: #ef4444;">0</div>
+        `;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
+        btn.style.setProperty('--theme-color', tColor.text);
+        btn.style.setProperty('--theme-border', tColor.border);
+        btn.style.setProperty('--theme-bg-tint', tColor.bg);
         btn.style.background = tColor.bg;
         btn.style.borderColor = tColor.border;
-        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size: 1.6em; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+        
+        btn.innerHTML = `
+          <div class="card-inner-layout">
+            <div class="card-left-icon">
+              <div class="card-outer-circle" style="border-color: ${tColor.text};">
+                <div class="card-inner-circle" style="background: white;">
+                  <span class="card-emoji">✔️</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-right-details">
+              <span class="card-qn-title" style="color: #1e293b;">${label}</span>
+              <span class="card-qn-points" style="color: ${tColor.text}; font-weight: 800;">${tName}</span>
+            </div>
+          </div>
+          <div class="card-corner-ribbon" style="background: ${tColor.text};">+${q.points}</div>
+        `;
       }
     } else {
-      btn.className = 'game-cell-btn';
-      btn.innerHTML = `<span class="cell-qn" style="text-align:center; line-height:1.2;">${displayHtml}</span>`;
+      btn.className = `game-cell-btn theme-row-${rowIndex % 5}`;
+      btn.innerHTML = `
+        <div class="card-inner-layout">
+          <div class="card-left-icon">
+            <div class="card-outer-circle">
+              <div class="card-inner-circle">
+                <span class="card-emoji">📝</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-right-details">
+            ${titleHtml}
+            ${pointsHtml}
+          </div>
+        </div>
+        <div class="card-corner-ribbon">${q.points}</div>
+      `;
+      
       btn.addEventListener('click', (e) => {
         if (!canInteract() || !canOpenCell()) return;
         
@@ -2909,7 +3111,7 @@ function renderGameBoard() {
     const cId = 'c-tiebreaker';
     const btn = document.createElement('button');
     btn.dataset.cellId = cId;
-    btn.className = 'game-cell-btn';
+    btn.className = 'game-cell-btn tiebreaker-cell';
     btn.style.gridColumn = '1 / -1';
     btn.style.justifySelf = 'center';
     btn.style.width = 'calc(50% - 5px)';
@@ -2918,16 +3120,22 @@ function renderGameBoard() {
     btn.style.fontFamily = db.settings.gridFont || 'var(--font-display)';
     btn.style.color = db.settings.gridFontColor || 'var(--color-text-light)';
     btn.style.fontWeight = db.settings.gridFontBold ? '900' : 'normal';
-    if (showTb) {
-      btn.style.borderColor = 'var(--color-gold)';
-      btn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.4)';
-    }
     
-    let displayHtml = '<span class="qn-only-text">TIE BREAKER</span>';
+    // Set custom CSS properties for tiebreaker
+    btn.style.setProperty('--theme-color', '#d97706'); // Orange/Amber
+    btn.style.setProperty('--theme-border', '#f59e0b');
+    btn.style.setProperty('--theme-bg-tint', 'rgba(217, 119, 6, 0.07)');
+    btn.style.setProperty('--theme-glow', 'rgba(217, 119, 6, 0.15)');
+
+    let titleHtml = '<span class="card-qn-title">TIE BREAKER</span>';
+    let pointsHtml = tieQ ? `<span class="card-qn-points">(${tieQ.points})</span>` : '';
+    
     if (db.settings.displayMode === 'POINTS_ONLY' && tieQ) {
-      displayHtml = `<span class="qn-points-text">(${tieQ.points})</span>`;
-    } else if (db.settings.displayMode !== 'QUESTION_ONLY' && tieQ) {
-      displayHtml = `<span class="qn-only-text">TIE BREAKER</span><br><span class="qn-points-text" style="font-size:0.8em">(${tieQ.points})</span>`;
+      titleHtml = `<span class="card-qn-title">(${tieQ.points})</span>`;
+      pointsHtml = '';
+    } else if (db.settings.displayMode === 'QUESTION_ONLY') {
+      titleHtml = '<span class="card-qn-title">TIE BREAKER</span>';
+      pointsHtml = '';
     }
 
     const answered = playState.answeredCells[cId];
@@ -2935,26 +3143,83 @@ function renderGameBoard() {
       btn.disabled = true;
       btn.innerHTML = `<span class="cell-qn" style="opacity:0.2; font-size:1rem;">—</span>`;
     } else if (answered && answered.cancelled) {
-      btn.className = 'game-cell-btn cell-cancelled';
+      btn.className = 'game-cell-btn cell-cancelled tiebreaker-cell';
       btn.disabled = true;
-      btn.innerHTML = `<span class="cell-qn" style="font-size: 1.6em;">❌</span><span class="cell-answered-tag" style="color:var(--color-cancel); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+      btn.innerHTML = `
+        <div class="card-inner-layout">
+          <div class="card-left-icon">
+            <div class="card-outer-circle" style="border-color: #64748b;">
+              <div class="card-inner-circle" style="background: #f1f5f9;">
+                <span class="card-emoji" style="filter: grayscale(1);">❌</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-right-details">
+            <span class="card-qn-title" style="color: #64748b; text-decoration: line-through;">TIE BREAKER</span>
+            <span class="card-qn-points" style="color: #94a3b8;">Cancelled</span>
+          </div>
+        </div>
+        <div class="card-corner-ribbon" style="background: #64748b;">❌</div>
+      `;
     } else if (answered) {
-      btn.className = 'game-cell-btn cell-answered';
+      btn.className = 'game-cell-btn cell-answered tiebreaker-cell';
       btn.disabled = true;
       const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
       if (answered.teamIndex === -1) {
-        btn.className = 'game-cell-btn cell-wrong';
-        btn.innerHTML = `<span class="cell-qn" style="font-size: 1.6em;">❌</span><span class="cell-answered-tag" style="color:var(--color-text-muted); text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.innerHTML = `
+          <div class="card-inner-layout">
+            <div class="card-left-icon">
+              <div class="card-outer-circle" style="border-color: #ef4444;">
+                <div class="card-inner-circle" style="background: #fef2f2;">
+                  <span class="card-emoji">❌</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-right-details">
+              <span class="card-qn-title" style="color: #94a3b8;">TIE BREAKER</span>
+              <span class="card-qn-points" style="color: #ef4444; font-weight: 800;">Missed</span>
+            </div>
+          </div>
+          <div class="card-corner-ribbon" style="background: #ef4444;">0</div>
+        `;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
-        btn.style.background = tColor.bg;
-        btn.style.borderColor = tColor.border;
-        btn.innerHTML = `<span class="cell-qn" style="color:var(--color-success); font-size: 1.6em; font-weight:900;">✔</span><span class="cell-answered-tag" style="color:${tColor.text};">${tName}</span>`;
+        btn.innerHTML = `
+          <div class="card-inner-layout">
+            <div class="card-left-icon">
+              <div class="card-outer-circle" style="border-color: ${tColor.text};">
+                <div class="card-inner-circle" style="background: white;">
+                  <span class="card-emoji">✔️</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-right-details">
+              <span class="card-qn-title" style="color: #1e293b;">TIE BREAKER</span>
+              <span class="card-qn-points" style="color: ${tColor.text}; font-weight: 800;">${tName}</span>
+            </div>
+          </div>
+          <div class="card-corner-ribbon" style="background: ${tColor.text};">+${tieQ.points}</div>
+        `;
       }
     } else {
       if (isTied) {
-        btn.innerHTML = `<span class="cell-qn" style="color:#1e3a8a; font-size:1.1rem; text-align:center; line-height:1.2;">${displayHtml}</span>`;
+        btn.innerHTML = `
+          <div class="card-inner-layout">
+            <div class="card-left-icon">
+              <div class="card-outer-circle">
+                <div class="card-inner-circle">
+                  <span class="card-emoji">🔥</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-right-details">
+              ${titleHtml}
+              ${pointsHtml}
+            </div>
+          </div>
+          <div class="card-corner-ribbon">${tieQ.points}</div>
+        `;
         btn.addEventListener('click', () => {
           if (!canInteract() || !canOpenCell()) return;
           playSound('open');
@@ -2962,9 +3227,24 @@ function renderGameBoard() {
         });
       } else {
         btn.disabled = true;
-        btn.style.opacity = '0.4';
+        btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';
-        btn.innerHTML = `<span class="cell-qn" style="color:#999; font-size:1.1rem; text-align:center; line-height:1.2;">🔒 ${displayHtml}</span>`;
+        btn.innerHTML = `
+          <div class="card-inner-layout">
+            <div class="card-left-icon">
+              <div class="card-outer-circle" style="border-color: #94a3b8;">
+                <div class="card-inner-circle" style="background: #f1f5f9;">
+                  <span class="card-emoji">🔒</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-right-details">
+              ${titleHtml}
+              ${pointsHtml}
+            </div>
+          </div>
+          <div class="card-corner-ribbon" style="background: #94a3b8;">🔒</div>
+        `;
       }
     }
     container.appendChild(btn);
@@ -3087,7 +3367,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
       const panel = container.children[i];
       
       // Update active turn classes
-      panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''}`;
+      panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''} team-card-${i}`;
       panel.style.borderColor = isActive ? 'var(--color-gold)' : color.border;
 
       const nameSpan = panel.querySelector('.team-label');
@@ -3134,7 +3414,7 @@ function updateScoreUI(updatedTeamIndex = -1) {
       const color = TEAM_COLORS[i % TEAM_COLORS.length];
       const isActive = playState.currentTeamIndex === i;
       const panel = document.createElement('div');
-      panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''}`;
+      panel.className = `dynamic-team-panel glass-panel ${isActive ? 'active-turn' : ''} team-card-${i}`;
       panel.style.borderColor = isActive ? 'var(--color-gold)' : color.border;
 
       const logoSrc = assetPath(team.logo || (team.name === 'Boy' ? 'boy.png' : 'girl.png'));
