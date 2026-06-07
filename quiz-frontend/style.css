@@ -1453,14 +1453,13 @@ body {
   --winner-scale: 1;
   width: 90%;
   max-width: calc(min(624px, 89vw) * var(--winner-scale, 1));
-  margin: calc(clamp(12px, 2vh, 24px) * var(--winner-scale, 1)) auto;
-  text-align: center;
+  margin: calc(clamp(10px, 1.5vh, 20px) * var(--winner-scale, 1)) auto;
   padding: calc(clamp(16px, 3vh, 53px) * var(--winner-scale, 1)) calc(clamp(21px, 4.2vw, 45px) * var(--winner-scale, 1)) !important;
   border-radius: var(--radius-lg);
   
   /* Dynamic Height & Squish protection */
   height: auto !important;
-  max-height: calc(100vh - 150px) !important; /* Mindful of app header & footer */
+  max-height: calc(100vh - 130px) !important; /* Mindful of app header & footer */
   overflow-y: auto !important;
   display: flex;
   flex-direction: column;
@@ -1470,20 +1469,20 @@ body {
 
 /* Tie – bigger, more dramatic card */
 .winner-card.winner-card-tie {
-  max-width: calc(min(735px, 95vw) * var(--winner-scale, 1));
-  padding: calc(clamp(32px, 5.3vh, 63px) * var(--winner-scale, 1)) calc(clamp(25px, 5.3vw, 53px) * var(--winner-scale, 1));
+  max-width: calc(min(920px, 95vw) * var(--winner-scale, 1));
+  padding: calc(clamp(32px, 5vh, 60px) * var(--winner-scale, 1)) calc(clamp(25px, 5vw, 53px) * var(--winner-scale, 1));
 }
-.winner-card-tie .winner-trophy { font-size: calc(clamp(4rem, 8vh, 6.5rem) * var(--winner-scale, 1)); }
-.winner-card-tie .winner-team-name { font-size: calc(clamp(2rem, 5vw, 3.4rem) * var(--winner-scale, 1)); }
-.winner-card-tie .winner-badge { font-size: calc(clamp(0.8rem, 1.5vw, 1rem) * var(--winner-scale, 1)); letter-spacing: calc(3.5px * var(--winner-scale, 1)); padding: calc(8px * var(--winner-scale, 1)) calc(24px * var(--winner-scale, 1)); }
+.winner-card-tie .winner-trophy { font-size: calc(clamp(4.5rem, 9vh, 7.5rem) * var(--winner-scale, 1)); }
+.winner-card-tie .winner-team-name { font-size: calc(clamp(2.4rem, 6vw, 3.8rem) * var(--winner-scale, 1)); }
+.winner-card-tie .winner-badge { font-size: calc(clamp(0.85rem, 1.6vw, 1.15rem) * var(--winner-scale, 1)); letter-spacing: calc(3.5px * var(--winner-scale, 1)); padding: calc(8px * var(--winner-scale, 1)) calc(24px * var(--winner-scale, 1)); }
 
 /* Win – compact, focused card */
 .winner-card.winner-card-win {
-  max-width: calc(min(546px, 84vw) * var(--winner-scale, 1));
-  padding: calc(clamp(21px, 3.7vh, 42px) * var(--winner-scale, 1)) calc(clamp(19px, 3.7vw, 37px) * var(--winner-scale, 1));
+  max-width: calc(min(760px, 90vw) * var(--winner-scale, 1));
+  padding: calc(clamp(28px, 4.5vh, 55px) * var(--winner-scale, 1)) calc(clamp(22px, 4.5vw, 45px) * var(--winner-scale, 1));
 }
-.winner-card-win .winner-trophy { font-size: calc(clamp(3rem, 6vh, 4.5rem) * var(--winner-scale, 1)); }
-.winner-card-win .winner-team-name { font-size: calc(clamp(1.6rem, 4vw, 2.4rem) * var(--winner-scale, 1)); }
+.winner-card-win .winner-trophy { font-size: calc(clamp(3.8rem, 8vh, 5.5rem) * var(--winner-scale, 1)); }
+.winner-card-win .winner-team-name { font-size: calc(clamp(2rem, 5vw, 3.0rem) * var(--winner-scale, 1)); }
 
 .winner-trophy {
   font-size: calc(clamp(2.5rem, 5vh, 4.95rem) * var(--winner-scale, 1)) !important;
@@ -1526,7 +1525,7 @@ body {
 
 .hero-subtitle {
   color: var(--color-text-muted);
-  font-size: calc(clamp(0.75rem, 1.2vw, 0.95rem) * var(--winner-scale, 1));
+  font-size: calc(clamp(0.85rem, 1.4vw, 1.15rem) * var(--winner-scale, 1));
   margin-bottom: 0 !important;
   line-height: 1.6;
   flex-shrink: 0;
@@ -1535,8 +1534,8 @@ body {
 .winner-standings-container {
   display: flex;
   flex-direction: column;
-  gap: calc(clamp(4px, 0.8vh, 9px) * var(--winner-scale, 1)) !important;
-  max-width: calc(396px * var(--winner-scale, 1));
+  gap: calc(clamp(6px, 1vh, 12px) * var(--winner-scale, 1)) !important;
+  max-width: calc(480px * var(--winner-scale, 1));
   margin: 0 auto !important;
   width: 100%;
 }
@@ -3119,9 +3118,14 @@ body {
     min-height: 0;
   }
 
-  .hero-card,
-  .winner-card {
+  .hero-card {
     max-height: calc(100vh - 150px) !important;
+    overflow-y: auto !important;
+    margin: auto !important;
+  }
+
+  .winner-card {
+    max-height: calc(100vh - 130px) !important;
     overflow-y: auto !important;
     margin: auto !important;
   }
