@@ -3688,7 +3688,7 @@ details.control-panel-details summary::-webkit-details-marker { display: none; }
 #team1-setup-card:hover {
   border-color: #2563eb !important;
   box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08) !important;
-  transform: translateY(-2px) !important;
+  transform: none !important;
 }
 
 #team2-setup-card {
@@ -3699,7 +3699,7 @@ details.control-panel-details summary::-webkit-details-marker { display: none; }
 #team2-setup-card:hover {
   border-color: #db2777 !important;
   box-shadow: 0 8px 20px rgba(219, 39, 119, 0.08) !important;
-  transform: translateY(-2px) !important;
+  transform: none !important;
 }
 
 /* Premium Danger & Operations Styling */
@@ -4433,7 +4433,7 @@ img.emoji {
 
 /* 4. Question Cards Visual Overhaul */
 #game-board-grid {
-  gap: 20px !important;
+  gap: 12px !important;
 }
 
 .game-cell-btn {
@@ -4451,8 +4451,8 @@ img.emoji {
 }
 
 .game-cell-btn:hover:not(:disabled) {
-  transform: translateY(-6px) scale(1.03) !important;
-  box-shadow: 0 20px 35px var(--theme-glow), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+  transform: none !important;
+  box-shadow: 0 8px 20px var(--theme-glow), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
   border-color: var(--theme-color) !important;
 }
 
@@ -4588,7 +4588,7 @@ img.emoji {
 
 /* Admin Grid Overhaul */
 #admin-interactive-grid {
-  gap: 20px !important;
+  gap: 12px !important;
 }
 
 .board-cell {
@@ -4608,8 +4608,8 @@ img.emoji {
 }
 
 .board-cell:hover:not(.cell-played-locked) {
-  transform: translateY(-6px) scale(1.03) !important;
-  box-shadow: 0 20px 35px var(--theme-glow, rgba(0, 0, 0, 0.05)), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+  transform: none !important;
+  box-shadow: 0 8px 20px var(--theme-glow, rgba(0, 0, 0, 0.05)), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
   border-color: var(--theme-color, #94a3b8) !important;
 }
 
@@ -4719,8 +4719,8 @@ img.emoji {
 
 /* Hover animation exactly like grid cards */
 .control-center-card-summary:hover {
-  transform: translateY(-4px) scale(1.02) !important;
-  box-shadow: 0 16px 28px var(--theme-glow), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+  transform: none !important;
+  box-shadow: 0 8px 20px var(--theme-glow), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
   border-color: var(--theme-color) !important;
   background: white !important;
 }
@@ -4801,6 +4801,211 @@ img.emoji {
   position: absolute !important;
   bottom: 0 !important;
   right: 0 !important;
+}
+
+/* Premium Button Color Themes & Soft Gradients */
+
+/* Start Game Button (Emerald Green) */
+#btn-start-game {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%) !important;
+  border: 1.5px solid #bbf7d0 !important;
+  color: #16a34a !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.03) !important;
+  transition: all 0.25s ease !important;
+}
+#btn-start-game:hover:not(:disabled) {
+  border-color: #16a34a !important;
+  box-shadow: 0 8px 16px rgba(22, 163, 74, 0.1) !important;
+  transform: none !important;
+}
+[data-theme="dark"] #btn-start-game {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(22, 163, 74, 0.1) 100%) !important;
+  border-color: rgba(22, 163, 74, 0.3) !important;
+  color: #4ade80 !important;
+}
+[data-theme="dark"] #btn-start-game:hover:not(:disabled) {
+  border-color: #4ade80 !important;
+  box-shadow: 0 8px 16px rgba(74, 222, 128, 0.2) !important;
+  transform: none !important;
+}
+
+/* Practice Mode Button (Cool Purple) */
+#btn-start-practice {
+  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%) !important;
+  border: 1.5px solid #e9d5ff !important;
+  color: #7c3aed !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.03) !important;
+  transition: all 0.25s ease !important;
+}
+#btn-start-practice:hover:not(:disabled) {
+  border-color: #7c3aed !important;
+  box-shadow: 0 8px 16px rgba(124, 58, 237, 0.1) !important;
+  transform: none !important;
+}
+[data-theme="dark"] #btn-start-practice {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(124, 58, 237, 0.1) 100%) !important;
+  border-color: rgba(124, 58, 237, 0.3) !important;
+  color: #a78bfa !important;
+}
+[data-theme="dark"] #btn-start-practice:hover:not(:disabled) {
+  border-color: #a78bfa !important;
+  box-shadow: 0 8px 16px rgba(167, 139, 250, 0.2) !important;
+  transform: none !important;
+}
+
+/* Back to Home & Resign & Winner Home & Modal Pass/Cancel (Slate Grey) */
+#btn-admin-back,
+#btn-resign-game,
+#btn-winner-home,
+#btn-modal-pass,
+#btn-modal-cancel {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #475569 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(71, 85, 105, 0.02) !important;
+  transition: all 0.25s ease !important;
+}
+#btn-admin-back:hover:not(:disabled),
+#btn-resign-game:hover:not(:disabled),
+#btn-winner-home:hover:not(:disabled),
+#btn-modal-pass:hover:not(:disabled),
+#btn-modal-cancel:hover:not(:disabled) {
+  border-color: #475569 !important;
+  box-shadow: 0 8px 16px rgba(71, 85, 105, 0.08) !important;
+  transform: none !important;
+}
+[data-theme="dark"] #btn-admin-back,
+[data-theme="dark"] #btn-resign-game,
+[data-theme="dark"] #btn-winner-home,
+[data-theme="dark"] #btn-modal-pass,
+[data-theme="dark"] #btn-modal-cancel {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(71, 85, 105, 0.05) 100%) !important;
+  border-color: rgba(71, 85, 105, 0.3) !important;
+  color: #cbd5e1 !important;
+}
+[data-theme="dark"] #btn-admin-back:hover:not(:disabled),
+[data-theme="dark"] #btn-resign-game:hover:not(:disabled),
+[data-theme="dark"] #btn-winner-home:hover:not(:disabled),
+[data-theme="dark"] #btn-modal-pass:hover:not(:disabled),
+[data-theme="dark"] #btn-modal-cancel:hover:not(:disabled) {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 8px 16px rgba(203, 213, 225, 0.15) !important;
+  transform: none !important;
+}
+
+/* Resume Game (Emerald Green) */
+#btn-admin-resume {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%) !important;
+  border: 1.5px solid #bbf7d0 !important;
+  color: #16a34a !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.03) !important;
+  transition: all 0.25s ease !important;
+}
+#btn-admin-resume:hover:not(:disabled) {
+  border-color: #16a34a !important;
+  box-shadow: 0 8px 16px rgba(22, 163, 74, 0.1) !important;
+  transform: none !important;
+}
+[data-theme="dark"] #btn-admin-resume {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(22, 163, 74, 0.1) 100%) !important;
+  border-color: rgba(22, 163, 74, 0.3) !important;
+  color: #4ade80 !important;
+}
+[data-theme="dark"] #btn-admin-resume:hover:not(:disabled) {
+  border-color: #4ade80 !important;
+  box-shadow: 0 8px 16px rgba(74, 222, 128, 0.2) !important;
+  transform: none !important;
+}
+
+/* End Game & Delete Question (Destructive Red) */
+#btn-end-game,
+#btn-delete-question {
+  background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%) !important;
+  border: 1.5px solid #fecaca !important;
+  color: #dc2626 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.03) !important;
+  transition: all 0.25s ease !important;
+}
+#btn-end-game:hover:not(:disabled),
+#btn-delete-question:hover:not(:disabled) {
+  border-color: #dc2626 !important;
+  box-shadow: 0 8px 16px rgba(220, 38, 38, 0.1) !important;
+  transform: none !important;
+}
+[data-theme="dark"] #btn-end-game,
+[data-theme="dark"] #btn-delete-question {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(220, 38, 38, 0.1) 100%) !important;
+  border-color: rgba(220, 38, 38, 0.3) !important;
+  color: #fca5a5 !important;
+}
+[data-theme="dark"] #btn-end-game:hover:not(:disabled),
+[data-theme="dark"] #btn-delete-question:hover:not(:disabled) {
+  border-color: #fca5a5 !important;
+  box-shadow: 0 8px 16px rgba(252, 165, 165, 0.2) !important;
+  transform: none !important;
+}
+
+/* Submit Answer & Save Question (Royal Blue) */
+#btn-modal-submit,
+#question-form button[type="submit"] {
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important;
+  border: 1.5px solid #bfdbfe !important;
+  color: #2563eb !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.03) !important;
+  transition: all 0.25s ease !important;
+}
+#btn-modal-submit:hover:not(:disabled),
+#question-form button[type="submit"]:hover:not(:disabled) {
+  border-color: #2563eb !important;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.1) !important;
+  transform: none !important;
+}
+[data-theme="dark"] #btn-modal-submit,
+[data-theme="dark"] #question-form button[type="submit"] {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(37, 99, 235, 0.1) 100%) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+  color: #60a5fa !important;
+}
+[data-theme="dark"] #btn-modal-submit:hover:not(:disabled),
+[data-theme="dark"] #question-form button[type="submit"]:hover:not(:disabled) {
+  border-color: #60a5fa !important;
+  box-shadow: 0 8px 16px rgba(96, 165, 250, 0.2) !important;
+  transform: none !important;
+}
+
+/* Next Question & Play Again (Warm Gold/Amber) */
+#btn-modal-next,
+#btn-play-again {
+  background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%) !important;
+  border: 1.5px solid #fde68a !important;
+  color: #d97706 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.03) !important;
+  transition: all 0.25s ease !important;
+}
+#btn-modal-next:hover:not(:disabled),
+#btn-play-again:hover:not(:disabled) {
+  border-color: #d97706 !important;
+  box-shadow: 0 8px 16px rgba(217, 119, 6, 0.1) !important;
+  transform: none !important;
+}
+[data-theme="dark"] #btn-modal-next,
+[data-theme="dark"] #btn-play-again {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(217, 119, 6, 0.1) 100%) !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+  color: #fbbf24 !important;
+}
+[data-theme="dark"] #btn-modal-next:hover:not(:disabled),
+[data-theme="dark"] #btn-play-again:hover:not(:disabled) {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 8px 16px rgba(251, 191, 36, 0.2) !important;
+  transform: none !important;
 }
 
 
