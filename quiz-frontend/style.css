@@ -132,12 +132,12 @@
   --color-control-accent-light: #38D9F5;
   --color-control-glow: rgba(2, 132, 199, 0.25);
 
-  --color-team1: #0284C7;
-  --color-team1-bg: rgba(2, 132, 199, 0.09);
-  --color-team1-border: rgba(2, 132, 199, 0.38);
-  --color-team2: #E11D48;
-  --color-team2-bg: rgba(225, 29, 72, 0.07);
-  --color-team2-border: rgba(225, 29, 72, 0.32);
+  --color-team1: #2F7BFF;
+  --color-team1-bg: rgba(47, 123, 255, 0.09);
+  --color-team1-border: rgba(47, 123, 255, 0.38);
+  --color-team2: #FF4B8A;
+  --color-team2-bg: rgba(255, 75, 138, 0.07);
+  --color-team2-border: rgba(255, 75, 138, 0.32);
   --color-team3: #059669;
   --color-team3-bg: rgba(5, 150, 105, 0.08);
   --color-team3-border: rgba(5, 150, 105, 0.35);
@@ -1189,7 +1189,7 @@ body {
   text-align: center;
   padding: 14px 24px;
   flex: 0 0 auto;
-  min-width: 240px;
+  min-width: 190px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1429,42 +1429,8 @@ body {
   color: var(--color-gold);
 }
 
-/* Game controls and top right layout */
-.game-top-right-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: stretch;
-  flex: 0 0 auto;
-  width: 240px;
-}
-
-.game-controls {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-}
-
-.game-controls .btn {
-  flex: 1;
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  justify-content: center;
-  white-space: nowrap;
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-bounce);
-}
-
-.game-controls .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.game-controls .btn:active {
-  transform: translateY(0);
-}
+/* Game controls */
+.game-controls { display: flex; gap: 12px; position: fixed; bottom: 65px; right: 32px; z-index: 50; }
 
 /* ============================================================
    SCREEN 4: WINNER
@@ -2565,19 +2531,9 @@ body {
     font-size: 1.1rem !important;
   }
 
-  .game-top-right-group {
-    width: 140px !important;
-    gap: 6px !important;
-  }
-
   .game-controls {
-    flex-direction: column !important;
-    gap: 4px !important;
-  }
-
-  .game-controls .btn {
-    padding: 6px 8px !important;
-    font-size: 0.75rem !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
   }
 
   .admin-header-actions {
@@ -3388,8 +3344,9 @@ body {
 
   .game-controls {
     position: static !important;
-    margin: 0 !important;
+    margin: 20px 0;
     width: 100%;
+    justify-content: center;
   }
 
   /* Mobile height safety limits to prevent clipping */
@@ -3985,36 +3942,6 @@ img.emoji {
   display: none !important;
 }
 
-/* Top bar adjustments when leaderboard is hidden */
-.game-top-bar.hide-leaderboard .game-top-right-group {
-  width: auto;
-  min-width: 0;
-  align-items: flex-end;
-}
-
-/* Strip the glass-panel card look off the turn announcer — just floating text */
-.game-top-bar.hide-leaderboard .turn-announcer {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  padding: 4px 0 4px 0;
-  min-width: 0;
-  text-align: right;
-  align-items: flex-end;
-}
-
-/* Buttons sit cleanly below the text, flush to the right */
-.game-top-bar.hide-leaderboard .game-controls {
-  gap: 10px;
-  width: auto;
-}
-
-.game-top-bar.hide-leaderboard .game-controls .btn {
-  flex: 0 0 auto;
-}
-
 /* ============================================================
    UPGRADED FEATURES STYLING
    ============================================================ */
@@ -4260,6 +4187,371 @@ img.emoji {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
+}
+
+/* ============================================================
+   UI MODERNIZATION UPGRADES
+   ============================================================ */
+
+/* Keep circular shape on icon buttons */
+.btn-icon {
+  border-radius: 50% !important;
+}
+
+/* 1. Game Board & Admin Interactive Grid Question Tiles */
+.game-cell-btn,
+.board-cell {
+  background: #FFFFFF !important;
+  border-radius: 28px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  border: none !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease !important;
+}
+
+/* Hover effects for interactive cells */
+.game-cell-btn:hover:not(:disabled),
+.board-cell:hover:not(.cell-played-locked) {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12) !important;
+  background: #FAFAFA !important;
+}
+
+/* Question Label (e.g. Q1, Q2) */
+.game-cell-btn .qn-only-text,
+.board-cell .qn-only-text {
+  font-size: 2.1rem !important;
+  font-weight: 900 !important;
+  color: #223B85 !important;
+}
+
+/* Point Badge system */
+.game-cell-btn .qn-points-text,
+.board-cell .qn-points-text {
+  display: inline-block !important;
+  background: #EEF4FF !important;
+  color: #2F7BFF !important;
+  border-radius: 999px !important;
+  font-weight: 800 !important;
+  padding: 4px 16px !important;
+  font-size: 0.95rem !important;
+  margin-top: 10px !important;
+  box-shadow: 0 2px 6px rgba(47, 123, 255, 0.1) !important;
+  white-space: nowrap !important;
+  max-width: 90% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  vertical-align: middle !important;
+}
+
+/* Override point colors inside labels if they are set inline */
+#game-board-grid .game-cell-btn .qn-points-text {
+  color: #2F7BFF !important;
+}
+
+/* Confirmed/Configured Questions checkmark in Admin Panel */
+.board-cell.has-q::after {
+  content: '✓' !important;
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 24px !important;
+  height: 24px !important;
+  background: #10B981 !important; /* green circle */
+  color: white !important; /* white checkmark */
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4) !important;
+}
+
+/* Tie-breaker cell gold accent style */
+.board-cell[data-cell-id="q-tiebreaker"],
+.game-cell-btn[data-cell-id="c-tiebreaker"] {
+  border: 3px solid #F59E0B !important;
+  background: #FFFBEB !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15) !important;
+}
+
+.board-cell[data-cell-id="q-tiebreaker"]:hover:not(.cell-played-locked),
+.game-cell-btn[data-cell-id="c-tiebreaker"]:hover:not(:disabled) {
+  background: #FEF3C7 !important;
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.25) !important;
+  transform: translateY(-4px) !important;
+}
+
+.board-cell[data-cell-id="q-tiebreaker"] .qn-only-text,
+.game-cell-btn[data-cell-id="c-tiebreaker"] .qn-only-text {
+  color: #B45309 !important;
+}
+
+.board-cell[data-cell-id="q-tiebreaker"] .qn-points-text,
+.game-cell-btn[data-cell-id="c-tiebreaker"] .qn-points-text {
+  background: #FEF3C7 !important;
+  color: #D97706 !important;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.1) !important;
+}
+
+/* 2. Team Panels Redesign */
+.dynamic-team-panel {
+  background: #FFFFFF !important;
+  border-radius: 30px !important;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08) !important;
+  border: none !important;
+  padding: 1.5rem 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 24px !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+/* Hover for team panel (slight lift) */
+.dynamic-team-panel:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Avatar container */
+.dynamic-team-panel .team-logo-container {
+  width: 6.5rem !important;
+  height: 6.5rem !important;
+  border-radius: 50% !important;
+  padding: 3px !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  flex-shrink: 0 !important;
+}
+
+.dynamic-team-panel .team-logo-circular {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+}
+
+/* Team details & typography */
+.dynamic-team-panel .team-details {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.dynamic-team-panel .team-label {
+  font-weight: 800 !important;
+  font-size: 1.1rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.5px !important;
+  opacity: 0.8 !important;
+  margin-bottom: 4px !important;
+}
+
+.dynamic-team-panel .team-score {
+  font-weight: 900 !important;
+  font-size: clamp(3rem, 5vw, 4.5rem) !important;
+  line-height: 1 !important;
+  font-family: var(--font-display) !important;
+}
+
+/* Active turn indicator glow/border */
+.dynamic-team-panel.active-turn {
+  animation: teamActivePulsePremium 1.5s ease-in-out infinite alternate !important;
+}
+
+@keyframes teamActivePulsePremium {
+  from {
+    box-shadow: 0 0 15px rgba(244, 196, 48, 0.2), 0 12px 25px rgba(0,0,0,.08) !important;
+  }
+  to {
+    box-shadow: 0 0 30px rgba(244, 196, 48, 0.5), 0 16px 32px rgba(0,0,0,.1) !important;
+  }
+}
+
+/* Team 1 styling overrides */
+.dynamic-team-panel:nth-child(1) {
+  border-left: 8px solid #2F7BFF !important;
+}
+.dynamic-team-panel:nth-child(1) .team-logo-container {
+  border: 3.5px solid #2F7BFF !important;
+}
+.dynamic-team-panel:nth-child(1) .team-label,
+.dynamic-team-panel:nth-child(1) .team-score {
+  color: #2F7BFF !important;
+}
+
+/* Team 2 styling overrides */
+.dynamic-team-panel:nth-child(2) {
+  border-left: 8px solid #FF4B8A !important;
+}
+.dynamic-team-panel:nth-child(2) .team-logo-container {
+  border: 3.5px solid #FF4B8A !important;
+}
+.dynamic-team-panel:nth-child(2) .team-label,
+.dynamic-team-panel:nth-child(2) .team-score {
+  color: #FF4B8A !important;
+}
+
+/* 3. Current Turn Card Redesign */
+.turn-announcer {
+  background: #FFFFFF !important;
+  border-radius: 30px !important;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08) !important;
+  border: none !important;
+  padding: 20px 32px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.turn-label {
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 2.5px !important;
+  color: #64748B !important; /* muted slate */
+  font-weight: 700 !important;
+  margin-bottom: 6px !important;
+}
+
+.turn-team {
+  font-size: 2.5rem !important;
+  font-weight: 900 !important;
+  color: #D97706 !important; /* gold accent */
+  text-shadow: none !important;
+}
+
+/* 4. Control Center Redesign (Sidebar Accordion sections) */
+.premium-accordion-card {
+  background: #FFFFFF !important;
+  border-radius: 24px !important;
+  padding: 20px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid rgba(0, 0, 0, 0.04) !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+  margin-bottom: 16px !important;
+}
+
+.premium-accordion-card:hover {
+  transform: translateX(4px) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+.premium-accordion-card summary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  cursor: pointer !important;
+  outline: none !important;
+  font-weight: 800 !important;
+  font-size: 1.05rem !important;
+  color: #1E293B !important; /* slate-800 */
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+.premium-accordion-card summary::-webkit-details-marker {
+  display: none !important;
+}
+
+/* Circular emoji icons inside summary headers */
+.section-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  margin-right: 12px !important;
+  font-size: 1.15rem !important;
+  vertical-align: middle !important;
+}
+
+/* Circular backgrounds per section */
+/* Teams Setup: blue */
+.premium-accordion-card:nth-of-type(1) .section-icon,
+.sidebar-section:nth-of-type(1) .section-icon {
+  background: #EFF6FF !important;
+  color: #3B82F6 !important;
+}
+/* Grid Typography: pink */
+.sidebar-section:nth-of-type(2) .section-icon {
+  background: #FDF2F8 !important;
+  color: #EC4899 !important;
+}
+/* Advanced Utilities: orange */
+.sidebar-section:nth-of-type(3) .section-icon {
+  background: #FFF7ED !important;
+  color: #F97316 !important;
+}
+/* Sub-categories inside Advanced Utilities */
+.premium-controls-wrapper .section-icon {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 0.95rem !important;
+  margin-right: 8px !important;
+}
+
+/* 5. Button System Redesign */
+.btn-primary {
+  background: linear-gradient(135deg, #3B82F6, #2563EB) !important;
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  border-radius: 18px !important;
+  height: 56px !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25) !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4F46E5, #3B82F6) !important; /* Modern purple/blue transition */
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35) !important;
+  transform: translateY(-2px) scale(1.01) !important;
+}
+
+.btn-danger {
+  background: #FFF1F2 !important;
+  color: #DC2626 !important;
+  font-weight: 800 !important;
+  border-radius: 18px !important;
+  height: 56px !important;
+  border: 1px solid rgba(220, 38, 38, 0.1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #FFE4E6 !important;
+  color: #B91C1C !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08) !important;
+}
+
+.btn-secondary {
+  background: #F8FAFC !important;
+  color: #475569 !important;
+  border: 1px solid #E2E8F0 !important;
+  font-weight: 700 !important;
+  border-radius: 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  box-shadow: none !important;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #F1F5F9 !important;
+  color: #1E293B !important;
+  border-color: #CBD5E1 !important;
+  transform: translateY(-2px) !important;
 }
 
 
