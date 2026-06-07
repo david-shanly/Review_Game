@@ -4808,53 +4808,53 @@ img.emoji {
 
 /* Premium Button Color Themes & Soft Gradients */
 
-/* Start Game Button (Emerald Green) */
+/* Start Game Button (Golden Amber) */
 #btn-start-game {
-  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%) !important;
-  border: 1.5px solid #bbf7d0 !important;
-  color: #16a34a !important;
+  background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
+  border: 1.5px solid #fde68a !important;
+  color: #b45309 !important;
   border-radius: 999px !important;
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.03) !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.03) !important;
   transition: all 0.25s ease !important;
 }
 #btn-start-game:hover:not(:disabled) {
-  border-color: #16a34a !important;
-  box-shadow: 0 8px 16px rgba(22, 163, 74, 0.1) !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 8px 16px rgba(217, 119, 6, 0.1) !important;
   transform: none !important;
 }
 [data-theme="dark"] #btn-start-game {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(22, 163, 74, 0.1) 100%) !important;
-  border-color: rgba(22, 163, 74, 0.3) !important;
-  color: #4ade80 !important;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(217, 119, 6, 0.1) 100%) !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+  color: #fbbf24 !important;
 }
 [data-theme="dark"] #btn-start-game:hover:not(:disabled) {
-  border-color: #4ade80 !important;
-  box-shadow: 0 8px 16px rgba(74, 222, 128, 0.2) !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 8px 16px rgba(251, 191, 36, 0.2) !important;
   transform: none !important;
 }
 
-/* Practice Mode Button (Cool Purple) */
+/* Practice Mode Button (Vibrant Blue) */
 #btn-start-practice {
-  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%) !important;
-  border: 1.5px solid #e9d5ff !important;
-  color: #7c3aed !important;
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important;
+  border: 1.5px solid #bfdbfe !important;
+  color: #2563eb !important;
   border-radius: 999px !important;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.03) !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.03) !important;
   transition: all 0.25s ease !important;
 }
 #btn-start-practice:hover:not(:disabled) {
-  border-color: #7c3aed !important;
-  box-shadow: 0 8px 16px rgba(124, 58, 237, 0.1) !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.1) !important;
   transform: none !important;
 }
 [data-theme="dark"] #btn-start-practice {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(124, 58, 237, 0.1) 100%) !important;
-  border-color: rgba(124, 58, 237, 0.3) !important;
-  color: #a78bfa !important;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(37, 99, 235, 0.1) 100%) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+  color: #60a5fa !important;
 }
 [data-theme="dark"] #btn-start-practice:hover:not(:disabled) {
-  border-color: #a78bfa !important;
-  box-shadow: 0 8px 16px rgba(167, 139, 250, 0.2) !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 8px 16px rgba(96, 165, 251, 0.2) !important;
   transform: none !important;
 }
 
@@ -5188,13 +5188,13 @@ img.emoji {
 /* Start Game */
 #btn-start-game::after {
   content: "🎮";
-  background: #16a34a !important;
+  background: #d97706 !important;
 }
 
 /* Practice Mode */
 #btn-start-practice::after {
   content: "🏠";
-  background: #7c3aed !important;
+  background: #2563eb !important;
 }
 
 /* Back to Home */
