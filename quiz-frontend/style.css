@@ -1187,9 +1187,9 @@ body {
 /* Turn announcer */
 .turn-announcer {
   text-align: center;
-  padding: 14px 16px;
+  padding: 14px 24px;
   flex: 0 0 auto;
-  min-width: 160px;
+  min-width: 240px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1433,26 +1433,37 @@ body {
 .game-top-right-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   align-items: stretch;
   flex: 0 0 auto;
-  width: 160px;
+  width: 240px;
 }
 
 .game-controls {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
 }
 
 .game-controls .btn {
   flex: 1;
-  padding: 6px 8px;
-  font-size: 0.8rem;
+  padding: 10px 14px;
+  font-size: 0.9rem;
   font-weight: 700;
   justify-content: center;
   white-space: nowrap;
   border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-bounce);
+}
+
+.game-controls .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.game-controls .btn:active {
+  transform: translateY(0);
 }
 
 /* ============================================================
@@ -2555,7 +2566,7 @@ body {
   }
 
   .game-top-right-group {
-    min-width: 120px !important;
+    width: 140px !important;
     gap: 6px !important;
   }
 
@@ -2566,7 +2577,7 @@ body {
 
   .game-controls .btn {
     padding: 6px 8px !important;
-    font-size: 0.8rem !important;
+    font-size: 0.75rem !important;
   }
 
   .admin-header-actions {
