@@ -2601,7 +2601,7 @@ function renderAdminGrid() {
         }
       } else {
         let titleHtml = `<span class="card-qn-title">${label}</span>`;
-        let pointsHtml = q ? `<span class="card-qn-points">(${q.points})</span>` : `<span class="card-qn-points" style="color: #94a3b8; font-style: italic;">Empty</span>`;
+        let pointsHtml = q ? '' : `<span class="card-qn-points" style="color: #94a3b8; font-style: italic;">Empty</span>`;
         
         if (db.settings.displayMode === 'POINTS_ONLY' && q) {
           titleHtml = `<span class="card-qn-title">(${q.points})</span>`;
@@ -2690,7 +2690,7 @@ function renderAdminGrid() {
     cell.style.setProperty('--theme-glow', 'rgba(217, 119, 6, 0.15)');
 
     let titleHtml = '<span class="card-qn-title">TIE BREAKER</span>';
-    let pointsHtml = qTb ? `<span class="card-qn-points">(${qTb.points})</span>` : `<span class="card-qn-points" style="color: #94a3b8; font-style: italic;">Empty</span>`;
+    let pointsHtml = qTb ? '' : `<span class="card-qn-points" style="color: #94a3b8; font-style: italic;">Empty</span>`;
     
     if (db.settings.displayMode === 'POINTS_ONLY' && qTb) {
       titleHtml = `<span class="card-qn-title">(${qTb.points})</span>`;
@@ -3033,7 +3033,7 @@ function renderGameBoard() {
     const rowIndex = Math.floor((q.qnIndex - 1) / cols);
     const label = qnLabel(q.qnIndex);
     let titleHtml = `<span class="card-qn-title">${label}</span>`;
-    let pointsHtml = `<span class="card-qn-points">(${q.points})</span>`;
+    let pointsHtml = '';
     
     if (db.settings.displayMode === 'POINTS_ONLY') {
       titleHtml = `<span class="card-qn-title">(${q.points})</span>`;
@@ -3177,7 +3177,7 @@ function renderGameBoard() {
     btn.style.setProperty('--theme-glow', 'rgba(217, 119, 6, 0.15)');
 
     let titleHtml = '<span class="card-qn-title">TIE BREAKER</span>';
-    let pointsHtml = tieQ ? `<span class="card-qn-points">(${tieQ.points})</span>` : '';
+    let pointsHtml = '';
     
     if (db.settings.displayMode === 'POINTS_ONLY' && tieQ) {
       titleHtml = `<span class="card-qn-title">(${tieQ.points})</span>`;
