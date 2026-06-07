@@ -1456,6 +1456,8 @@ body {
   margin: calc(clamp(10px, 1.5vh, 20px) * var(--winner-scale, 1)) auto;
   padding: calc(clamp(16px, 3vh, 53px) * var(--winner-scale, 1)) calc(clamp(21px, 4.2vw, 45px) * var(--winner-scale, 1)) !important;
   border-radius: var(--radius-lg);
+  align-items: center !important;
+  text-align: center !important;
   
   /* Dynamic Height & Squish protection */
   height: auto !important;
@@ -1553,20 +1555,30 @@ body {
 .standing-row.first-place {
   border-color: var(--color-gold);
   background: rgba(244, 196, 48, 0.07);
-  font-size: calc(0.99rem * var(--winner-scale, 1));
 }
 
 .standing-place {
   font-family: var(--font-display);
-  font-size: calc(clamp(0.75rem, 1.5vw, 0.9rem) * var(--winner-scale, 1));
+  font-size: calc(clamp(0.75rem, 1.5vw, 0.95rem) * var(--winner-scale, 1)) !important;
   margin-right: calc(11px * var(--winner-scale, 1));
 }
 
+.standing-team-name {
+  font-weight: 800;
+  font-size: calc(clamp(0.85rem, 1.6vw, 1.15rem) * var(--winner-scale, 1)) !important;
+}
+
+.standing-points {
+  font-family: var(--font-display);
+  font-size: calc(clamp(0.9rem, 1.8vw, 1.25rem) * var(--winner-scale, 1)) !important;
+}
+
 .winner-stats {
-  font-size: calc(clamp(0.75rem, 1.2vw, 0.83rem) * var(--winner-scale, 1));
+  font-size: calc(clamp(0.75rem, 1.2vw, 0.85rem) * var(--winner-scale, 1));
   color: var(--color-text-muted);
   margin-bottom: calc(clamp(12px, 2.5vh, 25px) * var(--winner-scale, 1));
   line-height: 1.9;
+  text-align: center !important;
 }
 
 .winner-actions {
@@ -1575,6 +1587,12 @@ body {
   justify-content: center;
   flex-wrap: wrap;
   flex-shrink: 0; /* Prevent action buttons from squishing */
+}
+
+.winner-card .btn {
+  font-size: calc(clamp(0.85rem, 1.6vw, 1.15rem) * var(--winner-scale, 1)) !important;
+  padding: calc(clamp(10px, 1.8vh, 18px) * var(--winner-scale, 1)) calc(clamp(16px, 3.2vw, 32px) * var(--winner-scale, 1)) !important;
+  border-radius: calc(var(--radius-sm) * var(--winner-scale, 1)) !important;
 }
 
 /* ============================================================

@@ -3636,10 +3636,10 @@ function adjustWinnerCardFontSizeToFit() {
   const paddingBuffer = 40; // leaving a small buffer
   const testEl = document.getElementById('winner-team-name') || winnerCard.firstElementChild;
 
-  // Decrease the scale factor until content fits within the winner screen container
+  // Decrease the scale factor until content fits within the winner screen card (no scrollbar)
   while (
-    (winnerCard.scrollHeight > (winnerScreen.clientHeight - paddingBuffer) ||
-     winnerCard.scrollWidth > (winnerScreen.clientWidth - paddingBuffer)) &&
+    (winnerCard.scrollHeight > winnerCard.clientHeight ||
+     winnerCard.scrollWidth > winnerCard.clientWidth) &&
     scaleFactor > 0.45 &&
     iterations < maxIterations
   ) {
@@ -5248,8 +5248,8 @@ function endGame() {
         const fontOverride = isUnicodeOtherLanguage(team.name) ? 'style="font-family: \'Noto Sans\', \'Noto Sans Malayalam\', \'Noto Sans Devanagari\', sans-serif !important;"' : '';
         row.innerHTML = `
           <span class="standing-place">${medal}</span>
-          <span style="font-weight:800;" ${fontOverride}>${team.name}</span>
-          <span style="font-family:var(--font-display); font-size:1.2rem;">${team.score} pts</span>
+          <span class="standing-team-name" ${fontOverride}>${team.name}</span>
+          <span class="standing-points">${team.score} pts</span>
         `;
         standingsContainer.appendChild(row);
       });
