@@ -3386,20 +3386,7 @@ body {
    ============================================================ */
 
 /* Details Summary Marker Reset */
-details summary::-webkit-details-marker,
-details summary::marker,
-summary::-webkit-details-marker,
-summary::marker {
-  display: none !important;
-  content: "" !important;
-  font-size: 0px !important;
-  width: 0px !important;
-  height: 0px !important;
-}
-summary {
-  list-style: none !important;
-  list-style-type: none !important;
-}
+details.control-panel-details summary::-webkit-details-marker { display: none; }
 .details-icon { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; }
 
 /* Premium Collapsible Accordion Card */
@@ -3432,6 +3419,10 @@ summary {
   user-select: none;
   border-left: 4px solid transparent; /* Left indicator bar */
   transition: all 0.25s ease !important;
+}
+
+.premium-accordion-card summary::-webkit-details-marker {
+  display: none !important;
 }
 
 .premium-accordion-card summary:hover {
