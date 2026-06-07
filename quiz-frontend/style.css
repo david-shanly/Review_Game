@@ -4548,7 +4548,7 @@ img.emoji {
 
 /* 4. Question Cards Visual Overhaul */
 #game-board-grid {
-  gap: 20px !important;
+  gap: 12px !important;
 }
 
 .game-cell-btn {
@@ -4703,7 +4703,7 @@ img.emoji {
 
 /* Admin Grid Overhaul */
 #admin-interactive-grid {
-  gap: 20px !important;
+  gap: 12px !important;
 }
 
 .board-cell {
