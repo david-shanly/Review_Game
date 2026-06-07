@@ -4368,6 +4368,14 @@ img.emoji {
   line-height: 1.2 !important;
 }
 
+/* Turn Indicator & Controls Group */
+.game-top-right-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 280px;
+}
+
 /* Turn Controls (End Game / Resign) */
 .turn-controls {
   display: flex;
