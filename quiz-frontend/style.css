@@ -5148,6 +5148,198 @@ img.emoji {
   flex-shrink: 0;
 }
 
+/* ============================================================
+   7. Button Corner Ribbon Icons Overhaul
+   ============================================================ */
+
+/* Base style for all buttons with ribbons (excluding icon buttons) */
+.btn:not(.btn-icon) {
+  position: relative !important;
+  overflow: hidden !important;
+  padding-right: 1.85rem !important;
+}
+
+/* Button corner ribbon base formatting */
+.btn:not(.btn-icon)::after {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: white !important;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.72rem; /* Optimized size for icons/emojis */
+  padding: 3px 6px;
+  border-top-left-radius: 6px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: -1px -1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Specific button corner ribbon contents & background colors */
+
+/* Start Game */
+#btn-start-game::after {
+  content: "🎮";
+  background: #16a34a !important;
+}
+
+/* Practice Mode */
+#btn-start-practice::after {
+  content: "🏠";
+  background: #7c3aed !important;
+}
+
+/* Back to Home */
+#btn-admin-back::after {
+  content: "⬅️";
+  background: #475569 !important;
+}
+
+/* Resume Game */
+#btn-admin-resume::after {
+  content: "▶️";
+  background: #2563eb !important;
+}
+
+/* End Game */
+#btn-end-game::after {
+  content: "🏁";
+  background: #dc2626 !important;
+}
+
+/* Resign */
+#btn-resign-game::after {
+  content: "🏳️";
+  background: #475569 !important;
+}
+
+/* Delete Question */
+#btn-delete-question::after {
+  content: "🗑️";
+  background: #dc2626 !important;
+}
+
+/* Save Question */
+#question-form button[type="submit"]::after {
+  content: "💾";
+  background: #2563eb !important;
+}
+
+/* Load Defaults */
+#btn-load-default::after {
+  content: "📖";
+  background: #475569 !important;
+}
+
+/* Save DB */
+#btn-export-json::after {
+  content: "💾";
+  background: #475569 !important;
+}
+
+/* Import JSON */
+#btn-import-wrapper::after {
+  content: "📥";
+  background: #475569 !important;
+}
+
+/* Import CSV */
+#btn-import-csv::after {
+  content: "📊";
+  background: #475569 !important;
+}
+
+/* Download CSV Template */
+#btn-download-csv-template::after {
+  content: "📋";
+  background: #475569 !important;
+}
+
+/* Save All Settings */
+#btn-save-settings::after {
+  content: "💾";
+  background: #2563eb !important;
+}
+
+/* Reset Game */
+#btn-reset-game::after {
+  content: "🔄";
+  background: #475569 !important;
+}
+
+/* Clear DB */
+#btn-clear-db::after {
+  content: "🗑️";
+  background: #dc2626 !important;
+}
+
+/* Play Again */
+#btn-play-again::after {
+  content: "🔁";
+  background: #d97706 !important;
+}
+
+/* Home */
+#btn-winner-home::after {
+  content: "🏠";
+  background: #475569 !important;
+}
+
+/* Start Question */
+#btn-powerup-continue::after {
+  content: "▶️";
+  background: #2563eb !important;
+}
+
+/* Show Correct Answer */
+#btn-show-correct-answer::after {
+  content: "👁️";
+  background: #475569 !important;
+}
+
+/* Cancel Question */
+#btn-modal-cancel::after {
+  content: "❌";
+  background: #475569 !important;
+}
+
+/* 50/50 Help */
+#btn-modal-fifty-fifty::after {
+  content: "🤝";
+  background: #7c3aed !important;
+}
+
+/* Free Pass */
+#btn-modal-free-pass::after {
+  content: "🎟️";
+  background: #f97316 !important;
+}
+
+/* PASS Question */
+#btn-modal-pass::after {
+  content: "⏭️";
+  background: #475569 !important;
+}
+
+/* SUBMIT Answer */
+#btn-modal-submit::after {
+  content: "✅";
+  background: #2563eb !important;
+}
+
+/* NEXT Question */
+#btn-modal-next::after {
+  content: "➡️";
+  background: #d97706 !important;
+}
+
+/* Got It! */
+#btn-about-ok::after {
+  content: "👍";
+  background: #2563eb !important;
+}
+
 
 
 
