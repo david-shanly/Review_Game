@@ -1741,6 +1741,7 @@ const defaultSettings = {
   categories: [],
   showCategories: false,
   showLeaderboard: true,
+  activePreset: '',
 };
 
 function renderCategoryInputs() {
@@ -1841,6 +1842,9 @@ function hydrateControlCenter(settings) {
 
   const colsEl = document.getElementById('settings-columns');
   if (colsEl) colsEl.value = settings.gridCols ?? 4;
+  
+  const templateSelect = document.getElementById('settings-load-template');
+  if (templateSelect) templateSelect.value = settings.activePreset ?? '';
   
 
   
@@ -2302,6 +2306,7 @@ async function loadDefaultQuiz() {
   }
 
   db.settings.showCategories = false;
+  db.settings.activePreset = '';
 
   // Save only to localStorage — do NOT call saveDB() here as that would
   // POST to /api/save-db and overwrite default_quiz.json with runtime state.
@@ -4457,11 +4462,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const templateSelect = document.getElementById('settings-load-template');
   if (templateSelect) {
+    templateSelect.addEventListener('focus', () => {
+      templateSelect.value = '';
+    });
+    templateSelect.addEventListener('blur', () => {
+      templateSelect.value = db.settings.activePreset || '';
+    });
     templateSelect.addEventListener('change', (e) => {
       const val = e.target.value;
       if (val) {
         loadBibleStoryTemplate(val);
-        templateSelect.value = '';
       }
     });
   }
@@ -4596,6 +4606,7 @@ document.addEventListener('DOMContentLoaded', () => {
           db.settings.totalQuestions = parsedQuestions.filter(q => q.qnIndex !== 'tiebreaker').length;
           db.settings.gridCols = getDefaultColumnsForQuestionsCount(db.settings.totalQuestions);
           db.settings.showCategories = false;
+          db.settings.activePreset = '';
           
           fallbackSaveDB();
           hydrateControlCenter(db.settings);
@@ -5462,6 +5473,7 @@ function loadBibleStoryTemplate(storyKey) {
   db.settings.totalQuestions = db.questions.filter(q => q.qnIndex !== 'tiebreaker').length;
   db.settings.gridCols = getDefaultColumnsForQuestionsCount(db.settings.totalQuestions);
   db.settings.showCategories = false;
+  db.settings.activePreset = storyKey;
   
   fallbackSaveDB();
   hydrateControlCenter(db.settings);
@@ -6167,6 +6179,7 @@ document.getElementById('question-form').addEventListener('submit', async e => {
     if (totInput) totInput.value = qNum;
   }
 
+  db.settings.activePreset = '';
   saveDB();
   closeQuestionEditor();
   selectedAdminCellId = null;
@@ -6185,6 +6198,7 @@ document.getElementById('btn-delete-question').addEventListener('click', async (
   await deleteVideoFromIndexedDB('q-' + qnIndex + '-correct');
   await deleteVideoFromIndexedDB('q-' + qnIndex + '-wrong');
 
+  db.settings.activePreset = '';
   saveDB();
   closeQuestionEditor();
   selectedAdminCellId = null;
