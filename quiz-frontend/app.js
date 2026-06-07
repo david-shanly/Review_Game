@@ -1695,6 +1695,22 @@ function fallbackSaveDB() {
   updateDashboardStatus();
 }
 
+function getDefaultColumnsForQuestionsCount(count) {
+  if (count <= 4) return count;
+  if (count <= 6) return 3;
+  if (count <= 8) return 4;
+  if (count <= 9) return 3;
+  if (count <= 10) return 5;
+  if (count <= 12) return 4;
+  if (count <= 15) return 5;
+  if (count <= 16) return 4;
+  if (count <= 20) return 5;
+  if (count <= 24) return 6;
+  if (count <= 25) return 5;
+  if (count <= 30) return 6;
+  return Math.ceil(Math.sqrt(count));
+}
+
 const defaultSettings = {
   powerupMode: 'random',
   randomPowerupsCount: 3,
@@ -1960,7 +1976,7 @@ function loadSavedDB(parsed) {
     db.settings.showCategories = false;
     hydrateControlCenter(db.settings);
     
-    document.documentElement.style.setProperty('--cols', 4);
+    document.documentElement.style.setProperty('--cols', db.settings.gridCols || 4);
     
     renderGameBoard();
     renderAdminGrid();
@@ -1985,6 +2001,10 @@ async function loadDB() {
       if (q.qnIndex !== 'tiebreaker' && q.qnIndex !== undefined && q.qnIndex !== null) {
         const idx = parseInt(q.qnIndex, 10);
         if (!isNaN(idx)) q.qnIndex = idx;
+      }
+      if (q.qnIndex === 'tiebreaker') {
+        if (q.type === 'tiebreaker') q.type = 'short_answer';
+        if (q.questionType === 'tiebreaker') q.questionType = 'short_answer';
       }
       return q;
     });
@@ -4116,9 +4136,9 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCsvTemplate.addEventListener('click', () => {
       const csvContent = "Question Number,Type,Question,Answer,Option A,Option B,Option C,Option D,Points,Powerup\n" +
                          "1,mcq,What did God use to make Eve?,A rib of Adam,A rib of Adam,Dust of the earth,A clay mold,A breath of life,200,double_points\n" +
-                         "2,fill_blank,David defeated Goliath using a stone and a __________.,sling,,,,300,free_pass\n" +
-                         "3,short_answer,Who was swallowed by a great fish?,Jonah,,,,500,none\n" +
-                         "Tiebreaker,tiebreaker,How many days did Jesus fast in the wilderness?,40 days,,,,1000,none";
+                         "2,fill_blank,David defeated Goliath using a stone and a __________.,sling,,,,,300,free_pass\n" +
+                         "3,short_answer,Who was swallowed by a great fish?,Jonah,,,,,500,none\n" +
+                         "Tiebreaker,short_answer,How many days did Jesus fast in the wilderness?,40 days,,,,,1000,none";
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -4151,6 +4171,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const parsedQuestions = [];
           const headers = csvData[0].map(h => h.trim().toLowerCase());
           
+          const qnNumIdx = headers.indexOf('question number');
           const typeIdx = headers.indexOf('type');
           const questionIdx = headers.indexOf('question');
           const answerIdx = headers.indexOf('answer');
@@ -4177,7 +4198,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const rawType = (typeIdx !== -1 ? row[typeIdx] : row[0 + colOffset]) || 'mcq';
             let type = rawType.trim().toLowerCase();
-            if (type.includes('tiebreaker')) type = 'tiebreaker';
+            
+            const qnNumVal = (qnNumIdx !== -1 && row[qnNumIdx]) ? row[qnNumIdx].trim().toLowerCase() : '';
+            const isTiebreaker = qnNumVal.includes('tiebreaker') || type.includes('tiebreaker');
+            
+            if (type.includes('tiebreaker')) type = 'short_answer';
             else if (type.includes('mcq') || type.includes('multiple')) type = 'mcq';
             else if (type.includes('blank') || type.includes('fill')) type = 'fill_blank';
             else type = 'short_answer';
@@ -4204,9 +4229,8 @@ document.addEventListener('DOMContentLoaded', () => {
               options = [optA.trim(), optB.trim(), optC.trim(), optD.trim()].filter(o => o !== '');
             }
             
-            const isTiebreaker = type === 'tiebreaker';
             parsedQuestions.push({
-              id: isTiebreaker ? 'tiebreaker' : `q\${indexCounter}`,
+              id: isTiebreaker ? 'tiebreaker' : `q${indexCounter}`,
               qnIndex: isTiebreaker ? 'tiebreaker' : indexCounter,
               type: type,
               questionType: type,
@@ -4224,8 +4248,8 @@ document.addEventListener('DOMContentLoaded', () => {
             parsedQuestions.push({
               id: "tiebreaker",
               qnIndex: "tiebreaker",
-              type: "tiebreaker",
-              questionType: "tiebreaker",
+              type: "short_answer",
+              questionType: "short_answer",
               question: "What is the reward God has promised to those who overcome temptation?",
               options: [],
               answer: "Crown of Life",
@@ -4235,6 +4259,7 @@ document.addEventListener('DOMContentLoaded', () => {
           
           db.questions = parsedQuestions;
           db.settings.totalQuestions = parsedQuestions.filter(q => q.qnIndex !== 'tiebreaker').length;
+          db.settings.gridCols = getDefaultColumnsForQuestionsCount(db.settings.totalQuestions);
           db.settings.showCategories = false;
           
           fallbackSaveDB();
@@ -5077,8 +5102,18 @@ function loadBibleStoryTemplate(storyKey) {
   const template = BIBLE_TEMPLATES[storyKey];
   if (!template) return;
   
-  db.questions = JSON.parse(JSON.stringify(template.questions));
+  db.questions = JSON.parse(JSON.stringify(template.questions)).map(q => {
+    if (q.type === 'long' || q.type === 'long_answer') q.type = 'short_answer';
+    if (q.questionType === 'long' || q.questionType === 'long_answer') q.questionType = 'short_answer';
+    if (q.qnIndex === 'tiebreaker') {
+      if (q.type === 'tiebreaker') q.type = 'short_answer';
+      if (q.questionType === 'tiebreaker') q.questionType = 'short_answer';
+    }
+    return q;
+  });
+  
   db.settings.totalQuestions = db.questions.filter(q => q.qnIndex !== 'tiebreaker').length;
+  db.settings.gridCols = getDefaultColumnsForQuestionsCount(db.settings.totalQuestions);
   db.settings.showCategories = false;
   
   fallbackSaveDB();
@@ -6133,6 +6168,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isNaN(val) || val < 1) val = 1;
       db.settings.totalQuestions = val;
 
+      // Automatically update default columns for this question count
+      db.settings.gridCols = getDefaultColumnsForQuestionsCount(val);
+      const colsInput = document.getElementById('settings-columns');
+      if (colsInput) {
+        colsInput.value = db.settings.gridCols;
+      }
+
       // Update max on random powerup count and clamp it if needed
       const countEl = document.getElementById('settings-powerup-count');
       if (countEl) {
@@ -6147,6 +6189,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       saveDB();
+      renderCategoryInputs();
       renderAdminGrid();
       renderGameBoard();
     });
