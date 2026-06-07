@@ -2408,11 +2408,11 @@ function applySelectedFont() {
     `;
   }
 
-  // 2. Font Color override — applies to BOTH qn-only-text and qn-points-text
+  // 2. Font Color override — applies to card-qn-points and card-qn-title
   //    so the game board matches the admin board color exactly
   if (!useDefaultColor) {
     css += `
-      .qn-points-text, .qn-only-text {
+      .card-qn-points {
         color: ${fontColor} !important;
       }
     `;
@@ -2423,7 +2423,7 @@ function applySelectedFont() {
 
   if (!useDefaultQnColor) {
     css += `
-      .qn-only-text {
+      .card-qn-title {
         color: ${qnFontColor} !important;
       }
     `;
