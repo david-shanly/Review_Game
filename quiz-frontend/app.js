@@ -3046,8 +3046,6 @@ function renderGameBoard() {
     if (answered && answered.cancelled) {
       btn.className = `game-cell-btn cell-cancelled theme-row-${rowIndex % 5}`;
       btn.disabled = true;
-      btn.style.background = '#f1f5f9';
-      btn.style.borderColor = '#cbd5e1';
       btn.innerHTML = `
         <div class="card-inner-layout">
           <div class="card-left-icon">
@@ -3074,18 +3072,18 @@ function renderGameBoard() {
         btn.innerHTML = `
           <div class="card-inner-layout">
             <div class="card-left-icon">
-              <div class="card-outer-circle" style="border-color: #94a3b8;">
+              <div class="card-outer-circle" style="border-color: #ef4444;">
                 <div class="card-inner-circle" style="background: white;">
-                  <span class="card-emoji" style="color: #64748b;">❌</span>
+                  <span class="card-emoji" style="color: #ef4444;">❌</span>
                 </div>
               </div>
             </div>
             <div class="card-right-details">
-              <span class="card-qn-title" style="color: #475569;">${label}</span>
-              <span class="card-qn-points" style="color: #64748b; font-weight: 800;">Missed</span>
+              <span class="card-qn-title" style="color: #1e293b;">${label}</span>
+              <span class="card-qn-points" style="color: #ef4444; font-weight: 800;">Missed</span>
             </div>
           </div>
-          <div class="card-corner-ribbon" style="background: #94a3b8;">0</div>
+          <div class="card-corner-ribbon" style="background: #ef4444;">0</div>
         `;
       } else {
         const team = playState.teams[answered.teamIndex];
@@ -3196,8 +3194,6 @@ function renderGameBoard() {
     } else if (answered && answered.cancelled) {
       btn.className = 'game-cell-btn cell-cancelled tiebreaker-cell';
       btn.disabled = true;
-      btn.style.background = '#f1f5f9';
-      btn.style.borderColor = '#cbd5e1';
       btn.innerHTML = `
         <div class="card-inner-layout">
           <div class="card-left-icon">
@@ -3223,18 +3219,18 @@ function renderGameBoard() {
         btn.innerHTML = `
           <div class="card-inner-layout">
             <div class="card-left-icon">
-              <div class="card-outer-circle" style="border-color: #94a3b8;">
+              <div class="card-outer-circle" style="border-color: #ef4444;">
                 <div class="card-inner-circle" style="background: white;">
-                  <span class="card-emoji" style="color: #64748b;">❌</span>
+                  <span class="card-emoji" style="color: #ef4444;">❌</span>
                 </div>
               </div>
             </div>
             <div class="card-right-details">
-              <span class="card-qn-title" style="color: #475569;">TIE BREAKER</span>
-              <span class="card-qn-points" style="color: #64748b; font-weight: 800;">Missed</span>
+              <span class="card-qn-title" style="color: #1e293b;">TIE BREAKER</span>
+              <span class="card-qn-points" style="color: #ef4444; font-weight: 800;">Missed</span>
             </div>
           </div>
-          <div class="card-corner-ribbon" style="background: #94a3b8;">0</div>
+          <div class="card-corner-ribbon" style="background: #ef4444;">0</div>
         `;
       } else {
         const team = playState.teams[answered.teamIndex];
