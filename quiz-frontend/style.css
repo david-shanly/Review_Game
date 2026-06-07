@@ -674,7 +674,7 @@ body {
   font-size: 1.3rem !important;
   font-weight: 800 !important;
   padding: 18px 24px !important;
-  border-radius: 20px !important;
+  border-radius: 999px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -708,13 +708,13 @@ body {
 #btn-start-game::after {
   content: "";
   position: absolute;
+  top: 0;
   bottom: 0;
   right: 0;
   width: 36px;
-  height: 36px;
   background: #d97706 !important;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100 0 C70 30, 70 70, 0 100 L100 100 Z' fill='black'/%3E%3C/svg%3E") no-repeat bottom right;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100 0 C70 30, 70 70, 0 100 L100 100 Z' fill='black'/%3E%3C/svg%3E") no-repeat bottom right;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100 0 C45 0, 45 100, 100 100 Z' fill='black'/%3E%3C/svg%3E") no-repeat right;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100 0 C45 0, 45 100, 100 100 Z' fill='black'/%3E%3C/svg%3E") no-repeat right;
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   pointer-events: none;
@@ -730,13 +730,13 @@ body {
 #btn-start-practice::after {
   content: "";
   position: absolute;
+  top: 0;
   bottom: 0;
   right: 0;
   width: 36px;
-  height: 36px;
   background: #94a3b8 !important;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100 0 C70 30, 70 70, 0 100 L100 100 Z' fill='black'/%3E%3C/svg%3E") no-repeat bottom right;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100 0 C70 30, 70 70, 0 100 L100 100 Z' fill='black'/%3E%3C/svg%3E") no-repeat bottom right;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100 0 C45 0, 45 100, 100 100 Z' fill='black'/%3E%3C/svg%3E") no-repeat right;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M100 0 C45 0, 45 100, 100 100 Z' fill='black'/%3E%3C/svg%3E") no-repeat right;
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   pointer-events: none;
