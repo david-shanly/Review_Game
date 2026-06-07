@@ -2096,16 +2096,38 @@ function updateDashboardStatus() {
 
   if (count === 0) {
     statusDiv.innerHTML = `
-      <div class="bold-text">⚠️ No questions configured yet!</div>
-      <p style="margin-top:6px;font-size:0.9rem;color:var(--color-text-muted);">You must add questions to the database before starting the game.</p>`;
+      <div class="card-inner-layout">
+        <div class="card-left-icon">
+          <div class="card-outer-circle" style="border-color: #d97706; width: 44px; height: 44px;">
+            <div class="card-inner-circle" style="background: white;">
+              <span class="card-emoji" style="font-size: 1.2rem;">⚠️</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-right-details">
+          <span class="card-qn-title" style="font-size: 1.2rem !important; color: #1e293b !important;">No questions configured yet!</span>
+          <span class="card-qn-points" style="font-size: 0.85rem !important; margin-top: 2px; color: var(--color-text-muted) !important;">You must add questions to the database before starting the game.</span>
+        </div>
+      </div>`;
     startBtn.disabled = false;
     startBtn.innerHTML = '⚙️ Go to Admin Panel';
   } else {
     statusDiv.innerHTML = `
-      <div class="bold-text" style="color:var(--color-success);">✅ Quiz ready!</div>
-      <p style="margin-top:6px;font-size:0.9rem;color:var(--color-text-muted);">
-        <strong style="color:var(--color-text-light);">${count}</strong> question${count !== 1 ? 's' : ''} added. Good to go!
-      </p>`;
+      <div class="card-inner-layout">
+        <div class="card-left-icon">
+          <div class="card-outer-circle" style="border-color: #16a34a; width: 44px; height: 44px;">
+            <div class="card-inner-circle" style="background: white;">
+              <span class="card-emoji" style="font-size: 1.2rem;">✅</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-right-details">
+          <span class="card-qn-title" style="color: #15803d; font-size: 1.2rem !important;">Quiz ready!</span>
+          <span class="card-qn-points" style="font-size: 0.85rem !important; margin-top: 2px; color: var(--color-text-muted) !important;">
+            <strong style="color: var(--color-text-light);">${count}</strong> question${count !== 1 ? 's' : ''} added. Good to go!
+          </span>
+        </div>
+      </div>`;
     startBtn.disabled = false;
 
     // Check if the game is already active
@@ -2298,7 +2320,19 @@ async function loadDefaultQuiz() {
   triggerAlert('SYSTEM', 'Questions loaded!', 'gain');
   const statusDiv = document.getElementById('dashboard-status');
   if (statusDiv) {
-    statusDiv.innerHTML = '<div class="bold-text" style="color:var(--color-success);">✅ Default Database Loaded!</div>';
+    statusDiv.innerHTML = `
+      <div class="card-inner-layout">
+        <div class="card-left-icon">
+          <div class="card-outer-circle" style="border-color: #16a34a; width: 44px; height: 44px;">
+            <div class="card-inner-circle" style="background: white;">
+              <span class="card-emoji" style="font-size: 1.2rem;">✅</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-right-details">
+          <span class="card-qn-title" style="color: #15803d; font-size: 1.2rem !important;">Default Database Loaded!</span>
+        </div>
+      </div>`;
     setTimeout(updateDashboardStatus, 3000);
   }
 }
@@ -2509,15 +2543,19 @@ function renderAdminGrid() {
         if (answered.cancelled) {
           emoji = '❌';
           detailText = 'Cancelled';
-          detailColor = '#ef4444';
-          ribbonColor = '#ef4444';
+          detailColor = '#64748b';
+          ribbonColor = '#64748b';
           ribbonContent = '❌';
+          bgStyle = '#f1f5f9';
+          borderStyle = '#cbd5e1';
         } else if (answered.teamIndex === -1) {
           emoji = '❌';
           detailText = 'Missed';
           detailColor = '#ef4444';
           ribbonColor = '#ef4444';
           ribbonContent = '0';
+          bgStyle = 'rgba(239, 68, 68, 0.07)';
+          borderStyle = '#fca5a5';
         } else {
           const team = playState.teams[answered.teamIndex];
           detailText = team ? team.name : 'Correct';
@@ -2675,15 +2713,19 @@ function renderAdminGrid() {
       if (answered.cancelled) {
         emoji = '❌';
         detailText = 'Cancelled';
-        detailColor = '#ef4444';
-        ribbonColor = '#ef4444';
+        detailColor = '#64748b';
+        ribbonColor = '#64748b';
         ribbonContent = '❌';
+        bgStyle = '#f1f5f9';
+        borderStyle = '#cbd5e1';
       } else if (answered.teamIndex === -1) {
         emoji = '❌';
         detailText = 'Missed';
         detailColor = '#ef4444';
         ribbonColor = '#ef4444';
         ribbonContent = '0';
+        bgStyle = 'rgba(239, 68, 68, 0.07)';
+        borderStyle = '#fca5a5';
       } else {
         const team = playState.teams[answered.teamIndex];
         detailText = team ? team.name : 'Correct';
@@ -2999,18 +3041,20 @@ function renderGameBoard() {
     if (answered && answered.cancelled) {
       btn.className = `game-cell-btn cell-cancelled theme-row-${rowIndex % 5}`;
       btn.disabled = true;
+      btn.style.background = '#f1f5f9';
+      btn.style.borderColor = '#cbd5e1';
       btn.innerHTML = `
         <div class="card-inner-layout">
           <div class="card-left-icon">
             <div class="card-outer-circle" style="border-color: #64748b;">
-              <div class="card-inner-circle" style="background: #f1f5f9;">
-                <span class="card-emoji" style="filter: grayscale(1);">❌</span>
+              <div class="card-inner-circle" style="background: white;">
+                <span class="card-emoji" style="color: #64748b;">❌</span>
               </div>
             </div>
           </div>
           <div class="card-right-details">
             <span class="card-qn-title" style="color: #64748b; text-decoration: line-through;">${label}</span>
-            <span class="card-qn-points" style="color: #94a3b8;">Cancelled</span>
+            <span class="card-qn-points" style="color: #64748b;">Cancelled</span>
           </div>
         </div>
         <div class="card-corner-ribbon" style="background: #64748b;">❌</div>
@@ -3021,17 +3065,19 @@ function renderGameBoard() {
       const tColor = answered.teamIndex >= 0 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
       
       if (answered.teamIndex === -1) {
+        btn.style.background = 'rgba(239, 68, 68, 0.07)';
+        btn.style.borderColor = '#fca5a5';
         btn.innerHTML = `
           <div class="card-inner-layout">
             <div class="card-left-icon">
               <div class="card-outer-circle" style="border-color: #ef4444;">
-                <div class="card-inner-circle" style="background: #fef2f2;">
-                  <span class="card-emoji">❌</span>
+                <div class="card-inner-circle" style="background: white;">
+                  <span class="card-emoji" style="color: #ef4444;">❌</span>
                 </div>
               </div>
             </div>
             <div class="card-right-details">
-              <span class="card-qn-title" style="color: #94a3b8;">${label}</span>
+              <span class="card-qn-title" style="color: #991b1b;">${label}</span>
               <span class="card-qn-points" style="color: #ef4444; font-weight: 800;">Missed</span>
             </div>
           </div>
@@ -3148,18 +3194,20 @@ function renderGameBoard() {
     } else if (answered && answered.cancelled) {
       btn.className = 'game-cell-btn cell-cancelled tiebreaker-cell';
       btn.disabled = true;
+      btn.style.background = '#f1f5f9';
+      btn.style.borderColor = '#cbd5e1';
       btn.innerHTML = `
         <div class="card-inner-layout">
           <div class="card-left-icon">
             <div class="card-outer-circle" style="border-color: #64748b;">
-              <div class="card-inner-circle" style="background: #f1f5f9;">
-                <span class="card-emoji" style="filter: grayscale(1);">❌</span>
+              <div class="card-inner-circle" style="background: white;">
+                <span class="card-emoji" style="color: #64748b;">❌</span>
               </div>
             </div>
           </div>
           <div class="card-right-details">
             <span class="card-qn-title" style="color: #64748b; text-decoration: line-through;">TIE BREAKER</span>
-            <span class="card-qn-points" style="color: #94a3b8;">Cancelled</span>
+            <span class="card-qn-points" style="color: #64748b;">Cancelled</span>
           </div>
         </div>
         <div class="card-corner-ribbon" style="background: #64748b;">❌</div>
@@ -3169,17 +3217,19 @@ function renderGameBoard() {
       btn.disabled = true;
       const tColor = answered.teamIndex >= 0 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
       if (answered.teamIndex === -1) {
+        btn.style.background = 'rgba(239, 68, 68, 0.07)';
+        btn.style.borderColor = '#fca5a5';
         btn.innerHTML = `
           <div class="card-inner-layout">
             <div class="card-left-icon">
               <div class="card-outer-circle" style="border-color: #ef4444;">
-                <div class="card-inner-circle" style="background: #fef2f2;">
-                  <span class="card-emoji">❌</span>
+                <div class="card-inner-circle" style="background: white;">
+                  <span class="card-emoji" style="color: #ef4444;">❌</span>
                 </div>
               </div>
             </div>
             <div class="card-right-details">
-              <span class="card-qn-title" style="color: #94a3b8;">TIE BREAKER</span>
+              <span class="card-qn-title" style="color: #991b1b;">TIE BREAKER</span>
               <span class="card-qn-points" style="color: #ef4444; font-weight: 800;">Missed</span>
             </div>
           </div>
@@ -4564,7 +4614,19 @@ document.addEventListener('DOMContentLoaded', () => {
           
           const statusDiv = document.getElementById('dashboard-status');
           if (statusDiv) {
-            statusDiv.innerHTML = `<div class="bold-text" style="color:var(--color-success);">✅ CSV Imported successfully!</div>`;
+            statusDiv.innerHTML = `
+              <div class="card-inner-layout">
+                <div class="card-left-icon">
+                  <div class="card-outer-circle" style="border-color: #16a34a; width: 44px; height: 44px;">
+                    <div class="card-inner-circle" style="background: white;">
+                      <span class="card-emoji" style="font-size: 1.2rem;">✅</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-right-details">
+                  <span class="card-qn-title" style="color: #15803d; font-size: 1.2rem !important;">CSV Imported successfully!</span>
+                </div>
+              </div>`;
             setTimeout(updateDashboardStatus, 3000);
           }
           
@@ -5179,7 +5241,7 @@ function endGame() {
       sorted.forEach((team, rank) => {
         const medal = placeMedals[rank] || `${rank + 1}th Place`;
         const row = document.createElement('div');
-        row.className = `standing-row ${rank === 0 ? 'first-place' : ''}`;
+        row.className = `standing-row team-index-${team.index} ${rank === 0 ? 'first-place' : ''}`;
         const fontOverride = isUnicodeOtherLanguage(team.name) ? 'style="font-family: \'Noto Sans\', \'Noto Sans Malayalam\', \'Noto Sans Devanagari\', sans-serif !important;"' : '';
         row.innerHTML = `
           <span class="standing-place">${medal}</span>
@@ -5418,7 +5480,19 @@ function loadBibleStoryTemplate(storyKey) {
   
   const statusDiv = document.getElementById('dashboard-status');
   if (statusDiv) {
-    statusDiv.innerHTML = `<div class="bold-text" style="color:var(--color-success);">✅ ${template.name} Loaded!</div>`;
+    statusDiv.innerHTML = `
+      <div class="card-inner-layout">
+        <div class="card-left-icon">
+          <div class="card-outer-circle" style="border-color: #16a34a; width: 44px; height: 44px;">
+            <div class="card-inner-circle" style="background: white;">
+              <span class="card-emoji" style="font-size: 1.2rem;">✅</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-right-details">
+          <span class="card-qn-title" style="color: #15803d; font-size: 1.2rem !important;">${template.name} Loaded!</span>
+        </div>
+      </div>`;
     setTimeout(updateDashboardStatus, 3000);
   }
 }

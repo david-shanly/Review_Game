@@ -5008,6 +5008,146 @@ img.emoji {
   transform: none !important;
 }
 
+/* ============================================================
+   VISUAL OVERHAUL FOR HERO CARD, STATUS CARD, & WINNER SCREEN
+   ============================================================ */
+
+/* 1. Hero Card Overhaul */
+.hero-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 100%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  border-radius: 24px !important;
+  backdrop-filter: blur(25px) !important;
+  -webkit-backdrop-filter: blur(25px) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 0 15px rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .hero-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.35) 100%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 2. Logo Container Overhaul */
+.hero-stars img, .logo-fallback-hero {
+  border-radius: 16px !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12) !important;
+  border: 2px solid rgba(244, 196, 48, 0.3) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.hero-stars img:hover, .logo-fallback-hero:hover {
+  outline: 2px solid rgba(244, 196, 48, 0.6) !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 20px rgba(244, 196, 48, 0.3) !important;
+}
+
+/* 3. Dashboard Status Card Overhaul */
+.dashboard-status-card {
+  background: #ffffff !important;
+  padding: 0 !important;
+  border-radius: 16px !important;
+  border: 1.5px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(0, 0, 0, 0.01) !important;
+  text-align: left;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  overflow: hidden !important;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .dashboard-status-card {
+  background: rgba(30, 41, 59, 0.6) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 4. Winner Panel Overhaul */
+.winner-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 100%) !important;
+  border: 2px solid rgba(244, 196, 48, 0.35) !important;
+  border-radius: 24px !important;
+  backdrop-filter: blur(25px) !important;
+  -webkit-backdrop-filter: blur(25px) !important;
+  box-shadow: 0 0 30px rgba(244, 196, 48, 0.18), inset 0 0 15px rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .winner-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.35) 100%) !important;
+  border: 2px solid rgba(244, 196, 48, 0.4) !important;
+  box-shadow: 0 0 35px rgba(244, 196, 48, 0.22), inset 0 0 15px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 5. Winner Score Display Cards (Boy/Girl gradients) */
+.standing-row.team-index-0 {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(239, 246, 255, 0.95) 100%) !important;
+  border: 1.5px solid #bfdbfe !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.02) !important;
+  border-radius: 12px !important;
+}
+
+.standing-row.team-index-0.first-place {
+  border: 2px solid var(--color-gold) !important;
+  box-shadow: 0 0 15px rgba(244, 196, 48, 0.25) !important;
+}
+
+.standing-row.team-index-1 {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 241, 242, 0.95) 100%) !important;
+  border: 1.5px solid #fecdd3 !important;
+  box-shadow: 0 4px 12px rgba(219, 39, 119, 0.02) !important;
+  border-radius: 12px !important;
+}
+
+.standing-row.team-index-1.first-place {
+  border: 2px solid var(--color-gold) !important;
+  box-shadow: 0 0 15px rgba(244, 196, 48, 0.25) !important;
+}
+
+[data-theme="dark"] .standing-row.team-index-0 {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(37, 99, 235, 0.1) 100%) !important;
+  border: 1.5px solid rgba(37, 99, 235, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="dark"] .standing-row.team-index-0.first-place {
+  border: 2px solid var(--color-gold) !important;
+  box-shadow: 0 0 15px rgba(244, 196, 48, 0.3) !important;
+}
+
+[data-theme="dark"] .standing-row.team-index-1 {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(219, 39, 119, 0.1) 100%) !important;
+  border: 1.5px solid rgba(219, 39, 119, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="dark"] .standing-row.team-index-1.first-place {
+  border: 2px solid var(--color-gold) !important;
+  box-shadow: 0 0 15px rgba(244, 196, 48, 0.3) !important;
+}
+
+/* 6. Trophy Icon Overhaul (Double-circle golden-glowing badge) */
+.winner-trophy {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: calc(120px * var(--winner-scale, 1)) !important;
+  height: calc(120px * var(--winner-scale, 1)) !important;
+  margin: 0 auto calc(15px * var(--winner-scale, 1)) auto !important;
+  border-radius: 50% !important;
+  background: rgba(244, 196, 48, 0.08) !important;
+  border: 3px solid var(--color-gold) !important;
+  outline: 2px solid rgba(244, 196, 48, 0.5) !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 25px rgba(244, 196, 48, 0.35) !important;
+  font-size: calc(3.5rem * var(--winner-scale, 1)) !important;
+  animation: trophyBounce 1.2s ease infinite alternate;
+  flex-shrink: 0;
+}
+
 
 
 

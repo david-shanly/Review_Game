@@ -84,15 +84,25 @@
       <section id="screen-dashboard" class="screen active">
         <div class="hero-card glass-panel">
           <div class="hero-stars" style="display: flex; justify-content: center; align-items: center; min-height: 7.5rem;">
-            <img src="logo.png" alt="Quiz Logo" style="width: 7.5rem; height: 7.5rem; object-fit: contain; border-radius: 50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-            <div class="logo-fallback-hero" style="display: none; width: 7.5rem; height: 7.5rem; border-radius: 50%; background: rgba(244, 196, 48, 0.15); border: 3px solid var(--color-gold); align-items: center; justify-content: center; font-size: 4rem;">📖</div>
+            <img src="logo.png" alt="Quiz Logo" style="width: 7.5rem; height: 7.5rem; object-fit: contain; border-radius: 16px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="logo-fallback-hero" style="display: none; width: 7.5rem; height: 7.5rem; border-radius: 16px; background: rgba(244, 196, 48, 0.15); border: 3px solid var(--color-gold); align-items: center; justify-content: center; font-size: 4rem;">📖</div>
           </div>
           <h2 class="hero-title">Review Game</h2>
 
           <div class="dashboard-status-card" id="dashboard-status">
-            <div class="bold-text">⚠️ No questions configured yet!</div>
-            <p style="margin-top:5px; font-size:0.9rem; color:var(--color-text-muted);">Open the Admin Panel to add
-              questions.</p>
+            <div class="card-inner-layout">
+              <div class="card-left-icon">
+                <div class="card-outer-circle" style="border-color: #d97706; width: 44px; height: 44px;">
+                  <div class="card-inner-circle" style="background: white;">
+                    <span class="card-emoji" style="font-size: 1.2rem;">⚠️</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-right-details">
+                <span class="card-qn-title" style="font-size: 1.2rem !important; color: #1e293b !important;">No questions configured yet!</span>
+                <span class="card-qn-points" style="font-size: 0.85rem !important; margin-top: 2px; color: var(--color-text-muted) !important;">Open the Admin Panel to add questions.</span>
+              </div>
+            </div>
           </div>
 
 
@@ -518,7 +528,7 @@
                   <span class="card-qn-title">Teams Setup</span>
                 </div>
               </div>
-              <div class="card-corner-ribbon">⚙️</div>
+              <div class="card-corner-ribbon">01</div>
             </summary>
             <div class="premium-controls-wrapper">
               <div class="team-setup-grid">
@@ -607,7 +617,7 @@
                   <span class="card-qn-title">Grid Typography</span>
                 </div>
               </div>
-              <div class="card-corner-ribbon">⚙️</div>
+              <div class="card-corner-ribbon">02</div>
             </summary>
             <div class="premium-controls-wrapper">
               <div class="form-group" style="margin-bottom: 12px;">
@@ -690,7 +700,7 @@
                   <span class="card-qn-title">Advanced Utilities</span>
                 </div>
               </div>
-              <div class="card-corner-ribbon">⚙️</div>
+              <div class="card-corner-ribbon">03</div>
             </summary>
             <div class="premium-controls-wrapper" style="display: flex; flex-direction: column; gap: 10px;">
               <!-- Row 1: Game Rules -->
