@@ -2794,9 +2794,11 @@ function setMCQRequired(req) {
 function renderGameBoard() {
   renderCategoryHeaders();
   const layoutContainer = document.querySelector('.game-layout-container');
+  const topBar = document.querySelector('.game-top-bar');
   if (layoutContainer) {
     const showLb = db.settings.showLeaderboard !== false;
     layoutContainer.classList.toggle('hide-leaderboard', !showLb);
+    if (topBar) topBar.classList.toggle('hide-leaderboard', !showLb);
   }
   const container = document.getElementById('game-board-grid');
   container.innerHTML = '';

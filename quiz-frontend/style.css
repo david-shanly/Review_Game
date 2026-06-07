@@ -3985,6 +3985,36 @@ img.emoji {
   display: none !important;
 }
 
+/* Top bar adjustments when leaderboard is hidden */
+.game-top-bar.hide-leaderboard .game-top-right-group {
+  width: auto;
+  min-width: 0;
+  align-items: flex-end;
+}
+
+/* Strip the glass-panel card look off the turn announcer — just floating text */
+.game-top-bar.hide-leaderboard .turn-announcer {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 4px 0 4px 0;
+  min-width: 0;
+  text-align: right;
+  align-items: flex-end;
+}
+
+/* Buttons sit cleanly below the text, flush to the right */
+.game-top-bar.hide-leaderboard .game-controls {
+  gap: 10px;
+  width: auto;
+}
+
+.game-top-bar.hide-leaderboard .game-controls .btn {
+  flex: 0 0 auto;
+}
+
 /* ============================================================
    UPGRADED FEATURES STYLING
    ============================================================ */
