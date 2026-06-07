@@ -4141,7 +4141,7 @@ async function playWrongAnswerVideo(videoSrc, onClosed) {
   skipBtn.style.color = '#fff';
   skipBtn.style.background = 'rgba(255, 77, 77, 0.2)';
   skipBtn.style.border = '3px solid #ff4d4d';
-  skipBtn.style.borderRadius = 'var(--radius-pill)';
+  skipBtn.style.borderRadius = '16px';
   skipBtn.style.cursor = 'pointer';
   skipBtn.style.transition = 'all 0.2s';
   skipBtn.style.boxShadow = '0 0 15px rgba(255, 77, 77, 0.3)';
@@ -4244,7 +4244,7 @@ async function playCorrectAnswerVideo(videoSrc, onClosed) {
   skipBtn.style.color = '#fff';
   skipBtn.style.background = 'rgba(74, 222, 128, 0.2)';
   skipBtn.style.border = '3px solid var(--color-success)';
-  skipBtn.style.borderRadius = 'var(--radius-pill)';
+  skipBtn.style.borderRadius = '16px';
   skipBtn.style.cursor = 'pointer';
   skipBtn.style.transition = 'all 0.2s';
   skipBtn.style.boxShadow = '0 0 15px rgba(74, 222, 128, 0.3)';
@@ -4339,7 +4339,7 @@ async function playWinnerScreenVideo(onClosed) {
   skipBtn.style.color = '#000';
   skipBtn.style.background = 'var(--color-gold)';
   skipBtn.style.border = '3px solid var(--color-gold-dark)';
-  skipBtn.style.borderRadius = 'var(--radius-pill)';
+  skipBtn.style.borderRadius = '16px';
   skipBtn.style.cursor = 'pointer';
   skipBtn.style.transition = 'all 0.2s';
   skipBtn.style.boxShadow = '0 0 15px rgba(244, 196, 48, 0.3)';
@@ -4731,14 +4731,14 @@ function showCustomConfirm(message, onConfirm, opts = {}) {
   cancelBtn.textContent = opts.cancelText || 'No';
   cancelBtn.style.padding = '12px 28px';
   cancelBtn.style.fontSize = '1.05rem';
-  cancelBtn.style.borderRadius = 'var(--radius-pill)';
+  cancelBtn.style.borderRadius = '16px';
 
   const confirmBtn = document.createElement('button');
   confirmBtn.className = opts.confirmClass || 'btn btn-danger';
   confirmBtn.textContent = opts.confirmText || 'Yes';
   confirmBtn.style.padding = '12px 32px';
   confirmBtn.style.fontSize = '1.05rem';
-  confirmBtn.style.borderRadius = 'var(--radius-pill)';
+  confirmBtn.style.borderRadius = '16px';
 
   const close = (confirmed) => {
     overlay.style.opacity = '0';
