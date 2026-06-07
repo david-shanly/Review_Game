@@ -3070,39 +3070,39 @@ function renderGameBoard() {
       const tColor = answered.teamIndex >= 0 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
       
       if (answered.teamIndex === -1) {
-        btn.style.background = 'rgba(239, 68, 68, 0.07)';
-        btn.style.borderColor = '#fca5a5';
+        btn.style.background = 'rgba(220, 38, 38, 0.12)';
+        btn.style.borderColor = 'rgba(220, 38, 38, 0.55)';
         btn.innerHTML = `
           <div class="card-inner-layout">
             <div class="card-left-icon">
-              <div class="card-outer-circle" style="border-color: #ef4444;">
+              <div class="card-outer-circle" style="border-color: #991b1b;">
                 <div class="card-inner-circle" style="background: white;">
-                  <span class="card-emoji" style="color: #ef4444;">❌</span>
+                  <span class="card-emoji" style="color: #991b1b;">❌</span>
                 </div>
               </div>
             </div>
             <div class="card-right-details">
-              <span class="card-qn-title" style="color: #991b1b;">${label}</span>
-              <span class="card-qn-points" style="color: #ef4444; font-weight: 800;">Missed</span>
+              <span class="card-qn-title" style="color: #7f1d1d;">${label}</span>
+              <span class="card-qn-points" style="color: #991b1b; font-weight: 800;">Missed</span>
             </div>
           </div>
-          <div class="card-corner-ribbon" style="background: #ef4444;">0</div>
+          <div class="card-corner-ribbon" style="background: #991b1b;">0</div>
         `;
       } else {
         const team = playState.teams[answered.teamIndex];
         const tName = team ? team.name : `Team ${answered.teamIndex + 1}`;
-        btn.style.setProperty('--theme-color', tColor.text);
-        btn.style.setProperty('--theme-border', tColor.border);
-        btn.style.setProperty('--theme-bg-tint', tColor.bg);
-        btn.style.background = tColor.bg;
-        btn.style.borderColor = tColor.border;
+        btn.style.setProperty('--theme-color', '#16a34a');
+        btn.style.setProperty('--theme-border', 'rgba(34, 197, 94, 0.4)');
+        btn.style.setProperty('--theme-bg-tint', 'rgba(34, 197, 94, 0.1)');
+        btn.style.background = 'rgba(34, 197, 94, 0.1)';
+        btn.style.borderColor = 'rgba(34, 197, 94, 0.4)';
         
         btn.innerHTML = `
           <div class="card-inner-layout">
             <div class="card-left-icon">
-              <div class="card-outer-circle" style="border-color: ${tColor.text};">
+              <div class="card-outer-circle" style="border-color: #16a34a;">
                 <div class="card-inner-circle" style="background: white;">
-                  <span class="card-emoji">✔️</span>
+                  <span class="card-emoji" style="color: #16a34a;">✔️</span>
                 </div>
               </div>
             </div>
