@@ -1429,8 +1429,31 @@ body {
   color: var(--color-gold);
 }
 
-/* Game controls */
-.game-controls { display: flex; gap: 12px; position: fixed; bottom: 65px; right: 32px; z-index: 50; }
+/* Game controls and top right layout */
+.game-top-right-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  flex: 0 0 auto;
+  min-width: 190px;
+}
+
+.game-controls {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.game-controls .btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: var(--radius-sm);
+}
 
 /* ============================================================
    SCREEN 4: WINNER
@@ -2531,9 +2554,19 @@ body {
     font-size: 1.1rem !important;
   }
 
+  .game-top-right-group {
+    min-width: 120px !important;
+    gap: 6px !important;
+  }
+
   .game-controls {
-    flex-wrap: nowrap !important;
-    gap: 8px !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+
+  .game-controls .btn {
+    padding: 6px 8px !important;
+    font-size: 0.8rem !important;
   }
 
   .admin-header-actions {
@@ -3344,9 +3377,8 @@ body {
 
   .game-controls {
     position: static !important;
-    margin: 20px 0;
+    margin: 0 !important;
     width: 100%;
-    justify-content: center;
   }
 
   /* Mobile height safety limits to prevent clipping */

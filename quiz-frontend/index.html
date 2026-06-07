@@ -262,11 +262,19 @@
             <!-- Dynamically populated team cards -->
           </div>
 
-          <!-- Turn Indicator -->
-          <div class="turn-announcer glass-panel">
-            <div class="turn-label">CURRENT TURN</div>
-            <div id="turn-display" class="turn-team">TEAM NAME</div>
-            <div id="steal-banner" class="steal-banner hidden">🔥 STEAL CHANCE!</div>
+          <!-- Turn Indicator & Controls Group -->
+          <div class="game-top-right-group">
+            <div class="turn-announcer glass-panel">
+              <div class="turn-label">CURRENT TURN</div>
+              <div id="turn-display" class="turn-team">TEAM NAME</div>
+              <div id="steal-banner" class="steal-banner hidden">🔥 STEAL CHANCE!</div>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="game-controls">
+              <button id="btn-end-game" class="btn btn-danger">🏁 End Game</button>
+              <button id="btn-resign-game" class="btn btn-secondary">🏳️ Resign</button>
+            </div>
           </div>
         </div>
 
@@ -290,11 +298,7 @@
           </aside>
         </div>
 
-        <!-- Game Controls -->
-        <div class="game-controls">
-          <button id="btn-end-game" class="btn btn-danger">🏁 End Game</button>
-          <button id="btn-resign-game" class="btn btn-secondary">🏳️ Resign</button>
-        </div>
+
 
       </section>
 
