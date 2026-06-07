@@ -3386,7 +3386,8 @@ body {
    ============================================================ */
 
 /* Details Summary Marker Reset */
-details.control-panel-details summary::-webkit-details-marker { display: none; }
+summary::-webkit-details-marker { display: none !important; }
+summary { list-style: none !important; list-style-type: none !important; }
 .details-icon { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; }
 
 /* Premium Collapsible Accordion Card */
