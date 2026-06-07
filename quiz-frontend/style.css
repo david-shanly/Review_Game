@@ -4421,15 +4421,11 @@ img.emoji {
   box-shadow: none !important;
 }
 .turn-controls #btn-end-game {
-  background: #dc2626 !important;
+  background: #ef4444 !important; /* Lighter red */
   color: white !important;
-  padding-right: 14px !important; /* Center text */
-}
-.turn-controls #btn-end-game::after {
-  display: none !important; /* Hide ribbon */
 }
 .turn-controls #btn-end-game:hover {
-  background: #b91c1c !important;
+  background: #dc2626 !important; /* Hover background */
 }
 .turn-controls #btn-resign-game {
   background: #ffffff !important;
@@ -4933,7 +4929,6 @@ img.emoji {
 }
 
 /* End Game & Delete Question (Destructive Red) */
-#btn-end-game,
 #btn-delete-question {
   background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%) !important;
   border: 1.5px solid #fecaca !important;
@@ -4941,22 +4936,42 @@ img.emoji {
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.03) !important;
   transition: all 0.25s ease !important;
 }
-#btn-end-game:hover:not(:disabled),
 #btn-delete-question:hover:not(:disabled) {
   border-color: #dc2626 !important;
   box-shadow: 0 8px 16px rgba(220, 38, 38, 0.1) !important;
   transform: none !important;
 }
-[data-theme="dark"] #btn-end-game,
 [data-theme="dark"] #btn-delete-question {
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(220, 38, 38, 0.1) 100%) !important;
   border-color: rgba(220, 38, 38, 0.3) !important;
   color: #fca5a5 !important;
 }
-[data-theme="dark"] #btn-end-game:hover:not(:disabled),
 [data-theme="dark"] #btn-delete-question:hover:not(:disabled) {
   border-color: #fca5a5 !important;
   box-shadow: 0 8px 16px rgba(252, 165, 165, 0.2) !important;
+  transform: none !important;
+}
+
+#btn-end-game {
+  background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%) !important;
+  border: 1.5px solid #fecaca !important;
+  color: #ef4444 !important; /* Lighter red text */
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.03) !important;
+  transition: all 0.25s ease !important;
+}
+#btn-end-game:hover:not(:disabled) {
+  border-color: #ef4444 !important;
+  box-shadow: 0 8px 16px rgba(239, 68, 68, 0.1) !important;
+  transform: none !important;
+}
+[data-theme="dark"] #btn-end-game {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(239, 68, 68, 0.1) 100%) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #fca5a5 !important;
+}
+[data-theme="dark"] #btn-end-game:hover:not(:disabled) {
+  border-color: #fca5a5 !important;
+  box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2) !important;
   transform: none !important;
 }
 
@@ -5217,7 +5232,7 @@ img.emoji {
 /* End Game */
 #btn-end-game::after {
   content: "🏁";
-  background: #dc2626 !important;
+  background: #ef4444 !important; /* Lighter red ribbon background */
 }
 
 /* Resign */
