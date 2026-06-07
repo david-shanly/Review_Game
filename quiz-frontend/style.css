@@ -5232,7 +5232,7 @@ img.emoji {
 /* End Game */
 #btn-end-game::after {
   content: "🏁";
-  background: #ef4444 !important; /* Lighter red ribbon background */
+  background: #991b1b !important; /* Dark red ribbon background for clear contrast */
 }
 
 /* Resign */
