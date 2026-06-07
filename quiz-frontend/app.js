@@ -2483,6 +2483,9 @@ function renderAdminGrid() {
       const answered = playState.answeredCells[cId];
       const isPlayed = !!(playState.teams && playState.teams.length > 0 && answered);
 
+      const rowIndex = r;
+      const label = qnLabel(qn);
+
       const cell = document.createElement('div');
       cell.className = `board-cell theme-row-${rowIndex % 5} ${q ? 'has-q' : ''} ${selectedAdminCellId === cId ? 'selected-edit' : ''} ${isPlayed ? 'cell-played-locked' : ''}`;
       cell.dataset.cellId = cId;
@@ -3015,7 +3018,7 @@ function renderGameBoard() {
     } else if (answered) {
       btn.className = `game-cell-btn cell-answered theme-row-${rowIndex % 5}`;
       btn.disabled = true;
-      const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
+      const tColor = answered.teamIndex !== -1 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
       
       if (answered.teamIndex === -1) {
         btn.innerHTML = `
@@ -3164,7 +3167,7 @@ function renderGameBoard() {
     } else if (answered) {
       btn.className = 'game-cell-btn cell-answered tiebreaker-cell';
       btn.disabled = true;
-      const tColor = TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length];
+      const tColor = answered.teamIndex !== -1 ? TEAM_COLORS[answered.teamIndex % TEAM_COLORS.length] : null;
       if (answered.teamIndex === -1) {
         btn.innerHTML = `
           <div class="card-inner-layout">
