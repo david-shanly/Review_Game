@@ -4453,7 +4453,7 @@ img.emoji {
 
 /* 4. Question Cards Visual Overhaul */
 #game-board-grid {
-  gap: 12px !important;
+  gap: 6px !important;
 }
 
 .game-cell-btn {
