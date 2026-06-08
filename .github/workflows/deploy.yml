@@ -28,7 +28,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: quiz-frontend
-        run: npm ci
+        run: npm install
 
       - name: Build frontend
         working-directory: quiz-frontend
@@ -59,7 +59,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: quiz-frontend
-        run: npm ci
+        run: npm install
 
       - name: Build Electron App for Windows
         working-directory: quiz-frontend
