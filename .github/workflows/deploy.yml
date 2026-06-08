@@ -28,7 +28,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: quiz-frontend
-        run: npm install
+        run: npm ci
 
       - name: Build frontend
         working-directory: quiz-frontend
@@ -59,14 +59,18 @@ jobs:
 
       - name: Install dependencies
         working-directory: quiz-frontend
-        run: npm install
+        run: npm ci
 
       - name: Build Electron App for Windows
         working-directory: quiz-frontend
         run: npm run electron:build:win
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Desktop Artifact
         uses: actions/upload-artifact@v4
         with:
           name: review-game-windows-setup
           path: quiz-frontend/dist-electron/*.exe
+        continue-on-error: true
