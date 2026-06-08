@@ -4717,11 +4717,13 @@ img.emoji {
   background: transparent !important;
   box-shadow: none !important;
   border-radius: 20px !important;
+  overflow: visible !important; /* prevent parent clipping summary's rounded border on hover */
 }
 
 .outer-card-details[open] {
   box-shadow: none !important;
   background: transparent !important;
+  overflow: visible !important;
 }
 
 .outer-card-details[open] .control-center-card-summary {
