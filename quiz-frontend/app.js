@@ -4993,6 +4993,8 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
     if (customCorrectVideoSrc) {
       playCorrectAnswerVideo(customCorrectVideoSrc, finalizeCorrect);
+    } else if (db.settings.playVideoFeedback) {
+      playCorrectAnswerVideo(finalizeCorrect);
     } else {
       playSound('correct');
       showEmojiFeedback(true, q, finalizeCorrect);
@@ -5071,6 +5073,8 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
       if (customWrongVideoSrc) {
         playWrongAnswerVideo(customWrongVideoSrc, finalizeWrongTiebreaker);
+      } else if (db.settings.playVideoFeedback) {
+        playWrongAnswerVideo(finalizeWrongTiebreaker);
       } else {
         playSound('wrong');
         showEmojiFeedback(false, q, finalizeWrongTiebreaker);
@@ -5139,6 +5143,8 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
       if (customWrongVideoSrc) {
         playWrongAnswerVideo(customWrongVideoSrc, finalizeWrong);
+      } else if (db.settings.playVideoFeedback) {
+        playWrongAnswerVideo(finalizeWrong);
       } else {
         playSound('wrong');
         showEmojiFeedback(false, q, finalizeWrong);
