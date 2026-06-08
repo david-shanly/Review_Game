@@ -4732,6 +4732,32 @@ function showCustomConfirm(message, onConfirm, opts = {}) {
   cancelBtn.style.padding = '12px 28px';
   cancelBtn.style.fontSize = '1.05rem';
   cancelBtn.style.borderRadius = '16px';
+  cancelBtn.style.position = 'relative';
+  cancelBtn.style.overflow = 'hidden';
+  if (opts.cancelEmoji) {
+    cancelBtn.style.paddingRight = '2.2rem';
+    const ribbon = document.createElement('span');
+    ribbon.className = 'btn-corner-ribbon';
+    ribbon.textContent = opts.cancelEmoji;
+    ribbon.style.position = 'absolute';
+    ribbon.style.bottom = '0';
+    ribbon.style.right = '0';
+    ribbon.style.color = 'white';
+    ribbon.style.fontFamily = 'var(--font-display)';
+    ribbon.style.fontWeight = '900';
+    ribbon.style.fontSize = '0.75rem';
+    ribbon.style.padding = '4px 10px';
+    ribbon.style.borderTopLeftRadius = '10px';
+    ribbon.style.lineHeight = '1';
+    ribbon.style.pointerEvents = 'none';
+    ribbon.style.zIndex = '10';
+    ribbon.style.boxShadow = '-2px -2px 6px rgba(0, 0, 0, 0.05)';
+    ribbon.style.display = 'flex';
+    ribbon.style.alignItems = 'center';
+    ribbon.style.justifyContent = 'center';
+    ribbon.style.background = opts.cancelRibbonBg || '#475569';
+    cancelBtn.appendChild(ribbon);
+  }
 
   const confirmBtn = document.createElement('button');
   confirmBtn.className = opts.confirmClass || 'btn btn-danger';
@@ -4739,6 +4765,32 @@ function showCustomConfirm(message, onConfirm, opts = {}) {
   confirmBtn.style.padding = '12px 32px';
   confirmBtn.style.fontSize = '1.05rem';
   confirmBtn.style.borderRadius = '16px';
+  confirmBtn.style.position = 'relative';
+  confirmBtn.style.overflow = 'hidden';
+  if (opts.confirmEmoji) {
+    confirmBtn.style.paddingRight = '2.2rem';
+    const ribbon = document.createElement('span');
+    ribbon.className = 'btn-corner-ribbon';
+    ribbon.textContent = opts.confirmEmoji;
+    ribbon.style.position = 'absolute';
+    ribbon.style.bottom = '0';
+    ribbon.style.right = '0';
+    confirmBtn.style.color = 'white';
+    ribbon.style.fontFamily = 'var(--font-display)';
+    ribbon.style.fontWeight = '900';
+    ribbon.style.fontSize = '0.75rem';
+    ribbon.style.padding = '4px 10px';
+    ribbon.style.borderTopLeftRadius = '10px';
+    ribbon.style.lineHeight = '1';
+    ribbon.style.pointerEvents = 'none';
+    ribbon.style.zIndex = '10';
+    ribbon.style.boxShadow = '-2px -2px 6px rgba(0, 0, 0, 0.05)';
+    ribbon.style.display = 'flex';
+    ribbon.style.alignItems = 'center';
+    ribbon.style.justifyContent = 'center';
+    ribbon.style.background = opts.confirmRibbonBg || '#dc2626';
+    confirmBtn.appendChild(ribbon);
+  }
 
   const close = (confirmed) => {
     overlay.style.opacity = '0';
@@ -6380,8 +6432,12 @@ document.getElementById('btn-end-game').addEventListener('click', () => {
         {
           confirmText: 'Play Tie Breaker',
           confirmClass: 'btn btn-primary',
+          confirmEmoji: '🏆',
+          confirmRibbonBg: '#d97706',
           cancelText: 'End Game Now',
           cancelClass: 'btn btn-danger',
+          cancelEmoji: '🏁',
+          cancelRibbonBg: '#991b1b',
           icon: '🏆',
           subtext: 'Do you want to play the Tie Breaker question or end the game immediately?',
           onCancel: () => {
@@ -6405,42 +6461,68 @@ document.getElementById('btn-end-game').addEventListener('click', () => {
         },
         {
           confirmText: 'End Game Anyway',
+          confirmEmoji: '🏁',
+          confirmRibbonBg: '#991b1b',
           cancelText: 'Cancel',
+          cancelEmoji: '❌',
+          cancelRibbonBg: '#475569',
           subtext: 'You enabled the Tie Breaker feature, but the TIE BREAKER cell in the Admin Grid is empty. Please configure it first.',
           icon: '⚠️'
         }
       );
     }
   } else {
-    showCustomConfirm('Want to confirm ending the game?', () => {
-      closeModal();
-      playState.phase = 'ended';
-      saveGameState();
-      updateGameStatusUI();
-      endGame();
-    });
+    showCustomConfirm(
+      'Want to confirm ending the game?',
+      () => {
+        closeModal();
+        playState.phase = 'ended';
+        saveGameState();
+        updateGameStatusUI();
+        endGame();
+      },
+      {
+        confirmText: 'Yes',
+        confirmEmoji: '🏁',
+        confirmRibbonBg: '#991b1b',
+        cancelText: 'No',
+        cancelEmoji: '❌',
+        cancelRibbonBg: '#475569'
+      }
+    );
   }
 });
 
 document.getElementById('btn-resign-game').addEventListener('click', () => {
   if (!canInteract()) return;
 
-  showCustomConfirm('Want to confirm resigning the game?', () => {
-    closeModal();
-    playSound('cancel');
-    resetPlayState();
-    playState.teams = []; // Clear active game teams
-    playState.phase = 'live';
-    playState.gameState = 'IDLE';
-    clearGameTimer();
-    localStorage.removeItem('review_game_playstate');
+  showCustomConfirm(
+    'Want to confirm resigning the game?',
+    () => {
+      closeModal();
+      playSound('cancel');
+      resetPlayState();
+      playState.teams = []; // Clear active game teams
+      playState.phase = 'live';
+      playState.gameState = 'IDLE';
+      clearGameTimer();
+      localStorage.removeItem('review_game_playstate');
 
-    updateGameStatusUI();
-    renderGameBoard();
-    updateTurnUI();
-    updateScoreUI();
-    showScreen('dashboard');
-  });
+      updateGameStatusUI();
+      renderGameBoard();
+      updateTurnUI();
+      updateScoreUI();
+      showScreen('dashboard');
+    },
+    {
+      confirmText: 'Yes',
+      confirmEmoji: '🏳️',
+      confirmRibbonBg: '#475569',
+      cancelText: 'No',
+      cancelEmoji: '❌',
+      cancelRibbonBg: '#475569'
+    }
+  );
 });
 
 // ============================================================
