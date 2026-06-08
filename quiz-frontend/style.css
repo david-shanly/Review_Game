@@ -239,7 +239,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-#app-container, .app-main {
+#app-container {
   height: calc(100% - 45px);
   display: flex;
   flex-direction: column;
@@ -476,10 +476,6 @@ body {
   line-height: 1;
 }
 
-.logo-accent {
-  color: var(--color-gold);
-}
-
 .header-actions {
   display: flex;
   align-items: center;
@@ -691,25 +687,11 @@ body {
 }
 
 
-.admin-sidebar {
-  padding: 1.5rem;
-  position: sticky;
-  top: 90px;
-  border-radius: var(--radius-md);
-}
-
 .admin-main {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   width: 100%;
-}
-
-.admin-grid-info-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
 }
 
 .section-title {
@@ -867,14 +849,6 @@ body {
   cursor: pointer;
   color: var(--color-text-light);
   margin: 0;
-}
-
-.divider {
-  border: none;
-  height: 2px;
-  background: var(--cell-border);
-  margin: 18px 0;
-  border-radius: var(--radius-sm);
 }
 
 .admin-db-actions {
@@ -1905,11 +1879,7 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .admin-sidebar {
-    position: static;
-  }
-
-  .game-layout-container {
+    .game-layout-container {
     grid-template-columns: 1fr;
   }
 
@@ -3327,7 +3297,7 @@ body {
     min-height: 0;
   }
 
-  .admin-sidebar, .game-leaderboard-sidebar {
+  .game-leaderboard-sidebar {
     width: 100%;
     order: 2; /* Sidebar/leaderboard falls below grid */
     margin-top: 20px;
