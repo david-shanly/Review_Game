@@ -1292,25 +1292,7 @@ function updateGameStatusUI() {
   }
 }
 
-async function runCountdown() {
-  const overlay = document.getElementById('countdown-overlay');
-  const numEl = overlay ? overlay.querySelector('.countdown-number') : null;
-  if (!overlay || !numEl) return;
-  overlay.classList.remove('hidden');
 
-  for (let i = 3; i > 0; i--) {
-    numEl.textContent = i;
-    playTone(600, 'sine', 0.08, 0.2);
-
-    numEl.style.animation = 'none';
-    void numEl.offsetHeight; // trigger reflow
-    numEl.style.animation = 'countdownPulse 1s ease-in-out';
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-
-  overlay.classList.add('hidden');
-}
 
 
 
@@ -1504,17 +1486,6 @@ function applySelectedFont() {
 // ADMIN — GRID
 // ============================================================
 let selectedAdminCellId = null;
-
-function getTypeLabel(type) {
-  switch (type) {
-    case 'mcq': return 'MCQ';
-    case 'fill_blank': return 'Fill in the Blanks';
-    case 'fill': return 'Fill in the Blanks';
-    case 'short': return 'Short Answer';
-    case 'short_answer': return 'Short Answer';
-    default: return '';
-  }
-}
 
 function renderAdminGrid() {
   renderCategoryHeaders();
@@ -3636,7 +3607,7 @@ document.addEventListener('DOMContentLoaded', () => {
           renderGameBoard();
           updateScoreUI();
           
-          triggerAlert('SYSTEM', `Imported \${parsedQuestions.length - 1} questions from CSV!`, 'gain');
+          triggerAlert('SYSTEM', `Imported ${parsedQuestions.length - 1} questions from CSV!`, 'gain');
           
           const statusDiv = document.getElementById('dashboard-status');
           if (statusDiv) {
@@ -3690,9 +3661,6 @@ function triggerAlert(teamName, text, type) {
   setTimeout(() => alertEl.remove(), 2600);
 }
 
-function queueScoreAlert(teamName, text, type) {
-  setTimeout(() => triggerAlert(teamName, text, type), 2300);
-}
 
 function showCustomConfirm(message, onConfirm, opts = {}) {
   const overlay = document.createElement('div');
