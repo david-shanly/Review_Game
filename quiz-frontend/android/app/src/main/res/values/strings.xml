@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">ReviewGame</string>
-    <string name="title_activity_main">ReviewGame</string>
-    <string name="package_name">com.reviewgame.app</string>
-    <string name="custom_url_scheme">com.reviewgame.app</string>
-</resources>
