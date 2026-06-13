@@ -2934,6 +2934,7 @@ function openQuestionModal(cId, q) {
   
   if (cId !== 'c-tiebreaker' && pType && !playState.powerupUsed.revealedCells[cId] && !playState.practiceMode) {
     // Stage 1: Power-up Reveal Mode
+    turnStatus.textContent = "Choose Power Up";
     const powerupPanel = document.getElementById('powerup-reveal-panel');
     const card = document.getElementById('powerup-card');
     const continueBtn = document.getElementById('btn-powerup-continue');
@@ -4604,8 +4605,8 @@ function parseCSV(text) {
       } else if (char === ',') {
         row.push(field);
         field = '';
-      } else if (char === '\\n' || char === '\\r') {
-        if (char === '\\r' && nextChar === '\\n') {
+      } else if (char === '\n' || char === '\r') {
+        if (char === '\r' && nextChar === '\n') {
           i++;
         }
         row.push(field);
