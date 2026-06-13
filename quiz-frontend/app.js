@@ -5183,11 +5183,10 @@ function showExportFormatSelector(onSelect) {
     closeSelector();
     onSelect('json');
   });
-  // Make the JSON button gold/yellow (primary)
-  btnJson.style.background = 'var(--color-primary)';
+  // Make the JSON button gold/yellow (primary) and ensure white text is used
   btnJson.style.color = 'white';
   
-  const btnCsv = createRibbonButton('Export CSV', 'btn btn-secondary', '📊', '#475569', () => {
+  const btnCsv = createRibbonButton('Export CSV', 'btn btn-danger', '📊', '#b91c1c', () => {
     playSound('click');
     closeSelector();
     onSelect('csv');
