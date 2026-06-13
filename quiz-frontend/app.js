@@ -5090,7 +5090,7 @@ function showExportFormatSelector(onSelect) {
   const content = document.createElement('div');
   content.className = 'confirm-card glass-panel';
   content.style.width = '90%';
-  content.style.maxWidth = '460px';
+  content.style.maxWidth = '480px';
   content.style.padding = '32px';
   content.style.borderRadius = 'var(--radius-sm)';
   content.style.textAlign = 'center';
@@ -5107,10 +5107,10 @@ function showExportFormatSelector(onSelect) {
   icon.style.marginBottom = '16px';
   
   const title = document.createElement('h3');
-  title.textContent = 'EXPORT QUIZ DATABASE';
+  title.textContent = 'Export Quiz Database';
   title.style.fontSize = '1.35rem';
   title.style.fontWeight = '700';
-  title.style.color = 'var(--color-gold)';
+  title.style.color = 'var(--color-text-light)';
   title.style.marginBottom = '12px';
   title.style.fontFamily = 'var(--font-display)';
   title.style.letterSpacing = '1px';
@@ -5122,12 +5122,11 @@ function showExportFormatSelector(onSelect) {
   desc.style.marginBottom = '28px';
   desc.style.lineHeight = '1.4';
   
-  const btnContainer = document.createElement('div');
-  btnContainer.style.display = 'flex';
-  btnContainer.style.flexDirection = 'column';
-  btnContainer.style.gap = '14px';
-  btnContainer.style.width = '100%';
-  btnContainer.style.justifyContent = 'center';
+  const actionsRow = document.createElement('div');
+  actionsRow.style.display = 'flex';
+  actionsRow.style.gap = '14px';
+  actionsRow.style.justifyContent = 'center';
+  actionsRow.style.width = '100%';
   
   const closeSelector = () => {
     overlay.style.opacity = '0';
@@ -5138,54 +5137,89 @@ function showExportFormatSelector(onSelect) {
       }
     }, 250);
   };
+
+  const createRibbonButton = (text, btnClass, emoji, ribbonBg, onClick) => {
+    const btn = document.createElement('button');
+    btn.className = btnClass;
+    btn.textContent = text;
+    btn.style.padding = '12px 28px';
+    btn.style.fontSize = '1.05rem';
+    btn.style.borderRadius = '16px';
+    btn.style.position = 'relative';
+    btn.style.overflow = 'hidden';
+    btn.style.flex = '1';
+    
+    if (emoji) {
+      btn.style.paddingRight = '2.2rem';
+      const ribbon = document.createElement('span');
+      ribbon.className = 'btn-corner-ribbon';
+      ribbon.textContent = emoji;
+      ribbon.style.position = 'absolute';
+      ribbon.style.bottom = '0';
+      ribbon.style.right = '0';
+      ribbon.style.color = 'white';
+      ribbon.style.fontFamily = 'var(--font-display)';
+      ribbon.style.fontWeight = '900';
+      ribbon.style.fontSize = '0.75rem';
+      ribbon.style.padding = '4px 10px';
+      ribbon.style.borderTopLeftRadius = '10px';
+      ribbon.style.lineHeight = '1';
+      ribbon.style.pointerEvents = 'none';
+      ribbon.style.zIndex = '10';
+      ribbon.style.boxShadow = '-2px -2px 6px rgba(0, 0, 0, 0.05)';
+      ribbon.style.display = 'flex';
+      ribbon.style.alignItems = 'center';
+      ribbon.style.justifyContent = 'center';
+      ribbon.style.background = ribbonBg || '#475569';
+      btn.appendChild(ribbon);
+    }
+    
+    btn.onclick = onClick;
+    return btn;
+  };
   
-  const btnJson = document.createElement('button');
-  btnJson.className = 'btn btn-primary';
-  btnJson.textContent = '💾 Export JSON (Full Backup)';
-  btnJson.style.width = '100%';
-  btnJson.style.padding = '12px 28px';
-  btnJson.style.fontSize = '1.05rem';
-  btnJson.style.borderRadius = '16px';
-  btnJson.onclick = () => {
+  const btnJson = createRibbonButton('Export JSON', 'btn btn-primary', '💾', '#d97706', () => {
     playSound('click');
     closeSelector();
     onSelect('json');
-  };
+  });
+  // Make the JSON button gold/yellow (primary)
+  btnJson.style.background = 'var(--color-primary)';
+  btnJson.style.color = 'white';
   
-  const btnCsv = document.createElement('button');
-  btnCsv.className = 'btn btn-secondary';
-  btnCsv.textContent = '📊 Export CSV (Excel Compatible)';
-  btnCsv.style.width = '100%';
-  btnCsv.style.padding = '12px 28px';
-  btnCsv.style.fontSize = '1.05rem';
-  btnCsv.style.borderRadius = '16px';
-  btnCsv.onclick = () => {
+  const btnCsv = createRibbonButton('Export CSV', 'btn btn-secondary', '📊', '#475569', () => {
     playSound('click');
     closeSelector();
     onSelect('csv');
-  };
+  });
   
+  actionsRow.appendChild(btnJson);
+  actionsRow.appendChild(btnCsv);
+
+  const cancelRow = document.createElement('div');
+  cancelRow.style.display = 'flex';
+  cancelRow.style.justifyContent = 'center';
+  cancelRow.style.width = '100%';
+  cancelRow.style.marginTop = '16px';
+
   const btnCancel = document.createElement('button');
   btnCancel.className = 'btn btn-secondary';
   btnCancel.textContent = 'Cancel';
-  btnCancel.style.width = '100%';
-  btnCancel.style.padding = '12px 28px';
-  btnCancel.style.fontSize = '1.05rem';
-  btnCancel.style.borderRadius = '16px';
-  btnCancel.style.borderColor = 'rgba(255,255,255,0.15)';
+  btnCancel.style.padding = '8px 28px';
+  btnCancel.style.fontSize = '0.95rem';
+  btnCancel.style.borderRadius = '12px';
+  btnCancel.style.borderColor = 'rgba(255,255,255,0.12)';
   btnCancel.onclick = () => {
     playSound('click');
     closeSelector();
   };
-  
-  btnContainer.appendChild(btnJson);
-  btnContainer.appendChild(btnCsv);
-  btnContainer.appendChild(btnCancel);
+  cancelRow.appendChild(btnCancel);
   
   content.appendChild(icon);
   content.appendChild(title);
   content.appendChild(desc);
-  content.appendChild(btnContainer);
+  content.appendChild(actionsRow);
+  content.appendChild(cancelRow);
   overlay.appendChild(content);
   document.body.appendChild(overlay);
   
