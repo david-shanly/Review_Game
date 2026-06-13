@@ -5073,61 +5073,82 @@ async function saveDatabaseToFileHandle(handle, data) {
 
 function showExportFormatSelector(onSelect) {
   const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay open';
-  overlay.style.zIndex = '1000000';
+  overlay.className = 'confirm-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  overlay.style.background = currentTheme === 'light' ? 'rgba(238, 243, 255, 0.7)' : 'rgba(0, 0, 0, 0.75)';
+  overlay.style.backdropFilter = 'blur(12px)';
+  overlay.style.zIndex = '10000';
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.width = '100%';
-  overlay.style.height = '100%';
-  overlay.style.backgroundColor = 'rgba(7, 17, 43, 0.85)';
-  overlay.style.backdropFilter = 'blur(10px)';
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.25s ease';
   
   const content = document.createElement('div');
-  content.className = 'modal-content glass-panel animate-zoom';
-  content.style.maxWidth = '420px';
-  content.style.padding = '30px';
+  content.className = 'confirm-card glass-panel';
+  content.style.width = '90%';
+  content.style.maxWidth = '460px';
+  content.style.padding = '32px';
+  content.style.borderRadius = 'var(--radius-sm)';
   content.style.textAlign = 'center';
-  content.style.display = 'flex';
-  content.style.flexDirection = 'column';
-  content.style.gap = '20px';
-  content.style.borderRadius = '24px';
-  content.style.border = '2px solid rgba(244, 196, 48, 0.25)';
-  content.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.4)';
+  content.style.border = '2px solid var(--panel-border-active)';
+  content.style.boxShadow = 'var(--card-shadow)';
+  content.style.background = 'var(--panel-bg)';
+  content.style.color = 'var(--color-text-light)';
+  content.style.transform = 'scale(0.8)';
+  content.style.transition = 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+  
+  const icon = document.createElement('div');
+  icon.textContent = '💾';
+  icon.style.fontSize = '3.5rem';
+  icon.style.marginBottom = '16px';
   
   const title = document.createElement('h3');
   title.textContent = 'EXPORT QUIZ DATABASE';
-  title.style.fontFamily = 'var(--font-display)';
+  title.style.fontSize = '1.35rem';
+  title.style.fontWeight = '700';
   title.style.color = 'var(--color-gold)';
-  title.style.margin = '0';
-  title.style.fontSize = '1.6rem';
-  title.style.letterSpacing = '1.5px';
-  title.style.fontWeight = 'bold';
+  title.style.marginBottom = '12px';
+  title.style.fontFamily = 'var(--font-display)';
+  title.style.letterSpacing = '1px';
   
   const desc = document.createElement('p');
   desc.textContent = 'Choose your preferred file format for saving the entire quiz database, including all questions, answers, teams, and game settings:';
-  desc.style.fontSize = '0.9rem';
-  desc.style.color = '#cbd5e1';
-  desc.style.margin = '0';
+  desc.style.fontSize = '0.95rem';
+  desc.style.color = 'var(--color-text-muted)';
+  desc.style.marginBottom = '28px';
   desc.style.lineHeight = '1.4';
   
   const btnContainer = document.createElement('div');
   btnContainer.style.display = 'flex';
   btnContainer.style.flexDirection = 'column';
-  btnContainer.style.gap = '10px';
+  btnContainer.style.gap = '14px';
   btnContainer.style.width = '100%';
+  btnContainer.style.justifyContent = 'center';
+  
+  const closeSelector = () => {
+    overlay.style.opacity = '0';
+    content.style.transform = 'scale(0.8)';
+    setTimeout(() => {
+      if (overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
+    }, 250);
+  };
   
   const btnJson = document.createElement('button');
   btnJson.className = 'btn btn-primary';
   btnJson.textContent = '💾 Export JSON (Full Backup)';
   btnJson.style.width = '100%';
-  btnJson.style.padding = '12px';
+  btnJson.style.padding = '12px 28px';
+  btnJson.style.fontSize = '1.05rem';
+  btnJson.style.borderRadius = '16px';
   btnJson.onclick = () => {
     playSound('click');
-    document.body.removeChild(overlay);
+    closeSelector();
     onSelect('json');
   };
   
@@ -5135,10 +5156,12 @@ function showExportFormatSelector(onSelect) {
   btnCsv.className = 'btn btn-secondary';
   btnCsv.textContent = '📊 Export CSV (Excel Compatible)';
   btnCsv.style.width = '100%';
-  btnCsv.style.padding = '12px';
+  btnCsv.style.padding = '12px 28px';
+  btnCsv.style.fontSize = '1.05rem';
+  btnCsv.style.borderRadius = '16px';
   btnCsv.onclick = () => {
     playSound('click');
-    document.body.removeChild(overlay);
+    closeSelector();
     onSelect('csv');
   };
   
@@ -5146,22 +5169,32 @@ function showExportFormatSelector(onSelect) {
   btnCancel.className = 'btn btn-secondary';
   btnCancel.textContent = 'Cancel';
   btnCancel.style.width = '100%';
-  btnCancel.style.padding = '12px';
-  btnCancel.style.marginTop = '10px';
+  btnCancel.style.padding = '12px 28px';
+  btnCancel.style.fontSize = '1.05rem';
+  btnCancel.style.borderRadius = '16px';
   btnCancel.style.borderColor = 'rgba(255,255,255,0.15)';
   btnCancel.onclick = () => {
     playSound('click');
-    document.body.removeChild(overlay);
+    closeSelector();
   };
   
   btnContainer.appendChild(btnJson);
   btnContainer.appendChild(btnCsv);
   btnContainer.appendChild(btnCancel);
+  
+  content.appendChild(icon);
   content.appendChild(title);
   content.appendChild(desc);
   content.appendChild(btnContainer);
   overlay.appendChild(content);
   document.body.appendChild(overlay);
+  
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      overlay.style.opacity = '1';
+      content.style.transform = 'scale(1)';
+    });
+  });
 }
 
 function generateCSVContent() {
