@@ -2861,12 +2861,12 @@ function openQuestionModal(cId, q) {
   }
 
   // Second Chance Power-up activation
-  if (cId !== 'c-tiebreaker' && playState.powerups[cId] === 'second_chance') {
+  if (cId !== 'c-tiebreaker' && (playState.powerups[cId] === 'second_chance' || playState.powerups[cId] === 'fifty_fifty')) {
     playState.powerupUsed.secondChanceActive = true;
   }
 
   // Safety Net Power-up activation
-  if (cId !== 'c-tiebreaker' && playState.powerups[cId] === 'safety_net') {
+  if (cId !== 'c-tiebreaker' && (playState.powerups[cId] === 'safety_net' || playState.powerups[cId] === 'free_pass')) {
     playState.powerupUsed.safetyNetActive = true;
   }
 
@@ -2978,11 +2978,11 @@ function openQuestionModal(cId, q) {
       revealIcon.textContent = '🛡️';
       revealName.textContent = 'STEAL SHIELD';
       revealDesc.textContent = 'Prevents the opposing team from stealing if you get it wrong!';
-    } else if (pType === 'second_chance') {
+    } else if (pType === 'second_chance' || pType === 'fifty_fifty') {
       revealIcon.textContent = '🔄';
       revealName.textContent = 'SECOND CHANCE';
       revealDesc.textContent = 'Gives your team a free second attempt if your first answer is incorrect!';
-    } else if (pType === 'safety_net') {
+    } else if (pType === 'safety_net' || pType === 'free_pass') {
       revealIcon.textContent = '🩹';
       revealName.textContent = 'SAFETY NET';
       revealDesc.textContent = 'If you answer wrong, you lose 0 points instead of the normal 50% point deduction!';
