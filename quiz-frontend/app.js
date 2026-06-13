@@ -5984,14 +5984,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  const highContrastEl = document.getElementById('settings-high-contrast');
-  if (highContrastEl) {
-    highContrastEl.addEventListener('change', (e) => {
-      db.settings.highContrast = e.target.checked;
-      saveDB();
-      document.body.classList.toggle('high-contrast', !!db.settings.highContrast);
-    });
-  }
+
 
   const fontEl = document.getElementById('settings-grid-font');
   if (fontEl) {
