@@ -5,8 +5,6 @@
     "subtractOnWrong": true,
     "totalQuestions": 12,
     "displayMode": "QUESTION_POINTS",
-    "timerDuration": 10,
-    "enableTimer": true,
     "gridFont": "none",
     "applyFontToAll": false,
     "playVideoFeedback": false,

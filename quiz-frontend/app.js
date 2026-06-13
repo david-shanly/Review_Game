@@ -72,8 +72,6 @@ let db = {
     powerupMode: 'random',
     randomPowerupsCount: 3,
     displayMode: 'QUESTION_POINTS',
-    timerDuration: 10,
-    enableTimer: true,
     gridFont: 'none',
     applyFontToAll: false,
     playVideoFeedback: false,
@@ -762,8 +760,6 @@ const defaultSettings = {
   subtractOnWrong: true,
   totalQuestions: 12,
   displayMode: 'QUESTION_POINTS',
-  timerDuration: 10,
-  enableTimer: true,
   gridFont: 'none',
   applyFontToAll: false,
   playVideoFeedback: false,
@@ -946,11 +942,7 @@ function hydrateControlCenter(settings) {
     powerupCountGroup.style.display = (settings.powerupMode ?? 'random') === 'random' ? 'block' : 'none';
   }
   
-  const timerDurationEl = document.getElementById('settings-timer-duration');
-  if (timerDurationEl) timerDurationEl.value = settings.timerDuration ?? 10;
-  
-  const enableTimerEl = document.getElementById('settings-enable-timer');
-  if (enableTimerEl) enableTimerEl.checked = settings.enableTimer ?? true;
+
   
 
   
@@ -2671,12 +2663,6 @@ function adjustWinnerCardFontSizeToFit() {
 // ============================================================
 // QUESTION MODAL
 // ============================================================
-// ============================================================
-// QUESTION COUNTDOWN TIMER
-// ============================================================
-// ============================================================
-// QUESTION MODAL
-// ============================================================
 function showQuestionContent(cId, q) {
   const turnSelector = document.getElementById('tiebreaker-turn-selector');
   const btnSubmit = document.getElementById('btn-modal-submit');
@@ -2728,8 +2714,7 @@ function showQuestionContent(cId, q) {
           setTimeout(() => fillInput.focus(), 100);
         }
         
-        // Start timer when team selected in tiebreaker!
-              });
+      });
       buttonsGrid.appendChild(btn);
     });
   } else {
@@ -3017,9 +3002,7 @@ function openQuestionModal(cId, q) {
     document.getElementById('powerup-reveal-panel').classList.add('hidden');
     showQuestionContent(cId, q);
     
-    // Normal timer start (unless it's tiebreaker where it starts after team selection)
-    if (cId !== 'c-tiebreaker') {
-          }
+
   }
 }
 
@@ -5668,23 +5651,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const timerEl = document.getElementById('settings-timer-duration');
-  if (timerEl) {
-    timerEl.addEventListener('change', (e) => {
-      let val = parseInt(e.target.value, 10);
-      if (isNaN(val) || val < 1) val = 1;
-      db.settings.timerDuration = val;
-      saveDB();
-    });
-  }
 
-  const enableTimerEl = document.getElementById('settings-enable-timer');
-  if (enableTimerEl) {
-    enableTimerEl.addEventListener('change', (e) => {
-      db.settings.enableTimer = e.target.checked;
-      saveDB();
-    });
-  }
 
 
   const highContrastEl = document.getElementById('settings-high-contrast');
