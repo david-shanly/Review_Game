@@ -193,8 +193,8 @@
                     <option value="none">None</option>
                     <option value="double_points">🌟 Double Points</option>
                     <option value="steal_shield">🛡️ Steal Shield</option>
-                    <option value="fifty_fifty">🤝 50/50 Help</option>
-                    <option value="free_pass">🎟️ Free Pass</option>
+                    <option value="second_chance">🔄 Second Chance</option>
+                    <option value="safety_net">🩹 Safety Net</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -416,8 +416,7 @@
         <!-- Submit / Pass / Cancel Buttons -->
         <div class="modal-footer">
           <button id="btn-modal-cancel" class="btn btn-cancel">Cancel Question</button>
-          <button id="btn-modal-fifty-fifty" class="btn btn-secondary hidden" style="background: rgba(167, 139, 250, 0.18); border-color: rgba(167, 139, 250, 0.45); color: var(--color-team4); display: inline-flex; align-items: center; justify-content: center; gap: 6px;">50/50</button>
-          <button id="btn-modal-free-pass" class="btn btn-secondary hidden" style="background: rgba(251, 165, 116, 0.18); border-color: rgba(251, 165, 116, 0.45); color: var(--color-team5); display: inline-flex; align-items: center; justify-content: center; gap: 6px;">Free Pass</button>
+
           <div class="modal-footer-right">
             <button id="btn-modal-pass" class="btn btn-secondary">PASS</button>
             <button id="btn-modal-submit" class="btn btn-primary">SUBMIT</button>
@@ -466,8 +465,8 @@
               <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; color: var(--color-text-light); margin: 0;">
                 <li>🌟 <strong>Double Points</strong>: Doubles the point value of the question, giving you a chance to leap ahead!</li>
                 <li>🛡️ <strong>Steal Shield</strong>: Protects your score! If you get the question wrong, the other team cannot steal the points.</li>
-                <li>🤝 <strong>50/50 Help</strong>: Discards two incorrect answers on Multiple Choice Questions (MCQ) to narrow down the choices.</li>
-                <li>🎟️ <strong>Free Pass</strong>: Lets you skip the question with zero penalty, keeping your turn intact to select another card.</li>
+                <li>🔄 <strong>Second Chance</strong>: Gives your team a free second attempt if your first answer is incorrect.</li>
+                <li>🩹 <strong>Safety Net</strong>: If you answer wrong, you lose 0 points instead of the normal 50% point deduction.</li>
               </ul>
             </div>
           </div>
@@ -734,13 +733,14 @@
                     <select id="settings-powerup-mode" class="modern-select">
                       <option value="random" selected>🎲 Random Mode</option>
                       <option value="manual">✍️ Manual (per-question)</option>
+                      <option value="none">❌ Disabled (No Power-ups)</option>
                     </select>
                   </div>
                   <div class="form-group" style="margin-top: 10px;" id="powerup-count-group">
                     <label for="settings-powerup-count">Number of Random Power-ups</label>
                     <input type="number" id="settings-powerup-count" class="modern-input" value="3" min="0" max="12">
                     <span style="font-size: 0.7rem; color: var(--color-text-muted); display: block; margin-top: 4px;">
-                      Capped at total questions. Cycles through the 4 types (Double Points, Steal Shield, 50/50, Free Pass) if count exceeds 4.
+                      Capped at total questions. Cycles through the 4 types (Double Points, Steal Shield, Second Chance, Safety Net) if count exceeds 4.
                     </span>
                   </div>
                 </div>

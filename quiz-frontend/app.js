@@ -102,11 +102,12 @@ let playState = {
   stats: {},           // { teamIndex: { correct, attempts } }
   powerups: {},
   powerupUsed: {
-    fiftyFiftyUsed: false,
+    secondChanceActive: false,
+    secondChanceUsed: false,
+    safetyNetActive: false,
     stealShieldActive: false,
     doublePointsActive: false,
     extraTimeActive: false,
-    freePassUsed: false,
     revealedCells: {}
   },
   practiceMode: false,
@@ -1250,11 +1251,12 @@ function loadGameState() {
         playState.cancelLocked = parsed.cancelLocked ?? false;
         playState.powerups = parsed.powerups ?? {};
         playState.powerupUsed = parsed.powerupUsed ?? {
-          fiftyFiftyUsed: false,
+          secondChanceActive: false,
+          secondChanceUsed: false,
+          safetyNetActive: false,
           stealShieldActive: false,
           doublePointsActive: false,
           extraTimeActive: false,
-          freePassUsed: false,
           revealedCells: {}
         };
         playState.practiceMode = parsed.practiceMode ?? false;
@@ -2757,31 +2759,7 @@ function showQuestionContent(cId, q) {
     }
   }
 
-  // 50/50 Power-up button visibility
-  const btnFifty = document.getElementById('btn-modal-fifty-fifty');
-  if (btnFifty) {
-    if (playState.powerups[cId] === 'fifty_fifty' && (q.questionType || q.type) === 'mcq' && !playState.powerupUsed.fiftyFiftyUsed) {
-      btnFifty.classList.remove('hidden');
-      btnFifty.disabled = false;
-      btnFifty.style.opacity = '1';
-      btnFifty.style.cursor = 'pointer';
-    } else {
-      btnFifty.classList.add('hidden');
-    }
-  }
 
-  // Free Pass Power-up button visibility
-  const btnFreePass = document.getElementById('btn-modal-free-pass');
-  if (btnFreePass) {
-    if (playState.powerups[cId] === 'free_pass' && !playState.powerupUsed.freePassUsed) {
-      btnFreePass.classList.remove('hidden');
-      btnFreePass.disabled = false;
-      btnFreePass.style.opacity = '1';
-      btnFreePass.style.cursor = 'pointer';
-    } else {
-      btnFreePass.classList.add('hidden');
-    }
-  }
   
   fitModalText();
   requestAnimationFrame(fitModalText);
@@ -2865,8 +2843,9 @@ function openQuestionModal(cId, q) {
   // Reset active powerups
   playState.powerupUsed.doublePointsActive = false;
   playState.powerupUsed.stealShieldActive = false;
-  playState.powerupUsed.fiftyFiftyUsed = false;
-  playState.powerupUsed.freePassUsed = false;
+  playState.powerupUsed.secondChanceActive = false;
+  playState.powerupUsed.secondChanceUsed = false;
+  playState.powerupUsed.safetyNetActive = false;
 
   // Double Points Power-up modifier
   if (cId !== 'c-tiebreaker' && playState.powerups[cId] === 'double_points') {
@@ -2879,6 +2858,16 @@ function openQuestionModal(cId, q) {
   // Steal Shield Power-up modifier
   if (cId !== 'c-tiebreaker' && playState.powerups[cId] === 'steal_shield') {
     playState.powerupUsed.stealShieldActive = true;
+  }
+
+  // Second Chance Power-up activation
+  if (cId !== 'c-tiebreaker' && playState.powerups[cId] === 'second_chance') {
+    playState.powerupUsed.secondChanceActive = true;
+  }
+
+  // Safety Net Power-up activation
+  if (cId !== 'c-tiebreaker' && playState.powerups[cId] === 'safety_net') {
+    playState.powerupUsed.safetyNetActive = true;
   }
 
   const overlay = document.getElementById('modal-overlay');
@@ -2989,18 +2978,14 @@ function openQuestionModal(cId, q) {
       revealIcon.textContent = '🛡️';
       revealName.textContent = 'STEAL SHIELD';
       revealDesc.textContent = 'Prevents the opposing team from stealing if you get it wrong!';
-    } else if (pType === 'fifty_fifty') {
-      revealIcon.textContent = '🤝';
-      revealName.textContent = '50/50 HELP';
-      revealDesc.textContent = 'Adds a 50/50 button to remove two incorrect options!';
-    } else if (pType === 'extra_time') {
-      revealIcon.textContent = '⏱️';
-      revealName.textContent = 'EXTRA TIME';
-      revealDesc.textContent = 'Adds +15 seconds to the countdown timer for this question!';
-    } else if (pType === 'free_pass') {
-      revealIcon.textContent = '🎟️';
-      revealName.textContent = 'FREE PASS';
-      revealDesc.textContent = 'Skip this question with NO points penalty, and keep your turn!';
+    } else if (pType === 'second_chance') {
+      revealIcon.textContent = '🔄';
+      revealName.textContent = 'SECOND CHANCE';
+      revealDesc.textContent = 'Gives your team a free second attempt if your first answer is incorrect!';
+    } else if (pType === 'safety_net') {
+      revealIcon.textContent = '🩹';
+      revealName.textContent = 'SAFETY NET';
+      revealDesc.textContent = 'If you answer wrong, you lose 0 points instead of the normal 50% point deduction!';
     }
     
     parseEmojis(powerupPanel);
@@ -3407,9 +3392,13 @@ function applyScore(teamIndex, points, isPenalty = false, bypassStateCheck = fal
   const teamName = playState.teams[teamIndex].name;
 
   if (isPenalty) {
-    playState.teams[teamIndex].score -= points;
-    // Show red danger alert immediately
-    triggerAlert(teamName, `-${points} Points`, 'lose');
+    if (points === 0) {
+      triggerAlert(teamName, `0 Points Lost (Safety Net)`, 'info');
+    } else {
+      playState.teams[teamIndex].score -= points;
+      // Show red danger alert immediately
+      triggerAlert(teamName, `-${points} Points`, 'lose');
+    }
   } else {
     playState.teams[teamIndex].score += points;
     // Show green success alert immediately
@@ -3467,7 +3456,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCsvTemplate.addEventListener('click', () => {
       const csvContent = "Question Number,Type,Question,Answer,Option A,Option B,Option C,Option D,Points,Powerup\n" +
                          "1,mcq,What did God use to make Eve?,A rib of Adam,A rib of Adam,Dust of the earth,A clay mold,A breath of life,200,double_points\n" +
-                         "2,fill_blank,David defeated Goliath using a stone and a __________.,sling,,,,,300,free_pass\n" +
+                         "2,fill_blank,David defeated Goliath using a stone and a __________.,sling,,,,,300,safety_net\n" +
                          "3,short_answer,Who was swallowed by a great fish?,Jonah,,,,,500,none\n" +
                          "Tiebreaker,short_answer,How many days did Jesus fast in the wilderness?,40 days,,,,,1000,none";
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -3546,9 +3535,9 @@ document.addEventListener('DOMContentLoaded', () => {
             let powerupVal = powerupRaw.trim().toLowerCase();
             if (powerupVal.includes('double')) powerupVal = 'double_points';
             else if (powerupVal.includes('shield') || powerupVal.includes('steal')) powerupVal = 'steal_shield';
-            else if (powerupVal.includes('fifty') || powerupVal.includes('50')) powerupVal = 'fifty_fifty';
+            else if (powerupVal.includes('fifty') || powerupVal.includes('50') || powerupVal.includes('chance') || powerupVal.includes('second')) powerupVal = 'second_chance';
             else if (powerupVal.includes('time') || powerupVal.includes('extra')) powerupVal = 'extra_time';
-            else if (powerupVal.includes('free') || powerupVal.includes('pass')) powerupVal = 'free_pass';
+            else if (powerupVal.includes('free') || powerupVal.includes('pass') || powerupVal.includes('safety') || powerupVal.includes('net')) powerupVal = 'safety_net';
             else powerupVal = 'none';
             
             let options = [];
@@ -3991,6 +3980,53 @@ function showEmojiFeedback(isCorrect, q, callback) {
     }
 
   } else {
+    // Intercept with Second Chance if active and not yet used, and it's the original team's attempt (teamsAttemptedCount === 0)
+    if (cId !== 'c-tiebreaker' && playState.powerupUsed.secondChanceActive && !playState.powerupUsed.secondChanceUsed && playState.teamsAttemptedCount === 0) {
+      playState.powerupUsed.secondChanceUsed = true;
+      
+      playTone(523.25, 'sine', 0.12, 0.25, 0); // C5
+      playTone(659.25, 'sine', 0.15, 0.2, 0.12); // E5
+      
+      triggerAlert("SECOND CHANCE", "Second Chance activated! Try again.", "gain");
+      
+      // Reset inputs so the team can attempt again
+      if ((q.questionType || q.type) === 'mcq') {
+        const selBtn = document.querySelector('.option-btn.selected');
+        document.querySelectorAll('.option-btn').forEach(btn => {
+          if (selBtn && btn === selBtn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.3';
+            btn.style.cursor = 'not-allowed';
+            btn.classList.add('disabled-second-chance');
+          } else {
+            btn.disabled = false;
+            btn.style.opacity = '';
+            btn.style.cursor = '';
+            btn.classList.remove('disabled-second-chance');
+          }
+          btn.classList.remove('selected');
+        });
+      } else {
+        const fillInput = document.getElementById('modal-fill-input');
+        if (fillInput) {
+          fillInput.disabled = false;
+          fillInput.style.cursor = '';
+          fillInput.style.borderColor = '';
+          fillInput.value = '';
+          fillInput.focus();
+        }
+      }
+      
+      const turnStatus = document.getElementById('modal-turn-status');
+      turnStatus.textContent = "Second Chance! Try Again";
+      turnStatus.style.color = "var(--color-gold)";
+      turnStatus.style.borderColor = "var(--color-gold)";
+      
+      enableModalActionButtons();
+      saveGameState();
+      return;
+    }
+
     if (playState.stats[teamIndex]) playState.stats[teamIndex].attempts++;
 
     if (cId === 'c-tiebreaker') {
@@ -4074,7 +4110,11 @@ function showEmojiFeedback(isCorrect, q, callback) {
       // Normal question wrong answer logic
       let penalty = ptsToAward;
       if (playState.teamsAttemptedCount === 0) {
-        penalty = Math.floor(ptsToAward * 0.5);
+        if (playState.powerupUsed.safetyNetActive) {
+          penalty = 0;
+        } else {
+          penalty = Math.floor(ptsToAward * 0.5);
+        }
       }
 
       const isExhausted = playState.practiceMode || (playState.teamsAttemptedCount + 1 >= playState.teams.length) || playState.powerupUsed.stealShieldActive;
@@ -4375,13 +4415,19 @@ function setupTeamsFromInputs() {
 function assignRandomPowerups() {
   playState.powerups = {};
   playState.powerupUsed = {
-    fiftyFiftyUsed: false,
+    secondChanceActive: false,
+    secondChanceUsed: false,
+    safetyNetActive: false,
     stealShieldActive: false,
     doublePointsActive: false,
     extraTimeActive: false,
-    freePassUsed: false,
     revealedCells: {}
   };
+  
+  if (db.settings.powerupMode === 'none') {
+    console.log("Power-ups are disabled (none).");
+    return;
+  }
   
   if (db.settings.powerupMode === 'manual') {
     db.questions.forEach(q => {
@@ -4406,7 +4452,7 @@ function assignRandomPowerups() {
     }
     
     // Choose from active power-ups and shuffle them
-    const powerupTypes = ['double_points', 'steal_shield', 'fifty_fifty', 'free_pass'];
+    const powerupTypes = ['double_points', 'steal_shield', 'second_chance', 'safety_net'];
     for (let i = powerupTypes.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [powerupTypes[i], powerupTypes[j]] = [powerupTypes[j], powerupTypes[i]];
@@ -5270,77 +5316,6 @@ document.getElementById('btn-modal-pass').addEventListener('click', () => {
   if (!canInteract()) return;
   disableModalActionButtons();
   handlePass();
-});
-
-document.getElementById('btn-modal-fifty-fifty').addEventListener('click', () => {
-  if (!canInteract() || !canAnswer()) return;
-  const q = playState.currentQuestion;
-  if (!q || (q.questionType || q.type) !== 'mcq') return;
-
-  playSound('click');
-  playState.powerupUsed.fiftyFiftyUsed = true;
-  document.getElementById('btn-modal-fifty-fifty').disabled = true;
-  document.getElementById('btn-modal-fifty-fifty').style.opacity = '0.5';
-
-  const optBtns = Array.from(document.querySelectorAll('.option-btn'));
-  const correctBtn = optBtns.find(btn => {
-    const valSpan = btn.querySelector('.option-val');
-    return valSpan && valSpan.textContent === q.answer;
-  });
-
-  const incorrectBtns = optBtns.filter(btn => btn !== correctBtn);
-  for (let i = incorrectBtns.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [incorrectBtns[i], incorrectBtns[j]] = [incorrectBtns[j], incorrectBtns[i]];
-  }
-
-  incorrectBtns.slice(0, 2).forEach(btn => {
-    btn.disabled = true;
-    btn.style.opacity = '0.2';
-    btn.style.cursor = 'not-allowed';
-    btn.classList.add('disabled-fifty-fifty');
-  });
-
-  triggerAlert("POWER-UP", "50/50 Help! Two wrong options removed.", "gain");
-});
-
-document.getElementById('btn-modal-free-pass').addEventListener('click', () => {
-  if (!canInteract() || !canAnswer()) return;
-  const q = playState.currentQuestion;
-  const cId = playState.currentCellId;
-  if (!q || !cId) return;
-
-  playSound('pass');
-  playState.powerupUsed.freePassUsed = true;
-  document.getElementById('btn-modal-free-pass').disabled = true;
-  document.getElementById('btn-modal-free-pass').style.opacity = '0.5';
-
-    transitionState('RESOLVED');
-  disableQuestionInputs();
-
-  playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
-
-  const correctTextEl = document.getElementById('modal-correct-answer-text');
-  updateTextAndCheckUnicode(correctTextEl, q.correctAnswer || q.answer);
-  document.getElementById('modal-reveal-panel').classList.remove('hidden');
-  fitModalText();
-
-  const turnStatus = document.getElementById('modal-turn-status');
-  turnStatus.textContent = "Free Pass Used!";
-  turnStatus.style.color = "var(--color-team5)";
-  turnStatus.style.borderColor = "var(--color-team5)";
-
-  playState.cancelLocked = true;
-  const btnCancel = document.getElementById('btn-modal-cancel');
-  if (btnCancel) btnCancel.disabled = true;
-
-  saveGameState();
-  renderGameBoard();
-  renderAdminGrid();
-  enableNextButton();
-  parseEmojis(document.getElementById('modal-overlay'));
-
-  triggerAlert("POWER-UP", "Free Pass used! Question skipped, team turn kept.", "gain");
 });
 
 document.getElementById('btn-modal-submit').addEventListener('click', () => {

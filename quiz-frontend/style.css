@@ -5304,16 +5304,9 @@ img.emoji {
   background: #475569 !important;
 }
 
-/* 50/50 Help */
-#btn-modal-fifty-fifty::after {
-  content: "🤝";
-  background: #7c3aed !important;
-}
-
-/* Free Pass */
-#btn-modal-free-pass::after {
-  content: "🎟️";
-  background: #f97316 !important;
+/* Disabled Option after Second Chance */
+.option-btn.disabled-second-chance {
+  pointer-events: none !important;
 }
 
 /* PASS Question */
