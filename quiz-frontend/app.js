@@ -5821,10 +5821,7 @@ if (savedTheme) {
 async function initApp() {
   await loadDB();
 
-  // Clear any existing active gameplay state on load/reload to always start fresh on the dashboard
-  localStorage.removeItem('review_game_playstate');
-
-  // Explicitly reset playState variables to default values
+  // Explicitly reset playState variables to default values first
   playState.phase = 'live';
   playState.gameState = 'IDLE';
   playState.teams = [];
@@ -5835,6 +5832,9 @@ async function initApp() {
   playState.currentCellId = null;
   playState.currentQuestion = null;
   playState.stats = {};
+
+  // Try to load any existing active gameplay state from localStorage (Local Storage Protection)
+  loadGameState();
 
   renderAdminGrid();
   renderGameBoard();
