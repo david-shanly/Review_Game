@@ -2824,6 +2824,15 @@ function openQuestionModal(cId, q) {
   playState.teamsAttemptedCount = 0;
   playState.originalTeamIndex = playState.currentTeamIndex;
   playState.cancelLocked = false;
+
+  // Sync manual powerup from database if in manual powerup mode
+  if (db.settings.powerupMode === 'manual') {
+    if (q && q.powerup && q.powerup !== 'none') {
+      playState.powerups[cId] = q.powerup;
+    } else {
+      delete playState.powerups[cId];
+    }
+  }
   
   // Reset active powerups
   playState.powerupUsed.doublePointsActive = false;
@@ -5503,6 +5512,17 @@ document.getElementById('question-form').addEventListener('submit', async e => {
   if (existIdx !== -1) db.questions[existIdx] = qObj;
   else db.questions.push(qObj);
 
+  // Update playState.powerups if in manual mode
+  if (db.settings.powerupMode === 'manual') {
+    const qnId = cellId(qnIndex);
+    if (powerup && powerup !== 'none') {
+      playState.powerups[qnId] = powerup;
+    } else {
+      delete playState.powerups[qnId];
+    }
+    saveGameState();
+  }
+
   // Auto-adjust total questions if a higher index is saved
   const qNum = parseInt(qnIndex, 10);
   if (!isNaN(qNum) && qNum > db.settings.totalQuestions) {
@@ -5525,6 +5545,13 @@ document.getElementById('btn-delete-question').addEventListener('click', async (
   const rawId = selectedAdminCellId.toString().replace('qn', '');
   const qnIndex = rawId === 'tiebreaker' ? 'tiebreaker' : parseInt(rawId, 10);
   db.questions = db.questions.filter(q => q.qnIndex !== qnIndex);
+
+  // Clean up playState.powerups if in manual mode
+  if (db.settings.powerupMode === 'manual') {
+    const qnId = cellId(qnIndex);
+    delete playState.powerups[qnId];
+    saveGameState();
+  }
 
   await deleteVideoFromIndexedDB(qnIndex);
   await deleteVideoFromIndexedDB('q-' + qnIndex + '-correct');
@@ -5914,6 +5941,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (countGroup) {
         countGroup.style.display = e.target.value === 'random' ? 'block' : 'none';
       }
+      assignRandomPowerups();
+      saveGameState();
       saveDB();
     });
   }
@@ -5929,6 +5958,10 @@ document.addEventListener('DOMContentLoaded', () => {
         powerupCountEl.value = val;
       }
       db.settings.randomPowerupsCount = val;
+      if (db.settings.powerupMode === 'random') {
+        assignRandomPowerups();
+        saveGameState();
+      }
       saveDB();
     });
   }
