@@ -3487,6 +3487,23 @@ document.addEventListener('DOMContentLoaded', () => {
           
           const powerupIdx = headers.indexOf('powerup');
           
+          const subtractOnWrongIdx = headers.indexOf('subtract on wrong');
+          const playVideoFeedbackIdx = headers.indexOf('play video feedback');
+          const playEmojiFeedbackIdx = headers.indexOf('play emoji feedback');
+          const enableTiebreakerIdx = headers.indexOf('enable tiebreaker');
+          const showCategoriesIdx = headers.indexOf('show categories');
+          const fontSelectedIdx = headers.indexOf('font selected');
+          const team1NameIdx = headers.indexOf('team 1 name');
+          const team1LogoIdx = headers.indexOf('team 1 logo');
+          const team2NameIdx = headers.indexOf('team 2 name');
+          const team2LogoIdx = headers.indexOf('team 2 logo');
+          const cat1Idx = headers.indexOf('category 1');
+          const cat2Idx = headers.indexOf('category 2');
+          const cat3Idx = headers.indexOf('category 3');
+          const cat4Idx = headers.indexOf('category 4');
+          const cat5Idx = headers.indexOf('category 5');
+          const cat6Idx = headers.indexOf('category 6');
+          
           let colOffset = 0;
           if (typeIdx === -1) {
             const firstCell = csvData[1] && csvData[1][0] ? csvData[1][0].trim() : '';
@@ -3566,6 +3583,59 @@ document.addEventListener('DOMContentLoaded', () => {
           db.settings.gridCols = getDefaultColumnsForQuestionsCount(db.settings.totalQuestions);
           db.settings.showCategories = false;
           db.settings.activePreset = '';
+          
+          // Extract settings from the first data row if present (Backwards Compatible)
+          const firstRow = csvData[1];
+          if (firstRow) {
+            if (subtractOnWrongIdx !== -1 && firstRow[subtractOnWrongIdx]) {
+              db.settings.subtractOnWrong = firstRow[subtractOnWrongIdx].trim().toLowerCase() === 'true';
+            }
+            if (playVideoFeedbackIdx !== -1 && firstRow[playVideoFeedbackIdx]) {
+              db.settings.playVideoFeedback = firstRow[playVideoFeedbackIdx].trim().toLowerCase() === 'true';
+            }
+            if (playEmojiFeedbackIdx !== -1 && firstRow[playEmojiFeedbackIdx]) {
+              db.settings.playEmojiFeedback = firstRow[playEmojiFeedbackIdx].trim().toLowerCase() === 'true';
+            }
+            if (enableTiebreakerIdx !== -1 && firstRow[enableTiebreakerIdx]) {
+              db.settings.enableTieBreaker = firstRow[enableTiebreakerIdx].trim().toLowerCase() === 'true';
+            }
+            if (showCategoriesIdx !== -1 && firstRow[showCategoriesIdx]) {
+              db.settings.showCategories = firstRow[showCategoriesIdx].trim().toLowerCase() === 'true';
+            }
+            if (fontSelectedIdx !== -1 && firstRow[fontSelectedIdx]) {
+              db.settings.fontSelected = firstRow[fontSelectedIdx].trim();
+            }
+            
+            // Extract teams
+            if (db.teams && db.teams[0]) {
+              if (team1NameIdx !== -1 && firstRow[team1NameIdx]) {
+                db.teams[0].name = firstRow[team1NameIdx].trim();
+              }
+              if (team1LogoIdx !== -1 && firstRow[team1LogoIdx]) {
+                db.teams[0].logo = firstRow[team1LogoIdx].trim();
+              }
+            }
+            if (db.teams && db.teams[1]) {
+              if (team2NameIdx !== -1 && firstRow[team2NameIdx]) {
+                db.teams[1].name = firstRow[team2NameIdx].trim();
+              }
+              if (team2LogoIdx !== -1 && firstRow[team2LogoIdx]) {
+                db.teams[1].logo = firstRow[team2LogoIdx].trim();
+              }
+            }
+            
+            // Extract categories
+            const cats = [];
+            const catIndices = [cat1Idx, cat2Idx, cat3Idx, cat4Idx, cat5Idx, cat6Idx];
+            catIndices.forEach(idx => {
+              if (idx !== -1 && firstRow[idx] !== undefined && firstRow[idx] !== null && firstRow[idx].trim() !== '') {
+                cats.push(firstRow[idx].trim());
+              }
+            });
+            if (cats.length > 0) {
+              db.settings.categories = cats;
+            }
+          }
           
           fallbackSaveDB();
           hydrateControlCenter(db.settings);
@@ -4994,39 +5064,228 @@ setupDefaultTeamToggle(1, 'admin-team2-default', 'admin-team2-name', 'admin-team
 
 async function saveDatabaseToFileHandle(handle, data) {
   const writable = await handle.createWritable();
-  await writable.write(JSON.stringify(data, null, 2));
+  const content = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+  await writable.write(content);
   await writable.close();
   triggerAlert("System", "Database saved directly to file!", "gain");
   updateDashboardStatus();
 }
 
-// Export JSON
-document.getElementById('btn-export-json').addEventListener('click', async () => {
+function showExportFormatSelector(onSelect) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.style.zIndex = '1000000';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100%';
+  overlay.style.height = '100%';
+  overlay.style.backgroundColor = 'rgba(7, 17, 43, 0.85)';
+  overlay.style.backdropFilter = 'blur(10px)';
+  
+  const content = document.createElement('div');
+  content.className = 'modal-content glass-panel animate-zoom';
+  content.style.maxWidth = '420px';
+  content.style.padding = '30px';
+  content.style.textAlign = 'center';
+  content.style.display = 'flex';
+  content.style.flexDirection = 'column';
+  content.style.gap = '20px';
+  content.style.borderRadius = '24px';
+  content.style.border = '2px solid rgba(244, 196, 48, 0.25)';
+  content.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.4)';
+  
+  const title = document.createElement('h3');
+  title.textContent = 'EXPORT QUIZ DATABASE';
+  title.style.fontFamily = 'var(--font-display)';
+  title.style.color = 'var(--color-gold)';
+  title.style.margin = '0';
+  title.style.fontSize = '1.6rem';
+  title.style.letterSpacing = '1.5px';
+  title.style.fontWeight = 'bold';
+  
+  const desc = document.createElement('p');
+  desc.textContent = 'Choose your preferred file format for saving the entire quiz database, including all questions, answers, teams, and game settings:';
+  desc.style.fontSize = '0.9rem';
+  desc.style.color = '#cbd5e1';
+  desc.style.margin = '0';
+  desc.style.lineHeight = '1.4';
+  
+  const btnContainer = document.createElement('div');
+  btnContainer.style.display = 'flex';
+  btnContainer.style.flexDirection = 'column';
+  btnContainer.style.gap = '10px';
+  btnContainer.style.width = '100%';
+  
+  const btnJson = document.createElement('button');
+  btnJson.className = 'btn btn-primary';
+  btnJson.textContent = '💾 Export JSON (Full Backup)';
+  btnJson.style.width = '100%';
+  btnJson.style.padding = '12px';
+  btnJson.onclick = () => {
+    playSound('click');
+    document.body.removeChild(overlay);
+    onSelect('json');
+  };
+  
+  const btnCsv = document.createElement('button');
+  btnCsv.className = 'btn btn-secondary';
+  btnCsv.textContent = '📊 Export CSV (Excel Compatible)';
+  btnCsv.style.width = '100%';
+  btnCsv.style.padding = '12px';
+  btnCsv.onclick = () => {
+    playSound('click');
+    document.body.removeChild(overlay);
+    onSelect('csv');
+  };
+  
+  const btnCancel = document.createElement('button');
+  btnCancel.className = 'btn btn-secondary';
+  btnCancel.textContent = 'Cancel';
+  btnCancel.style.width = '100%';
+  btnCancel.style.padding = '12px';
+  btnCancel.style.marginTop = '10px';
+  btnCancel.style.borderColor = 'rgba(255,255,255,0.15)';
+  btnCancel.onclick = () => {
+    playSound('click');
+    document.body.removeChild(overlay);
+  };
+  
+  btnContainer.appendChild(btnJson);
+  btnContainer.appendChild(btnCsv);
+  btnContainer.appendChild(btnCancel);
+  content.appendChild(title);
+  content.appendChild(desc);
+  content.appendChild(btnContainer);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
+
+function generateCSVContent() {
+  const headers = [
+    "Question Number", "Type", "Question", "Answer", 
+    "Option A", "Option B", "Option C", "Option D", 
+    "Points", "Powerup", "Subtract On Wrong", "Play Video Feedback", 
+    "Play Emoji Feedback", "Enable Tiebreaker", "Show Categories", 
+    "Font Selected", "Team 1 Name", "Team 1 Logo", 
+    "Team 2 Name", "Team 2 Logo", 
+    "Category 1", "Category 2", "Category 3", "Category 4", "Category 5", "Category 6"
+  ];
+  
+  const rows = [headers.join(',')];
+  
+  const escapeCSV = val => {
+    if (val === undefined || val === null) return '';
+    let str = String(val);
+    if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+      str = '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+  };
+  
+  db.questions.forEach(q => {
+    const isTiebreaker = q.qnIndex === 'tiebreaker';
+    const optA = q.options && q.options[0] ? q.options[0] : '';
+    const optB = q.options && q.options[1] ? q.options[1] : '';
+    const optC = q.options && q.options[2] ? q.options[2] : '';
+    const optD = q.options && q.options[3] ? q.options[3] : '';
+    
+    const row = [
+      isTiebreaker ? 'Tiebreaker' : q.qnIndex,
+      q.type || q.questionType,
+      q.question,
+      q.answer,
+      optA,
+      optB,
+      optC,
+      optD,
+      q.points,
+      q.powerup || 'none',
+      db.settings.subtractOnWrong ? 'true' : 'false',
+      db.settings.playVideoFeedback ? 'true' : 'false',
+      db.settings.playEmojiFeedback ? 'true' : 'false',
+      db.settings.enableTieBreaker ? 'true' : 'false',
+      db.settings.showCategories ? 'true' : 'false',
+      db.settings.fontSelected || 'Outfit',
+      db.teams && db.teams[0] ? db.teams[0].name : '',
+      db.teams && db.teams[0] ? db.teams[0].logo || '' : '',
+      db.teams && db.teams[1] ? db.teams[1].name : '',
+      db.teams && db.teams[1] ? db.teams[1].logo || '' : '',
+      db.settings.categories[0] || '',
+      db.settings.categories[1] || '',
+      db.settings.categories[2] || '',
+      db.settings.categories[3] || '',
+      db.settings.categories[4] || '',
+      db.settings.categories[5] || ''
+    ];
+    
+    rows.push(row.map(escapeCSV).join(','));
+  });
+  
+  return rows.join('\n');
+}
+
+// Export DB
+document.getElementById('btn-export-json').addEventListener('click', () => {
   playSound('click');
-  try {
-    if (window.showSaveFilePicker) {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: `review_game_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.json`,
-        types: [{ description: 'JSON File', accept: { 'application/json': ['.json'] } }]
-      });
-      await saveDatabaseToFileHandle(handle, db);
-      window.customDatabaseFileHandle = handle;
-    } else {
-      throw new Error("File System Access API not supported");
-    }
-  } catch (err) {
-    if (err.name !== 'AbortError') {
-      console.warn("Fallback to download API", err);
-      const a = document.createElement('a');
+  showExportFormatSelector(async (format) => {
+    try {
       const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-      a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(db, null, 2));
-      a.download = `review_game_${ts}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      if (format === 'json') {
+        if (window.showSaveFilePicker) {
+          try {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: `review_game_${ts}.json`,
+              types: [{ description: 'JSON File', accept: { 'application/json': ['.json'] } }]
+            });
+            await saveDatabaseToFileHandle(handle, db);
+            window.customDatabaseFileHandle = handle;
+          } catch (err) {
+            if (err.name !== 'AbortError') throw err;
+          }
+        } else {
+          throw new Error("File System Access API not supported");
+        }
+      } else if (format === 'csv') {
+        const csvContent = generateCSVContent();
+        if (window.showSaveFilePicker) {
+          try {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: `review_game_${ts}.csv`,
+              types: [{ description: 'CSV File', accept: { 'text/csv': ['.csv'] } }]
+            });
+            await saveDatabaseToFileHandle(handle, csvContent);
+          } catch (err) {
+            if (err.name !== 'AbortError') throw err;
+          }
+        } else {
+          throw new Error("File System Access API not supported");
+        }
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.warn("Fallback to download API", err);
+        const a = document.createElement('a');
+        const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        if (format === 'json') {
+          a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(db, null, 2));
+          a.download = `review_game_${ts}.json`;
+        } else {
+          const csvContent = generateCSVContent();
+          a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+          a.download = `review_game_${ts}.csv`;
+        }
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
     }
-  }
+  });
 });
+
 
 // Import JSON
 // Import JSON
@@ -5078,48 +5337,6 @@ document.getElementById('import-json-file').addEventListener('change', (e) => {
   e.target.value = '';
 });
 
-// Save Settings
-document.getElementById('btn-save-settings')?.addEventListener('click', () => {
-  playSound('click');
-  saveDB();
-
-  // Save to default_quiz.json on local server
-  fetch('/api/save-db', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(db, null, 2)
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      triggerAlert('SYSTEM', 'Saved to default quiz database!', 'gain');
-    } else {
-      triggerAlert('SYSTEM', 'Failed to save to server database file.', 'lose');
-    }
-  })
-  .catch(err => {
-    console.error('Failed to post to save-db:', err);
-    triggerAlert('SYSTEM', 'Failed to save to default quiz database.', 'lose');
-  });
-  
-  let revived = false;
-  if (playState && playState.answeredCells) {
-    Object.keys(playState.answeredCells).forEach(cId => {
-      if (playState.answeredCells[cId].cancelled) {
-        delete playState.answeredCells[cId];
-        revived = true;
-      }
-    });
-  }
-
-  applySelectedFont();
-  renderGameBoard();
-  renderAdminGrid();
-
-  if (revived) {
-    saveGameState();
-  }
-});
 
 // Reset game (not questions)
 document.getElementById('btn-reset-game').addEventListener('click', () => {
