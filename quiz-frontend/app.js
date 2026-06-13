@@ -5178,15 +5178,13 @@ function showExportFormatSelector(onSelect) {
     return btn;
   };
   
-  const btnJson = createRibbonButton('Export JSON', 'btn btn-primary', '💾', '#d97706', () => {
+  const btnJson = createRibbonButton('Export JSON', 'btn btn-secondary', '💾', '#475569', () => {
     playSound('click');
     closeSelector();
     onSelect('json');
   });
-  // Make the JSON button gold/yellow (primary) and ensure white text is used
-  btnJson.style.color = 'white';
   
-  const btnCsv = createRibbonButton('Export CSV', 'btn btn-danger', '📊', '#b91c1c', () => {
+  const btnCsv = createRibbonButton('Export CSV', 'btn btn-secondary', '📊', '#475569', () => {
     playSound('click');
     closeSelector();
     onSelect('csv');
