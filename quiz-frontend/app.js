@@ -872,6 +872,13 @@ function renderCategoryHeaders() {
 }
 
 function hydrateControlCenter(settings) {
+  // If there are custom power-ups, default mode should be manual (unless set to none)
+  const hasCustomPowerups = db.questions.some(q => q.powerup && q.powerup !== 'none');
+  if (hasCustomPowerups && settings.powerupMode !== 'manual' && settings.powerupMode !== 'none') {
+    settings.powerupMode = 'manual';
+    saveDB();
+  }
+
   const gridFontEl = document.getElementById('settings-grid-font');
   if (gridFontEl) gridFontEl.value = settings.gridFont ?? 'Fredoka One';
   
@@ -4492,7 +4499,10 @@ function assignRandomPowerups() {
     return;
   }
   
-  if (db.settings.powerupMode === 'manual') {
+  const hasCustomPowerups = db.questions.some(q => q.powerup && q.powerup !== 'none');
+  const activeMode = (db.settings.powerupMode === 'manual' || hasCustomPowerups) ? 'manual' : 'random';
+  
+  if (activeMode === 'manual') {
     db.questions.forEach(q => {
       if (q.powerup && q.powerup !== 'none') {
         const qnId = cellId(q.qnIndex);
@@ -5511,6 +5521,11 @@ document.getElementById('question-form').addEventListener('submit', async e => {
 
   if (existIdx !== -1) db.questions[existIdx] = qObj;
   else db.questions.push(qObj);
+
+  // If the admin saved a custom power-up, automatically switch the mode to manual
+  if (powerup && powerup !== 'none') {
+    db.settings.powerupMode = 'manual';
+  }
 
   // Update playState.powerups if in manual mode
   if (db.settings.powerupMode === 'manual') {
