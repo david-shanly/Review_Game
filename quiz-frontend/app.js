@@ -876,9 +876,17 @@ function renderCategoryHeaders() {
 function hydrateControlCenter(settings) {
   // If there are custom power-ups, default mode should be manual (unless set to none)
   const hasCustomPowerups = db.questions.some(q => q.powerup && q.powerup !== 'none' && q.powerup !== '');
-  if (hasCustomPowerups && settings.powerupMode !== 'manual' && settings.powerupMode !== 'none') {
-    settings.powerupMode = 'manual';
-    saveDB();
+  if (hasCustomPowerups) {
+    if (settings.powerupMode !== 'manual' && settings.powerupMode !== 'none') {
+      settings.powerupMode = 'manual';
+      saveDB();
+    }
+  } else {
+    // If no custom power-ups exist, automatically fall back to random mode (unless set to none)
+    if (settings.powerupMode !== 'random' && settings.powerupMode !== 'none') {
+      settings.powerupMode = 'random';
+      saveDB();
+    }
   }
 
   const gridFontEl = document.getElementById('settings-grid-font');
@@ -5844,6 +5852,7 @@ document.getElementById('question-form').addEventListener('submit', async e => {
 
   db.settings.activePreset = '';
   saveDB();
+  hydrateControlCenter(db.settings);
   closeQuestionEditor();
   selectedAdminCellId = null;
   renderAdminGrid();
@@ -5870,6 +5879,7 @@ document.getElementById('btn-delete-question').addEventListener('click', async (
 
   db.settings.activePreset = '';
   saveDB();
+  hydrateControlCenter(db.settings);
   closeQuestionEditor();
   selectedAdminCellId = null;
   renderAdminGrid();
