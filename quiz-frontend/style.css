@@ -4002,7 +4002,8 @@ img.emoji {
 }
 .avatar-emoji-btn:hover {
   background: rgba(255, 255, 255, 0.1) !important;
-  transform: scale(1.15) !important;
+  /* Disable scaling to prevent overflow outside padding */
+  transform: none !important;
 }
 .avatar-emoji-btn.selected {
   border-color: var(--color-gold) !important;
@@ -4714,13 +4715,13 @@ img.emoji {
   list-style: none !important;
   display: flex !important;
   padding: 0 !important;
-  border-radius: 20px !important;
-  border: 1.5px solid var(--theme-border) !important;
+  border-radius: 16px !important;
+  border: 2px solid var(--theme-border) !important;
   position: relative !important;
   overflow: hidden !important;
   background: white !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.01) !important;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04), 0 2px 4px rgba(15, 23, 42, 0.01) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
   cursor: pointer !important;
   user-select: none !important;
   border-left: none !important; /* override default indicator bar */
@@ -4736,16 +4737,17 @@ img.emoji {
   border-color: #1e293b !important;
 }
 
-/* Hover animation exactly like grid cards */
+/* Hover animation exactly like grid cards but with clean neutral shadow */
 .control-center-card-summary:hover {
   transform: none !important;
-  box-shadow: 0 8px 20px var(--theme-glow), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.03) !important;
   border-color: var(--theme-color) !important;
   background: white !important;
 }
 
 [data-theme="dark"] .control-center-card-summary:hover {
   background: #0f172a !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Open accordion states */
@@ -4753,7 +4755,7 @@ img.emoji {
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  border-radius: 20px !important;
+  border-radius: 16px !important;
   overflow: visible !important; /* prevent parent clipping summary's rounded border on hover */
 }
 
@@ -4765,7 +4767,7 @@ img.emoji {
 
 .outer-card-details[open] .control-center-card-summary {
   border-color: var(--theme-color) !important;
-  border-bottom: 1.5px solid var(--theme-border) !important;
+  border-bottom: 2px solid var(--theme-border) !important;
   border-bottom-left-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
@@ -4773,13 +4775,17 @@ img.emoji {
 /* Outer card details expanded wrapper */
 .outer-card-details .premium-controls-wrapper {
   background: white !important;
-  border: 1.5px solid var(--theme-border) !important;
+  border: 2px solid var(--theme-border) !important;
   border-top: none !important;
-  border-bottom-left-radius: 20px !important;
-  border-bottom-right-radius: 20px !important;
-  padding: 20px !important;
+  border-bottom-left-radius: 16px !important;
+  border-bottom-right-radius: 16px !important;
+  padding: 16px !important;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03) !important;
   margin-top: 0 !important;
+}
+
+.outer-card-details[open] .premium-controls-wrapper {
+  border-color: var(--theme-color) !important;
 }
 
 [data-theme="dark"] .outer-card-details .premium-controls-wrapper {
@@ -4787,9 +4793,13 @@ img.emoji {
   border-color: #1e293b !important;
 }
 
-/* Scaled sizes to fit sidebar width beautifully */
+[data-theme="dark"] .outer-card-details[open] .premium-controls-wrapper {
+  border-color: var(--theme-color) !important;
+}
+
+/* Scaled sizes to fit sidebar width beautifully and compactly */
 .control-center-card-summary .card-qn-title {
-  font-size: 1.25rem !important;
+  font-size: 1.05rem !important;
   color: #1e293b !important;
 }
 
@@ -4798,30 +4808,30 @@ img.emoji {
 }
 
 .control-center-card-summary .card-outer-circle {
-  width: 44px !important;
-  height: 44px !important;
+  width: 34px !important;
+  height: 34px !important;
 }
 
 .control-center-card-summary .card-emoji {
-  font-size: 1.30rem !important;
+  font-size: 1.1rem !important;
 }
 
 .control-center-card-summary .card-inner-layout {
-  padding: 16px 20px !important;
+  padding: 10px 14px !important;
   height: auto !important;
 }
 
 .control-center-card-summary .card-corner-ribbon {
-  font-size: 0.8rem !important;
-  padding: 4px 12px !important;
-  border-top-left-radius: 10px !important;
+  font-size: 0.75rem !important;
+  padding: 1px 8px !important;
+  border-radius: 6px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  height: 24px !important;
+  height: 18px !important;
   position: absolute !important;
-  bottom: 0 !important;
-  right: 0 !important;
+  top: 6px !important;
+  right: 6px !important;
 }
 
 /* Premium Button Color Themes & Soft Gradients */
@@ -5435,18 +5445,18 @@ img.emoji {
 
 .premium-accordion-card:not(.outer-card-details) summary::after {
   position: absolute;
-  bottom: 0;
-  right: 0;
+  top: 6px;
+  right: 6px;
   color: white !important;
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 0.75rem;
-  padding: 4px 10px;
-  border-top-left-radius: 10px;
+  padding: 2px 8px;
+  border-radius: 6px;
   line-height: 1;
   pointer-events: none;
   z-index: 10;
-  box-shadow: -2px -2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 /* Game Rules (Blue) */

@@ -1,7 +1,7 @@
 {
   "settings": {
     "powerupMode": "random",
-    "randomPowerupsCount": 3,
+    "randomPowerupsCount": 4,
     "subtractOnWrong": true,
     "totalQuestions": 12,
     "displayMode": "QUESTION_POINTS",

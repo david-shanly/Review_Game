@@ -231,7 +231,7 @@
                 </div>
 
                 <div id="per-question-emoji-options" class="form-group"
-                  style="margin-top: 16px; padding: 12px; border: 1px solid var(--panel-border-active); border-radius: 8px; background: rgba(0,0,0,0.15);">
+                  style="margin-top: 16px; padding: 12px; border: 1px solid var(--panel-border-active); border-radius: 8px; background: var(--input-bg, rgba(255, 255, 255, 0.95));">
                   <label style="color: var(--color-gold); margin-bottom: 8px; display: block;">😀 Per-Question Custom
                     Emojis (Optional)</label>
 
@@ -925,9 +925,33 @@
             </ol>
           </div>
 
-          <!-- Section 6: ⚙️ Control Center & Database Operations -->
+          <!-- Section 6: ✨ Video & Emoji Feedback Systems -->
           <div class="guide-section-card">
-            <h3 class="guide-section-title">⚙️ 6. Control Center & File Backups</h3>
+            <h3 class="guide-section-title">✨ 6. Video & Emoji Feedback Systems</h3>
+            <p style="margin: 0; font-size: 0.9rem; opacity: 0.95;">
+              Make your quiz matches highly interactive with modern visual feedback systems. You can enable full-screen video animations and animated emoji bursts on team answers:
+            </p>
+            <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 10px 0 0 0; font-size: 0.9rem;">
+              <li><strong>🎉 Emoji Feedback</strong>: Displays celebratory emoji explosions for correct answers and sympathetic emojis for incorrect answers.
+                <ul style="padding-left: 20px; margin-top: 4px; display: flex; flex-direction: column; gap: 4px;">
+                  <li><strong>Global Emojis</strong>: Customize the pools of emojis for ✅ Correct and ❌ Wrong answers in the Control Center using comma-separated lists.</li>
+                  <li><strong>Selection Modes</strong>: Set the selection to 🎲 <em>Random</em> (picks any emoji from the list) or 🔄 <em>Sequential</em> (cycles through them in order).</li>
+                  <li><strong>Per-Question Customization</strong>: You can override the global emojis for specific questions in the Admin Panel editor. Enter custom emojis (e.g. 🏆, 💀) for that question to trigger custom animations!</li>
+                </ul>
+              </li>
+              <li><strong>🎬 Video Feedback</strong>: Plays full-screen video animation clips on correct or incorrect answers.
+                <ul style="padding-left: 20px; margin-top: 4px; display: flex; flex-direction: column; gap: 4px;">
+                  <li><strong>Default Videos</strong>: Built-in, high-quality cartoon video clips play by default for Correct and Incorrect responses.</li>
+                  <li><strong>Custom Video Uploads</strong>: Toggle **Use Custom Videos** in the Control Center to upload your own video clips (supports `.mp4`, `.webm`, or `.ogg` files). You can upload unique videos for <em>Correct Answer</em>, <em>Wrong Answer</em>, and the <em>Winner Screen</em>.</li>
+                  <li><strong>Reset Uploads</strong>: Click the **Clear** button next to any custom video slot to instantly restore the default animations.</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Section 7: ⚙️ Control Center & Database Operations -->
+          <div class="guide-section-card">
+            <h3 class="guide-section-title">⚙️ 7. Control Center & File Backups</h3>
             <p style="margin: 0; font-size: 0.9rem; opacity: 0.95;">
               The <strong>Control Center</strong> is your sliding sidebar settings dashboard. Click the gear icon ⚙️ or hamburger menu ☰ in the top-right header to access it:
             </p>
@@ -967,9 +991,9 @@
             </div>
           </div>
 
-          <!-- Section 7: ⚡ Host Troubleshooting & Control Hacks -->
+          <!-- Section 8: ⚡ Host Troubleshooting & Control Hacks -->
           <div class="guide-section-card">
-            <h3 class="guide-section-title">⚡ 7. Game Master FAQs & Hacks</h3>
+            <h3 class="guide-section-title">⚡ 8. Game Master FAQs & Hacks</h3>
             <div class="guide-faq-list">
               <div class="guide-faq-item">
                 <h4 class="guide-faq-question">↩️ I clicked the wrong answer button by accident. How do I fix it?</h4>
@@ -1258,7 +1282,7 @@
                   </div>
                   <div class="form-group" style="margin-top: 10px;" id="powerup-count-group">
                     <label for="settings-powerup-count">Number of Random Power-ups</label>
-                    <input type="number" id="settings-powerup-count" class="modern-input" value="3" min="0" max="12">
+                    <input type="number" id="settings-powerup-count" class="modern-input" value="4" min="0" max="12">
                     <span style="font-size: 0.7rem; color: var(--color-text-muted); display: block; margin-top: 4px;">
                       Capped at total questions. Cycles through the 4 types (Double Points, Steal Shield, Second Chance, Safety Net) if count exceeds 4.
                     </span>
@@ -1356,7 +1380,7 @@
                       <span class="custom-switch-text" style="font-size: 0.7rem;">Use Custom Videos</span>
                     </label>
 
-                    <div id="custom-video-uploads" style="display: none; flex-direction: column; gap: 8px; padding-left: 4px;">
+                    <div id="custom-video-uploads" style="display: none; flex-direction: column; gap: 12px; padding: 12px; border: 1px solid var(--panel-border-active); border-radius: 8px; background: var(--input-bg, rgba(255, 255, 255, 0.95)); margin-top: 8px;">
                       <div>
                         <label style="font-size: 0.7rem; color: var(--color-text-muted); margin-bottom: 2px;">✅ Correct Answer Video</label>
                         <input type="file" id="upload-feedback-correct" accept="video/mp4,video/webm,video/ogg" style="display: none;">

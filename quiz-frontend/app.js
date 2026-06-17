@@ -70,7 +70,7 @@ let db = {
     totalQuestions: 12,
     gridCols: 4,
     powerupMode: 'random',
-    randomPowerupsCount: 3,
+    randomPowerupsCount: 4,
     displayMode: 'QUESTION_POINTS',
     gridFont: 'none',
     applyFontToAll: false,
@@ -758,7 +758,7 @@ function getDefaultColumnsForQuestionsCount(count) {
 
 const defaultSettings = {
   powerupMode: 'random',
-  randomPowerupsCount: 3,
+  randomPowerupsCount: 4,
   subtractOnWrong: true,
   totalQuestions: 12,
   displayMode: 'QUESTION_POINTS',
@@ -875,7 +875,7 @@ function renderCategoryHeaders() {
 
 function hydrateControlCenter(settings) {
   // If there are custom power-ups, default mode should be manual (unless set to none)
-  const hasCustomPowerups = db.questions.some(q => q.powerup && q.powerup !== 'none');
+  const hasCustomPowerups = db.questions.some(q => q.powerup && q.powerup !== 'none' && q.powerup !== '');
   if (hasCustomPowerups && settings.powerupMode !== 'manual' && settings.powerupMode !== 'none') {
     settings.powerupMode = 'manual';
     saveDB();
@@ -935,15 +935,17 @@ function hydrateControlCenter(settings) {
   const powerupModeEl = document.getElementById('settings-powerup-mode');
   if (powerupModeEl) powerupModeEl.value = settings.powerupMode ?? 'random';
   
+  // Enforce randomPowerupsCount to match gridCols!
+  settings.randomPowerupsCount = settings.gridCols ?? 4;
+
   const powerupCountEl = document.getElementById('settings-powerup-count');
   if (powerupCountEl) {
     const totalQuestions = settings.totalQuestions ?? 12;
     powerupCountEl.max = totalQuestions;
-    if ((settings.randomPowerupsCount ?? 3) > totalQuestions) {
+    if (settings.randomPowerupsCount > totalQuestions) {
       settings.randomPowerupsCount = totalQuestions;
-      saveDB();
     }
-    powerupCountEl.value = settings.randomPowerupsCount ?? 3;
+    powerupCountEl.value = settings.randomPowerupsCount;
   }
 
   const powerupCountGroup = document.getElementById('powerup-count-group');
@@ -1781,6 +1783,28 @@ function renderAdminGrid() {
           typeBadge.className = 'cell-info-tag type-tag';
           typeBadge.textContent = q.type.toUpperCase();
           badgesContainer.appendChild(typeBadge);
+
+          const pType = playState.powerups[cId] || q.powerup;
+          if (pType && pType !== 'none' && pType !== '') {
+            const powerupBadge = document.createElement('span');
+            powerupBadge.className = 'cell-info-tag powerup-tag';
+            let displayLabel = pType;
+            if (pType === 'double_points') displayLabel = '🌟 DOUBLE';
+            else if (pType === 'steal_shield') displayLabel = '🛡️ SHIELD';
+            else if (pType === 'second_chance') displayLabel = '🔄 CHANCE';
+            else if (pType === 'safety_net') displayLabel = '🩹 NET';
+            else if (pType === 'extra_time') displayLabel = '⏱️ TIME';
+            powerupBadge.textContent = displayLabel;
+            powerupBadge.style.color = '#d97706';
+            powerupBadge.style.backgroundColor = 'rgba(217, 119, 6, 0.15)';
+            powerupBadge.style.padding = '2px 6px';
+            powerupBadge.style.borderRadius = '4px';
+            powerupBadge.style.fontSize = '0.65rem';
+            powerupBadge.style.fontWeight = '800';
+            powerupBadge.style.display = 'inline-flex';
+            powerupBadge.style.alignItems = 'center';
+            badgesContainer.appendChild(powerupBadge);
+          }
         }
       } else {
         let titleHtml = `<span class="card-qn-title">${label}</span>`;
@@ -1828,6 +1852,28 @@ function renderAdminGrid() {
             customBadge.className = 'cell-info-tag has-custom-tag';
             customBadge.textContent = '★ Vid';
             badgesContainer.appendChild(customBadge);
+          }
+
+          const pType = playState.powerups[cId] || q.powerup;
+          if (pType && pType !== 'none' && pType !== '') {
+            const powerupBadge = document.createElement('span');
+            powerupBadge.className = 'cell-info-tag powerup-tag';
+            let displayLabel = pType;
+            if (pType === 'double_points') displayLabel = '🌟 DOUBLE';
+            else if (pType === 'steal_shield') displayLabel = '🛡️ SHIELD';
+            else if (pType === 'second_chance') displayLabel = '🔄 CHANCE';
+            else if (pType === 'safety_net') displayLabel = '🩹 NET';
+            else if (pType === 'extra_time') displayLabel = '⏱️ TIME';
+            powerupBadge.textContent = displayLabel;
+            powerupBadge.style.color = '#d97706';
+            powerupBadge.style.backgroundColor = 'rgba(217, 119, 6, 0.15)';
+            powerupBadge.style.padding = '2px 6px';
+            powerupBadge.style.borderRadius = '4px';
+            powerupBadge.style.fontSize = '0.65rem';
+            powerupBadge.style.fontWeight = '800';
+            powerupBadge.style.display = 'inline-flex';
+            powerupBadge.style.alignItems = 'center';
+            badgesContainer.appendChild(powerupBadge);
           }
         }
       }
@@ -1951,6 +1997,28 @@ function renderAdminGrid() {
         typeBadge.className = 'cell-info-tag type-tag';
         typeBadge.textContent = qTb.type.toUpperCase();
         badgesContainer.appendChild(typeBadge);
+
+        const pType = playState.powerups['c-tiebreaker'] || qTb.powerup;
+        if (pType && pType !== 'none' && pType !== '') {
+          const powerupBadge = document.createElement('span');
+          powerupBadge.className = 'cell-info-tag powerup-tag';
+          let displayLabel = pType;
+          if (pType === 'double_points') displayLabel = '🌟 DOUBLE';
+          else if (pType === 'steal_shield') displayLabel = '🛡️ SHIELD';
+          else if (pType === 'second_chance') displayLabel = '🔄 CHANCE';
+          else if (pType === 'safety_net') displayLabel = '🩹 NET';
+          else if (pType === 'extra_time') displayLabel = '⏱️ TIME';
+          powerupBadge.textContent = displayLabel;
+          powerupBadge.style.color = '#d97706';
+          powerupBadge.style.backgroundColor = 'rgba(217, 119, 6, 0.15)';
+          powerupBadge.style.padding = '2px 6px';
+          powerupBadge.style.borderRadius = '4px';
+          powerupBadge.style.fontSize = '0.65rem';
+          powerupBadge.style.fontWeight = '800';
+          powerupBadge.style.display = 'inline-flex';
+          powerupBadge.style.alignItems = 'center';
+          badgesContainer.appendChild(powerupBadge);
+        }
       }
     } else {
       cell.innerHTML = `
@@ -1977,6 +2045,28 @@ function renderAdminGrid() {
         typeBadge.className = 'cell-info-tag type-tag';
         typeBadge.textContent = qTb.type.toUpperCase();
         badgesContainer.appendChild(typeBadge);
+
+        const pType = playState.powerups['c-tiebreaker'] || qTb.powerup;
+        if (pType && pType !== 'none' && pType !== '') {
+          const powerupBadge = document.createElement('span');
+          powerupBadge.className = 'cell-info-tag powerup-tag';
+          let displayLabel = pType;
+          if (pType === 'double_points') displayLabel = '🌟 DOUBLE';
+          else if (pType === 'steal_shield') displayLabel = '🛡️ SHIELD';
+          else if (pType === 'second_chance') displayLabel = '🔄 CHANCE';
+          else if (pType === 'safety_net') displayLabel = '🩹 NET';
+          else if (pType === 'extra_time') displayLabel = '⏱️ TIME';
+          powerupBadge.textContent = displayLabel;
+          powerupBadge.style.color = '#d97706';
+          powerupBadge.style.backgroundColor = 'rgba(217, 119, 6, 0.15)';
+          powerupBadge.style.padding = '2px 6px';
+          powerupBadge.style.borderRadius = '4px';
+          powerupBadge.style.fontSize = '0.65rem';
+          powerupBadge.style.fontWeight = '800';
+          powerupBadge.style.display = 'inline-flex';
+          powerupBadge.style.alignItems = 'center';
+          badgesContainer.appendChild(powerupBadge);
+        }
       }
     }
 
@@ -2045,7 +2135,10 @@ async function openQuestionEditor(qnIndex) {
   if (qEmojiWrong) qEmojiWrong.value = q ? (q.customWrongEmoji || '') : '';
 
   const qPowerupEl = document.getElementById('q-powerup');
-  if (qPowerupEl) qPowerupEl.value = q ? (q.powerup || 'none') : 'none';
+  if (qPowerupEl) {
+    const activePowerup = playState.powerups[cId] || (q ? q.powerup : '') || '';
+    qPowerupEl.value = (activePowerup === '' || activePowerup === 'none') ? 'none' : activePowerup;
+  }
 
   toggleQuestionEditorEmojiInputs();
 
@@ -2201,8 +2294,20 @@ function renderGameBoard() {
   container.style.setProperty('--cols', cols);
   container.style.setProperty('--rows', rows);
 
-  activeQuestions.forEach((q) => {
-    const cId = cellId(q.qnIndex);
+  for (let i = 1; i <= total; i++) {
+    const q = activeQuestions.find(x => x.qnIndex === i);
+    const cId = cellId(i);
+    const rowIndex = Math.floor((i - 1) / cols);
+    const label = qnLabel(i);
+    
+    if (!q) {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'game-cell-btn-placeholder';
+      placeholder.style.visibility = 'hidden';
+      container.appendChild(placeholder);
+      continue;
+    }
+    
     const btn = document.createElement('button');
     btn.dataset.cellId = cId;
     btn.setAttribute('aria-label', qnLabel(q.qnIndex));
@@ -2213,8 +2318,6 @@ function renderGameBoard() {
     btn.style.fontWeight = db.settings.gridFontBold ? '900' : 'normal';
     const answered = playState.answeredCells[cId];
 
-    const rowIndex = Math.floor((q.qnIndex - 1) / cols);
-    const label = qnLabel(q.qnIndex);
     let titleHtml = `<span class="card-qn-title">${label}</span>`;
     let pointsHtml = '';
     
@@ -2337,7 +2440,7 @@ function renderGameBoard() {
       });
     }
     container.appendChild(btn);
-  });
+  }
 
   if (showTiebreakerCell) {
     const cId = 'c-tiebreaker';
@@ -3006,7 +3109,7 @@ function openQuestionModal(cId, q) {
 
   // Sync manual powerup from database if in manual powerup mode
   if (db.settings.powerupMode === 'manual') {
-    if (q && q.powerup && q.powerup !== 'none') {
+    if (q && q.powerup && q.powerup !== 'none' && q.powerup !== '') {
       playState.powerups[cId] = q.powerup;
     } else {
       delete playState.powerups[cId];
@@ -3672,43 +3775,57 @@ document.addEventListener('DOMContentLoaded', () => {
           const optCIdx = headers.indexOf('option c');
           const optDIdx = headers.indexOf('option d');
           const pointsIdx = headers.indexOf('points');
-          
           const powerupIdx = headers.indexOf('powerup');
           
-          const subtractOnWrongIdx = headers.indexOf('subtract on wrong');
-          const playVideoFeedbackIdx = headers.indexOf('play video feedback');
-          const playEmojiFeedbackIdx = headers.indexOf('play emoji feedback');
-          const enableTiebreakerIdx = headers.indexOf('enable tiebreaker');
-          const showCategoriesIdx = headers.indexOf('show categories');
-          const fontSelectedIdx = headers.indexOf('font selected');
-          const team1NameIdx = headers.indexOf('team 1 name');
-          const team1LogoIdx = headers.indexOf('team 1 logo');
-          const team2NameIdx = headers.indexOf('team 2 name');
-          const team2LogoIdx = headers.indexOf('team 2 logo');
-          const cat1Idx = headers.indexOf('category 1');
-          const cat2Idx = headers.indexOf('category 2');
-          const cat3Idx = headers.indexOf('category 3');
-          const cat4Idx = headers.indexOf('category 4');
-          const cat5Idx = headers.indexOf('category 5');
-          const cat6Idx = headers.indexOf('category 6');
+          // Find all category column indices dynamically
+          const categoryIndices = [];
+          headers.forEach((h, idx) => {
+            if (h.includes('category')) {
+              categoryIndices.push(idx);
+            }
+          });
+          const N = categoryIndices.length;
           
-          let colOffset = 0;
-          if (typeIdx === -1) {
-            const firstCell = csvData[1] && csvData[1][0] ? csvData[1][0].trim() : '';
-            if (firstCell && (!isNaN(parseInt(firstCell, 10)) || firstCell.toLowerCase().includes('tie'))) {
-              colOffset = 1;
+          // If no category columns found, default to 4 columns
+          const gridCols = N > 0 ? N : 4;
+          const categories = [];
+          for (let c = 0; c < gridCols; c++) {
+            categories.push(`Category ${c + 1}`);
+          }
+          
+          // Scan rows to extract category names
+          if (N > 0) {
+            for (let c = 0; c < gridCols; c++) {
+              const colIdx = categoryIndices[c];
+              for (let r = 1; r < csvData.length; r++) {
+                const row = csvData[r];
+                if (row && row[colIdx]) {
+                  const val = row[colIdx].trim();
+                  if (val !== '' && val.toLowerCase() !== '(blank)') {
+                    categories[c] = val;
+                    break;
+                  }
+                }
+              }
             }
           }
-
-          let indexCounter = 1;
+          
+          // Group standard questions by their category column index
+          const groups = [];
+          for (let c = 0; c < gridCols; c++) {
+            groups.push([]);
+          }
+          
+          let tiebreakerQuestion = null;
+          
           for (let r = 1; r < csvData.length; r++) {
             const row = csvData[r];
-            if (row.length < 2 || !row.some(val => val.trim() !== '')) continue;
-            
-            const rawType = (typeIdx !== -1 ? row[typeIdx] : row[0 + colOffset]) || 'mcq';
-            let type = rawType.trim().toLowerCase();
+            if (!row || row.length < 2 || !row.some(val => val.trim() !== '')) continue;
             
             const qnNumVal = (qnNumIdx !== -1 && row[qnNumIdx]) ? row[qnNumIdx].trim().toLowerCase() : '';
+            const rawType = (typeIdx !== -1 ? row[typeIdx] : 'mcq') || 'mcq';
+            let type = rawType.trim().toLowerCase();
+            
             const isTiebreaker = qnNumVal.includes('tiebreaker') || type.includes('tiebreaker');
             
             if (type.includes('tiebreaker')) type = 'short_answer';
@@ -3716,12 +3833,13 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (type.includes('blank') || type.includes('fill')) type = 'fill_blank';
             else type = 'short_answer';
             
-            const questionText = (questionIdx !== -1 ? row[questionIdx] : row[1 + colOffset]) || '';
-            const answerText = (answerIdx !== -1 ? row[answerIdx] : row[2 + colOffset]) || '';
-            const pointsVal = parseInt((pointsIdx !== -1 ? row[pointsIdx] : row[7 + colOffset]) || '100', 10) || 100;
+            const questionText = (questionIdx !== -1 ? row[questionIdx] : '') || '';
+            const answerText = (answerIdx !== -1 ? row[answerIdx] : '') || '';
+            const pointsVal = parseInt((pointsIdx !== -1 ? row[pointsIdx] : '100') || '100', 10) || 100;
             
-            const powerupRaw = (powerupIdx !== -1 ? row[powerupIdx] : (row[8 + colOffset] || 'none')) || 'none';
+            const powerupRaw = (powerupIdx !== -1 ? row[powerupIdx] : 'none') || 'none';
             let powerupVal = powerupRaw.trim().toLowerCase();
+            if (powerupVal === '' || powerupVal === '(blank)' || powerupVal === 'null') powerupVal = 'none';
             if (powerupVal.includes('double')) powerupVal = 'double_points';
             else if (powerupVal.includes('shield') || powerupVal.includes('steal')) powerupVal = 'steal_shield';
             else if (powerupVal.includes('fifty') || powerupVal.includes('50') || powerupVal.includes('chance') || powerupVal.includes('second')) powerupVal = 'second_chance';
@@ -3731,16 +3849,19 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let options = [];
             if (type === 'mcq') {
-              const optA = (optAIdx !== -1 ? row[optAIdx] : row[3 + colOffset]) || '';
-              const optB = (optBIdx !== -1 ? row[optBIdx] : row[4 + colOffset]) || '';
-              const optC = (optCIdx !== -1 ? row[optCIdx] : row[5 + colOffset]) || '';
-              const optD = (optDIdx !== -1 ? row[optDIdx] : row[6 + colOffset]) || '';
-              options = [optA.trim(), optB.trim(), optC.trim(), optD.trim()].filter(o => o !== '');
+              const optA = (optAIdx !== -1 ? row[optAIdx] : '') || '';
+              const optB = (optBIdx !== -1 ? row[optBIdx] : '') || '';
+              const optC = (optCIdx !== -1 ? row[optCIdx] : '') || '';
+              const optD = (optDIdx !== -1 ? row[optDIdx] : '') || '';
+              
+              const cleanOpt = val => {
+                const trimmed = val.trim();
+                return (trimmed.toLowerCase() === '(blank)' || trimmed.toLowerCase() === 'null') ? '' : trimmed;
+              };
+              options = [cleanOpt(optA), cleanOpt(optB), cleanOpt(optC), cleanOpt(optD)].filter(o => o !== '');
             }
             
-            parsedQuestions.push({
-              id: isTiebreaker ? 'tiebreaker' : `q${indexCounter}`,
-              qnIndex: isTiebreaker ? 'tiebreaker' : indexCounter,
+            const qObj = {
               type: type,
               questionType: type,
               question: questionText.trim(),
@@ -3748,13 +3869,50 @@ document.addEventListener('DOMContentLoaded', () => {
               answer: answerText.trim(),
               points: pointsVal,
               powerup: powerupVal
-            });
-            if (!isTiebreaker) indexCounter++;
+            };
+            
+            if (isTiebreaker) {
+              qObj.id = 'tiebreaker';
+              qObj.qnIndex = 'tiebreaker';
+              tiebreakerQuestion = qObj;
+            } else {
+              let colIdx = -1;
+              if (N > 0) {
+                for (let c = 0; c < gridCols; c++) {
+                  const cellIdx = categoryIndices[c];
+                  if (row[cellIdx] && row[cellIdx].trim() !== '' && row[cellIdx].trim().toLowerCase() !== '(blank)') {
+                    colIdx = c;
+                    break;
+                  }
+                }
+              }
+              if (colIdx === -1) {
+                colIdx = 0;
+              }
+              groups[colIdx].push(qObj);
+            }
           }
           
-          const hasTiebreaker = parsedQuestions.some(q => q.qnIndex === 'tiebreaker');
-          if (!hasTiebreaker) {
-            parsedQuestions.push({
+          const maxRows = Math.max(...groups.map(g => g.length), 1);
+          const finalQuestions = [];
+          let indexCounter = 1;
+          
+          for (let r = 0; r < maxRows; r++) {
+            for (let c = 0; c < gridCols; c++) {
+              const qObj = groups[c][r];
+              if (qObj) {
+                qObj.id = `q${indexCounter}`;
+                qObj.qnIndex = indexCounter;
+                finalQuestions.push(qObj);
+              }
+              indexCounter++;
+            }
+          }
+          
+          if (tiebreakerQuestion) {
+            finalQuestions.push(tiebreakerQuestion);
+          } else {
+            finalQuestions.push({
               id: "tiebreaker",
               qnIndex: "tiebreaker",
               type: "short_answer",
@@ -3766,64 +3924,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
           }
           
-          db.questions = parsedQuestions;
-          db.settings.totalQuestions = parsedQuestions.filter(q => q.qnIndex !== 'tiebreaker').length;
-          db.settings.gridCols = getDefaultColumnsForQuestionsCount(db.settings.totalQuestions);
-          db.settings.showCategories = false;
+          db.questions = finalQuestions;
+          db.settings.totalQuestions = maxRows * gridCols;
+          db.settings.gridCols = gridCols;
+          db.settings.randomPowerupsCount = gridCols;
+          db.settings.categories = categories;
+          db.settings.showCategories = true;
           db.settings.activePreset = '';
-          
-          // Extract settings from the first data row if present (Backwards Compatible)
-          const firstRow = csvData[1];
-          if (firstRow) {
-            if (subtractOnWrongIdx !== -1 && firstRow[subtractOnWrongIdx]) {
-              db.settings.subtractOnWrong = firstRow[subtractOnWrongIdx].trim().toLowerCase() === 'true';
-            }
-            if (playVideoFeedbackIdx !== -1 && firstRow[playVideoFeedbackIdx]) {
-              db.settings.playVideoFeedback = firstRow[playVideoFeedbackIdx].trim().toLowerCase() === 'true';
-            }
-            if (playEmojiFeedbackIdx !== -1 && firstRow[playEmojiFeedbackIdx]) {
-              db.settings.playEmojiFeedback = firstRow[playEmojiFeedbackIdx].trim().toLowerCase() === 'true';
-            }
-            if (enableTiebreakerIdx !== -1 && firstRow[enableTiebreakerIdx]) {
-              db.settings.enableTieBreaker = firstRow[enableTiebreakerIdx].trim().toLowerCase() === 'true';
-            }
-            if (showCategoriesIdx !== -1 && firstRow[showCategoriesIdx]) {
-              db.settings.showCategories = firstRow[showCategoriesIdx].trim().toLowerCase() === 'true';
-            }
-            if (fontSelectedIdx !== -1 && firstRow[fontSelectedIdx]) {
-              db.settings.fontSelected = firstRow[fontSelectedIdx].trim();
-            }
-            
-            // Extract teams
-            if (db.teams && db.teams[0]) {
-              if (team1NameIdx !== -1 && firstRow[team1NameIdx]) {
-                db.teams[0].name = firstRow[team1NameIdx].trim();
-              }
-              if (team1LogoIdx !== -1 && firstRow[team1LogoIdx]) {
-                db.teams[0].logo = firstRow[team1LogoIdx].trim();
-              }
-            }
-            if (db.teams && db.teams[1]) {
-              if (team2NameIdx !== -1 && firstRow[team2NameIdx]) {
-                db.teams[1].name = firstRow[team2NameIdx].trim();
-              }
-              if (team2LogoIdx !== -1 && firstRow[team2LogoIdx]) {
-                db.teams[1].logo = firstRow[team2LogoIdx].trim();
-              }
-            }
-            
-            // Extract categories
-            const cats = [];
-            const catIndices = [cat1Idx, cat2Idx, cat3Idx, cat4Idx, cat5Idx, cat6Idx];
-            catIndices.forEach(idx => {
-              if (idx !== -1 && firstRow[idx] !== undefined && firstRow[idx] !== null && firstRow[idx].trim() !== '') {
-                cats.push(firstRow[idx].trim());
-              }
-            });
-            if (cats.length > 0) {
-              db.settings.categories = cats;
-            }
-          }
           
           fallbackSaveDB();
           hydrateControlCenter(db.settings);
@@ -3838,7 +3945,7 @@ document.addEventListener('DOMContentLoaded', () => {
           renderGameBoard();
           updateScoreUI();
           
-          triggerAlert('SYSTEM', `Imported ${parsedQuestions.length - 1} questions from CSV!`, 'gain');
+          triggerAlert('SYSTEM', `Imported ${finalQuestions.length - 1} questions from CSV!`, 'gain');
           
           const statusDiv = document.getElementById('dashboard-status');
           if (statusDiv) {
@@ -4677,12 +4784,11 @@ function assignRandomPowerups() {
     return;
   }
   
-  const hasCustomPowerups = db.questions.some(q => q.powerup && q.powerup !== 'none');
-  const activeMode = (db.settings.powerupMode === 'manual' || hasCustomPowerups) ? 'manual' : 'random';
+  const activeMode = db.settings.powerupMode || 'random';
   
   if (activeMode === 'manual') {
     db.questions.forEach(q => {
-      if (q.powerup && q.powerup !== 'none') {
+      if (q.powerup && q.powerup !== 'none' && q.powerup !== '') {
         const qnId = cellId(q.qnIndex);
         playState.powerups[qnId] = q.powerup;
       }
@@ -4808,6 +4914,7 @@ function loadBibleStoryTemplate(storyKey) {
   
   db.settings.totalQuestions = db.questions.filter(q => q.qnIndex !== 'tiebreaker').length;
   db.settings.gridCols = getDefaultColumnsForQuestionsCount(db.settings.totalQuestions);
+  db.settings.randomPowerupsCount = db.settings.gridCols;
   db.settings.showCategories = false;
   db.settings.activePreset = storyKey;
   
@@ -5428,12 +5535,15 @@ function showExportFormatSelector(onSelect) {
 }
 
 function generateCSVContent() {
+  const N = db.settings.gridCols || 4;
   const headers = [
     "Question Number", "Type", "Question", "Answer", 
     "Option A", "Option B", "Option C", "Option D", 
-    "Points", "Powerup",
-    "Category 1", "Category 2", "Category 3", "Category 4", "Category 5", "Category 6"
+    "Points", "Powerup"
   ];
+  for (let i = 1; i <= N; i++) {
+    headers.push(`Category ${i}`);
+  }
   
   const rows = [headers.join(',')];
   
@@ -5453,9 +5563,11 @@ function generateCSVContent() {
     const optC = q.options && q.options[2] ? q.options[2] : '';
     const optD = q.options && q.options[3] ? q.options[3] : '';
     
+    const activePowerup = playState.powerups[cellId(q.qnIndex)] || q.powerup || '';
+    const powerupVal = (activePowerup === 'none') ? '' : activePowerup;
     const row = [
-      isTiebreaker ? 'Tiebreaker' : q.qnIndex,
-      q.type || q.questionType,
+      isTiebreaker ? 'tiebreaker' : q.qnIndex,
+      q.type || q.questionType || 'mcq',
       q.question,
       q.answer,
       optA,
@@ -5463,14 +5575,21 @@ function generateCSVContent() {
       optC,
       optD,
       q.points,
-      q.powerup || 'none',
-      db.settings.categories[0] || '',
-      db.settings.categories[1] || '',
-      db.settings.categories[2] || '',
-      db.settings.categories[3] || '',
-      db.settings.categories[4] || '',
-      db.settings.categories[5] || ''
+      powerupVal
     ];
+    
+    for (let c = 0; c < N; c++) {
+      if (!isTiebreaker && q.qnIndex !== undefined && q.qnIndex !== null) {
+        const qnNum = parseInt(q.qnIndex, 10);
+        if (!isNaN(qnNum) && ((qnNum - 1) % N) === c) {
+          row.push(db.settings.categories[c] || `Category ${c + 1}`);
+        } else {
+          row.push('');
+        }
+      } else {
+        row.push('');
+      }
+    }
     
     rows.push(row.map(escapeCSV).join(','));
   });
@@ -5672,6 +5791,7 @@ document.getElementById('question-form').addEventListener('submit', async e => {
   
 
   const powerup = document.getElementById('q-powerup') ? document.getElementById('q-powerup').value : 'none';
+  const powerupVal = (powerup === 'none' || !powerup) ? '' : powerup;
 
   const existIdx = db.questions.findIndex(q => q.qnIndex === qnIndex);
   const qObj = {
@@ -5682,7 +5802,7 @@ document.getElementById('question-form').addEventListener('submit', async e => {
     options,
     answer,
     points: pts,
-    powerup,
+    powerup: powerupVal,
     customCorrectEmoji: document.getElementById('q-emoji-correct') ? document.getElementById('q-emoji-correct').value.trim() : '',
     customWrongEmoji: document.getElementById('q-emoji-wrong') ? document.getElementById('q-emoji-wrong').value.trim() : ''
   };
@@ -5691,15 +5811,23 @@ document.getElementById('question-form').addEventListener('submit', async e => {
   else db.questions.push(qObj);
 
   // If the admin saved a custom power-up, automatically switch the mode to manual
-  if (powerup && powerup !== 'none') {
+  if (powerupVal && powerupVal !== '') {
     db.settings.powerupMode = 'manual';
+    const powerupModeEl = document.getElementById('settings-powerup-mode');
+    if (powerupModeEl) {
+      powerupModeEl.value = 'manual';
+    }
+    const countGroup = document.getElementById('powerup-count-group');
+    if (countGroup) {
+      countGroup.style.display = 'none';
+    }
   }
 
   // Update playState.powerups if in manual mode
   if (db.settings.powerupMode === 'manual') {
     const qnId = cellId(qnIndex);
-    if (powerup && powerup !== 'none') {
-      playState.powerups[qnId] = powerup;
+    if (powerupVal && powerupVal !== '') {
+      playState.powerups[qnId] = powerupVal;
     } else {
       delete playState.powerups[qnId];
     }
@@ -5985,6 +6113,8 @@ async function initApp() {
   // Clear any existing active gameplay state on startup so a page refresh starts a fresh game
   localStorage.removeItem('review_game_playstate');
 
+  assignRandomPowerups();
+
   renderAdminGrid();
   renderGameBoard();
   updateScoreUI();
@@ -6023,17 +6153,12 @@ document.addEventListener('DOMContentLoaded', () => {
         colsInput.value = db.settings.gridCols;
       }
 
-      // Update max on random powerup count and clamp it if needed
+      // Automatically update number of random powerups to equal number of columns
+      db.settings.randomPowerupsCount = db.settings.gridCols;
       const countEl = document.getElementById('settings-powerup-count');
       if (countEl) {
         countEl.max = val;
-        let pVal = parseInt(countEl.value, 10);
-        if (isNaN(pVal) || pVal < 0) pVal = 0;
-        if (pVal > val) {
-          pVal = val;
-          countEl.value = pVal;
-          db.settings.randomPowerupsCount = pVal;
-        }
+        countEl.value = db.settings.gridCols;
       }
 
       saveDB();
@@ -6049,6 +6174,13 @@ document.addEventListener('DOMContentLoaded', () => {
       let val = parseInt(e.target.value, 10);
       if (isNaN(val) || val < 1) val = 1;
       db.settings.gridCols = val;
+      
+      // Automatically update number of random powerups to equal number of columns
+      db.settings.randomPowerupsCount = val;
+      const countEl = document.getElementById('settings-powerup-count');
+      if (countEl) {
+        countEl.value = val;
+      }
       saveDB();
       renderCategoryInputs();
       renderAdminGrid();
@@ -6108,6 +6240,8 @@ document.addEventListener('DOMContentLoaded', () => {
       assignRandomPowerups();
       saveGameState();
       saveDB();
+      renderAdminGrid();
+      renderGameBoard();
     });
   }
 
@@ -6127,6 +6261,8 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGameState();
       }
       saveDB();
+      renderAdminGrid();
+      renderGameBoard();
     });
   }
 
