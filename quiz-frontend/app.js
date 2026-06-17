@@ -1235,14 +1235,37 @@ function saveGameState() {
 // ============================================================
 
 function saveToHistory() {
-  if (playState.gameState === 'IDLE' && playState.phase === 'live') {
+  if (playState.phase === 'live') {
+    const disabledOptions = Array.from(document.querySelectorAll('.option-btn')).map((btn, index) => ({
+      index: index,
+      disabled: btn.disabled,
+      opacity: btn.style.opacity,
+      cursor: btn.style.cursor,
+      classes: Array.from(btn.classList)
+    }));
+
+    const fillInput = document.getElementById('modal-fill-input');
+    const fillInputDisabled = fillInput ? fillInput.disabled : false;
+    const fillInputValue = fillInput ? fillInput.value : '';
+
     const snapshot = JSON.parse(JSON.stringify({
       teams: playState.teams,
       currentTeamIndex: playState.currentTeamIndex,
       answeredCells: playState.answeredCells,
       stats: playState.stats,
-      powerupUsed: playState.powerupUsed
+      powerupUsed: playState.powerupUsed,
+      gameState: playState.gameState,
+      currentCellId: playState.currentCellId,
+      currentQuestion: playState.currentQuestion,
+      teamsAttemptedCount: playState.teamsAttemptedCount,
+      currentQuestionValue: playState.currentQuestionValue,
+      originalTeamIndex: playState.originalTeamIndex,
+      cancelLocked: playState.cancelLocked,
+      disabledOptions: disabledOptions,
+      fillInputDisabled: fillInputDisabled,
+      fillInputValue: fillInputValue
     }));
+
     playStateHistory.push(snapshot);
     if (playStateHistory.length > 20) {
       playStateHistory.shift();
@@ -1263,17 +1286,24 @@ function undoLastAction() {
   playState.stats = prevState.stats;
   playState.powerupUsed = prevState.powerupUsed;
 
-  // Set modal/board back to unopened state
-  playState.currentCellId = null;
-  playState.currentQuestion = null;
-  playState.gameState = 'IDLE';
-  playState.teamsAttemptedCount = 0;
-  playState.currentQuestionValue = 0;
+  // Restore states
+  playState.gameState = prevState.gameState;
+  playState.currentCellId = prevState.currentCellId;
+  playState.currentQuestion = prevState.currentQuestion;
+  playState.teamsAttemptedCount = prevState.teamsAttemptedCount;
+  playState.currentQuestionValue = prevState.currentQuestionValue;
+  playState.originalTeamIndex = prevState.originalTeamIndex;
+  playState.cancelLocked = prevState.cancelLocked;
 
-  // Close the modal if open
-  const modalOverlay = document.getElementById('modal-overlay');
-  if (modalOverlay) {
-    modalOverlay.classList.remove('open');
+  if (playState.currentCellId === null) {
+    // Revert to board view
+    const modalOverlay = document.getElementById('modal-overlay');
+    if (modalOverlay) {
+      modalOverlay.classList.remove('open');
+    }
+  } else {
+    // Restore mid-question state
+    restoreModalUIState(prevState);
   }
 
   saveGameState();
@@ -1284,10 +1314,138 @@ function undoLastAction() {
   updateUndoButtonVisibility();
 }
 
+function restoreModalUIState(prevState) {
+  const q = playState.currentQuestion;
+  if (!q) return;
+
+  const cId = playState.currentCellId;
+  const turnStatus = document.getElementById('modal-turn-status');
+  const contentNode = document.querySelector('.modal-content');
+  const revealPanel = document.getElementById('modal-reveal-panel');
+  const btnCancel = document.getElementById('btn-modal-cancel');
+  const btnNext = document.getElementById('btn-modal-next');
+  const btnSubmit = document.getElementById('btn-modal-submit');
+  const btnPass = document.getElementById('btn-modal-pass');
+
+  // Re-enable action buttons
+  enableModalActionButtons();
+
+  // Restore points display
+  if (playState.gameState === 'AWAITING_STEAL') {
+    document.getElementById('modal-points-display').textContent = `${playState.currentQuestionValue} POINTS - STEAL`;
+    document.getElementById('modal-steal-label').classList.toggle('hidden', false);
+  } else {
+    document.getElementById('modal-points-display').textContent = `${playState.currentQuestionValue} POINTS`;
+    document.getElementById('modal-steal-label').classList.toggle('hidden', true);
+  }
+
+  // Restore turn status, classes, and buttons visibility
+  if (playState.gameState === 'RESOLVED') {
+    const answeredInfo = playState.answeredCells[cId];
+    const isCorrect = answeredInfo && answeredInfo.teamIndex !== -1;
+
+    if (contentNode) {
+      contentNode.classList.remove('feedback-correct', 'feedback-wrong');
+      contentNode.classList.add(isCorrect ? 'feedback-correct' : 'feedback-wrong');
+    }
+
+    if (turnStatus) {
+      if (isCorrect) {
+        turnStatus.textContent = "Correct Answer!";
+        turnStatus.style.color = "var(--color-success)";
+        turnStatus.style.borderColor = "var(--color-success)";
+      } else {
+        if (playState.powerupUsed.stealShieldActive && !playState.practiceMode) {
+          turnStatus.innerHTML = `❌ Incorrect Answer<br><span style="font-size:0.8rem; color:var(--color-gold);">🛡️ Steal Shield Active! Steal Blocked.</span>`;
+          parseEmojis(turnStatus);
+        } else {
+          turnStatus.textContent = "Incorrect Answer";
+        }
+        turnStatus.style.color = "var(--color-error)";
+        turnStatus.style.borderColor = "var(--color-error)";
+      }
+    }
+
+    if (revealPanel) revealPanel.classList.remove('hidden');
+    if (btnCancel) btnCancel.disabled = true;
+    if (btnNext) {
+      btnNext.style.display = 'inline-flex';
+      btnNext.disabled = false;
+    }
+    if (btnSubmit) btnSubmit.style.display = 'none';
+    if (btnPass) btnPass.style.display = 'none';
+
+  } else {
+    // AWAITING_FIRST_ANSWER or AWAITING_STEAL
+    if (contentNode) {
+      contentNode.classList.remove('feedback-correct', 'feedback-wrong');
+    }
+    if (revealPanel) revealPanel.classList.add('hidden');
+    if (btnCancel) btnCancel.disabled = false;
+    if (btnNext) {
+      btnNext.style.display = 'none';
+      btnNext.disabled = true;
+    }
+    if (btnSubmit) btnSubmit.style.display = 'inline-flex';
+    
+    if (btnPass) {
+      const canPass = playState.teamsAttemptedCount < playState.teams.length - 1;
+      btnPass.style.display = canPass ? 'inline-flex' : 'none';
+    }
+
+    if (turnStatus) {
+      const activeTeam = playState.teams[playState.currentTeamIndex];
+      if (playState.gameState === 'AWAITING_STEAL') {
+        turnStatus.innerHTML = `❌ Wrong Answer<br><span style="font-size:0.8rem;">Passed to ${activeTeam.name}</span>`;
+        turnStatus.style.color = "var(--color-error)";
+        turnStatus.style.borderColor = "var(--color-error)";
+      } else {
+        turnStatus.textContent = `${activeTeam.name.toUpperCase()} TURN`;
+        turnStatus.style.color = 'var(--color-gold)';
+        turnStatus.style.borderColor = 'rgba(244,196,48,0.3)';
+      }
+      parseEmojis(turnStatus);
+      turnStatus.style.textAlign = 'center';
+    }
+  }
+
+  // Restore options state
+  if (prevState.disabledOptions) {
+    const optBtns = document.querySelectorAll('.option-btn');
+    prevState.disabledOptions.forEach(opt => {
+      const btn = optBtns[opt.index];
+      if (btn) {
+        btn.disabled = opt.disabled;
+        btn.style.opacity = opt.opacity;
+        btn.style.cursor = opt.cursor;
+        btn.className = opt.classes.join(' ');
+      }
+    });
+  }
+
+  const fillInput = document.getElementById('modal-fill-input');
+  if (fillInput) {
+    fillInput.disabled = prevState.fillInputDisabled;
+    fillInput.value = prevState.fillInputValue;
+    if (prevState.fillInputDisabled) {
+      fillInput.style.cursor = 'not-allowed';
+      fillInput.style.borderColor = 'rgba(255,255,255,0.1)';
+    } else {
+      fillInput.style.cursor = '';
+      fillInput.style.borderColor = '';
+    }
+  }
+}
+
 function updateUndoButtonVisibility() {
   const btnUndo = document.getElementById('btn-undo-game');
   if (btnUndo) {
-    btnUndo.style.display = (playState.phase === 'live' && playStateHistory.length > 0) ? 'inline-flex' : 'none';
+    btnUndo.style.display = (playState.phase === 'live' && playState.gameState === 'IDLE' && playStateHistory.length > 0) ? 'inline-flex' : 'none';
+  }
+
+  const btnModalUndo = document.getElementById('btn-modal-undo');
+  if (btnModalUndo) {
+    btnModalUndo.style.display = (playState.phase === 'live' && playState.gameState !== 'IDLE' && playStateHistory.length > 0) ? 'inline-flex' : 'none';
   }
 }
 
@@ -3899,7 +4057,8 @@ function showCustomConfirm(message, onConfirm, opts = {}) {
 
 
 async function resolveAnswer(isCorrect) {
-    const q = playState.currentQuestion;
+  saveToHistory();
+  const q = playState.currentQuestion;
   if (!q || !canAnswer()) return;
 
   const cId = playState.currentCellId;
@@ -4306,6 +4465,7 @@ function submitAnswer(isCorrect) {
 }
 
 function handlePass() {
+  saveToHistory();
   if (!canAnswer()) return;
   const q = playState.currentQuestion;
   if (!q || playState.teamsAttemptedCount >= playState.teams.length - 1) return;
@@ -5772,6 +5932,11 @@ document.getElementById('btn-end-game').addEventListener('click', () => {
 });
 
 document.getElementById('btn-undo-game')?.addEventListener('click', () => {
+  if (!canInteract()) return;
+  undoLastAction();
+});
+
+document.getElementById('btn-modal-undo')?.addEventListener('click', () => {
   if (!canInteract()) return;
   undoLastAction();
 });

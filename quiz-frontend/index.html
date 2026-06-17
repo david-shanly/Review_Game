@@ -60,8 +60,8 @@
             </svg>
           </span>
         </button>
-        <button id="btn-about-toggle" class="btn btn-icon" title="About & Help Guide" aria-label="About Guide">
-          <span>ℹ️</span>
+        <button id="btn-about-toggle" class="btn btn-guide" title="Game Guide" aria-label="Game Guide">
+          <span>📖 Game Guide</span>
         </button>
         <button id="btn-go-admin-float" class="btn btn-icon" title="Admin Panel" aria-label="Admin Panel">
           ⚙️
@@ -416,6 +416,7 @@
           <button id="btn-modal-cancel" class="btn btn-cancel">Cancel Question</button>
 
           <div class="modal-footer-right">
+            <button id="btn-modal-undo" class="btn btn-secondary" style="display: none;">↩️ Undo Action</button>
             <button id="btn-modal-pass" class="btn btn-secondary">PASS</button>
             <button id="btn-modal-submit" class="btn btn-primary">SUBMIT</button>
             <button id="btn-modal-next" class="btn btn-primary" disabled style="display:none;">NEXT</button>
@@ -427,70 +428,592 @@
 
     <!-- ===== ABOUT & HELP MODAL ===== -->
     <div id="about-overlay" class="modal-overlay">
-      <div class="modal-content glass-panel animate-zoom">
+      <div class="modal-content glass-panel animate-zoom" style="max-height: min(90vh, 850px); height: 85vh;">
         <div class="modal-header">
-          <h2 style="font-family: var(--font-display); font-size: 1.8rem; color: var(--color-gold); display: flex; align-items: center; gap: 8px; margin: 0;">ℹ️ About & How to Play</h2>
+          <h2 style="font-family: var(--font-display); font-size: 1.8rem; color: var(--color-gold); display: flex; align-items: center; gap: 8px; margin: 0;">📖 Game Master Study Guide</h2>
           <button id="btn-about-close" class="btn btn-icon" style="margin-left: auto; font-size: 1.5rem; background: transparent; border: none; color: var(--color-text-light); cursor: pointer;">&times;</button>
         </div>
-        <div class="about-modal-body" style="flex: 1; overflow-y: auto; padding: 10px 10px; color: var(--color-text-light); line-height: 1.6; font-size: 0.95rem; display: flex; flex-direction: column; gap: 20px;">
-          <!-- Welcome Section -->
-          <div style="background: rgba(255, 255, 255, 0.03); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--cell-border); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);">
-            <h3 style="color: var(--color-gold); font-family: var(--font-display); font-size: 1.35rem; margin-bottom: 10px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🌟 Welcome to the Bible Quiz Review Game!</h3>
-            <p style="margin: 0; font-size: 0.98rem; color: var(--color-text-light); opacity: 0.95;">
-              This interactive, classroom-style review game is designed to help church kids review Bible stories, characters, and verses. Built with custom audio synthesis, rolling animations, hidden power-ups, and robust template utilities, it is the perfect tool for classroom engagement, Sunday schools, and youth groups!
+        <div class="about-modal-body" style="flex: 1; overflow-y: auto; padding: 10px 15px; color: var(--color-text-light); line-height: 1.6; font-size: 0.95rem; display: flex; flex-direction: column; gap: 24px;">
+          
+          <!-- Quick Overview Card -->
+          <div style="background: rgba(244, 196, 48, 0.03); padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(244, 196, 48, 0.15); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);">
+            <h3 style="color: var(--color-gold); font-family: var(--font-display); font-size: 1.35rem; margin-bottom: 8px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🌟 Host like a Pro!</h3>
+            <p style="margin: 0; font-size: 0.95rem; opacity: 0.95;">
+              Welcome to the ultimate guide for running the Bible Quiz Review Game. This dashboard handles team scores, audio synthesizers, interactive tile reveals, power-up logic, and CSV customization. Read this master class guide to run games flawlessly for your class, youth group, or Sunday school!
             </p>
           </div>
 
-          <!-- Two-Column Grid for Rules and Power-ups -->
-          <div class="about-grid-wrapper" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <!-- Column 1: Rules & Turn Flow -->
-            <div style="background: rgba(56, 217, 245, 0.04); padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(56, 217, 245, 0.18);">
-              <h4 style="color: var(--color-team1); font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 12px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🎮 Gameplay & Rules</h4>
-              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 10px; margin: 0; font-size: 0.9rem; color: var(--color-text-light);">
-                <li><strong>Team Setup</strong>: Configure custom names, upload custom logos, or choose cartoon animal avatars in the sidebar Control Center.</li>
-                <li><strong>Turn Selection</strong>: Teams take turns selecting question tiles from the interactive game board. The points value of each card is displayed on its bottom-right corner ribbon.</li>
-                <li><strong>Score Math</strong>: Answering correctly adds the full points value to the team's score. Wrong answers subtract half the question value (unless disabled in Settings).</li>
-                <li><strong>Steal System</strong>: If the active team gets it wrong or chooses to pass, the opposing team can attempt a steal. Correct steals award the points, while incorrect steals incur the standard wrong answer penalty.</li>
-                <li><strong>End Game</strong>: Use the <strong>End</strong> button in the top control bar to instantly conclude the active game and show final standings.</li>
-                <li><strong>Tiebreaker</strong>: If scores are tied at the end, a designated tiebreaker question automatically resolves the winner.</li>
-              </ul>
-            </div>
-
-            <!-- Column 2: Power-ups -->
-            <div style="background: rgba(244, 196, 48, 0.04); padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(244, 196, 48, 0.18);">
-              <h4 style="color: var(--color-gold); font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 12px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🎁 Hidden Power-ups</h4>
-              <p style="margin-bottom: 10px; font-size: 0.9rem; color: var(--color-text-light); opacity: 0.9; margin-top: 0;">Special modifiers are randomly hidden beneath question cards. Revealing a power-up applies immediate benefits:</p>
-              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; color: var(--color-text-light); margin: 0;">
-                <li>🌟 <strong>Double Points</strong>: Doubles the point value of the question, giving you a chance to leap ahead!</li>
-                <li>🛡️ <strong>Steal Shield</strong>: Protects your score! If you get the question wrong, the other team cannot steal the points.</li>
-                <li>🔄 <strong>Second Chance</strong>: Gives your team a free second attempt if your first answer is incorrect.</li>
-                <li>🩹 <strong>Safety Net</strong>: If you answer wrong, you lose 0 points instead of the normal 50% point deduction.</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Section 3: Teacher Utilities -->
-          <div style="background: rgba(167, 139, 250, 0.04); padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(167, 139, 250, 0.18);">
-            <h4 style="color: var(--color-team4); font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 12px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🛠️ Teacher Customization Suite</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.9rem; color: var(--color-text-light);">
-              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0;">
-                <li><strong>Bible Story Presets</strong>: Instantly load custom 12-question quiz presets (+1 tiebreaker each) like Noah's Ark, David & Goliath, Miracles of Jesus, Moses, Joseph, Daniel, or Jonah.</li>
-                <li><strong>Interactive Editor</strong>: Customize questions, answers, MCQ options, points, and power-up types inside the Admin Panel. Assigning any custom power-up to a question automatically switches the game's power-up assignment mode to **Manual** so they are guaranteed to appear.</li>
-              </ul>
-              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0;">
-                <li><strong>Format Selector (Save DB)</strong>: Choose between **JSON (Full Backup)** to save the entire database (including category labels, custom teams, and settings) and **CSV (Excel)** to download questions and settings in a spreadsheet-compatible format.</li>
-                <li><strong>Aesthetic Controls</strong>: Tailor the board appearance with custom fonts, grid colors, and tile designs.</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Section 4: Game Modes & Persistence -->
-          <div style="background: rgba(244, 63, 94, 0.04); padding: 20px; border-radius: var(--radius-sm); border: 1px solid rgba(244, 63, 94, 0.18);">
-            <h4 style="color: #f43f5e; font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 12px; margin-top: 0; display: flex; align-items: center; gap: 8px;">🏠 Game Modes & Local Persistence</h4>
-            <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0; font-size: 0.9rem; color: var(--color-text-light);">
-              <li><strong>Practice Mode</strong>: Enable solo-learning mode on the dashboard to review questions independently without teams, score penalties, or turn limits.</li>
-              <li><strong>Local Storage Protection</strong>: All scores, active game states, and custom settings/questions are saved in the browser's local storage. A mid-game reload or power outage will never lose your quiz progress!</li>
+          <!-- Section 1: 📋 1-Minute Prep Checklist -->
+          <div class="guide-section-card">
+            <h3 class="guide-section-title">📋 1. One-Minute Prep Checklist</h3>
+            <ul class="guide-step-list">
+              <li class="guide-step-item">
+                <div class="guide-step-number">1</div>
+                <div class="guide-step-content">
+                  <strong>Verify Sound Output</strong>: Click the speaker button in the header. Make sure the volume is up so kids can hear the ticking clock, success sound effects, and team congratulations. Test audio by toggling it; if sounds do not play, check your browser's autoplay permission bar.
+                </div>
+              </li>
+              <li class="guide-step-item">
+                <div class="guide-step-number">2</div>
+                <div class="guide-step-content">
+                  <strong>Display & Projector Scaling</strong>: If projecting to a TV, classroom projector, or sharing via Zoom: click the Fullscreen 🖥️ icon in the header. Use the <strong>-</strong> and <strong>+</strong> buttons in the header to scale the entire interface (recommended: 100% for standard screens, 120% for large projectors, 85% for laptop hosts).
+                </div>
+              </li>
+              <li class="guide-step-item">
+                <div class="guide-step-number">3</div>
+                <div class="guide-step-content">
+                  <strong>Set Up Teams</strong>: Click the ⚙️ control wheel or hamburger menu to slide open the Control Center. Expand <strong>Teams Setup</strong> to name your teams (e.g. "Noah's Lions", "David's Giants") and pick cartoon animal avatars. You can also upload custom high-resolution square logos.
+                </div>
+              </li>
+              <li class="guide-step-item">
+                <div class="guide-step-number">4</div>
+                <div class="guide-step-content">
+                  <strong>Preload Presets or Custom CSV</strong>: In the Control Center under <strong>📂 Quiz Files</strong>, choose one of the built-in 12-question preset story templates (e.g. Daniel, Miracles, Moses) or click <strong>CSV</strong> to import your own custom-built question sheet.
+                </div>
+              </li>
+              <li class="guide-step-item">
+                <div class="guide-step-number">5</div>
+                <div class="guide-step-content">
+                  <strong>Establish House Rules</strong>: Decide how kids will answer (e.g. raising hands, pressing a physical buzzer, or discussing as a group) and whether you will enforce negative scoring penalties. Turn negative scoring on or off in the Control Center under <strong>Advanced Utilities -> Game Rules</strong>.
+                </div>
+              </li>
             </ul>
+          </div>
+
+          <!-- Section 2: 🔄 The Golden Turn Cycle -->
+          <div class="guide-section-card">
+            <h3 class="guide-section-title">🔄 2. The Golden Turn Cycle & Steals</h3>
+            <ul class="guide-step-list">
+              <li class="guide-step-item">
+                <div class="guide-step-number">A</div>
+                <div class="guide-step-content">
+                  <strong>Team Selection</strong>: Look at the flashing Turn Indicator in the header. The active team selects any face-down point card on the board (e.g., "Noah's Ark for 200 points"). The host clicks the tile on the screen, which zooms open the Question Modal.
+                </div>
+              </li>
+              <li class="guide-step-item">
+                <div class="guide-step-number">B</div>
+                <div class="guide-step-content">
+                  <strong>Reveal & Read</strong>: Read the question and multiple-choice options aloud. The team has 30 seconds to answer (watch the countdown bar!).
+                </div>
+              </li>
+              <li class="guide-step-item">
+                <div class="guide-step-number">C</div>
+                <div class="guide-step-content">
+                  <strong>Resolve Answer</strong>:
+                  <ul style="padding-left: 20px; margin-top: 6px; display: flex; flex-direction: column; gap: 8px;">
+                    <li><strong>Correct Answer</strong>: Click the option they chose. Full points are added, a cheer plays, the card turns green/blue, and the turn passes.</li>
+                    <li><strong>Incorrect Answer</strong>: Click the chosen incorrect option. The active team is docked half-points (if negative score is enabled). The turn does NOT switch to the other team's regular turn; instead, a <strong>Steal Mode</strong> is triggered.</li>
+                    <li><strong>Passing the Question</strong>: If the active team doesn't know, click <strong>PASS</strong>. They lose 0 points, and the opposing team gets the opportunity to steal.</li>
+                  </ul>
+                </div>
+              </li>
+              <li class="guide-step-item">
+                <div class="guide-step-number">D</div>
+                <div class="guide-step-content">
+                  <strong>Executing the Steal</strong>: The opposing team gets a single attempt. The points display updates to show the Steal value (50% of the original question value).
+                  <ul style="padding-left: 20px; margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
+                    <li><strong>Correct Steal</strong>: Earns 50% of the original question value. The card is locked with the stealing team's color.</li>
+                    <li><strong>Incorrect Steal</strong>: Loses 50% of the question value. The card is locked with a grey background.</li>
+                    <li><strong>Steal Timeout / Cancel</strong>: If the stealing team fails to answer, no points are changed, the question closes, and the card locks.</li>
+                  </ul>
+                  Once the steal is resolved, the turn advances to the next team's normal turn.
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Section 3: ⚖️ Scoring Math Matrix -->
+          <div class="guide-section-card">
+            <h3 class="guide-section-title">⚖️ 3. Scoring Formulas & Rules</h3>
+            <p style="margin: 0; font-size: 0.9rem; opacity: 0.95;">
+              Here is how scores are calculated by default. If <strong>Negative Scoring</strong> is disabled in settings, incorrect attempts will deduct 0 points.
+            </p>
+            <table class="guide-table">
+              <thead>
+                <tr>
+                  <th>Card Value</th>
+                  <th>1st Attempt Correct</th>
+                  <th>1st Attempt Incorrect</th>
+                  <th>Steal Correct</th>
+                  <th>Steal Incorrect</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>100 PTS</strong></td>
+                  <td style="color: #22c55e; font-weight: bold;">+100</td>
+                  <td style="color: #ef4444;">-50</td>
+                  <td style="color: #22c55e; font-weight: bold;">+50</td>
+                  <td style="color: #ef4444;">-50</td>
+                </tr>
+                <tr>
+                  <td><strong>200 PTS</strong></td>
+                  <td style="color: #22c55e; font-weight: bold;">+200</td>
+                  <td style="color: #ef4444;">-100</td>
+                  <td style="color: #22c55e; font-weight: bold;">+100</td>
+                  <td style="color: #ef4444;">-100</td>
+                </tr>
+                <tr>
+                  <td><strong>300 PTS</strong></td>
+                  <td style="color: #22c55e; font-weight: bold;">+300</td>
+                  <td style="color: #ef4444;">-150</td>
+                  <td style="color: #22c55e; font-weight: bold;">+150</td>
+                  <td style="color: #ef4444;">-150</td>
+                </tr>
+                <tr>
+                  <td><strong>400 PTS</strong></td>
+                  <td style="color: #22c55e; font-weight: bold;">+400</td>
+                  <td style="color: #ef4444;">-200</td>
+                  <td style="color: #22c55e; font-weight: bold;">+200</td>
+                  <td style="color: #ef4444;">-200</td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="margin-top: 10px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.02); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid rgba(255, 255, 255, 0.05);">
+              <strong style="color: var(--color-gold);">🏆 Tie Breaker Scenarios:</strong>
+              <p style="margin: 0; line-height: 1.4;">
+                If the game ends in a tie after all normal cards are played, the Tie Breaker card unlocks in the center of the board to resolve the match.
+              </p>
+              <ul style="padding-left: 20px; margin: 4px 0 0 0; display: flex; flex-direction: column; gap: 4px;">
+                <li><strong>No Tiebreaker Needed (Standard Win)</strong>: If one team finishes with more points than the other (e.g. 1500 vs 1200), no tiebreaker is needed. The game ends immediately, declares that team the winner, and bypasses the tie-breaker card.</li>
+                <li><strong>No Tiebreaker Wanted (Draw Game)</strong>: If you do not want a tiebreaker to trigger under any circumstances (even in a tie), open the <strong>Control Center -> Advanced Utilities -> Game Rules</strong> and uncheck <strong>Enable Tie Breaker</strong>. If scores are tied at the end, the game will immediately declare a Draw.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Section 4: 🎁 Power-Ups Master Class -->
+          <div class="guide-section-card">
+            <h3 class="guide-section-title">🎁 4. In-Depth Power-Ups Rules</h3>
+            <p style="margin: 0; font-size: 0.9rem; opacity: 0.95;">
+              Power-ups add exciting twists to the game. They can be assigned in two ways:
+            </p>
+            <ul style="padding-left: 20px; margin: 6px 0 10px 0; display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem;">
+              <li><strong>Random Mode</strong>: The game automatically hides a configurable number of power-ups under random board cards.</li>
+              <li><strong>Manual Mode</strong>: If you assign specific power-ups to questions (either via Excel uploads or the Admin Panel), the system automatically locks into manual mode so those power-ups appear exactly on those cards.</li>
+            </ul>
+            <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 10px;">
+              <div style="background: rgba(255, 255, 255, 0.015); border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px;">
+                <span class="guide-badge badge-double">🌟 Double Points</span>
+                <p style="margin: 6px 0 0 0; font-size: 0.9rem;">
+                  <strong>Rule</strong>: The point values of this question are doubled.
+                  <br><em>Example Scenario</em>: A 200 pt card becomes 400 pts. Correct 1st attempt adds <strong>+400</strong>. Incorrect 1st attempt deducts <strong>-200</strong>. A successful steal adds <strong>+200</strong>, while an incorrect steal deducts <strong>-200</strong>.
+                </p>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.015); border-left: 4px solid #06b6d4; padding: 12px 16px; border-radius: 4px;">
+                <span class="guide-badge badge-shield">🛡️ Steal Shield</span>
+                <p style="margin: 6px 0 0 0; font-size: 0.9rem;">
+                  <strong>Rule</strong>: Protects your card! The opposing team is completely blocked from attempting a steal.
+                  <br><em>Example Scenario</em>: If Team A gets a 300 pt card wrong, they lose 150 pts. The question is locked immediately. The turn advances to Team B, and Team B cannot attempt to answer.
+                </p>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.015); border-left: 4px solid #22c55e; padding: 12px 16px; border-radius: 4px;">
+                <span class="guide-badge badge-net">🩹 Safety Net</span>
+                <p style="margin: 6px 0 0 0; font-size: 0.9rem;">
+                  <strong>Rule</strong>: Waives the active team's score penalty on their first attempt.
+                  <br><em>Example Scenario</em>: Team A answers a 400 pt question incorrectly. Instead of losing 200 points, they lose <strong>0 points</strong>. The turn is then passed to Team B, who can still steal the question for +200 points.
+                </p>
+              </div>
+
+              <div style="background: rgba(255, 255, 255, 0.015); border-left: 4px solid #a855f7; padding: 12px 16px; border-radius: 4px;">
+                <span class="guide-badge badge-chance">🔄 Second Chance / 50-50</span>
+                <p style="margin: 6px 0 0 0; font-size: 0.9rem;">
+                  <strong>Rule</strong>: Gives the active team a free second attempt if their first choice is wrong.
+                  <br><em>Example Scenario</em>: Team A picks a card and gets the answer wrong. The incorrect choice turns red and is disabled. Team A gets a second attempt at the remaining options. If they get it wrong again, the turn advances to Team B for a steal.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: 📊 Excel / Google Sheets Guide -->
+          <div class="guide-section-card">
+            <h3 class="guide-section-title">📊 5. Excel / Google Sheets Guide</h3>
+            <p style="margin: 0; font-size: 0.9rem; opacity: 0.95;">
+              Want to write your own custom Bible review questions? You can prepare them in a spreadsheet and upload them instantly.
+              <br><strong>⚠️ Column Matching Rule</strong>: The number of Category columns in your CSV defines the number of column headers (categories) on your game board. For example, if you have 12 questions (which defaults to a 4-column layout), you need exactly 4 category columns in your CSV (<code>Category 1</code> through <code>Category 4</code>). If you only have 3 questions, the board defaults to 3 columns (so you need 3 category columns: <code>Category 1</code> through <code>Category 3</code>).
+            </p>
+            <ol style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 10px 0 0 0; font-size: 0.9rem;">
+              <li>Open the Control Center sidebar, expand <strong>Custom Questions Editor & Presets</strong>, and click <strong>Download CSV Template</strong>.</li>
+              <li>Open the downloaded file in Microsoft Excel or Google Sheets.</li>
+              <li>Fill in the rows. **Do not change the headers in row 1**:
+                <ul style="padding-left: 20px; margin-top: 4px; display: flex; flex-direction: column; gap: 4px;">
+                  <li><code>Category 1</code>, <code>Category 2</code>, etc.: Columns where the values in the first row define your category names. The number of categories matches the active column count on the game board.</li>
+                  <li><code>Value</code>: Points value (100, 200, 300, 400).</li>
+                  <li><code>Question</code>: The quiz question.</li>
+                  <li><code>OptionA</code>, <code>OptionB</code>, <code>OptionC</code>, <code>OptionD</code>: Multiple choice answers.</li>
+                  <li><code>Answer</code>: The exact text of the correct option (must match one of the options).</li>
+                  <li><code>Powerup</code>: Set to blank (or <code>none</code>) for no power-up, or write one of these recognized keywords (case-insensitive):
+                    <ul style="padding-left: 20px; margin-top: 4px; display: flex; flex-direction: column; gap: 2px;">
+                      <li><code>double_points</code> (or any word containing <code>double</code>) &rarr; 🌟 Double Points</li>
+                      <li><code>steal_shield</code> (or any word containing <code>shield</code> or <code>steal</code>) &rarr; 🛡️ Steal Shield</li>
+                      <li><code>safety_net</code> (or any word containing <code>safety</code> or <code>net</code>) &rarr; 🩹 Safety Net</li>
+                      <li><code>second_chance</code> (or any word containing <code>second</code>, <code>chance</code>, or <code>50</code>) &rarr; 🔄 Second Chance</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li>Save the sheet as a <strong>CSV UTF-8 (Comma Delimited) (*.csv)</strong> file.</li>
+              <li>Click <strong>Import CSV</strong> in the Control Center sidebar to upload and start playing.</li>
+              <li style="list-style: none; margin-top: 12px;">
+                <strong>Example Spreadsheet Layout (4-Column Board Example)</strong>:
+                <div style="overflow-x: auto; margin-top: 8px; border: 1px solid #cbd5e1; border-radius: var(--radius-sm); background: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left; min-width: 1250px; font-family: var(--font-body); color: #334155; background: #ffffff;">
+                    <thead>
+                      <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0f172a !important;">Question Number</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0f172a !important;">Type</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0f172a !important;">Question</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0f172a !important;">Answer</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0f172a !important;">Option A</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0f172a !important;">Option B</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0f172a !important;">Option C</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0f172a !important;">Option D</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0f172a !important;">Points</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0f172a !important;">Powerup</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0284c7 !important;">Category 1</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0284c7 !important;">Category 2</th>
+                        <th style="padding: 8px 10px; border-right: 1px solid #cbd5e1; font-weight: bold; color: #0284c7 !important;">Category 3</th>
+                        <th style="padding: 8px 10px; font-weight: bold; color: #0284c7 !important;">Category 4</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Row 1: MCQ (Noah's Ark) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">1</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">mcq</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">What wood was the Ark built of?</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Gopher wood</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Oak</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Cedar</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Gopher wood</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Pine</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">100</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #d97706 !important; font-weight: bold;">double_points</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #0284c7 !important; font-weight: bold;">Noah's Ark</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                      </tr>
+                      <!-- Row 2: MCQ (David's Life) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">2</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">mcq</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Who was David's best friend?</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Jonathan</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Saul</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Jonathan</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Samuel</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Absalom</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">100</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #64748b !important;">none</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #0284c7 !important; font-weight: bold;">David's Life</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                      </tr>
+                      <!-- Row 3: MCQ (Miracles) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">3</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">mcq</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">How many baskets of food were left over after feeding the 5000?</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">12</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">7</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">10</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">12</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">5</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">100</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #64748b !important;">none</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #0284c7 !important; font-weight: bold;">Miracles of Jesus</td>
+                        <td style="padding: 8px 10px; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                      </tr>
+                      <!-- Row 4: MCQ (Moses) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">4</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">mcq</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">On what mountain did Moses receive the Ten Commandments?</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Mount Sinai</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Mount Nebo</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Mount Ararat</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Mount Sinai</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Mount Carmel</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">100</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #06b6d4 !important; font-weight: bold;">steal_shield</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; color: #0284c7 !important; font-weight: bold;">Moses & Exodus</td>
+                      </tr>
+                      <!-- Row 5: Fill in Blank (Noah's Ark) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">5</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">fill_blank</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Noah sent out a __________, which returned with an olive branch.</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">dove</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">200</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #64748b !important;">none</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #0284c7 !important; font-weight: bold;">Noah's Ark</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                      </tr>
+                      <!-- Row 6: Fill in Blank (David's Life) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">6</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">fill_blank</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">David defeated Goliath using a stone and a __________.</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">sling</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">200</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #22c55e !important; font-weight: bold;">safety_net</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #0284c7 !important; font-weight: bold;">David's Life</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                      </tr>
+                      <!-- Row 7: Fill in Blank (Miracles) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">7</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">fill_blank</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Jesus turned water into __________ at the wedding in Cana.</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">wine</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">200</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #64748b !important;">none</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #0284c7 !important; font-weight: bold;">Miracles of Jesus</td>
+                        <td style="padding: 8px 10px; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                      </tr>
+                      <!-- Row 8: Fill in Blank (Moses) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">8</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">fill_blank</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">The Lord parted the __________ Sea so the Israelites could escape.</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Red</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">200</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #64748b !important;">none</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; color: #0284c7 !important; font-weight: bold;">Moses & Exodus</td>
+                      </tr>
+                      <!-- Row 9: Short Answer (Noah's Ark) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">9</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">short_answer</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">How many days and nights did it rain during the Great Flood?</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">40</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">300</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #64748b !important;">none</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #0284c7 !important; font-weight: bold;">Noah's Ark</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                      </tr>
+                      <!-- Row 10: Short Answer (David's Life) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">10</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">short_answer</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">What instrument did David play for King Saul?</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Harp</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">300</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #64748b !important;">none</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #0284c7 !important; font-weight: bold;">David's Life</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                      </tr>
+                      <!-- Row 11: Short Answer (Miracles) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">11</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">short_answer</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">What was the name of the man Jesus raised from the dead in Bethany?</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Lazarus</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">300</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #a855f7 !important; font-weight: bold;">second_chance</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #0284c7 !important; font-weight: bold;">Miracles of Jesus</td>
+                        <td style="padding: 8px 10px; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                      </tr>
+                      <!-- Row 12: Short Answer (Moses) -->
+                      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #0f172a !important;">12</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">short_answer</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">What did Moses use to hit the rock that brought forth water?</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Staff</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">300</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #64748b !important;">none</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; color: #0284c7 !important; font-weight: bold;">Moses & Exodus</td>
+                      </tr>
+                      <!-- Row 13: Tie Breaker Question -->
+                      <tr style="border-bottom: 1px solid #cbd5e1; background: rgba(244, 196, 48, 0.08);">
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; font-weight: bold; color: #b45309 !important;">tiebreaker</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">short_answer</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">What is the reward God has promised to those who overcome temptation?</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">Crown of Life</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #334155 !important;">1000</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #64748b !important;">none</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; border-right: 1px solid #e2e8f0; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                        <td style="padding: 8px 10px; color: #94a3b8 !important; font-style: italic;">(blank)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div style="margin-top: 12px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.02); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid rgba(255, 255, 255, 0.05);">
+                  <strong style="color: var(--color-gold);">💡 Row-by-Row Format Guide for Beginners:</strong>
+                  <ul style="padding-left: 20px; margin: 0; display: flex; flex-direction: column; gap: 6px;">
+                    <li><strong>Row 1 (Multiple Choice - <code>mcq</code>)</strong>: Use this for traditional options. Fill in <code>Option A</code> through <code>Option D</code>, and make sure the correct text matches the <code>Answer</code> cell exactly.</li>
+                    <li><strong>Row 2 (Fill in the Blank - <code>fill_blank</code>)</strong>: Use this to have students guess a word. Write underscores (e.g., <code>__________</code>) in the question and leave all <code>Option</code> cells blank.</li>
+                    <li><strong>Row 3 (Short Verbal Answer - <code>short_answer</code>)</strong>: Use this for open-ended discussion questions. Leave all <code>Option</code> cells blank. The host will read the question aloud and check their verbal answer.</li>
+                    <li><strong>Row 13 (Tie Breaker Question)</strong>: To configure a custom tie-breaker question, write <code>tiebreaker</code> in the **Question Number** column or the **Type** column. Leave all categories and option cells blank. By default, tie-breakers use the <code>short_answer</code> format.</li>
+                  </ul>
+                </div>
+
+                <div style="margin-top: 8px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.02); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid rgba(255, 255, 255, 0.05);">
+                  <strong style="color: var(--color-danger);">⚠️ CSV Troubleshooting Checklist:</strong>
+                  <ul style="padding-left: 20px; margin: 0; display: flex; flex-direction: column; gap: 6px;">
+                    <li><strong>UTF-8 Formatting</strong>: Always save as **CSV UTF-8 (Comma Delimited)**. Saving as standard Excel Workbook or Mac CSV causes Malayalam/Hindi fonts to display as question marks.</li>
+                    <li><strong>Commas in Questions</strong>: If your question contains commas (e.g. *Abraham, the father of faith, had...*), wrap the text block in double quotes `""` or edit it in Google Sheets, which handles escaping automatically.</li>
+                    <li><strong>Column Count Matches</strong>: Make sure the total category columns in your spreadsheet match the active column settings in the sidebar (e.g. 4 categories for a 4-column layout).</li>
+                  </ul>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Section 6: ⚙️ Control Center & Database Operations -->
+          <div class="guide-section-card">
+            <h3 class="guide-section-title">⚙️ 6. Control Center & File Backups</h3>
+            <p style="margin: 0; font-size: 0.9rem; opacity: 0.95;">
+              The <strong>Control Center</strong> is your sliding sidebar settings dashboard. Click the gear icon ⚙️ or hamburger menu ☰ in the top-right header to access it:
+            </p>
+            <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin: 0; font-size: 0.9rem;">
+              <li><strong>👥 Teams Setup</strong>: Rename teams, select cartoon avatars, upload custom square logos, and manually adjust team points directly.</li>
+              <li><strong>🎨 Grid Typography</strong>: Select board fonts (including Noto Sans Unicode and Baloo 2 for Malayalam and Devanagari Hindi support), customize point text colors, question label colors, and tile background colors.</li>
+              <li><strong>🔧 Advanced Utilities</strong>:
+                <ul style="padding-left: 20px; margin-top: 4px; display: flex; flex-direction: column; gap: 4px;">
+                  <li><strong>Game Rules</strong>: Toggle the Tie Breaker question, change Board Display mode (Points Only, Questions Only, or both), and configure Power-up modes (🎲 Random, ✍️ Manual, or ❌ Disabled).</li>
+                  <li><strong>Layout</strong>: Adjust the number of active questions and column count to resize the board dynamically.</li>
+                  <li><strong>Category Names</strong>: Toggle category title visibility and enter custom names for each category column.</li>
+                  <li><strong>Feedback Systems</strong>: Enable custom emoji arrays, choose global emoji selection modes (Random vs Sequential), and upload custom videos to play for Correct Answers, Incorrect Answers, or overall Victory.</li>
+                </ul>
+              </li>
+              <li><strong>📂 Quiz Files & Database Backups</strong>:
+                <ul style="padding-left: 20px; margin-top: 4px; display: flex; flex-direction: column; gap: 4px;">
+                  <li><strong>Load Preset Story Template</strong>: Instantly populate the board with built-in story presets (🛶 Noah, 👑 David, 🍞 Miracles, 🌊 Moses, 🌈 Joseph, 🦁 Daniel, 🐳 Jonah).</li>
+                  <li><strong>Defaults</strong>: Reset all configuration settings to standard values.</li>
+                  <li><strong>Save DB (Save Database JSON)</strong>: Click the <strong>Save DB</strong> button to download a complete `.json` backup file containing all current questions, settings, category names, and team configurations. Use this to save customized games permanently!</li>
+                  <li><strong>JSON Import</strong>: Click the <strong>JSON</strong> button to select and upload a previously exported game backup `.json` file to restore your settings and custom questions.</li>
+                  <li><strong>CSV Import</strong>: Click the <strong>CSV</strong> button to import custom spreadsheets of questions after configuring them according to the Excel guidelines.</li>
+                  <li><strong>Download CSV Template</strong>: Download a reference template to quickly write custom questions in your spreadsheet editor.</li>
+                </ul>
+              </li>
+              <li><strong>⚠️ Danger Operations</strong>:
+                <ul style="padding-left: 20px; margin-top: 4px; display: flex; flex-direction: column; gap: 4px;">
+                  <li><strong>Reset Game</strong>: Resets scores and restores all board tiles back to face-down point cards while keeping your loaded questions.</li>
+                  <li><strong>Clear DB</strong>: Completely wipes all custom configurations, settings, and questions from browser storage (reloads to standard default settings).</li>
+                </ul>
+              </li>
+            </ul>
+            <div style="margin-top: 10px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.02); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid rgba(255, 255, 255, 0.05);">
+              <strong style="color: var(--color-gold);">💾 Data Persistence & Portability:</strong>
+              <p style="margin: 0; line-height: 1.4;">
+                This game runs entirely inside your browser's **Local Storage** database. All loaded questions, custom emojis, avatars, and points are automatically saved. You can close the tab or reboot, and your setup is preserved! However, clearing browser cookies/cache will wipe this database. To move the quiz setup to another computer, click <strong>Save DB</strong> to save a `.json` backup, copy it to the target machine, and upload it via <strong>JSON</strong> import!
+              </p>
+            </div>
+          </div>
+
+          <!-- Section 7: ⚡ Host Troubleshooting & Control Hacks -->
+          <div class="guide-section-card">
+            <h3 class="guide-section-title">⚡ 7. Game Master FAQs & Hacks</h3>
+            <div class="guide-faq-list">
+              <div class="guide-faq-item">
+                <h4 class="guide-faq-question">↩️ I clicked the wrong answer button by accident. How do I fix it?</h4>
+                <p class="guide-faq-answer">
+                  Don't worry! You can undo actions step-by-step. Simply click the <strong>↩️ Undo Action</strong> button inside the open question modal (next to the SUBMIT button). This instantly restores the team's points and turn, keeping the question open. If you have already closed the modal, click the blue <strong>Undo</strong> button at the bottom of the main game board to revert the turn.
+                </p>
+              </div>
+              <div class="guide-faq-item">
+                <h4 class="guide-faq-question">🛠️ How do I manually write or edit questions without spreadsheets?</h4>
+                <p class="guide-faq-answer">
+                  You can edit questions directly inside the app! Click the <strong>⚙️ Admin Panel</strong> button in the top header. In the interactive grid that appears, click any tile slot. This opens the question editor where you can fill in the question text, answers, MCQ options, points, and select power-ups manually. Click **Save Question** to update the board immediately.
+                </p>
+              </div>
+              <div class="guide-faq-item">
+                <h4 class="guide-faq-question">✏️ Can I manually edit or override team scores?</h4>
+                <p class="guide-faq-answer">
+                  Yes! Slide open the Control Center sidebar (⚙️ in header). Expand the <strong>Teams Setup</strong> card, locate the team's score field, and type in any custom score you want. The game board updates in real time.
+                </p>
+              </div>
+              <div class="guide-faq-item">
+                <h4 class="guide-faq-question">🔍 The game board looks too small or too big on our projector screen.</h4>
+                <p class="guide-faq-answer">
+                  Use the zoom controls (the <strong>-</strong> and <strong>+</strong> buttons) in the top right header to scale the entire interface from 50% to 150%. You can also click the adjacent window icon to enter fullscreen mode.
+                </p>
+              </div>
+              <div class="guide-faq-item">
+                <h4 class="guide-faq-question">🔊 Help! Sounds are not playing in the classroom.</h4>
+                <p class="guide-faq-answer">
+                  Most modern web browsers block sound autoplay until the user interacts with the page. Simply click anywhere on the page (such as opening the sidebar or clicking a tile card) and sound chimes will activate automatically. Also check that sound is enabled via the speaker icon in the top header.
+                </p>
+              </div>
+              <div class="guide-faq-item">
+                <h4 class="guide-faq-question">📱 Can I host this review game on a tablet or iPad?</h4>
+                <p class="guide-faq-answer">
+                  Yes! The interface is fully responsive. To maximize screen space on tablets, hide the sidebar, and use the zoom controls to adjust card size to fit the screen. You can also import CSVs or JSON files directly from your tablet files app.
+                </p>
+              </div>
+              <div class="guide-faq-item">
+                <h4 class="guide-faq-question">🧠 What if a student blurted out the answer before the other team could steal?</h4>
+                <p class="guide-faq-answer">
+                  Click the <strong>Cancel Question</strong> button in the bottom left of the question modal. This resets the tile and returns you to the board, allowing you to choose a different question or manually adjust scores in the Control Center.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
         <div class="modal-footer" style="justify-content: flex-end;">
