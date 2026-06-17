@@ -4196,7 +4196,7 @@ function showEmojiFeedback(isCorrect, q, callback) {
         playState.teamsAttemptedCount++;
         
         if (!isExhausted) {
-          playState.currentQuestionValue = ptsToAward - penalty;
+          playState.currentQuestionValue = Math.floor(ptsToAward * 0.5);
           transitionState('AWAITING_STEAL');
           switchTurn();
           saveGameState();
