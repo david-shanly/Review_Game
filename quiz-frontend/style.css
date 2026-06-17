@@ -4398,21 +4398,25 @@ img.emoji {
 .turn-controls #btn-end-game:hover {
   background: #dc2626 !important; /* Hover background */
 }
-.turn-controls #btn-resign-game {
+.turn-controls #btn-resign-game,
+.turn-controls #btn-undo-game {
   background: #ffffff !important;
   color: #4b5563 !important;
   border: 1.5px solid #d1d5db !important;
 }
-.turn-controls #btn-resign-game:hover {
+.turn-controls #btn-resign-game:hover,
+.turn-controls #btn-undo-game:hover {
   background: #f8fafc !important;
 }
 
-[data-theme="dark"] .turn-controls #btn-resign-game {
+[data-theme="dark"] .turn-controls #btn-resign-game,
+[data-theme="dark"] .turn-controls #btn-undo-game {
   background: rgba(255, 255, 255, 0.1) !important;
   color: #e5e7eb !important;
   border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
 }
-[data-theme="dark"] .turn-controls #btn-resign-game:hover {
+[data-theme="dark"] .turn-controls #btn-resign-game:hover,
+[data-theme="dark"] .turn-controls #btn-undo-game:hover {
   background: rgba(255, 255, 255, 0.15) !important;
 }
 
@@ -5212,6 +5216,12 @@ img.emoji {
 #btn-resign-game::after {
   content: "🏳️";
   background: #475569 !important;
+}
+
+/* Undo */
+#btn-undo-game::after {
+  content: "↩️";
+  background: #2563eb !important;
 }
 
 /* Delete Question */
