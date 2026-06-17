@@ -5431,10 +5431,7 @@ function generateCSVContent() {
   const headers = [
     "Question Number", "Type", "Question", "Answer", 
     "Option A", "Option B", "Option C", "Option D", 
-    "Points", "Powerup", "Subtract On Wrong", "Play Video Feedback", 
-    "Play Emoji Feedback", "Enable Tiebreaker", "Show Categories", 
-    "Font Selected", "Team 1 Name", "Team 1 Logo", 
-    "Team 2 Name", "Team 2 Logo", 
+    "Points", "Powerup",
     "Category 1", "Category 2", "Category 3", "Category 4", "Category 5", "Category 6"
   ];
   
@@ -5467,16 +5464,6 @@ function generateCSVContent() {
       optD,
       q.points,
       q.powerup || 'none',
-      db.settings.subtractOnWrong ? 'true' : 'false',
-      db.settings.playVideoFeedback ? 'true' : 'false',
-      db.settings.playEmojiFeedback ? 'true' : 'false',
-      db.settings.enableTieBreaker ? 'true' : 'false',
-      db.settings.showCategories ? 'true' : 'false',
-      db.settings.fontSelected || 'Outfit',
-      db.teams && db.teams[0] ? db.teams[0].name : '',
-      db.teams && db.teams[0] ? db.teams[0].logo || '' : '',
-      db.teams && db.teams[1] ? db.teams[1].name : '',
-      db.teams && db.teams[1] ? db.teams[1].logo || '' : '',
       db.settings.categories[0] || '',
       db.settings.categories[1] || '',
       db.settings.categories[2] || '',
@@ -5490,6 +5477,7 @@ function generateCSVContent() {
   
   return rows.join('\n');
 }
+
 
 // Export DB
 document.getElementById('btn-export-json').addEventListener('click', () => {
