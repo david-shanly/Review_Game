@@ -4223,6 +4223,10 @@ function showEmojiFeedback(isCorrect, q, callback) {
 
           playState.answeredCells[cId] = { teamIndex: -1, pointsWon: 0, cancelled: false };
 
+          if (playState.teamsAttemptedCount === 1) {
+            switchTurn();
+          }
+
           const turnStatus = document.getElementById('modal-turn-status');
           if (playState.powerupUsed.stealShieldActive && !playState.practiceMode) {
             turnStatus.innerHTML = `❌ Incorrect Answer<br><span style="font-size:0.8rem; color:var(--color-gold);">🛡️ Steal Shield Active! Steal Blocked.</span>`;
