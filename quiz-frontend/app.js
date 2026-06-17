@@ -111,6 +111,8 @@ let playState = {
   practiceMode: false,
 };
 
+let playStateHistory = [];
+
 let lastClickTime = 0;
 function canInteract() {
   const now = Date.now();
@@ -1221,7 +1223,8 @@ function saveGameState() {
     cancelLocked: playState.cancelLocked,
             powerups: playState.powerups,
     powerupUsed: playState.powerupUsed,
-    practiceMode: playState.practiceMode
+    practiceMode: playState.practiceMode,
+    history: playStateHistory
   }));
 }
 
@@ -1259,6 +1262,7 @@ function loadGameState() {
           revealedCells: {}
         };
         playState.practiceMode = parsed.practiceMode ?? false;
+        playStateHistory = parsed.history ?? [];
 
                 
         // Sync UIs
@@ -1266,6 +1270,7 @@ function loadGameState() {
         updateScoreUI();
         renderGameBoard();
         updateTurnUI();
+        updateUndoButtonVisibility();
 
         // Clean up any stale modal/transitional states on load
         playState.gameState = 'IDLE';
@@ -1275,6 +1280,67 @@ function loadGameState() {
     } catch (e) {
       console.warn('Failed to load play state:', e);
     }
+  }
+}
+
+// ============================================================
+// MULTI-TURN UNDO ENGINE
+// ============================================================
+
+function saveToHistory() {
+  if (playState.gameState === 'IDLE' && playState.phase === 'live') {
+    const snapshot = JSON.parse(JSON.stringify({
+      teams: playState.teams,
+      currentTeamIndex: playState.currentTeamIndex,
+      answeredCells: playState.answeredCells,
+      stats: playState.stats,
+      powerupUsed: playState.powerupUsed
+    }));
+    playStateHistory.push(snapshot);
+    if (playStateHistory.length > 20) {
+      playStateHistory.shift();
+    }
+    saveGameState();
+    updateUndoButtonVisibility();
+  }
+}
+
+function undoLastAction() {
+  if (playStateHistory.length === 0) return;
+
+  const prevState = playStateHistory.pop();
+
+  playState.teams = prevState.teams;
+  playState.currentTeamIndex = prevState.currentTeamIndex;
+  playState.answeredCells = prevState.answeredCells;
+  playState.stats = prevState.stats;
+  playState.powerupUsed = prevState.powerupUsed;
+
+  // Set modal/board back to unopened state
+  playState.currentCellId = null;
+  playState.currentQuestion = null;
+  playState.gameState = 'IDLE';
+  playState.teamsAttemptedCount = 0;
+  playState.currentQuestionValue = 0;
+
+  // Close the modal if open
+  const modalOverlay = document.getElementById('modal-overlay');
+  if (modalOverlay) {
+    modalOverlay.classList.remove('open');
+  }
+
+  saveGameState();
+  renderGameBoard();
+  renderAdminGrid();
+  updateScoreUI();
+  updateTurnUI();
+  updateUndoButtonVisibility();
+}
+
+function updateUndoButtonVisibility() {
+  const btnUndo = document.getElementById('btn-undo-game');
+  if (btnUndo) {
+    btnUndo.style.display = (playState.phase === 'live' && playStateHistory.length > 0) ? 'inline-flex' : 'none';
   }
 }
 
@@ -2824,6 +2890,7 @@ function fitModalText() {
 }
 
 function openQuestionModal(cId, q) {
+  saveToHistory();
   if (!transitionState('QUESTION_LOADING')) return;
 
   playState.currentCellId = cId;
@@ -4556,6 +4623,8 @@ function resetPlayState() {
     playState.stats[i] = { correct: 0, attempts: 0 };
   });
   assignRandomPowerups();
+  playStateHistory = [];
+  updateUndoButtonVisibility();
 }
 
 function renderAvatarPickers() {
@@ -5749,6 +5818,11 @@ document.getElementById('btn-end-game').addEventListener('click', () => {
       }
     );
   }
+});
+
+document.getElementById('btn-undo-game')?.addEventListener('click', () => {
+  if (!canInteract()) return;
+  undoLastAction();
 });
 
 document.getElementById('btn-resign-game').addEventListener('click', () => {
