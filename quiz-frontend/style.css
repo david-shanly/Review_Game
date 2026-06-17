@@ -4384,7 +4384,8 @@ img.emoji {
   width: 100%;
 }
 .turn-controls .btn {
-  padding: 6px 14px !important;
+  padding: 6px 14px !important; /* Center the text in the absolute middle of the button */
+  text-align: center !important;
   font-size: 0.85rem !important;
   border-radius: 16px !important; /* Unified soft rounded shape */
   flex: 1;
@@ -4398,24 +4399,20 @@ img.emoji {
 .turn-controls #btn-end-game:hover {
   background: #dc2626 !important; /* Hover background */
 }
-.turn-controls #btn-resign-game,
 .turn-controls #btn-undo-game {
   background: #ffffff !important;
   color: #4b5563 !important;
   border: 1.5px solid #d1d5db !important;
 }
-.turn-controls #btn-resign-game:hover,
 .turn-controls #btn-undo-game:hover {
   background: #f8fafc !important;
 }
 
-[data-theme="dark"] .turn-controls #btn-resign-game,
 [data-theme="dark"] .turn-controls #btn-undo-game {
   background: rgba(255, 255, 255, 0.1) !important;
   color: #e5e7eb !important;
   border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
 }
-[data-theme="dark"] .turn-controls #btn-resign-game:hover,
 [data-theme="dark"] .turn-controls #btn-undo-game:hover {
   background: rgba(255, 255, 255, 0.15) !important;
 }
@@ -4843,7 +4840,6 @@ img.emoji {
 
 /* Back to Home & Resign & Winner Home & Modal Pass/Cancel (Slate Grey) */
 #btn-admin-back,
-#btn-resign-game,
 #btn-winner-home,
 #btn-modal-pass,
 #btn-modal-cancel {
@@ -4854,7 +4850,6 @@ img.emoji {
   transition: all 0.25s ease !important;
 }
 #btn-admin-back:hover:not(:disabled),
-#btn-resign-game:hover:not(:disabled),
 #btn-winner-home:hover:not(:disabled),
 #btn-modal-pass:hover:not(:disabled),
 #btn-modal-cancel:hover:not(:disabled) {
@@ -4863,7 +4858,6 @@ img.emoji {
   transform: none !important;
 }
 [data-theme="dark"] #btn-admin-back,
-[data-theme="dark"] #btn-resign-game,
 [data-theme="dark"] #btn-winner-home,
 [data-theme="dark"] #btn-modal-pass,
 [data-theme="dark"] #btn-modal-cancel {
@@ -4872,7 +4866,6 @@ img.emoji {
   color: #cbd5e1 !important;
 }
 [data-theme="dark"] #btn-admin-back:hover:not(:disabled),
-[data-theme="dark"] #btn-resign-game:hover:not(:disabled),
 [data-theme="dark"] #btn-winner-home:hover:not(:disabled),
 [data-theme="dark"] #btn-modal-pass:hover:not(:disabled),
 [data-theme="dark"] #btn-modal-cancel:hover:not(:disabled) {
@@ -5212,11 +5205,7 @@ img.emoji {
   background: #991b1b !important; /* Dark red ribbon background for clear contrast */
 }
 
-/* Resign */
-#btn-resign-game::after {
-  content: "🏳️";
-  background: #475569 !important;
-}
+
 
 /* Undo */
 #btn-undo-game::after {

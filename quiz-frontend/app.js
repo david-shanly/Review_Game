@@ -5825,36 +5825,7 @@ document.getElementById('btn-undo-game')?.addEventListener('click', () => {
   undoLastAction();
 });
 
-document.getElementById('btn-resign-game').addEventListener('click', () => {
-  if (!canInteract()) return;
 
-  showCustomConfirm(
-    'Want to confirm resigning the game?',
-    () => {
-      closeModal();
-      playSound('cancel');
-      resetPlayState();
-      playState.teams = []; // Clear active game teams
-      playState.phase = 'live';
-      playState.gameState = 'IDLE';
-            localStorage.removeItem('review_game_playstate');
-
-      updateGameStatusUI();
-      renderGameBoard();
-      updateTurnUI();
-      updateScoreUI();
-      showScreen('dashboard');
-    },
-    {
-      confirmText: 'Yes',
-      confirmEmoji: '🏳️',
-      confirmRibbonBg: '#475569',
-      cancelText: 'No',
-      cancelEmoji: '❌',
-      cancelRibbonBg: '#475569'
-    }
-  );
-});
 
 // ============================================================
 // EVENT LISTENERS — Winner Screen
