@@ -1228,60 +1228,7 @@ function saveGameState() {
   }));
 }
 
-function loadGameState() {
-  const stored = localStorage.getItem('review_game_playstate');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed && typeof parsed === 'object') {
-        playState.phase = parsed.phase === 'ended' ? 'ended' : 'live';
-        playState.gameState = parsed.gameState ?? 'IDLE';
-        playState.teams = (parsed.teams ?? []).map(t => ({
-          ...t
-        }));
-        const isPractice = parsed.practiceMode ?? false;
-        if ((!playState.teams || playState.teams.length < 2) && !isPractice) {
-          setupTeamsFromInputs();
-        }
-        playState.currentTeamIndex = parsed.currentTeamIndex ?? 0;
-        playState.currentQuestionValue = parsed.currentQuestionValue ?? 0;
-        playState.teamsAttemptedCount = parsed.teamsAttemptedCount ?? 0;
-        playState.answeredCells = parsed.answeredCells ?? {};
-        playState.currentCellId = parsed.currentCellId ?? null;
-        playState.currentQuestion = parsed.currentQuestion ?? null;
-        playState.stats = parsed.stats ?? {};
-        playState.cancelLocked = parsed.cancelLocked ?? false;
-        playState.powerups = parsed.powerups ?? {};
-        playState.powerupUsed = parsed.powerupUsed ?? {
-          secondChanceActive: false,
-          secondChanceUsed: false,
-          safetyNetActive: false,
-          stealShieldActive: false,
-          doublePointsActive: false,
-          extraTimeActive: false,
-          revealedCells: {}
-        };
-        playState.practiceMode = parsed.practiceMode ?? false;
-        playStateHistory = parsed.history ?? [];
 
-                
-        // Sync UIs
-        updateGameStatusUI();
-        updateScoreUI();
-        renderGameBoard();
-        updateTurnUI();
-        updateUndoButtonVisibility();
-
-        // Clean up any stale modal/transitional states on load
-        playState.gameState = 'IDLE';
-        playState.currentCellId = null;
-        playState.currentQuestion = null;
-      }
-    } catch (e) {
-      console.warn('Failed to load play state:', e);
-    }
-  }
-}
 
 // ============================================================
 // MULTI-TURN UNDO ENGINE
@@ -5878,8 +5825,8 @@ async function initApp() {
   playState.currentQuestion = null;
   playState.stats = {};
 
-  // Try to load any existing active gameplay state from localStorage (Local Storage Protection)
-  loadGameState();
+  // Clear any existing active gameplay state on startup so a page refresh starts a fresh game
+  localStorage.removeItem('review_game_playstate');
 
   renderAdminGrid();
   renderGameBoard();
